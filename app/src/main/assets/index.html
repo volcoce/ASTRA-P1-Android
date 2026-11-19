@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="fr">
+<head>
+ <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+ <meta name="theme-color" content="#f8f5fc"><meta name="description" content="ASTRA, calendrier personnel des transits astrologiques, journal et thème natal.">
+ <meta name="color-scheme" content="light"><link rel="manifest" href="manifest.webmanifest">
+ <link rel="icon" href="icon.svg" type="image/svg+xml"><link rel="stylesheet" href="style.css"><title>ASTRA — Mon ciel au quotidien</title>
+</head>
+<body>
+<div class="app-shell">
+ <header class="top"><div class="identity"><div class="emblem" aria-hidden="true">✦</div><div><div class="brand">ASTRA</div><div class="brand-sub">Mon ciel au quotidien</div></div></div><button class="top-today" id="homeButton" aria-label="Revenir à aujourd'hui">Aujourd'hui</button></header>
+ <main id="app" class="main" aria-live="polite"></main>
+ <nav class="bottom-nav" aria-label="Navigation principale">
+  <button data-tab="today" class="nav active"><span class="nav-ico" aria-hidden="true">◉</span>Aujourd'hui</button>
+  <button data-tab="calendar" class="nav"><span class="nav-ico" aria-hidden="true">▦</span>Calendrier</button>
+  <button data-tab="journal" class="nav"><span class="nav-ico" aria-hidden="true">✎</span>Journal</button>
+  <button data-tab="profile" class="nav"><span class="nav-ico" aria-hidden="true">✧</span>Mon ciel</button>
+ </nav>
+</div><div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+<script src="data.js"></script><script src="p1-data.js"></script><script src="app.js" defer></script>
+</body></html>

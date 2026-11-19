@@ -1,0 +1,81 @@
+name: ASTRA Android P1 — Build
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - name: Install SDK 37
+        run: sdkmanager "platforms;android-37" "build-tools;37.0.0"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.3.1'
+      - name: Restaurer les éphémérides compressées
+        run: python3 scripts/inflate_assets.py
+      - name: Contrôles hors SDK
+        run: |
+          python3 scripts/verify_sources.py
+          node tests/test_assets.cjs
+          node tests/test_p1.cjs
+          node tests/test_ui_mock.cjs
+          node --check app/src/main/assets/app.js
+      - name: Build and lint
+        run: gradle --no-daemon :app:assembleDebug :app:lintDebug
+      - name: Save debug APK (clé temporaire GitHub CI)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ASTRA-P1-debug-Android17
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+
+  release:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - name: Install SDK 37
+        run: sdkmanager "platforms;android-37" "build-tools;37.0.0"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.3.1'
+      - name: Restaurer les éphémérides compressées
+        run: python3 scripts/inflate_assets.py
+      - name: Restaurer la clé privée fournie par le propriétaire
+        env:
+          ASTRA_KEYSTORE_BASE64: ${{ secrets.ASTRA_KEYSTORE_BASE64 }}
+        run: |
+          if [ -z "$ASTRA_KEYSTORE_BASE64" ]; then echo "Configurez la clé de signature avant un release."; exit 1; fi
+          printf '%s' "$ASTRA_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/astra-release.jks"
+          chmod 600 "$RUNNER_TEMP/astra-release.jks"
+      - name: Build release signée
+        env:
+          ASTRA_RELEASE_KEYSTORE: ${{ runner.temp }}/astra-release.jks
+          ASTRA_STORE_PASSWORD: ${{ secrets.ASTRA_STORE_PASSWORD }}
+          ASTRA_KEY_ALIAS: ${{ secrets.ASTRA_KEY_ALIAS }}
+          ASTRA_KEY_PASSWORD: ${{ secrets.ASTRA_KEY_PASSWORD }}
+        run: gradle --no-daemon :app:assembleRelease
+      - name: Vérifier la signature v2/v3
+        run: |
+          "$ANDROID_HOME/build-tools/37.0.0/apksigner" verify --verbose app/build/outputs/apk/release/app-release.apk
+      - name: Upload release
+        uses: actions/upload-artifact@v4
+        with:
+          name: ASTRA-P1-release-signe
+          path: app/build/outputs/apk/release/app-release.apk
+          if-no-files-found: error
