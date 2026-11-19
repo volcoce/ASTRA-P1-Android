@@ -12,6 +12,12 @@ Les futurs APK Preview partagent une **clé de test fixe** enregistrée en base6
 
 Pour migrer des données, exporter le journal depuis l'ancienne application, vérifier que le fichier JSON existe et contient bien les notes, puis l'importer dans ASTRA Preview. L'import/export Android n'ayant pas encore été testé sur tous les téléphones, ne pas désinstaller l'ancienne application tant que le transfert n'est pas vérifié.
 
+## Installation ASTRA Preview (0.5.2)
+
+Les APK de test précédents utilisaient des clés de signature aléatoires. Leurs certificats ne correspondent pas : Android refuse une mise à jour directe. Cette version est donc installée **à côté** de l'ancienne application, avec un identifiant distinct `org.astra.publicapp.preview` et le nom **ASTRA Preview**. Ne désinstallez pas l'ancienne application avant d'avoir sauvegardé les notes et vérifié leur import dans la Preview.
+
+Les builds Preview utilisent maintenant une clé de test stable stockée dans `ci/astra-preview-test-signing.p12.b64`. Elle est non secrète, uniquement destinée au développement. Ne jamais utiliser cette signature pour une version officielle destinée au public ; un keystore sécurisé et un identifiant de distribution seront nécessaires. Le dépôt doit rester privé en raison de son historique contenant d'anciennes données natales.
+
 ## Résolution automatique du lieu de naissance (P2.1)
 
 - Le formulaire demande **date, heure locale et ville**. Les champs techniques latitude, longitude et fuseau ont disparu.
