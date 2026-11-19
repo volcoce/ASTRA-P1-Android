@@ -1,54 +1,257 @@
-(()=>{
-'use strict';
-const E=window.ASTRA_ENGINE,KEY='astra-public-v1';
-const $=id=>document.getElementById(id),pad=n=>String(n).padStart(2,'0');
-const isoDay=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-const safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const zone=(()=>{try{return Intl.DateTimeFormat().resolvedOptions().timeZone||'UTC'}catch{return 'UTC'}})();
-const initial=()=>({profile:null,mode:'tropical',orb:2,filter:'all',journal:{}});
-let state=(()=>{try{return {...initial(),...JSON.parse(localStorage.getItem(KEY)||'{}')}}catch{return initial()}})();
-let activeTab='today',selected=isoDay(new Date()),month=new Date(new Date().getFullYear(),new Date().getMonth(),1),result=null,error='',busy=false,calcToken=0;
-let draftMood=3,draftText='',cache=new Map();
-const fr={Sun:'Soleil',Moon:'Lune',Mercury:'Mercure',Venus:'Vénus',Mars:'Mars',Jupiter:'Jupiter',Saturn:'Saturne',Uranus:'Uranus',Neptune:'Neptune',Pluto:'Pluton'};
-const filterNames={all:'Tous',exact:'Aspects exacts',slow:'Transits lents',fast:'Transits rapides',moon:'Phases lunaires',station:'Stations'};
-const slow=new Set(['Jupiter','Saturn','Uranus','Neptune','Pluto']);
-const aspects={Conjonction:'☌',Sextile:'⚹',Carré:'□',Trigone:'△',Opposition:'☍'};
-const show=(msg)=>{const t=$('toast');t.textContent=msg;t.hidden=false;setTimeout(()=>t.hidden=true,3500)};
-const persist=()=>localStorage.setItem(KEY,JSON.stringify(state));
-const dateTime=iso=>new Intl.DateTimeFormat('fr-FR',{dateStyle:'short',timeStyle:'short',timeZone:state.profile?.timezone||zone}).format(new Date(iso));
-function matchesFilter(body,type){if(state.filter==='all')return true;if(state.filter==='exact')return type==='exact';if(state.filter==='moon'||state.filter==='station')return type===state.filter;if(state.filter==='slow')return type!=='moon'&&slow.has(body);if(state.filter==='fast')return type!=='moon'&&!slow.has(body);return true;}
-function classify(d){if(!d)return {active:[],exact:[],sky:[]};return {...d,active:d.active.filter(v=>matchesFilter(v.body,'active')),exact:d.exact.filter(v=>matchesFilter(v.body,'exact')),sky:d.sky.filter(v=>matchesFilter(v.body,v.type))};}
-const currentDay=()=>classify(result?.days?.[selected]);
-function navButtons(){return `<div class="switch"><button data-mode="tropical" class="${state.mode==='tropical'?'on':''}">Tropical</button><button data-mode="sidereal" class="${state.mode==='sidereal'?'on':''}">Sidéral (Lahiri approx.)</button></div>`;}
-function header(text,lead){return `<div class="eyebrow">ASTRA · Calcul dynamique</div><h1 class="page-title">${text}</h1><p class="lead">${lead}</p>`;}
-function filters(){return `<div class="filter-wrap"><label for="eventFilter">Filtrer les événements</label><select id="eventFilter">${Object.entries(filterNames).map(([k,v])=>`<option value="${k}" ${state.filter===k?'selected':''}>${v}</option>`).join('')}</select></div>`;}
-function eventRow(e){let title,details,glyph;if(e.type==='moon'){title=e.name;details='Phase lunaire exacte';glyph='☾';}else if(e.type==='station'){title=`${fr[e.body]} station ${e.direction}`;details='Changement de mouvement géocentrique apparent';glyph='℞';}else {title=`${fr[e.body]} ${e.aspect.toLowerCase()} ${fr[e.natal]} natal`;details='Aspect exact';glyph=aspects[e.aspect]||'✧';}return `<div class="event"><span class="event-glyph">${glyph}</span><div class="event-body"><b>${safe(title)}</b><p>${details} · ${safe(dateTime(e.at))}</p></div></div>`;}
-function activeRow(e){return `<div class="event"><span class="event-glyph">${aspects[e.aspect]||'✧'}</span><div class="event-body"><b>${safe(fr[e.body])} ${safe(e.aspect.toLowerCase())} ${safe(fr[e.natal])} natal</b><p>Orbe ${e.delta.toFixed(2)}° · aspect actif, pas nécessairement exact aujourd’hui</p></div></div>`;}
-function unconfigured(){return header('Ton ciel, à calculer','Renseigne ton thème natal pour afficher des transits calculés automatiquement, sans compte ni données préchargées.')+`<section class="card"><h2 class="card-title">Commencer</h2><p class="tiny">Aucune naissance n’est prédéfinie. Les données restent sur ce téléphone.</p><button class="primary full" data-goto="profile">Configurer mon thème natal</button></section>`;}
-function overview(){if(!state.profile)return unconfigured();const day=currentDay();const moon=E?E.moonPhase(new Date(selected+'T12:00:00Z')):null;const mood=state.journal[selected]?.mood;return header('Aujourd’hui','Éphémérides géocentriques calculées sur l’appareil, selon ton thème natal.')+navButtons()+`<div class="metric"><span class="moon-symbol">☾</span><h2>${safe(new Intl.DateTimeFormat('fr-FR',{weekday:'long',day:'numeric',month:'long'}).format(new Date(selected+'T12:00:00Z')))}</h2><p>Âge lunaire angulaire : ${moon!=null?moon.toFixed(1)+'°':'–'}</p></div>`+status()+`<section class="card"><h2 class="card-title">Transits actifs <span class="tag">${day.active.length}</span></h2>${day.active.slice(0,10).map(activeRow).join('')||'<p class="muted">Aucun aspect dans l’orbe choisi.</p>'}</section><section class="card"><h2 class="card-title">Événements exacts <span class="tag">${day.exact.length+day.sky.length}</span></h2>${[...day.exact,...day.sky].sort((a,b)=>a.at.localeCompare(b.at)).map(eventRow).join('')||'<p class="muted">Aucun événement exact ce jour.</p>'}</section><section class="card"><h2 class="card-title">Journal</h2><p class="tiny">${mood?'Humeur enregistrée : '+mood+'/5':'Aucune note pour cette date.'}</p><button class="ghost" data-goto="journal">Écrire dans le journal</button></section>`;}
-function status(){return busy?'<p class="loading">Calcul astronomique en cours sur cet appareil…</p>':error?`<p class="notice">${safe(error)}</p>`:'';}
-function calendar(){if(!state.profile)return unconfigured();let y=month.getFullYear(),m=month.getMonth(),weekday=(new Date(y,m,1).getDay()+6)%7,days=new Date(y,m+1,0).getDate();let cells=Array.from({length:weekday},()=>'<span></span>');for(let d=1;d<=days;d++){const k=`${y}-${pad(m+1)}-${pad(d)}`,entry=classify(result?.days?.[k]);const n=entry.exact.length+entry.sky.length;const active=entry.active.length;cells.push(`<button class="day ${k===selected?'selected':''} ${k===isoDay(new Date())?'today':''}" data-day="${k}">${d}<span class="count">${n?n+' ✦':active?active+' ~':''}</span>${state.journal[k]?' <span class="pinhole"></span>':''}</button>`)}let day=currentDay();return header('Calendrier','Pour chaque date, ASTRA calcule directement les aspects, les stations et les phases lunaires.')+navButtons()+`<div class="month-head"><button class="arrow" data-month="-1" aria-label="Mois précédent">‹</button><h2>${new Intl.DateTimeFormat('fr-FR',{month:'long',year:'numeric'}).format(month)}</h2><button class="arrow" data-month="1" aria-label="Mois suivant">›</button></div>${filters()}<div class="calendar"><div class="cal-grid">${['L','M','M','J','V','S','D'].map(x=>`<span class="weekday">${x}</span>`).join('')}${cells.join('')}</div><p class="tiny">✦ événement exact · ~ aspects actifs · point rose : note du journal</p></div>${status()}<section class="card"><h2 class="card-title">${safe(selected)}</h2><div class="pill-row"><span class="tag">${day.exact.length+day.sky.length} événement(s) exact(s)</span><span class="tag-outline">${day.active.length} aspect(s) actif(s)</span></div>${[...day.exact,...day.sky].sort((a,b)=>a.at.localeCompare(b.at)).map(eventRow).join('')||'<p class="tiny">Pas d’événement exact ce jour.</p>'}${day.active.slice(0,15).map(activeRow).join('')}</section>`;}
-function journal(){const item=state.journal[selected]||{};const activeDate=selected;let history=Object.entries(state.journal).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,15);return header('Mon journal','Notes privées, enregistrées uniquement dans le stockage local de ton appareil.')+`<section class="card"><h2 class="card-title">${safe(activeDate)}</h2><div class="actions"><button class="ghost" data-offset="-1">Jour précédent</button><button class="ghost" data-offset="1">Jour suivant</button></div><p class="tiny">Humeur du jour</p><div class="mood-row">${[1,2,3,4,5].map(n=>`<button data-mood="${n}" class="mood ${(draftMood||item.mood||3)===n?'on':''}">${['','☹','◔','◯','◕','☺'][n]}<span>${n}/5</span></button>`).join('')}</div><div class="field"><label for="journalNote">Observations</label><textarea id="journalNote" spellcheck="true">${safe(draftText||item.note||'')}</textarea></div><button class="primary full" data-save="1">Enregistrer</button></section><section class="card"><h2 class="card-title">Historique</h2>${history.map(([day,entry])=>`<div class="history-item"><b>${safe(day)} · ${safe(entry.mood)}/5</b><p>${safe(entry.note)}</p><button data-day="${day}">Consulter</button></div>`).join('')||'<p class="muted">Aucune note.</p>'}</section>`;}
-function profile(){const p=state.profile||{};const chart=(!error&&!busy&&result?.chart)||null;return header('Mon ciel','Un profil par installation, modifiable à tout moment. Aucun thème natal n’est intégré à l’application.')+`<section class="card"><h2 class="card-title">Données de naissance</h2><form id="birthForm"><div class="field-grid"><div class="field"><label for="birthDate">Date</label><input required type="date" id="birthDate" name="date" min="1900-01-01" max="2100-12-31" value="${safe(p.date||'')}"></div><div class="field"><label for="birthTime">Heure locale</label><input required type="time" id="birthTime" name="time" value="${safe(p.time||'')}"></div></div><div class="field"><label for="birthZone">Fuseau IANA du lieu de naissance</label><input required id="birthZone" name="timezone" placeholder="Europe/Paris" value="${safe(p.timezone||zone)}"></div><div class="field-grid"><div class="field"><label for="lat">Latitude (°)</label><input required id="lat" name="latitude" type="number" step="any" min="-90" max="90" placeholder="48.85" value="${safe(p.latitude??'')}"></div><div class="field"><label for="lng">Longitude (°)</label><input required id="lng" name="longitude" type="number" step="any" min="-180" max="180" placeholder="2.35" value="${safe(p.longitude??'')}"></div></div><div class="field"><label for="fold">Retour à l’heure d’hiver : occurrence (si ambiguë)</label><select name="fold" id="fold"><option value="">Non précisée</option><option value="0" ${p.fold===0?'selected':''}>Première</option><option value="1" ${p.fold===1?'selected':''}>Deuxième</option></select></div><div class="field"><label for="orb">Orbe des aspects actifs (0,1° à 10°)</label><input id="orb" name="orb" type="number" value="${safe(state.orb)}" min="0.1" max="10" step="0.1"></div><p class="field-help">Les coordonnées sont requises pour préparer la future gestion des maisons ; les positions planétaires actuelles sont géocentriques.</p><button class="primary full" type="submit">Calculer mon thème natal</button></form></section>${chart?`<section class="card"><h2 class="card-title">Positions natales · ${safe(state.mode)}</h2><div class="info-grid">${Object.entries(chart.positions).map(([k,v])=>`<div class="planet"><b>${safe(fr[k])}</b><small>${safe(E.formatSign(v))}</small></div>`).join('')}</div><p class="tiny">Calculés automatiquement à la date de naissance fournie.</p></section>`:''}<section class="card"><h2 class="card-title">Confidentialité</h2><p class="tiny">Pas de compte ni de serveur. Les données restent dans le stockage local de l’appareil. La désinstallation peut les supprimer. Le fichier exporté contient tes données personnelles : conserve-le en lieu sûr.</p><div class="actions"><button class="ghost" data-export="1">Exporter le JSON</button><button class="ghost" data-import="1">Importer</button></div><input id="importFile" type="file" accept="application/json" hidden><button class="subnav danger" data-clear="1">Effacer toutes les données locales</button></section><section class="notice"><b>Précision</b> · Lahiri est actuellement une approximation polynomiale. Le thème natal tropical et les lunaisons utilisent Astronomy Engine. Les maisons et l’ascendant sont réservés à une version validée ultérieure. Les interprétations astrologiques ne sont pas des prédictions scientifiquement établies.</section>`;}
-function render(){const root=$('app');root.innerHTML=({today:overview,calendar,journal,profile})[activeTab]();document.querySelectorAll('[data-tab]').forEach(b=>{b.classList.toggle('active',b.dataset.tab===activeTab);b.setAttribute('aria-current',b.dataset.tab===activeTab?'page':'false')});}
-function go(tab){activeTab=tab;draftText='';draftMood=3;render();window.scrollTo({top:0,behavior:'instant'});}
-function refresh(){const token=++calcToken;error='';result=null;if(!state.profile){busy=false;render();return;}busy=true;render();setTimeout(()=>{try{if(!E)throw Error('Moteur absent. Construire les ressources avec npm run bundle.');const key=JSON.stringify([state.profile,state.mode,state.orb,month.getFullYear(),month.getMonth()]);let monthData=cache.get(key);if(!monthData){monthData=E.calculateMonth(state.profile,month.getFullYear(),month.getMonth()+1,state.mode,Number(state.orb));cache.set(key,monthData);if(cache.size>4)cache.delete(cache.keys().next().value);}if(token!==calcToken)return;result=monthData;error='';}catch(e){if(token!==calcToken)return;error=e?.message||'Calcul impossible';}finally{if(token===calcToken){busy=false;render()}}},30);}
-function selectDay(value){selected=value;draftText='';draftMood=3;const [y,m]=value.split('-').map(Number);if(month.getFullYear()!==y||month.getMonth()!==m-1){month=new Date(y,m-1,1);refresh();}else render();}
-$('homeButton').addEventListener('click',()=>{selectDay(isoDay(new Date()));go('today');});
-document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.tab)));
-$('app').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const a=b.dataset;
- if(a.goto){go(a.goto);return;}
- if(a.mode){state.mode=a.mode;persist();refresh();return;}
- if(a.month){month=new Date(month.getFullYear(),month.getMonth()+Number(a.month),1);selected=isoDay(month);refresh();return;}
- if(a.day){selectDay(a.day);return;}
- if(a.offset){const [y,m,d]=selected.split('-').map(Number);let z=new Date(y,m-1,d+Number(a.offset));selectDay(isoDay(z));return;}
- if(a.mood){draftText=$('journalNote')?.value||'';draftMood=Number(a.mood);render();return;}
- if(a.save){state.journal[selected]={mood:draftMood,note:$('journalNote')?.value?.trim()||'',updatedAt:new Date().toISOString()};persist();draftText='';show('Note enregistrée localement');render();return;}
- if(a.export){const blob=new Blob([JSON.stringify({format:'astra-public-v1',exportedAt:new Date().toISOString(),...state},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='ASTRA-sauvegarde.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1500);return;}
- if(a.import){$('importFile').click();return;}
- if(a.clear&&confirm('Supprimer le profil et toutes les notes locales ?')){localStorage.removeItem(KEY);state=initial();cache.clear();refresh();show('Données supprimées');return;}
-});
-$('app').addEventListener('change',async e=>{if(e.target.id==='eventFilter'){state.filter=e.target.value;persist();render();return;}if(e.target.id==='importFile'&&e.target.files?.[0]){try{const f=e.target.files[0];if(f.size>2000000)throw Error('Sauvegarde trop volumineuse');const d=JSON.parse(await f.text());if(d.format!=='astra-public-v1'||typeof d.journal!=='object')throw Error('Format non reconnu');if(d.profile)E.validateProfile(d.profile);if(!confirm('Remplacer les données locales par la sauvegarde ?'))return;state={...initial(),...d};state.filter=filterNames[state.filter]?state.filter:'all';cache.clear();persist();refresh();show('Sauvegarde restaurée');}catch(err){show('Import impossible : '+err.message)}}});
-$('app').addEventListener('submit',e=>{if(e.target.id!=='birthForm')return;e.preventDefault();const f=new FormData(e.target),p={date:String(f.get('date')),time:String(f.get('time')),timezone:String(f.get('timezone')).trim(),latitude:Number(f.get('latitude')),longitude:Number(f.get('longitude')),fold:f.get('fold')===''?null:Number(f.get('fold'))};try{if(!E)throw Error('Moteur non chargé');E.validateProfile(p);const orb=Number(f.get('orb'));if(!Number.isFinite(orb)||orb<.1||orb>10)throw Error('Orbe invalide');state.profile=p;state.orb=orb;cache.clear();persist();show('Thème natal enregistré');refresh();}catch(err){show('Impossible : '+err.message)}});
-render();refresh();
+(() => {
+  'use strict';
+  // Interface locale; toutes les coordonnées, les transits et le journal sont propres à l'utilisateur.
+  const E = window.ASTRA_ENGINE;
+  const STORAGE_KEY = 'astra-public-v1'; // Garder la clé pour migrer les journaux de la v0.4.
+  const $ = id => document.getElementById(id);
+  const safe = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const pad = n => String(n).padStart(2, '0');
+  const isoDay = date => `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+  const detectedZone = (() => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'; } catch { return 'UTC'; } })();
+  const defaultState = () => ({profile:null, mode:'tropical', orb:2, filter:'all', journal:{}});
+  const moodSymbols = ['','☹','◔','◯','◕','☺'];
+  const themes = {relations:'Relations',travail:'Travail',sante:'Bien-être',creation:'Créativité',repos:'Repos',autre:'Autre'};
+  const planets = {Sun:'Soleil',Moon:'Lune',Mercury:'Mercure',Venus:'Vénus',Mars:'Mars',Jupiter:'Jupiter',Saturn:'Saturne',Uranus:'Uranus',Neptune:'Neptune',Pluto:'Pluton'};
+  const aspects = {Conjonction:'☌',Sextile:'⚹',Carré:'□',Trigone:'△',Opposition:'☍'};
+  const filtersMap = {all:'Tous',exact:'Aspects exacts',slow:'Transits lents',fast:'Transits rapides',moon:'Phases lunaires',station:'Stations'};
+  const slowPlanets = new Set(['Jupiter','Saturn','Uranus','Neptune','Pluto']);
+
+  function sanitizeJournal(raw) {
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {};
+    const journal = Object.create(null);
+    for (const [date, entry] of Object.entries(raw).slice(0, 5000)) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !entry || typeof entry !== 'object' || Array.isArray(entry)) continue;
+      const mood = Number(entry.mood);
+      if (!Number.isInteger(mood) || mood < 1 || mood > 5) continue;
+      const energy = entry.energy == null ? null : Number(entry.energy);
+      journal[date] = {
+        mood,
+        energy: Number.isInteger(energy) && energy >= 1 && energy <= 5 ? energy : null,
+        tags: Array.isArray(entry.tags) ? [...new Set(entry.tags.filter(t => Object.hasOwn(themes, t)))].slice(0, 6) : [],
+        note: String(entry.note || '').slice(0, 10000),
+        updatedAt: typeof entry.updatedAt === 'string' ? entry.updatedAt : ''
+      };
+    }
+    return journal;
+  }
+  function cleanState(raw) {
+    const base = defaultState();
+    if (!raw || typeof raw !== 'object') return base;
+    const mode = ['tropical','sidereal'].includes(raw.mode) ? raw.mode : base.mode;
+    const orb = Number(raw.orb);
+    let profile = null;
+    if (raw.profile && E) {
+      try { E.validateProfile(raw.profile); profile = raw.profile; } catch { /* Les dates invalides ne doivent pas bloquer l'appli. */ }
+    }
+    return {profile,mode,orb:Number.isFinite(orb) && orb>=0.1 && orb<=10 ? orb:2,
+      filter:Object.hasOwn(filtersMap,raw.filter)?raw.filter:'all',journal:sanitizeJournal(raw.journal)};
+  }
+  function loadState() { try { return cleanState(JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}')); } catch { return defaultState(); } }
+  let state = loadState();
+  let activeTab = 'today';
+  let selected = isoDay(new Date());
+  let month = new Date(new Date().getFullYear(),new Date().getMonth(),1);
+  let result = null, error='', busy=false, calcToken=0, openDetail=null, journalDraft=null, journalDraftDate='', searchTerm='';
+  const cache = new Map();
+  let renderedEvents = [];
+  const persist = () => localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
+  const show = msg => { const t=$('toast');t.textContent=msg;t.hidden=false;setTimeout(()=>t.hidden=true,3500); };
+  const dateTime = iso => new Intl.DateTimeFormat('fr-FR',{dateStyle:'short',timeStyle:'short',timeZone:state.profile?.timezone || detectedZone}).format(new Date(iso));
+  const displayDate = day => new Intl.DateTimeFormat('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(day+'T12:00:00Z'));
+  const header = (name,description) => `<div class="eyebrow">ASTRA · Suivi quotidien</div><h1 class="page-title">${name}</h1><p class="lead">${description}</p>`;
+  const switcher = () => `<div class="switch" aria-label="Type de zodiaque"><button data-mode="tropical" class="${state.mode==='tropical'?'on':''}" aria-pressed="${state.mode==='tropical'}">Tropical</button><button data-mode="sidereal" class="${state.mode==='sidereal'?'on':''}" aria-pressed="${state.mode==='sidereal'}">Sidéral · Lahiri approx.</button></div>`;
+  const status = () => busy ? '<p class="loading" role="status">Calcul astronomique à la demande…</p>' : error ? `<p class="notice" role="alert">${safe(error)}</p>` : '';
+  const unconfigured = () => header('Ton ciel à découvrir','Crée ton thème natal pour obtenir un calendrier calculé sur ton appareil.') + '<section class="card"><h2 class="card-title">Commencer</h2><p class="tiny">Aucun profil ni événement personnel n’est préchargé. Aucun compte nécessaire.</p><button class="primary full" data-goto="profile">Configurer mon thème natal</button></section>';
+
+  function matchesFilter(body,type) {
+    const filter=state.filter;
+    if(filter==='all')return true;
+    if(filter==='exact'||filter==='moon'||filter==='station')return type===filter;
+    if(filter==='slow')return ['active','exact'].includes(type)&&slowPlanets.has(body);
+    if(filter==='fast')return ['active','exact'].includes(type)&&!slowPlanets.has(body);
+    return true;
+  }
+  function classify(day) {
+    if (!day) return {active:[],exact:[],sky:[]};
+    return {active:day.active.filter(e=>matchesFilter(e.body,'active')),
+      exact:day.exact.filter(e=>matchesFilter(e.body,'exact')),
+      sky:day.sky.filter(e=>matchesFilter(e.body,e.type))};
+  }
+  const currentDay=()=>classify(result?.days?.[selected]);
+  const dayEvents=day=>[...day.exact,...day.sky].sort((a,b)=>a.at.localeCompare(b.at));
+  const filters=()=>`<div class="filter-wrap"><label for="eventFilter">Afficher</label><select id="eventFilter">${Object.entries(filtersMap).map(([k,v])=>`<option value="${k}" ${state.filter===k?'selected':''}>${v}</option>`).join('')}</select></div>`;
+  function eventTitle(event) {
+    if(event.type==='moon')return event.name;
+    if(event.type==='station')return `${planets[event.body]} station ${event.direction}`;
+    return `${planets[event.body]} ${event.aspect.toLowerCase()} ${planets[event.natal]} natal`;
+  }
+  function row(event) {
+    const id=renderedEvents.push(event)-1;
+    const isSky=event.type==='moon'||event.type==='station';
+    const glyph=event.type==='moon'?'☾':event.type==='station'?'℞':aspects[event.aspect]||'✧';
+    const isActive=event.type==='active';
+    const label=isActive?`Orbe ${Number(event.delta).toFixed(2)}° · échantillon à midi`:`${event.type==='moon'?'Phase lunaire':event.type==='station'?'Station apparente':'Aspect exact'} · ${dateTime(event.at)}`;
+    return `<button class="event event-button ${isSky?'sky-event':''}" data-event="${id}" aria-label="Détails : ${safe(eventTitle(event))}"><span class="event-glyph" aria-hidden="true">${glyph}</span><span class="event-body"><b>${safe(eventTitle(event))}</b><span class="event-sub">${safe(label)}</span><span class="event-more">Lire l’interprétation</span></span><span class="event-arrow" aria-hidden="true">›</span></button>`;
+  }
+  function detailView() {
+    if(!openDetail)return '';
+    let d;
+    try { d=E.describeEvent(openDetail); } catch { return ''; }
+    const raw=openDetail;
+    const measure=raw.type==='active'?`Orbe mesuré : ${Number(raw.delta).toFixed(3)}°`:raw.at?`Horaire local : ${dateTime(raw.at)}`:'';
+    return `<section class="card detail" id="detailPanel" tabindex="-1" aria-label="Détails du transit"><div class="detail-head"><span class="tag">${safe(d.kind)}</span><button class="ghost close-detail" data-close="1" aria-label="Fermer les détails">Fermer ×</button></div><h2 class="card-title">${safe(d.title)}</h2><p class="detail-tone">${safe(d.tone)}</p><div class="detail-group"><h3>Calcul astronomique</h3><p>${safe(d.astronomy)} ${safe(measure)}</p></div><div class="detail-group"><h3>Lecture astrologique</h3><p>${safe(d.interpretation)}</p></div><div class="detail-group"><h3>Question de journal</h3><p>${safe(d.question)}</p><button class="ghost" data-prompt="${safe(d.question)}">Répondre dans mon journal</button></div><p class="tiny">${safe(d.disclaimer)}</p></section>`;
+  }
+  function today() {
+    if(!state.profile)return unconfigured();
+    const day=currentDay(),events=dayEvents(day),active=day.active.slice(0,8),moon=E?.moonPhase(new Date(selected+'T12:00:00Z'));
+    const entry=state.journal[selected];
+    return header('Aujourd’hui','Les événements sont calculés pour ton thème, puis accompagnés d’une lecture symbolique à explorer.')+switcher()+
+      `<section class="metric"><span class="moon-symbol" aria-hidden="true">☾</span><h2>${safe(displayDate(selected))}</h2><p>Élongation lunaire : ${typeof moon==='number'?moon.toFixed(1)+'°':'–'}</p></section>${status()}`+
+      `<section class="card"><div class="section-row"><h2 class="card-title">Événements exacts</h2><span class="tag">${events.length}</span></div>${events.map(row).join('')||'<p class="muted">Aucun contact exact aujourd’hui.</p>'}</section>`+
+      `<section class="card"><div class="section-row"><h2 class="card-title">Aspects actifs à midi</h2><span class="tag-outline">${day.active.length}</span></div>${active.map(e=>row({...e,type:'active'})).join('')||'<p class="muted">Aucun aspect dans l’orbe choisi.</p>'}${day.active.length>8?'<p class="tiny">Huit aspects affichés. Utilise le calendrier pour explorer davantage.</p>':''}</section>`+
+      `<section class="card"><h2 class="card-title">Mon ressenti</h2><p class="tiny">${entry?`Humeur ${entry.mood}/5${entry.energy?' · Énergie '+entry.energy+'/5':''}`:'Aucune note pour cette date.'}</p><button class="ghost" data-goto="journal">${entry?'Voir ma note':'Écrire dans le journal'}</button></section>`+
+      detailView();
+  }
+  function calendar() {
+    if(!state.profile)return unconfigured();
+    const year=month.getFullYear(),m=month.getMonth(),weekday=(new Date(year,m,1).getDay()+6)%7,count=new Date(year,m+1,0).getDate();
+    const cells=Array.from({length:weekday},()=>'<span></span>');
+    for(let d=1;d<=count;d++){
+      const day=`${year}-${pad(m+1)}-${pad(d)}`,entry=classify(result?.days?.[day]);
+      const total=entry.exact.length+entry.sky.length;
+      cells.push(`<button class="day ${day===selected?'selected':''} ${day===isoDay(new Date())?'today':''}" data-day="${day}" aria-label="${day}, ${total} événement(s) exact(s), ${entry.active.length} aspect(s) actif(s)">${d}<span class="count">${total?total+' ✦':entry.active.length?entry.active.length+' ~':''}</span>${state.journal[day]?'<span class="pinhole"></span>':''}</button>`);
+    }
+    const day=currentDay(),events=dayEvents(day);
+    return header('Calendrier','Choisis une journée, puis ouvre un événement pour distinguer le calcul de son interprétation.')+switcher()+
+      `<div class="month-head"><button class="arrow" data-month="-1" aria-label="Mois précédent">‹</button><h2>${safe(new Intl.DateTimeFormat('fr-FR',{month:'long',year:'numeric'}).format(month))}</h2><button class="arrow" data-month="1" aria-label="Mois suivant">›</button></div>`+filters()+
+      `<div class="calendar"><div class="cal-grid">${['L','M','M','J','V','S','D'].map(x=>`<span class="weekday">${x}</span>`).join('')}${cells.join('')}</div><p class="tiny">✦ contact exact · ~ aspect à midi · point rose : journal</p></div>${status()}`+
+      `<section class="card"><div class="section-row"><h2 class="card-title">${safe(displayDate(selected))}</h2></div><div class="pill-row"><span class="tag">${events.length} événement(s)</span><span class="tag-outline">${day.active.length} actif(s)</span></div>${events.map(row).join('')||'<p class="tiny">Aucun événement exact ce jour.</p>'}${day.active.slice(0,30).map(e=>row({...e,type:'active'})).join('')}</section>`+detailView();
+  }
+  function initDraft() {
+    if(journalDraftDate!==selected||!journalDraft){
+      const existing=state.journal[selected]||{};
+      journalDraft={mood:existing.mood??3,energy:existing.energy??3,tags:[...(existing.tags||[])],note:existing.note||''};
+      journalDraftDate=selected;
+    }
+  }
+  function captureDraft(){
+    initDraft();
+    const note=$('journalNote');if(note)journalDraft.note=note.value;
+  }
+  function summary() {
+    const end=new Date(selected+'T12:00:00Z');end.setUTCDate(end.getUTCDate()-29);
+    const start=end.toISOString().slice(0,10);
+    const items=Object.entries(state.journal).filter(([d])=>d>=start&&d<=selected).map(([,v])=>v);
+    if(!items.length)return '<p class="muted">Aucune entrée sur les 30 derniers jours.</p>';
+    const average=k=>{const scores=items.map(v=>v[k]).filter(v=>Number.isInteger(v));return scores.length?(scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1):'–';};
+    return `<div class="insights"><div><b>${items.length}</b><span>jours notés</span></div><div><b>${average('mood')}/5</b><span>humeur moyenne</span></div><div><b>${average('energy')}${average('energy')==='–'?'':'/5'}</b><span>énergie moyenne</span></div></div><p class="tiny">Statistiques descriptives des notes saisies, sans déduction causale à partir des transits.</p>`;
+  }
+  function journal() {
+    initDraft();
+    const d=journalDraft;
+    const history=Object.entries(state.journal).sort((a,b)=>b[0].localeCompare(a[0])).filter(([day,item])=>!searchTerm||`${day} ${item.note} ${(item.tags||[]).map(t=>themes[t]).join(' ')}`.toLocaleLowerCase('fr').includes(searchTerm.toLocaleLowerCase('fr'))).slice(0,30);
+    return header('Mon journal','Observe ton vécu sans lui attribuer automatiquement une cause astrologique.')+
+      `<section class="card"><h2 class="card-title">${safe(displayDate(selected))}</h2><div class="actions"><button class="ghost" data-offset="-1">Jour précédent</button><button class="ghost" data-offset="1">Jour suivant</button></div>`+
+      `<div class="field"><label>Humeur</label><div class="mood-row">${[1,2,3,4,5].map(n=>`<button type="button" data-mood="${n}" aria-pressed="${d.mood===n}" class="mood ${d.mood===n?'on':''}">${moodSymbols[n]}<span>${n}/5</span></button>`).join('')}</div></div>`+
+      `<div class="field"><label for="energyRange">Énergie · <output id="energyValue">${d.energy}/5</output></label><input id="energyRange" type="range" min="1" max="5" value="${d.energy}" step="1"></div>`+
+      `<fieldset class="tags-field"><legend>Thèmes de la journée (facultatif)</legend><div class="tag-buttons">${Object.entries(themes).map(([code,label])=>`<button type="button" data-tag="${code}" aria-pressed="${d.tags.includes(code)}" class="tag-button ${d.tags.includes(code)?'on':''}">${label}</button>`).join('')}</div></fieldset>`+
+      `<div class="field"><label for="journalNote">Observations</label><textarea id="journalNote" maxlength="10000" spellcheck="true" placeholder="Faits, émotions, contexte…">${safe(d.note)}</textarea></div><button class="primary full" data-save="1">Enregistrer ma journée</button>${state.journal[selected]?'<button class="subnav danger" data-delete-note="1">Supprimer cette note</button>':''}</section>`+
+      `<section class="card"><h2 class="card-title">Mes tendances · 30 jours</h2>${summary()}</section>`+
+      `<section class="card"><h2 class="card-title">Historique</h2><div class="field"><label for="journalSearch">Rechercher dans mes notes</label><input id="journalSearch" type="search" value="${safe(searchTerm)}" placeholder="Mot-clé, date ou thème"></div>${history.map(([day,item])=>`<div class="history-item"><b>${safe(day)} · humeur ${item.mood}/5</b>${item.energy?` <small>· énergie ${item.energy}/5</small>`:''}<p>${safe(item.note)}</p>${(item.tags||[]).map(t=>`<span class="tag-outline small-tag">${safe(themes[t]||t)}</span>`).join('')}<button data-day="${day}">Consulter</button></div>`).join('')||'<p class="muted">Aucune note correspondante.</p>'}</section>`;
+  }
+  function profile() {
+    const p=state.profile||{},chart=(!busy&&!error&&result?.chart)||null;
+    return header('Mon ciel','Profil natal modifiable à tout moment. Aucun thème personnel n’est fourni avec ASTRA.')+
+      `<section class="card"><h2 class="card-title">Données de naissance</h2><form id="birthForm"><div class="field-grid"><div class="field"><label for="birthDate">Date</label><input required type="date" id="birthDate" name="date" min="1900-01-01" max="2100-12-31" value="${safe(p.date||'')}"></div><div class="field"><label for="birthTime">Heure locale</label><input required type="time" id="birthTime" name="time" value="${safe(p.time||'')}"></div></div><div class="field"><label for="birthZone">Fuseau IANA du lieu de naissance</label><input required id="birthZone" name="timezone" placeholder="Europe/Paris" value="${safe(p.timezone||detectedZone)}"></div><div class="field-grid"><div class="field"><label for="lat">Latitude (°)</label><input required id="lat" name="latitude" type="number" step="any" min="-90" max="90" value="${safe(p.latitude??'')}"></div><div class="field"><label for="lng">Longitude (°)</label><input required id="lng" name="longitude" type="number" step="any" min="-180" max="180" value="${safe(p.longitude??'')}"></div></div><div class="field"><label for="fold">Retour à l’heure d’hiver · occurrence</label><select name="fold" id="fold"><option value="">Non précisée</option><option value="0" ${p.fold===0?'selected':''}>Première</option><option value="1" ${p.fold===1?'selected':''}>Deuxième</option></select></div><div class="field"><label for="orb">Orbe actif (0,1° à 10°)</label><input id="orb" name="orb" type="number" value="${state.orb}" min="0.1" max="10" step="0.1"></div><button class="primary full" type="submit">Calculer mon thème natal</button></form><p class="tiny">Les coordonnées préparent le calcul futur de l’ascendant et des maisons. Les positions actuelles sont géocentriques.</p></section>`+
+      `${chart?`<section class="card"><h2 class="card-title">Positions natales · ${safe(state.mode)}</h2><div class="info-grid">${Object.entries(chart.positions).map(([body,lon])=>`<div class="planet"><b>${safe(planets[body])}</b><small>${safe(E.formatSign(lon))}</small></div>`).join('')}</div></section>`:''}`+
+      `<section class="card"><h2 class="card-title">Confidentialité et sauvegarde</h2><p class="tiny">Données sur l’appareil, sans compte ni serveur. Une désinstallation peut tout supprimer. Le fichier JSON exporté contient ta naissance et tes notes personnelles : conserve-le en lieu sûr.</p><div class="actions"><button class="ghost" data-export="1">Exporter JSON</button><button class="ghost" data-import="1">Importer JSON</button></div><input id="importFile" type="file" accept="application/json" hidden><button class="subnav danger" data-clear="1">Effacer les données locales</button></section>`+
+      `<section class="notice"><b>Limites du moteur</b> · Lahiri reste approximatif ; les maisons et l’ascendant ne sont pas calculés. Les aspects actifs sont échantillonnés à midi. Les interprétations sont symboliques et non prédictives.</section>`;
+  }
+  function render() {
+    renderedEvents=[];
+    $('app').innerHTML=({today,calendar,journal,profile})[activeTab]();
+    document.querySelectorAll('[data-tab]').forEach(button=>{
+      const active=button.dataset.tab===activeTab;
+      button.classList.toggle('active',active);
+      button.setAttribute('aria-current',active?'page':'false');
+    });
+  }
+  function go(tab) {
+    activeTab=tab;
+    openDetail=null;
+    render();
+    window.scrollTo({top:0,behavior:'instant'});
+  }
+  function refresh() {
+    const token=++calcToken;
+    error='';result=null;
+    if(!state.profile){busy=false;render();return;}
+    busy=true;render();
+    setTimeout(()=>{
+      try {
+        if(!E)throw new Error('Moteur astronomique indisponible');
+        const key=JSON.stringify([state.profile,state.mode,state.orb,month.getFullYear(),month.getMonth()]);
+        let data=cache.get(key);
+        if(!data){data=E.calculateMonth(state.profile,month.getFullYear(),month.getMonth()+1,state.mode,Number(state.orb));cache.set(key,data);if(cache.size>4)cache.delete(cache.keys().next().value);}
+        if(token!==calcToken)return;
+        result=data;
+      } catch(e){if(token!==calcToken)return;error=e?.message||'Calcul impossible';}
+      finally{if(token===calcToken){busy=false;render();}}
+    },30);
+  }
+  function selectDay(day){
+    selected=day;openDetail=null;journalDraft=null;
+    const [year,mon]=day.split('-').map(Number);
+    if(year!==month.getFullYear()||mon!==month.getMonth()+1){month=new Date(year,mon-1,1);refresh();}
+    else render();
+  }
+  $('homeButton').addEventListener('click',()=>{selectDay(isoDay(new Date()));go('today');});
+  document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.tab)));
+  $('app').addEventListener('click',event=>{
+    const button=event.target.closest('button');if(!button)return;
+    const a=button.dataset;
+    if(a.goto){go(a.goto);return;}
+    if(a.mode){state.mode=a.mode;openDetail=null;persist();refresh();return;}
+    if(a.month){month=new Date(month.getFullYear(),month.getMonth()+Number(a.month),1);selected=isoDay(month);openDetail=null;refresh();return;}
+    if(a.day){selectDay(a.day);return;}
+    if(a.offset){const [year,mon,day]=selected.split('-').map(Number);selectDay(isoDay(new Date(year,mon-1,day+Number(a.offset))));return;}
+    if(a.event!==undefined){openDetail=renderedEvents[Number(a.event)]||null;render();$('detailPanel')?.scrollIntoView({behavior:'smooth',block:'start'});return;}
+    if(a.close){openDetail=null;render();return;}
+    if(a.prompt){journalDraft=null;initDraft();journalDraft.note=[journalDraft.note,a.prompt+'\n'].filter(Boolean).join('\n').trimStart();go('journal');return;}
+    if(a.mood){captureDraft();journalDraft.mood=Number(a.mood);render();return;}
+    if(a.tag){captureDraft();const index=journalDraft.tags.indexOf(a.tag);if(index<0)journalDraft.tags.push(a.tag);else journalDraft.tags.splice(index,1);render();return;}
+    if(a.save){captureDraft();state.journal[selected]={mood:journalDraft.mood,energy:journalDraft.energy,tags:[...journalDraft.tags],note:journalDraft.note.trim(),updatedAt:new Date().toISOString()};persist();show('Journal enregistré');render();return;}
+    if(a['deleteNote'] && confirm('Supprimer cette journée du journal ?')){delete state.journal[selected];persist();journalDraft=null;render();show('Note supprimée');return;}
+    if(a.export){const data={format:'astra-public-v1',exportedAt:new Date().toISOString(),...state};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='ASTRA-sauvegarde.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1500);return;}
+    if(a.import){$('importFile')?.click();return;}
+    if(a.clear&&confirm('Effacer le thème natal et toutes les notes locales ?')){localStorage.removeItem(STORAGE_KEY);state=defaultState();cache.clear();journalDraft=null;openDetail=null;refresh();show('Données supprimées');}
+  });
+  $('app').addEventListener('input',event=>{
+    if(event.target.id==='energyRange'){initDraft();journalDraft.energy=Number(event.target.value);$('energyValue').textContent=journalDraft.energy+'/5';}
+  });
+  $('app').addEventListener('change',async event=>{
+    if(event.target.id==='eventFilter'){state.filter=event.target.value;persist();openDetail=null;render();return;}
+    if(event.target.id==='journalSearch'){searchTerm=event.target.value.trim().slice(0,100);render();return;}
+    if(event.target.id==='importFile'&&event.target.files?.[0]){
+      try {
+        const file=event.target.files[0];if(file.size>2000000)throw Error('Sauvegarde trop volumineuse');
+        const backup=JSON.parse(await file.text());if(backup.format!=='astra-public-v1')throw Error('Format non reconnu');
+        if(backup.profile)E.validateProfile(backup.profile);
+        if(!confirm('Remplacer les données locales par la sauvegarde ?'))return;
+        state=cleanState(backup);journalDraft=null;openDetail=null;cache.clear();persist();refresh();show('Sauvegarde importée');
+      } catch(err){show('Import impossible : '+(err?.message||'Erreur'));}
+    }
+  });
+  $('app').addEventListener('submit',event=>{
+    if(event.target.id!=='birthForm')return;
+    event.preventDefault();
+    const f=new FormData(event.target);
+    const profile={date:String(f.get('date')),time:String(f.get('time')),timezone:String(f.get('timezone')).trim(),latitude:Number(f.get('latitude')),longitude:Number(f.get('longitude')),fold:f.get('fold')===''?null:Number(f.get('fold'))};
+    try {
+      if(!E)throw Error('Moteur non chargé');E.validateProfile(profile);
+      const orb=Number(f.get('orb'));if(!Number.isFinite(orb)||orb<.1||orb>10)throw Error('Orbe invalide');
+      state.profile=profile;state.orb=orb;cache.clear();persist();show('Thème natal enregistré');refresh();
+    } catch(err){show('Impossible : '+(err?.message||'Erreur'));}
+  });
+  render();refresh();
 })();

@@ -1,47 +1,43 @@
-# ASTRA — version publique, calcul dynamique (alpha)
+# ASTRA Public — P2 (0.5.0 alpha)
 
-## Décisions de produit
+Application Android/WebView de suivi astrologique pour **tous les utilisateurs**. Les calculs astronomiques sont réalisés **à la demande** avec `astronomy-engine` dans le JavaScript local. Aucun profil natal ni aucune table personnelle pré-calculée n’est livrée dans l'APK. Aucun compte ni permission INTERNET.
 
-- Application ouverte à tous les profils. **Aucune date de naissance, aucun thème natal ni aucune éphéméride personnelle pré-calculée dans le code.**
-- Entrée par date, heure, fuseau IANA, latitude, longitude. Conversions des changements d'heure et choix de l'occurrence ambiguë.
-- Calcul astronomique **à la demande sur le téléphone**, sans serveur ni accès Internet pendant l'utilisation.
-- Thème géocentrique natal, transits quotidiens, contacts exacts interpolés à la minute, stations planétaires approximées puis affinées, lunaisons calculées par l'algorithme Astronomy Engine.
-- Tropical et sidéral : Lahiri est une approximation polynomiale identifiée (pas encore validée pour la diffusion commerciale).
-- Calendrier, filtres et journal local. Les interprétations sont présentées comme symboliques, pas comme des prédictions scientifiques.
+## Fonctions P2
 
-## Propriété intellectuelle
+- Fiches de lecture ouvrables dans **Aujourd'hui** et le **Calendrier**, couvrant 10 planètes, cinq aspects, les stations et les quatre phases lunaires principales.
+- Trois niveaux distincts : **calcul astronomique**, **lecture symbolique** et **question de journal**. Les textes ne prétendent ni prédire ni expliquer causalement le vécu.
+- Journal local : humeur, énergie, six thèmes facultatifs, note libre, historique recherchable, statistiques descriptives sur 30 jours. Compatible avec les journaux de v0.4 (champs `mood` / `note`).
+- Export/import JSON compatibles avec `astra-public-v1`. L'export contient des données sensibles saisies par l'utilisateur et doit être conservé en lieu sûr.
+- Zodiaque tropical et sidéral Lahiri **approximatif** ; natal et transits calculés pour chaque profil lors de la consultation.
 
-Astronomy Engine v2.1.19 est sous licence MIT (https://github.com/cosinekitty/astronomy). Le paquet est installé pendant la compilation et empaqueté dans la WebView. Avant distribution, intégrer les avis de copyright de dépendance dans les ressources de l'APK. **Ne pas intégrer Swiss Ephemeris sans traitement de sa licence AGPL/professionnelle.**
+## Lancer les tests et compiler
 
-## Développement
-
-```sh
-npm install
+```bash
+npm install --no-audit --no-fund
 npm run bundle
 npm test
 node --check app/src/main/assets/app.js
+# SDK Android 37.0, JDK 17 et Gradle 9.3.1 requis
+# gradle --no-daemon :app:assembleDebug :app:lintDebug
 ```
 
-Pour ouvrir sur ordinateur, servir `app/src/main/assets/` depuis un serveur local HTTP après le bundle.
+Un build GitHub Actions se déclenche sur la branche `public-runtime`. Les APK debug sont expérimentaux, signés avec la clé temporaire CI et **non destinés à la distribution publique**. Les tests de navigateur ne valent pas test sur téléphone réel.
 
-Android SDK 37.0 et JDK 17 requis :
+## Architecture
 
-```sh
-gradle --no-daemon :app:assembleDebug :app:lintDebug
-```
+- `astro/runtime.mjs` : éphémérides dynamiques, transits, stations et phases lunaires.
+- `astro/core.mjs` : conversions d'heures et conventions zodiacales.
+- `astro/interpretations.mjs` : descriptions éditoriales indépendantes du moteur astronomique et des profils.
+- `app/src/main/assets/app.js` : interface, journal local et sauvegardes.
+- `tests/interpretations.test.mjs` : couverture des combinaisons planète/aspect, lunaisons et stations.
 
-Le workflow GitHub Actions construit un APK **debug expérimental**, non une version Google Play.
+## Limites connues
 
-## Confidentialité / sécurité
+1. Sidéral Lahiri dérivé d'une approximation, **non suffisamment validé** pour une diffusion commerciale.
+2. Ascendant et maisons absents ; fenêtres d'orbe complètes et passages rétrogrades multiples non encore calculés.
+3. Les aspects actifs sont des relevés à midi local, pas des intervalles continus. Certains contacts rapides ou tangents peuvent échapper à un échantillonnage de 6 h.
+4. Le calcul mensuel se déroule toujours sur le thread principal de la WebView ; il faudra un Web Worker pour assurer la fluidité sur tous les téléphones.
+5. Le stockage journal est local et non chiffré de bout en bout. Import/export doivent être testés sur de vrais téléphones.
+6. Le dépôt GitHub historique contient d'anciennes données personnelles. **Ne jamais rendre ce dépôt public** : utiliser un dépôt neuf avec un historique nettoyé pour la diffusion.
 
-Pas de compte ni de permission INTERNET, aucune géolocalisation automatique, stockage local WebView. L'utilisateur exporte ses données pour les sauvegarder, mais les flux d'import/export Android doivent encore être validés sur appareil. Aucun préchargement personnel. L'ancien dépôt P1 est **privé** et son historique contient les anciennes données personnelles : **ne jamais le rendre public**. Avant publication, créer un dépôt neuf depuis cet arbre nettoyé, sans reprendre l'historique Git.
-
-## Limites MVP
-
-- Sidéral Lahiri via interpolation analytique ~1900–2100, à remplacer/valider contre une éphéméride indépendante.
-- Les maisons et l'ascendant ne sont pas calculés par cette version ; les coordonnées sont collectées pour une implémentation future.
-- Pour les passages très rapides et les stations, l'échantillonnage (6h) ne garantit pas tous les contacts tangents. Un moteur de recherche d'intervalles certifié sera nécessaire.
-- Calcul mensuel synchrone pouvant bloquer temporairement l'interface sur téléphones modestes. Déporter dans Web Worker avant déploiement public.
-- Journal non synchronisé, stockage WebView local non chiffré de bout en bout, pas de comptes multi-appareils.
-- Validation des heures de naissance historiques et appareils réels encore requise.
-- Le mode debug utilise une clé de signature non pérenne ; une signature de diffusion durable doit être configurée.
+La lecture astrologique est une pratique interprétative : elle n’établit pas de lien causal démontré avec l’humeur ou les événements du journal.

@@ -11,8 +11,8 @@ android {
         applicationId = "org.astra.publicapp"
         minSdk = 26
         targetSdk = 37
-        versionCode = 400
-        versionName = "0.4.0-runtime-alpha"
+        versionCode = 500
+        versionName = "0.5.0-p2-alpha"
     }
 
     val keystorePath = System.getenv("ASTRA_RELEASE_KEYSTORE")
