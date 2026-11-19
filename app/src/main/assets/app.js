@@ -8,7 +8,7 @@
   const pad = n => String(n).padStart(2, '0');
   const isoDay = date => `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
   const detectedZone = (() => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'; } catch { return 'UTC'; } })();
-  const defaultState = () => ({profile:null, mode:'tropical', orb:2, filter:'all', journal:{}});
+  const defaultState = () => ({profile:null, mode:'tropical', orb:'auto', filter:'all', journal:{}});
   const moodSymbols = ['','☹','◔','◯','◕','☺'];
   const themes = {relations:'Relations',travail:'Travail',sante:'Bien-être',creation:'Créativité',repos:'Repos',autre:'Autre'};
   const planets = {Sun:'Soleil',Moon:'Lune',Mercury:'Mercure',Venus:'Vénus',Mars:'Mars',Jupiter:'Jupiter',Saturn:'Saturne',Uranus:'Uranus',Neptune:'Neptune',Pluto:'Pluton'};
@@ -38,12 +38,11 @@
     const base = defaultState();
     if (!raw || typeof raw !== 'object') return base;
     const mode = ['tropical','sidereal'].includes(raw.mode) ? raw.mode : base.mode;
-    const orb = Number(raw.orb);
     let profile = null;
     if (raw.profile && E) {
       try { E.validateProfile(raw.profile); profile = raw.profile; } catch { /* Les dates invalides ne doivent pas bloquer l'appli. */ }
     }
-    return {profile,mode,orb:Number.isFinite(orb) && orb>=0.1 && orb<=10 ? orb:2,
+    return {profile,mode,orb:'auto',
       filter:Object.hasOwn(filtersMap,raw.filter)?raw.filter:'all',journal:sanitizeJournal(raw.journal)};
   }
   function loadState() { try { return cleanState(JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}')); } catch { return defaultState(); } }
@@ -58,7 +57,7 @@
   function draft() {
     if(!birthDraft){
       const p=state.profile||{};
-      birthDraft={date:p.date||'',time:p.time||'',city:p.place?.label||'',orb:String(state.orb),fold:p.fold??null};
+      birthDraft={date:p.date||'',time:p.time||'',city:p.place?.label||'',fold:p.fold??null};
       placeSearch.selected=p.place ? E.normalizePlace({...p.place,latitude:p.latitude,longitude:p.longitude,timezone:p.timezone}) : null;
     }
     return birthDraft;
@@ -68,7 +67,6 @@
     if($('birthDate'))d.date=$('birthDate').value;
     if($('birthTime'))d.time=$('birthTime').value;
     if($('birthCity'))d.city=$('birthCity').value;
-    if($('orb'))d.orb=$('orb').value;
     if($('fold'))d.fold=$('fold').value===''?null:Number($('fold').value);
   }
   async function searchBirthCity() {
@@ -141,7 +139,7 @@
     const isSky=event.type==='moon'||event.type==='station';
     const glyph=event.type==='moon'?'☾':event.type==='station'?'℞':aspects[event.aspect]||'✧';
     const isActive=event.type==='active';
-    const label=isActive?`Orbe ${Number(event.delta).toFixed(2)}° · échantillon à midi`:`${event.type==='moon'?'Phase lunaire':event.type==='station'?'Station apparente':'Aspect exact'} · ${dateTime(event.at)}`;
+    const label=isActive?`Écart ${Number(event.delta).toFixed(2)}° / orbe auto ${Number(event.orb).toFixed(2)}° · relevé à midi`:`${event.type==='moon'?'Phase lunaire':event.type==='station'?'Station apparente':'Aspect exact'} · ${dateTime(event.at)}`;
     return `<button class="event event-button ${isSky?'sky-event':''}" data-event="${id}" aria-label="Détails : ${safe(eventTitle(event))}"><span class="event-glyph" aria-hidden="true">${glyph}</span><span class="event-body"><b>${safe(eventTitle(event))}</b><span class="event-sub">${safe(label)}</span><span class="event-more">Lire l’interprétation</span></span><span class="event-arrow" aria-hidden="true">›</span></button>`;
   }
   function detailView() {
@@ -149,7 +147,7 @@
     let d;
     try { d=E.describeEvent(openDetail); } catch { return ''; }
     const raw=openDetail;
-    const measure=raw.type==='active'?`Orbe mesuré : ${Number(raw.delta).toFixed(3)}°`:raw.at?`Horaire local : ${dateTime(raw.at)}`:'';
+    const measure=raw.type==='active'?`Écart à l’angle exact : ${Number(raw.delta).toFixed(3)}° (orbe automatique ${Number(raw.orb).toFixed(2)}°)`:raw.at?`Horaire local : ${dateTime(raw.at)}`:'';
     return `<section class="card detail" id="detailPanel" tabindex="-1" aria-label="Détails du transit"><div class="detail-head"><span class="tag">${safe(d.kind)}</span><button class="ghost close-detail" data-close="1" aria-label="Fermer les détails">Fermer ×</button></div><h2 class="card-title">${safe(d.title)}</h2><p class="detail-tone">${safe(d.tone)}</p><div class="detail-group"><h3>Calcul astronomique</h3><p>${safe(d.astronomy)} ${safe(measure)}</p></div><div class="detail-group"><h3>Lecture astrologique</h3><p>${safe(d.interpretation)}</p></div><div class="detail-group"><h3>Question de journal</h3><p>${safe(d.question)}</p><button class="ghost" data-prompt="${safe(d.question)}">Répondre dans mon journal</button></div><p class="tiny">${safe(d.disclaimer)}</p></section>`;
   }
   function today() {
@@ -159,7 +157,7 @@
     return header('Aujourd’hui','Les événements sont calculés pour ton thème, puis accompagnés d’une lecture symbolique à explorer.')+switcher()+
       `<section class="metric"><span class="moon-symbol" aria-hidden="true">☾</span><h2>${safe(displayDate(selected))}</h2><p>Élongation lunaire : ${typeof moon==='number'?moon.toFixed(1)+'°':'–'}</p></section>${status()}`+
       `<section class="card"><div class="section-row"><h2 class="card-title">Événements exacts</h2><span class="tag">${events.length}</span></div>${events.map(row).join('')||'<p class="muted">Aucun contact exact aujourd’hui.</p>'}</section>`+
-      `<section class="card"><div class="section-row"><h2 class="card-title">Aspects actifs à midi</h2><span class="tag-outline">${day.active.length}</span></div>${active.map(e=>row({...e,type:'active'})).join('')||'<p class="muted">Aucun aspect dans l’orbe choisi.</p>'}${day.active.length>8?'<p class="tiny">Huit aspects affichés. Utilise le calendrier pour explorer davantage.</p>':''}</section>`+
+      `<section class="card"><div class="section-row"><h2 class="card-title">Aspects actifs à midi</h2><span class="tag-outline">${day.active.length}</span></div>${active.map(e=>row({...e,type:'active'})).join('')||'<p class="muted">Aucun aspect dans les orbes automatiques.</p>'}${day.active.length>8?'<p class="tiny">Huit aspects affichés. Utilise le calendrier pour explorer davantage.</p>':''}</section>`+
       `<section class="card"><h2 class="card-title">Mon ressenti</h2><p class="tiny">${entry?`Humeur ${entry.mood}/5${entry.energy?' · Énergie '+entry.energy+'/5':''}`:'Aucune note pour cette date.'}</p><button class="ghost" data-goto="journal">${entry?'Voir ma note':'Écrire dans le journal'}</button></section>`+
       detailView();
   }
@@ -258,7 +256,7 @@
     const big=[['Soleil',chart.positions.Sun],['Lune',chart.positions.Moon],['Ascendant',h.ascendant],['Milieu du Ciel',h.midheaven]];
     const positions=Object.entries(chart.positions).map(([body,lng])=>`<div class="natal-position"><span class="position-planet"><span aria-hidden="true">${natalGlyphs[body]}</span>${safe(planets[body])}</span><span class="position-value">${sign(lng)}</span><span class="position-house">M${house(lng)??'–'}</span></div>`).join('');
     const natalAspects=(chart.aspects||[]).slice(0,20).map(a=>`<div class="natal-aspect"><span>${safe(planets[a.a])} <b>${a.glyph}</b> ${safe(planets[a.b])}</span><span>${safe(a.aspect)} · ${a.orb.toFixed(2)}°</span></div>`).join('');
-    return `<section class="card natal-card" id="natalChart"><div class="section-row"><h2 class="card-title">Mon thème astral tropical</h2><span class="tag">Natal</span></div><p class="tiny">Calculé à partir de ta date, ton heure locale et ta ville de naissance. Maisons ${safe(h.system)}.</p>${wheelSvg(chart)}<p class="wheel-caption">Zodiaque tropical · ${safe(h.system)} · aspects natals jusqu’à 5° d’orbe</p><div class="natal-highlights">${big.map(([name,lng])=>`<div><span>${safe(name)}</span><b>${sign(lng)}</b></div>`).join('')}</div><h3 class="natal-subtitle">Positions et maisons</h3><div class="natal-positions">${positions}</div><h3 class="natal-subtitle">Aspects natals</h3><div class="natal-aspects">${natalAspects||'<p class="muted">Aucun aspect dans l’orbe de 5°.</p>'}</div>${h.polarFallback?'<p class="notice">À cette latitude, Placidus n’est pas défini partout : les maisons égales ont été utilisées.</p>':''}<p class="tiny">Les positions sont calculées sur l’appareil ; la lecture astrologique est symbolique. Le réglage « Orbe des transits » ne modifie pas cette roue natale.</p></section>`;
+    return `<section class="card natal-card" id="natalChart"><div class="section-row"><h2 class="card-title">Mon thème astral tropical</h2><span class="tag">Natal</span></div><p class="tiny">Calculé à partir de ta date, ton heure locale et ta ville de naissance. Maisons ${safe(h.system)}.</p>${wheelSvg(chart)}<p class="wheel-caption">Zodiaque tropical · ${safe(h.system)} · aspects natals jusqu’à 5° d’orbe</p><div class="natal-highlights">${big.map(([name,lng])=>`<div><span>${safe(name)}</span><b>${sign(lng)}</b></div>`).join('')}</div><h3 class="natal-subtitle">Positions et maisons</h3><div class="natal-positions">${positions}</div><h3 class="natal-subtitle">Aspects natals</h3><div class="natal-aspects">${natalAspects||'<p class="muted">Aucun aspect dans l’orbe de 5°.</p>'}</div>${h.polarFallback?'<p class="notice">À cette latitude, Placidus n’est pas défini partout : les maisons égales ont été utilisées.</p>':''}<p class="tiny">Les positions sont calculées sur l’appareil ; la lecture astrologique est symbolique. Les orbes automatiques des transits ne modifient pas les critères des aspects natals.</p></section>`;
   }
 
   function profile() {
@@ -273,7 +271,7 @@
       `${placeSearch.error?`<p class="notice" role="alert">${safe(placeSearch.error)}</p>`:''}`+
       `${suggestions?`<div class="city-results" aria-label="Villes trouvées">${suggestions}</div>`:''}`+
       `${place?`<div class="city-confirmed" role="status"><b>Ville sélectionnée : ${safe(place.label)}</b><p>${safe(offsetDescription(d,place))}</p><small>Coordonnées déterminées automatiquement · ${place.latitude.toFixed(4)}°, ${place.longitude.toFixed(4)}°</small></div>`:'<p class="city-unselected">Aucune ville sélectionnée. Les coordonnées et le fuseau ne sont pas à saisir.</p>'}`+
-      `${foldPicker}<div class="field"><label for="orb">Orbe des transits (0,1° à 10°)</label><input id="orb" name="orb" type="number" value="${safe(d.orb)}" min="0.1" max="10" step="0.1"><p class="field-help">Tolérance autour de l’angle exact : avec 2°, un carré est actif de 88° à 92°. Ne concerne que les transits du calendrier.</p></div><button class="primary full" type="submit">Calculer mon thème natal</button></form>`+
+      `${foldPicker}<div class="field"><p class="field-help"><strong>Orbes automatiques.</strong> ASTRA adapte la marge à la planète et à l’aspect. Les instants exacts sont calculés séparément et accessibles avec le filtre « Aspects exacts » du calendrier.</p></div><button class="primary full" type="submit">Calculer mon thème natal</button></form>`+
       `<p class="tiny">Recherche de villes fournie par <a href="https://open-meteo.com/" rel="noopener noreferrer">Open-Meteo / GeoNames</a>. Seul le nom de ville recherché est transmis. Ensuite, les calculs restent sur ton appareil, même hors connexion. Les règles historiques sont celles de la base de fuseaux disponible sur l’appareil.</p></section>`+
       `<section class="card"><h2 class="card-title">Confidentialité et sauvegarde</h2><p class="tiny">Les dates et heures de naissance, coordonnées et notes sont stockées uniquement sur l’appareil. Une désinstallation peut les supprimer. Protège le fichier JSON exporté.</p><div class="actions"><button class="ghost" data-export="1">Exporter JSON</button><button class="ghost" data-import="1">Importer JSON</button></div><input id="importFile" type="file" accept="application/json" hidden><button class="subnav danger" data-clear="1">Effacer les données locales</button></section>`+
       `<section class="notice"><b>Limites</b> · Vérifie les villes homonymes et les frontières historiques. Les dates très anciennes dépendent de la qualité des archives IANA du téléphone. Lahiri sidéral reste approximatif. Le thème tropical calcule l’Ascendant et les maisons Placidus ; près des pôles, des maisons égales les remplacent.</section>`;
@@ -303,7 +301,7 @@
         if(!E)throw new Error('Moteur astronomique indisponible');
         const key=JSON.stringify([state.profile,state.mode,state.orb,month.getFullYear(),month.getMonth()]);
         let data=cache.get(key);
-        if(!data){data=E.calculateMonth(state.profile,month.getFullYear(),month.getMonth()+1,state.mode,Number(state.orb));cache.set(key,data);if(cache.size>4)cache.delete(cache.keys().next().value);}
+        if(!data){data=E.calculateMonth(state.profile,month.getFullYear(),month.getMonth()+1,state.mode,'auto');cache.set(key,data);if(cache.size>4)cache.delete(cache.keys().next().value);}
         if(token!==calcToken)return;
         result=data;
       } catch(e){if(token!==calcToken)return;error=e?.message||'Calcul impossible';}
@@ -390,8 +388,7 @@
         }
         throw err;
       }
-      const orb=Number(d.orb);if(!Number.isFinite(orb)||orb<.1||orb>10)throw Error('Orbe invalide');
-      state.profile=profile;state.orb=orb;cache.clear();persist();birthDraft=null;placeSearch.needFold=false;
+      state.profile=profile;state.orb='auto';cache.clear();persist();birthDraft=null;placeSearch.needFold=false;
       show('Thème natal enregistré');refresh();
     } catch(err){show('Impossible : '+(err?.message||'Erreur'));}
   });
