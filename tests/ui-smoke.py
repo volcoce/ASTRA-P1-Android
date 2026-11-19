@@ -16,7 +16,8 @@ window.ASTRA_ENGINE = {
  normalizePlace(p){return {...p,label:p.label||'Paris · Île-de-France · France'}},
  searchCities:async q=>[{name:'Paris',label:'Paris · Île-de-France · France',latitude:48.8534,longitude:2.3488,timezone:'Europe/Paris',admin1:'Île-de-France',country:'France'}],
  localToUtc(date,time,zone,fold=null){if(date==='2026-10-25' && time==='02:30' && fold===null)throw Error('Heure ambiguë');return new Date('1994-05-12T16:40:00.000Z')},
- natalChart(){return {positions:{Sun:7, Moon:23}}},
+ natalChart(){return {positions:{Sun:7,Moon:23,Mercury:32,Venus:55,Mars:91,Jupiter:123,Saturn:141,Uranus:175,Neptune:203,Pluto:270},houses:{ascendant:151.5,midheaven:53.1,system:'Placidus',cusps:[151.5,172,199,233,270,304,331.5,352,19,53.1,90,124],polarFallback:false},aspects:[{a:'Sun',b:'Mars',aspect:'Carré',glyph:'□',orb:1}]}},
+ houseOf(lon,cusps){for(let i=0;i<12;i++){let d=(lon-cusps[i]+360)%360,w=(cusps[(i+1)%12]-cusps[i]+360)%360;if(d<w)return i+1;}return null;},
  describeEvent(e){return {kind:'Interprétation',title:e.name||'Soleil trigone Lune natal',tone:'Lecture symbolique',astronomy:'Mesure astronomique calculée.',interpretation:'Lecture astrologique sans causalité.',question:'Quelle observation personnelle noter ?',disclaimer:'Pas de prédiction scientifique.'}},
  calculateMonth(profile,year,month,mode){
    const n=new Date(year,month,0).getDate(),days={};
@@ -58,6 +59,11 @@ if __name__ == '__main__':
             page.wait_for_timeout(250)
             assert 'Paris' in page.evaluate("JSON.parse(localStorage.getItem('astra-public-v1')).profile.place.label")
             assert page.evaluate("JSON.parse(localStorage.getItem('astra-public-v1')).profile.latitude")==48.8534
+            page.locator('[data-tab="profile"]').click()
+            assert page.locator('#natalChart .natal-wheel').count()==1
+            assert page.locator('#natalChart .natal-position').count()==10
+            assert page.locator('#natalChart .natal-aspect').count()==1
+            assert 'Orbe des transits' in page.locator('#birthForm').inner_text()
             page.locator('[data-tab="calendar"]').click()
             page.locator('[data-event]').first.click(timeout=2000)
             assert page.locator('#detailPanel').count()==1

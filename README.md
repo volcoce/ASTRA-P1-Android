@@ -1,4 +1,4 @@
-# ASTRA Public — P2.1 (0.5.1-city-alpha)
+# ASTRA Public — P2.2 (0.5.3-preview)
 
 Application Android/WebView de suivi astrologique pour **tous les utilisateurs**. Les calculs astronomiques sont réalisés **à la demande** avec `astronomy-engine` dans le JavaScript local. Aucun profil natal ni aucune table personnelle pré-calculée n’est livrée dans l'APK. Aucun compte n’est obligatoire. La permission INTERNET sert **uniquement à la recherche volontaire de ville** ; les calculs de transits restent locaux et hors ligne.
 
@@ -17,6 +17,16 @@ Pour migrer des données, exporter le journal depuis l'ancienne application, vé
 Les APK de test précédents utilisaient des clés de signature aléatoires. Leurs certificats ne correspondent pas : Android refuse une mise à jour directe. Cette version est donc installée **à côté** de l'ancienne application, avec un identifiant distinct `org.astra.publicapp.preview` et le nom **ASTRA Preview**. Ne désinstallez pas l'ancienne application avant d'avoir sauvegardé les notes et vérifié leur import dans la Preview.
 
 Les builds Preview utilisent maintenant une clé de test stable stockée dans `ci/astra-preview-test-signing.p12.b64`. Elle est non secrète, uniquement destinée au développement. Ne jamais utiliser cette signature pour une version officielle destinée au public ; un keystore sécurisé et un identifiant de distribution seront nécessaires. Le dépôt doit rester privé en raison de son historique contenant d'anciennes données natales.
+
+## Thème natal tropical — P2.2 (0.5.3)
+
+L’onglet « Mon ciel » montre une roue natale **tropicale** calculée localement depuis la date, l’heure de naissance et les coordonnées de la ville choisie. Elle ne contient aucun thème personnel préchargé. Elle affiche les longitudes des dix corps, l’Ascendant, le Milieu du Ciel, les douze maisons Placidus et les aspects natals jusqu’à 5° d’orbe.
+
+Les maisons Placidus sont obtenues numériquement par trissection des arcs diurnes et nocturnes à partir du temps sidéral apparent Greenwich d’Astronomy Engine. Les tests tests/natal.test.mjs comparent quatre thèmes fictifs de référence à Swiss Ephemeris (tolérance 0,05°). Aux latitudes où Placidus n’est pas défini, ASTRA utilise et affiche explicitement les maisons égales. Aux pôles géographiques exacts, l’Ascendant est indéfini.
+
+Le réglage renommé « Orbe des transits » concerne seulement la tolérance des aspects transitants, par exemple un carré entre 88° et 92° pour un orbe de 2°. La roue natale utilise sa propre tolérance fixe de 5°.
+
+La version Preview augmente à versionCode=530 en conservant l’identifiant org.astra.publicapp.preview et la signature expérimentale précédente. La signature de débogage publique reste impropre à une distribution de production.
 
 ## Résolution automatique du lieu de naissance (P2.1)
 

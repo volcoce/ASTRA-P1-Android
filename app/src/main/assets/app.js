@@ -210,21 +210,73 @@
       `<section class="card"><h2 class="card-title">Mes tendances · 30 jours</h2>${summary()}</section>`+
       `<section class="card"><h2 class="card-title">Historique</h2><div class="field"><label for="journalSearch">Rechercher dans mes notes</label><input id="journalSearch" type="search" value="${safe(searchTerm)}" placeholder="Mot-clé, date ou thème"></div>${history.map(([day,item])=>`<div class="history-item"><b>${safe(day)} · humeur ${item.mood}/5</b>${item.energy?` <small>· énergie ${item.energy}/5</small>`:''}<p>${safe(item.note)}</p>${(item.tags||[]).map(t=>`<span class="tag-outline small-tag">${safe(themes[t]||t)}</span>`).join('')}<button data-day="${day}">Consulter</button></div>`).join('')||'<p class="muted">Aucune note correspondante.</p>'}</section>`;
   }
+  const zodiacSymbols=['♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓'];
+  const natalGlyphs={Sun:'☉',Moon:'☾',Mercury:'☿',Venus:'♀',Mars:'♂',Jupiter:'♃',Saturn:'♄',Uranus:'♅',Neptune:'♆',Pluto:'♇'};
+  const aspectColors={Conjonction:'#ad789f',Sextile:'#599b98','Carré':'#c16e89',Trigone:'#6496c7',Opposition:'#ad7dc0'};
+  const polar=(longitude,r,asc)=>{
+    const angle=(180-(longitude-asc))*Math.PI/180;
+    return [210+r*Math.cos(angle),210+r*Math.sin(angle)];
+  };
+  const loc=(longitude,r,asc)=>polar(longitude,r,asc).map(x=>x.toFixed(2)).join(',');
+  function wheelSvg(chart) {
+    const h=chart.houses;
+    if(!h||!Array.isArray(h.cusps)||h.cusps.length!==12)return '<p class="notice">Impossible de calculer les maisons pour ce lieu.</p>';
+    const asc=h.ascendant, segments=[];
+    for(let i=0;i<12;i++){
+      const start=i*30,end=start+30;
+      const [a,b,c,d]=[polar(start,195,asc),polar(end,195,asc),polar(end,169,asc),polar(start,169,asc)];
+      const path=`M ${a.join(' ')} A 195 195 0 0 0 ${b.join(' ')} L ${c.join(' ')} A 169 169 0 0 1 ${d.join(' ')} Z`;
+      const [gx,gy]=polar(start+15,182,asc);
+      segments.push(`<path d="${path}" fill="${i%2?'#f1eafa':'#faf7fe'}" stroke="#d9cce9" stroke-width=".8"/><text x="${gx}" y="${gy}" text-anchor="middle" dominant-baseline="central" class="zodiac-symbol">${zodiacSymbols[i]}</text>`);
+    }
+    const houseLines=h.cusps.map((v,i)=>{
+      const p=polar(v,166,asc),q=polar(v,94,asc),next=h.cusps[(i+1)%12];
+      const mid=v+((next-v+360)%360)/2,[tx,ty]=polar(mid,106,asc);
+      const major=[0,3,6,9].includes(i);
+      return `<line x1="${p[0]}" y1="${p[1]}" x2="${q[0]}" y2="${q[1]}" stroke="${major?'#7d659d':'#d7cae6'}" stroke-width="${major?2:1}"/><text x="${tx}" y="${ty}" text-anchor="middle" dominant-baseline="central" class="house-number">${i+1}</text>`;
+    });
+    const aspects=(chart.aspects||[]).slice(0,26).map(v=>{
+      const a=polar(chart.positions[v.a],77,asc),b=polar(chart.positions[v.b],77,asc);
+      return `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${aspectColors[v.aspect]||'#a996c4'}" stroke-width="1.3" stroke-opacity=".64"/>`;
+    });
+    const ordered=Object.entries(chart.positions).sort((a,b)=>a[1]-b[1]);
+    const glyphs=ordered.map(([body,lng],i)=>{
+      const nearby=ordered.filter(([other,n])=>other!==body&&Math.abs(((n-lng+540)%360)-180)<7).length;
+      const previous=ordered.slice(0,i).filter(([,n])=>Math.abs(((n-lng+540)%360)-180)<9).length;
+      const radius=nearby?147-(previous%3)*15:145;
+      const [x,y]=polar(lng,radius,asc),[bx,by]=polar(lng,164,asc);
+      return `<line x1="${bx}" y1="${by}" x2="${x}" y2="${y}" stroke="#b7a2cf" stroke-width=".9"/><circle cx="${bx}" cy="${by}" r="2.6" fill="#70538f"/><text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" class="natal-planet">${natalGlyphs[body]||body}</text>`;
+    });
+    const ascPoint=polar(asc,198,asc),mcPoint=polar(h.midheaven,198,asc);
+    return `<svg class="natal-wheel" viewBox="0 0 420 420" role="img" aria-label="Roue astrologique du thème natal tropical avec signes, douze maisons, dix corps astrologiques et aspects" xmlns="http://www.w3.org/2000/svg"><title>Thème natal tropical</title><circle cx="210" cy="210" r="198" fill="#fff" stroke="#bfaed6" stroke-width="1.2"/>${segments.join('')}<circle cx="210" cy="210" r="169" fill="#fffafc" stroke="#d9cee7"/>${houseLines.join('')}<circle cx="210" cy="210" r="94" fill="#fff" stroke="#e8dff0"/>${aspects.join('')}<circle cx="210" cy="210" r="47" fill="#fff" stroke="#f0ebf7"/><text x="210" y="204" text-anchor="middle" class="wheel-core-title">ASTRA</text><text x="210" y="219" text-anchor="middle" class="wheel-core-sub">TROPICAL</text>${glyphs.join('')}<text x="${ascPoint[0]-3}" y="${ascPoint[1]-7}" class="angle-label" text-anchor="end">ASC</text><text x="${mcPoint[0]}" y="${mcPoint[1]-7}" class="angle-label" text-anchor="middle">MC</text></svg>`;
+  }
+  function renderNatalTropical(chart){
+    const h=chart.houses;
+    if(!h)return '';
+    const sign=lng=>safe(E.formatSign(lng));
+    const house=lng=>E.houseOf(lng,h.cusps);
+    const big=[['Soleil',chart.positions.Sun],['Lune',chart.positions.Moon],['Ascendant',h.ascendant],['Milieu du Ciel',h.midheaven]];
+    const positions=Object.entries(chart.positions).map(([body,lng])=>`<div class="natal-position"><span class="position-planet"><span aria-hidden="true">${natalGlyphs[body]}</span>${safe(planets[body])}</span><span class="position-value">${sign(lng)}</span><span class="position-house">M${house(lng)??'–'}</span></div>`).join('');
+    const natalAspects=(chart.aspects||[]).slice(0,20).map(a=>`<div class="natal-aspect"><span>${safe(planets[a.a])} <b>${a.glyph}</b> ${safe(planets[a.b])}</span><span>${safe(a.aspect)} · ${a.orb.toFixed(2)}°</span></div>`).join('');
+    return `<section class="card natal-card" id="natalChart"><div class="section-row"><h2 class="card-title">Mon thème astral tropical</h2><span class="tag">Natal</span></div><p class="tiny">Calculé à partir de ta date, ton heure locale et ta ville de naissance. Maisons ${safe(h.system)}.</p>${wheelSvg(chart)}<p class="wheel-caption">Zodiaque tropical · ${safe(h.system)} · aspects natals jusqu’à 5° d’orbe</p><div class="natal-highlights">${big.map(([name,lng])=>`<div><span>${safe(name)}</span><b>${sign(lng)}</b></div>`).join('')}</div><h3 class="natal-subtitle">Positions et maisons</h3><div class="natal-positions">${positions}</div><h3 class="natal-subtitle">Aspects natals</h3><div class="natal-aspects">${natalAspects||'<p class="muted">Aucun aspect dans l’orbe de 5°.</p>'}</div>${h.polarFallback?'<p class="notice">À cette latitude, Placidus n’est pas défini partout : les maisons égales ont été utilisées.</p>':''}<p class="tiny">Les positions sont calculées sur l’appareil ; la lecture astrologique est symbolique. Le réglage « Orbe des transits » ne modifie pas cette roue natale.</p></section>`;
+  }
+
   function profile() {
-    const d=draft(),place=placeSearch.selected,chart=(!busy&&!error&&result?.chart)||null;
+    const d=draft(),place=placeSearch.selected;
+    let chart=null;try { if(state.profile&&E)chart=E.natalChart(state.profile,'tropical'); }catch(err){ /* Les anciennes sauvegardes peuvent être incomplètes. */ }
     const suggestions=placeSearch.options.map((p,i)=>`<button type="button" class="city-choice" data-place="${i}" aria-label="Choisir ${safe(p.label)}"><strong>${safe(p.name)}</strong><span>${safe([p.admin1,p.country].filter(Boolean).join(' · '))}</span></button>`).join('');
     const foldPicker=placeSearch.needFold?`<div class="field"><label for="fold">Cette heure locale a existé deux fois</label><select id="fold" name="fold" required><option value="">Choisir l’occurrence</option><option value="0" ${d.fold===0?'selected':''}>Première occurrence (avant le retour à l’heure d’hiver)</option><option value="1" ${d.fold===1?'selected':''}>Deuxième occurrence (après le retour à l’heure d’hiver)</option></select><p class="field-help">Ce cas rare ne peut pas être déduit de la ville et de l’heure seules. Consulte l’heure indiquée sur l’acte de naissance.</p></div>`:'';
-    return header('Mon ciel','Renseigne uniquement ta naissance et choisis ta ville. ASTRA déduit les coordonnées et le fuseau automatiquement.')+
+    return header('Mon ciel','Ton thème astral tropical calculé à partir de ton lieu et de ton heure de naissance.')+
+      (chart?renderNatalTropical(chart):'')+
       `<section class="card"><h2 class="card-title">Données de naissance</h2><form id="birthForm"><div class="field-grid"><div class="field"><label for="birthDate">Date</label><input required type="date" id="birthDate" name="date" min="1900-01-01" max="2100-12-31" value="${safe(d.date)}"></div><div class="field"><label for="birthTime">Heure locale</label><input required type="time" id="birthTime" name="time" value="${safe(d.time)}"></div></div>`+
       `<div class="field"><label for="birthCity">Ville de naissance</label><div class="city-search"><input required autocomplete="off" id="birthCity" name="city" placeholder="Ex. Paris, Montréal, Tokyo…" value="${safe(d.city)}"><button type="button" class="ghost" data-search-place="1" ${placeSearch.loading?'disabled':''}>${placeSearch.loading?'Recherche…':'Rechercher'}</button></div><p class="field-help">Recherche avec Internet, puis sélectionne le bon résultat. La position et le fuseau sont déduits de la ville, pas du téléphone.</p></div>`+
       `${placeSearch.error?`<p class="notice" role="alert">${safe(placeSearch.error)}</p>`:''}`+
       `${suggestions?`<div class="city-results" aria-label="Villes trouvées">${suggestions}</div>`:''}`+
       `${place?`<div class="city-confirmed" role="status"><b>Ville sélectionnée : ${safe(place.label)}</b><p>${safe(offsetDescription(d,place))}</p><small>Coordonnées déterminées automatiquement · ${place.latitude.toFixed(4)}°, ${place.longitude.toFixed(4)}°</small></div>`:'<p class="city-unselected">Aucune ville sélectionnée. Les coordonnées et le fuseau ne sont pas à saisir.</p>'}`+
-      `${foldPicker}<div class="field"><label for="orb">Orbe actif (0,1° à 10°)</label><input id="orb" name="orb" type="number" value="${safe(d.orb)}" min="0.1" max="10" step="0.1"></div><button class="primary full" type="submit">Calculer mon thème natal</button></form>`+
+      `${foldPicker}<div class="field"><label for="orb">Orbe des transits (0,1° à 10°)</label><input id="orb" name="orb" type="number" value="${safe(d.orb)}" min="0.1" max="10" step="0.1"><p class="field-help">Tolérance autour de l’angle exact : avec 2°, un carré est actif de 88° à 92°. Ne concerne que les transits du calendrier.</p></div><button class="primary full" type="submit">Calculer mon thème natal</button></form>`+
       `<p class="tiny">Recherche de villes fournie par <a href="https://open-meteo.com/" rel="noopener noreferrer">Open-Meteo / GeoNames</a>. Seul le nom de ville recherché est transmis. Ensuite, les calculs restent sur ton appareil, même hors connexion. Les règles historiques sont celles de la base de fuseaux disponible sur l’appareil.</p></section>`+
-      `${chart?`<section class="card"><h2 class="card-title">Positions natales · ${safe(state.mode)}</h2><div class="info-grid">${Object.entries(chart.positions).map(([body,lon])=>`<div class="planet"><b>${safe(planets[body])}</b><small>${safe(E.formatSign(lon))}</small></div>`).join('')}</div></section>`:''}`+
       `<section class="card"><h2 class="card-title">Confidentialité et sauvegarde</h2><p class="tiny">Les dates et heures de naissance, coordonnées et notes sont stockées uniquement sur l’appareil. Une désinstallation peut les supprimer. Protège le fichier JSON exporté.</p><div class="actions"><button class="ghost" data-export="1">Exporter JSON</button><button class="ghost" data-import="1">Importer JSON</button></div><input id="importFile" type="file" accept="application/json" hidden><button class="subnav danger" data-clear="1">Effacer les données locales</button></section>`+
-      `<section class="notice"><b>Limites</b> · Vérifie les villes homonymes et les frontières historiques. Les dates très anciennes dépendent de la qualité des archives IANA du téléphone. Lahiri reste approximatif ; maisons et ascendant ne sont pas encore calculés.</section>`;
+      `<section class="notice"><b>Limites</b> · Vérifie les villes homonymes et les frontières historiques. Les dates très anciennes dépendent de la qualité des archives IANA du téléphone. Lahiri sidéral reste approximatif. Le thème tropical calcule l’Ascendant et les maisons Placidus ; près des pôles, des maisons égales les remplacent.</section>`;
   }
   function render() {
     renderedEvents=[];
