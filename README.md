@@ -1,4 +1,4 @@
-# ASTRA Public — P2.2 (0.5.3-preview)
+# ASTRA Public — P2.3 (0.5.4-preview)
 
 Application Android/WebView de suivi astrologique pour **tous les utilisateurs**. Les calculs astronomiques sont réalisés **à la demande** avec `astronomy-engine` dans le JavaScript local. Aucun profil natal ni aucune table personnelle pré-calculée n’est livrée dans l'APK. Aucun compte n’est obligatoire. La permission INTERNET sert **uniquement à la recherche volontaire de ville** ; les calculs de transits restent locaux et hors ligne.
 
@@ -24,9 +24,9 @@ L’onglet « Mon ciel » montre une roue natale **tropicale** calculée localem
 
 Les maisons Placidus sont obtenues numériquement par trissection des arcs diurnes et nocturnes à partir du temps sidéral apparent Greenwich d’Astronomy Engine. Les tests tests/natal.test.mjs comparent quatre thèmes fictifs de référence à Swiss Ephemeris (tolérance 0,05°). Aux latitudes où Placidus n’est pas défini, ASTRA utilise et affiche explicitement les maisons égales. Aux pôles géographiques exacts, l’Ascendant est indéfini.
 
-Le réglage renommé « Orbe des transits » concerne seulement la tolérance des aspects transitants, par exemple un carré entre 88° et 92° pour un orbe de 2°. La roue natale utilise sa propre tolérance fixe de 5°.
+Les transits utilisent désormais des orbes automatiques selon la planète et l'aspect, sans saisie manuelle. Le calendrier indique séparément les passages exacts. La roue natale conserve son seuil d'aspects de 5°.
 
-La version Preview augmente à versionCode=530 en conservant l’identifiant org.astra.publicapp.preview et la signature expérimentale précédente. La signature de débogage publique reste impropre à une distribution de production.
+La version Preview augmente à versionCode=540 en conservant l’identifiant org.astra.publicapp.preview et la signature expérimentale précédente. La signature de débogage publique reste impropre à une distribution de production.
 
 ## Résolution automatique du lieu de naissance (P2.1)
 
@@ -80,3 +80,11 @@ Un build GitHub Actions se déclenche sur la branche `public-runtime`. Les APK d
 6. Le dépôt GitHub historique contient d'anciennes données personnelles. **Ne jamais rendre ce dépôt public** : utiliser un dépôt neuf avec un historique nettoyé pour la diffusion.
 
 La lecture astrologique est une pratique interprétative : elle n’établit pas de lien causal démontré avec l’humeur ou les événements du journal.
+## P2.3 — Orbes automatiques et passages exacts
+
+- Le champ manuel « Orbe des transits » est retiré de « Mon ciel ».
+- Les transits actifs à midi utilisent une convention automatique selon la planète et l'aspect (voir `TRANSIT_ORB_POLICY` et `ASPECT_ORB_FACTOR`). Le seuil et l'écart mesuré sont affichés.
+- Les **passages exacts** sont calculés par recherche de racine temporelle, indépendamment des orbes ; le filtre « Aspects exacts » reste disponible dans le calendrier.
+- Les anciens profils et journaux sont conservés ; toute ancienne valeur d'orbe est automatiquement remplacée par `auto`.
+- Les aspects actifs restent des relevés à midi, **pas encore des fenêtres continues d'entrée/sortie d'orbe**. L'échantillonnage temporel de six heures peut manquer des contacts tangents ou très rapides.
+- Ces orbes sont des conventions astrologiques, pas des constantes astronomiques ni des mesures prédictives démontrées.
