@@ -1,6 +1,8 @@
 package org.astra.publicapp;
 
 import android.app.Activity;
+import android.annotation.SuppressLint;
+import android.window.OnBackInvokedDispatcher;
 import android.content.pm.ApplicationInfo;
 import android.graphics.Color;
 import android.net.Uri;
@@ -116,16 +118,26 @@ public final class MainActivity extends Activity {
                 return response != null ? response : forbidden();
             }
         });
+        if (Build.VERSION.SDK_INT >= 33) {
+            getOnBackInvokedDispatcher().registerOnBackInvokedCallback(
+                OnBackInvokedDispatcher.PRIORITY_DEFAULT, this::navigateBackOrFinish
+            );
+        }
         webView.loadUrl(BASE + "index.html");
     }
 
-    @Override
-    public void onBackPressed() {
+    private void navigateBackOrFinish() {
         if (webView != null && webView.canGoBack()) {
             webView.goBack();
         } else {
-            super.onBackPressed();
+            finish();
         }
+    }
+
+    @SuppressLint("GestureBackNavigation")
+    @Override
+    public void onBackPressed() {
+        navigateBackOrFinish();
     }
 
     @Override
