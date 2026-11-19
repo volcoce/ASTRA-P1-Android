@@ -1,5 +1,30 @@
 # ASTRA Public — P2.3 (0.5.4-preview)
 
+## Prévisualiser sur PC avant de générer un APK
+
+Prérequis : **Node.js 22 ou plus récent**, npm et un navigateur moderne. Aucune installation d'Android Studio ni du SDK Android n'est requise.
+
+Sur macOS (Terminal), Windows (PowerShell) ou Linux :
+
+```bash
+git clone --branch public-runtime https://github.com/volcoce/ASTRA-P1-Android.git
+cd ASTRA-P1-Android
+npm install
+npm run dev
+```
+
+Ouvrir **http://127.0.0.1:4173/**. Pour arrêter le serveur, utiliser **Ctrl+C**.
+Si le projet est déjà téléchargé, se placer dans son dossier puis lancer `npm install` et `npm run dev`. Une modification des fichiers nécessite de rafraîchir l'onglet du navigateur ; si les fichiers `astro/*.mjs` ont changé, relancer `npm run dev` pour reconstruire le moteur.
+
+- Pour valider le code : `npm test` et `npm run test:desktop`.
+- Tester **Mon ciel** (ville, date et heure), la roue natale tropicale, **Aujourd'hui**, **Calendrier**, **Journal**, tropical/sidéral, export/import.
+- Le **calcul astronomique** s'effectue localement. La recherche initiale de ville exige Internet ; seule la ville recherchée est envoyée au fournisseur de géocodage.
+- Les données saisies en navigateur sont conservées dans le **localStorage de localhost** et ne sont pas synchronisées avec l'APK Android. Utiliser **Exporter JSON / Importer JSON** pour transférer une sauvegarde si les deux versions le prennent en charge.
+- Ce test reproduit le moteur HTML/CSS/JS, mais **pas** les autorisations, le cycle de vie ni les particularités de la WebView Android. Il ne remplace pas un dernier essai sur téléphone.
+
+**Règle de publication : tester d'abord sur PC et corriger les anomalies, puis compiler l'APK Android expérimental.**
+
+
 Application Android/WebView de suivi astrologique pour **tous les utilisateurs**. Les calculs astronomiques sont réalisés **à la demande** avec `astronomy-engine` dans le JavaScript local. Aucun profil natal ni aucune table personnelle pré-calculée n’est livrée dans l'APK. Aucun compte n’est obligatoire. La permission INTERNET sert **uniquement à la recherche volontaire de ville** ; les calculs de transits restent locaux et hors ligne.
 
 ## Installation Android — correctif P2.1 Preview (0.5.2)
