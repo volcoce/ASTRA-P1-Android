@@ -2,6 +2,16 @@
 
 Application Android/WebView de suivi astrologique pour **tous les utilisateurs**. Les calculs astronomiques sont réalisés **à la demande** avec `astronomy-engine` dans le JavaScript local. Aucun profil natal ni aucune table personnelle pré-calculée n’est livrée dans l'APK. Aucun compte n’est obligatoire. La permission INTERNET sert **uniquement à la recherche volontaire de ville** ; les calculs de transits restent locaux et hors ligne.
 
+## Installation Android — correctif P2.1 Preview (0.5.2)
+
+Les APK debug 0.4, 0.5.0 et 0.5.1 ont été signés sur des runners GitHub différents, d'où des certificats distincts. Android refuse leur installation en mise à jour les uns des autres.
+
+Pour préserver les journaux existants, **la version debug est désormais une application séparée** avec l'identifiant `org.astra.publicapp.preview` et le libellé **ASTRA Preview**. L'ancienne application `org.astra.publicapp` reste installée et ses données ne sont pas touchées. C'est un nouveau produit Android, et non une mise à jour in-place.
+
+Les futurs APK Preview partagent une **clé de test fixe** enregistrée en base64 dans `ci/astra-preview-test-signing.p12.b64`. Cette clé est volontairement non secrète, réservée à des essais et ne doit **jamais** être utilisée pour une publication sur Google Play ni pour signer une application officielle. Une version stable publique devra avoir son propre identifiant et une clé privée sécurisée (secrets CI ou service de signature).
+
+Pour migrer des données, exporter le journal depuis l'ancienne application, vérifier que le fichier JSON existe et contient bien les notes, puis l'importer dans ASTRA Preview. L'import/export Android n'ayant pas encore été testé sur tous les téléphones, ne pas désinstaller l'ancienne application tant que le transfert n'est pas vérifié.
+
 ## Résolution automatique du lieu de naissance (P2.1)
 
 - Le formulaire demande **date, heure locale et ville**. Les champs techniques latitude, longitude et fuseau ont disparu.
