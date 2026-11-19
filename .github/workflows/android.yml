@@ -1,11 +1,10 @@
-name: ASTRA Android P1 — Build
+name: ASTRA Public — Calcul dynamique Android 17
 on:
   push:
+    branches: [public-runtime]
   workflow_dispatch:
-
 permissions:
   contents: read
-
 jobs:
   debug:
     runs-on: ubuntu-latest
@@ -15,91 +14,38 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - name: Installer Android SDK 37 (runner GitHub)
+      - name: Installer SDK Android 17
         shell: bash
         run: |
-          set -e
+          set -euo pipefail
           SDKMANAGER="$(find "${ANDROID_HOME}/cmdline-tools" -type f -path '*/bin/sdkmanager' | sort -V | tail -n 1)"
-          if [ -z "$SDKMANAGER" ]; then echo "sdkmanager introuvable sur le runner"; exit 1; fi
-          echo "SDK Manager : $SDKMANAGER"
+          test -n "$SDKMANAGER"
           yes | "$SDKMANAGER" --licenses > /dev/null || true
           "$SDKMANAGER" --install "platforms;android-37.0" "build-tools;37.0.0"
-          # Android 17 est distribué sous android-37.0. Des outils attendent encore android-37.
           if [ -d "$ANDROID_HOME/platforms/android-37.0" ] && [ ! -e "$ANDROID_HOME/platforms/android-37" ]; then
             ln -s "$ANDROID_HOME/platforms/android-37.0" "$ANDROID_HOME/platforms/android-37"
           fi
-          test -f "$ANDROID_HOME/platforms/android-37.0/android.jar"
-          "$SDKMANAGER" --list_installed
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '9.3.1'
-      - name: Restaurer les éphémérides compressées
-        run: python3 scripts/inflate_assets.py
-      - name: Contrôles hors SDK
+      - name: Installer le moteur astronomique et construire le bundle hors ligne
         run: |
-          python3 scripts/verify_sources.py
-          node tests/test_assets.cjs
-          node tests/test_p1.cjs
-          node tests/test_ui_mock.cjs
+          npm install --no-audit --no-fund
+          npm run bundle
+          test -s app/src/main/assets/runtime.bundle.js
+      - name: Tester le calcul dynamique (profil non préchargé)
+        run: |
+          npm test
           node --check app/src/main/assets/app.js
-      - name: Build and lint
-        run: gradle --no-daemon :app:assembleDebug :app:lintDebug
-      - name: Save debug APK (clé temporaire GitHub CI)
-        uses: actions/upload-artifact@v4
-        with:
-          name: ASTRA-P1-debug-Android17
-          path: app/build/outputs/apk/debug/*.apk
-          if-no-files-found: error
-
-  release:
-    if: github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-java@v5
-        with:
-          distribution: temurin
-          java-version: '17'
-      - name: Installer Android SDK 37 (runner GitHub)
-        shell: bash
-        run: |
-          set -e
-          SDKMANAGER="$(find "${ANDROID_HOME}/cmdline-tools" -type f -path '*/bin/sdkmanager' | sort -V | tail -n 1)"
-          if [ -z "$SDKMANAGER" ]; then echo "sdkmanager introuvable sur le runner"; exit 1; fi
-          echo "SDK Manager : $SDKMANAGER"
-          yes | "$SDKMANAGER" --licenses > /dev/null || true
-          "$SDKMANAGER" --install "platforms;android-37.0" "build-tools;37.0.0"
-          # Android 17 est distribué sous android-37.0. Des outils attendent encore android-37.
-          if [ -d "$ANDROID_HOME/platforms/android-37.0" ] && [ ! -e "$ANDROID_HOME/platforms/android-37" ]; then
-            ln -s "$ANDROID_HOME/platforms/android-37.0" "$ANDROID_HOME/platforms/android-37"
+          if grep -R -E 'ASTRA_FORECASTS|p1-data.js|data.js.gz|PRESET=' app/src/main/assets astro; then
+            echo 'Le produit public ne doit pas inclure les données précalculées historiques.'
+            exit 1
           fi
-          test -f "$ANDROID_HOME/platforms/android-37.0/android.jar"
-          "$SDKMANAGER" --list_installed
-      - uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '9.3.1'
-      - name: Restaurer les éphémérides compressées
-        run: python3 scripts/inflate_assets.py
-      - name: Restaurer la clé privée fournie par le propriétaire
-        env:
-          ASTRA_KEYSTORE_BASE64: ${{ secrets.ASTRA_KEYSTORE_BASE64 }}
-        run: |
-          if [ -z "$ASTRA_KEYSTORE_BASE64" ]; then echo "Configurez la clé de signature avant un release."; exit 1; fi
-          printf '%s' "$ASTRA_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/astra-release.jks"
-          chmod 600 "$RUNNER_TEMP/astra-release.jks"
-      - name: Build release signée
-        env:
-          ASTRA_RELEASE_KEYSTORE: ${{ runner.temp }}/astra-release.jks
-          ASTRA_STORE_PASSWORD: ${{ secrets.ASTRA_STORE_PASSWORD }}
-          ASTRA_KEY_ALIAS: ${{ secrets.ASTRA_KEY_ALIAS }}
-          ASTRA_KEY_PASSWORD: ${{ secrets.ASTRA_KEY_PASSWORD }}
-        run: gradle --no-daemon :app:assembleRelease
-      - name: Vérifier la signature v2/v3
-        run: |
-          "$ANDROID_HOME/build-tools/37.0.0/apksigner" verify --verbose app/build/outputs/apk/release/app-release.apk
-      - name: Upload release
+      - name: Build Android 17 et lint
+        run: gradle --no-daemon :app:assembleDebug :app:lintDebug
+      - name: Publier APK expérimental
         uses: actions/upload-artifact@v4
         with:
-          name: ASTRA-P1-release-signe
-          path: app/build/outputs/apk/release/app-release.apk
+          name: ASTRA-PUBLIC-debug-Android17
+          path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error

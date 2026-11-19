@@ -12,5 +12,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "ASTRA-P0"
+rootProject.name = "ASTRA-Public"
 include(":app")

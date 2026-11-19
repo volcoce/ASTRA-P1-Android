@@ -1,0 +1,12 @@
+{
+  "name":"astra-public-runtime",
+  "private":true,
+  "version":"0.4.0-alpha",
+  "description":"ASTRA runtime astronomical engine — no personal ephemeris tables",
+  "scripts":{
+    "bundle":"esbuild astro/runtime.mjs --bundle --minify --format=iife --target=es2020 --outfile=app/src/main/assets/runtime.bundle.js",
+    "test":"node --test tests/*.test.mjs"
+  },
+  "dependencies":{"astronomy-engine":"2.1.19"},
+  "devDependencies":{"esbuild":"0.25.12"}
+}

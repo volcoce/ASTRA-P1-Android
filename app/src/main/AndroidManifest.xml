@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Pas de permission INTERNET, caméra, localisation ou stockage. -->
     <application
-        android:label="ASTRA P1"
+        android:label="ASTRA"
         android:icon="@drawable/ic_astra"
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"

@@ -3,16 +3,16 @@ plugins {
 }
 
 android {
-    namespace = "org.astra.mobile.p0"
+    namespace = "org.astra.publicapp"
     compileSdk = 37
 
     defaultConfig {
         // Paquet distinct de l'ancien org.astra.mobile : sa clé privée est introuvable.
-        applicationId = "org.astra.mobile.p0"
+        applicationId = "org.astra.publicapp"
         minSdk = 26
         targetSdk = 37
-        versionCode = 301
-        versionName = "0.3.0-p1"
+        versionCode = 400
+        versionName = "0.4.0-runtime-alpha"
     }
 
     val keystorePath = System.getenv("ASTRA_RELEASE_KEYSTORE")

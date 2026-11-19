@@ -1,4 +1,4 @@
-package org.astra.mobile.p0;
+package org.astra.publicapp;
 
 import android.app.Activity;
 import android.content.pm.ApplicationInfo;
