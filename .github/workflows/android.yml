@@ -41,11 +41,16 @@ jobs:
             echo 'Le produit public ne doit pas inclure les données précalculées historiques.'
             exit 1
           fi
+      - name: Préparer la signature stable (DEBUG / Preview uniquement)
+        run: |
+          base64 --decode ci/astra-preview-test-signing.p12.b64 > ci/astra-preview-test-signing.p12
+          test -s ci/astra-preview-test-signing.p12
+          keytool -list -storetype PKCS12 -keystore ci/astra-preview-test-signing.p12 -storepass 'astra-preview-TEST-only-2026' >/dev/null
       - name: Build Android 17 et lint
         run: gradle --no-daemon :app:assembleDebug :app:lintDebug
       - name: Publier APK expérimental
         uses: actions/upload-artifact@v4
         with:
-          name: ASTRA-PUBLIC-debug-Android17
+          name: ASTRA-PREVIEW-debug-Android17-stable-signature
           path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
