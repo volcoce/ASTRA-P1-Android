@@ -46,6 +46,11 @@ jobs:
           base64 --decode ci/astra-preview-test-signing.p12.b64 > ci/astra-preview-test-signing.p12
           test -s ci/astra-preview-test-signing.p12
           keytool -list -storetype PKCS12 -keystore ci/astra-preview-test-signing.p12 -storepass 'astra-preview-TEST-only-2026' >/dev/null
+      - name: Préparer la signature de test ASTRA Preview
+        run: |
+          base64 --decode ci/astra-preview-test-signing.p12.b64 > ci/astra-preview-test-signing.p12
+          test -s ci/astra-preview-test-signing.p12
+          keytool -list -storetype PKCS12 -keystore ci/astra-preview-test-signing.p12 -storepass 'astra-preview-TEST-only-2026' >/dev/null
       - name: Build Android 17 et lint
         run: gradle --no-daemon :app:assembleDebug :app:lintDebug
       - name: Publier APK expérimental
