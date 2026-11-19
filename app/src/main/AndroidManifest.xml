@@ -3,7 +3,7 @@
     <!-- Réseau uniquement pour rechercher une ville ; aucune permission GPS, caméra ou stockage. -->
     <uses-permission android:name="android.permission.INTERNET" />
     <application
-        android:label="ASTRA"
+        android:label="${appDisplayName}"
         android:icon="@drawable/ic_astra"
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
