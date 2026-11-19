@@ -23,7 +23,12 @@ jobs:
           if [ -z "$SDKMANAGER" ]; then echo "sdkmanager introuvable sur le runner"; exit 1; fi
           echo "SDK Manager : $SDKMANAGER"
           yes | "$SDKMANAGER" --licenses > /dev/null || true
-          "$SDKMANAGER" --install "platforms;android-37" "build-tools;37.0.0"
+          "$SDKMANAGER" --install "platforms;android-37.0" "build-tools;37.0.0"
+          # Android 17 est distribué sous android-37.0. Des outils attendent encore android-37.
+          if [ -d "$ANDROID_HOME/platforms/android-37.0" ] && [ ! -e "$ANDROID_HOME/platforms/android-37" ]; then
+            ln -s "$ANDROID_HOME/platforms/android-37.0" "$ANDROID_HOME/platforms/android-37"
+          fi
+          test -f "$ANDROID_HOME/platforms/android-37.0/android.jar"
           "$SDKMANAGER" --list_installed
       - uses: gradle/actions/setup-gradle@v4
         with:
@@ -63,7 +68,12 @@ jobs:
           if [ -z "$SDKMANAGER" ]; then echo "sdkmanager introuvable sur le runner"; exit 1; fi
           echo "SDK Manager : $SDKMANAGER"
           yes | "$SDKMANAGER" --licenses > /dev/null || true
-          "$SDKMANAGER" --install "platforms;android-37" "build-tools;37.0.0"
+          "$SDKMANAGER" --install "platforms;android-37.0" "build-tools;37.0.0"
+          # Android 17 est distribué sous android-37.0. Des outils attendent encore android-37.
+          if [ -d "$ANDROID_HOME/platforms/android-37.0" ] && [ ! -e "$ANDROID_HOME/platforms/android-37" ]; then
+            ln -s "$ANDROID_HOME/platforms/android-37.0" "$ANDROID_HOME/platforms/android-37"
+          fi
+          test -f "$ANDROID_HOME/platforms/android-37.0/android.jar"
           "$SDKMANAGER" --list_installed
       - uses: gradle/actions/setup-gradle@v4
         with:
