@@ -23,7 +23,7 @@ window.ASTRA_ENGINE = {
    const n=new Date(year,month,0).getDate(),days={};
    for(let d=1;d<=n;d++){
      const k=year+'-'+String(month).padStart(2,'0')+'-'+String(d).padStart(2,'0');
-     days[k]={active:[{type:'active',body:'Sun',natal:'Moon',aspect:'Trigone',delta:.43}], exact:[{type:'exact',body:'Sun',natal:'Moon',aspect:'Trigone',at:k+'T11:30:00Z'}], sky:[{type:'moon',name:'Pleine Lune',at:k+'T14:00:00Z'}]};
+     days[k]={active:[{type:'active',body:'Sun',natal:'Moon',aspect:'Trigone',angle:120,delta:.43,orb:1.7}], exact:[{type:'exact',body:'Sun',natal:'Moon',aspect:'Trigone',at:k+'T11:30:00Z'}], sky:[{type:'moon',name:'Pleine Lune',at:k+'T14:00:00Z'}]};
    }
    return {days,chart:this.natalChart(),mode};
  }
@@ -63,7 +63,8 @@ if __name__ == '__main__':
             assert page.locator('#natalChart .natal-wheel').count()==1
             assert page.locator('#natalChart .natal-position').count()==10
             assert page.locator('#natalChart .natal-aspect').count()==1
-            assert 'Orbe des transits' in page.locator('#birthForm').inner_text()
+            assert page.locator('#orb').count()==0
+            assert 'Orbes automatiques' in page.locator('#birthForm').inner_text()
             page.locator('[data-tab="calendar"]').click()
             page.locator('[data-event]').first.click(timeout=2000)
             assert page.locator('#detailPanel').count()==1
