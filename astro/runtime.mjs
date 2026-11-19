@@ -3,9 +3,17 @@ import {describeEvent, DISCLAIMER} from './interpretations.mjs';
 import {searchCities, normalizePlace} from './places.mjs';
 import {tropicalHouses,houseOf,natalAspects} from './natal.mjs';
 import {ASPECTS,TARGETS,mod,signed,angularDistance,zodiacLongitude,formatSign,localToUtc,isoDay,validateProfile} from './core.mjs';
-export {ASPECTS,formatSign,localToUtc,validateProfile,describeEvent,DISCLAIMER,searchCities,normalizePlace,houseOf};
+export {ASPECTS,formatSign,localToUtc,validateProfile,describeEvent,DISCLAIMER,searchCities,normalizePlace,houseOf,automaticTransitOrb};
 export const BODIES=['Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto'];
 export const BODY_FR={Sun:'Soleil',Moon:'Lune',Mercury:'Mercure',Venus:'Vénus',Mars:'Mars',Jupiter:'Jupiter',Saturn:'Saturne',Uranus:'Uranus',Neptune:'Neptune',Pluto:'Pluton'};
+/* Automatic transit orbs: editorial astrological conventions, not astronomical constants. */
+export const TRANSIT_ORB_POLICY=Object.freeze({Sun:2,Moon:1,Mercury:1.5,Venus:1.5,Mars:1.5,Jupiter:2,Saturn:2,Uranus:1.5,Neptune:1.5,Pluto:1.5});
+const ASPECT_ORB_FACTOR=Object.freeze({0:1,60:0.7,90:0.9,120:0.85,180:1});
+export function automaticTransitOrb(body,aspectAngle){
+  const base=TRANSIT_ORB_POLICY[body],factor=ASPECT_ORB_FACTOR[aspectAngle];
+  if(!Number.isFinite(base)||!Number.isFinite(factor))throw Error('Planète ou aspect inconnu');
+  return Math.round(base*factor*100)/100;
+}
 const DAY=86400000;
 export function tropicalLongitude(body,date) {
   if(body==='Moon') return Astronomy.EclipticGeoMoon(date).lon;
@@ -20,9 +28,9 @@ export function natalChart(profile,mode='tropical') {
   return {birth:birth.toISOString(),positions,houses,aspects:natalAspects(positions),zodiac:mode,engine:'astronomy-engine@2.1.19'};
 }
 export function moonPhase(date) {return Astronomy.MoonPhase(date);}
-export function calculateMonth(profile,year,month,mode='tropical',orb=2,options={}) {
+export function calculateMonth(profile,year,month,mode='tropical',orb='auto',options={}) {
   if(!Number.isInteger(year)||year<1900||year>2100||!Number.isInteger(month)||month<1||month>12)throw Error('Mois invalide');
-  if(!['tropical','sidereal'].includes(mode)||!Number.isFinite(orb)||orb<0.1||orb>10)throw Error('Paramètres invalides');
+  if(!['tropical','sidereal'].includes(mode)||(orb!=='auto'&&(!Number.isFinite(orb)||orb<0.1||orb>10)))throw Error('Paramètres invalides');
   const chart=natalChart(profile,mode), natal=chart.positions, zone=profile.timezone;
   const start=Date.UTC(year,month-1,1)-2*DAY, end=Date.UTC(year,month,1)+2*DAY;
   const samples=[];
@@ -41,7 +49,8 @@ export function calculateMonth(profile,year,month,mode='tropical',orb=2,options=
       const lng=longitude(body,mid,mode);
       for(const native of BODIES){const nLng=natal[native];const separation=angularDistance(lng,nLng);
         const best=ASPECTS.map(a=>({...a,delta:Math.abs(separation-a.angle)})).sort((a,b)=>a.delta-b.delta)[0];
-        if(best.delta<=orb)active.push({body,natal:native,angle:best.angle,aspect:best.name,glyph:best.glyph,delta:+best.delta.toFixed(3)});
+        const allowedOrb=orb==='auto'?automaticTransitOrb(body,best.angle):orb;
+        if(best.delta<=allowedOrb)active.push({body,natal:native,angle:best.angle,aspect:best.name,glyph:best.glyph,orb:allowedOrb,delta:+best.delta.toFixed(3)});
       }
     }
     active.sort((a,b)=>a.delta-b.delta);days[day]={date:day,active,exact:[],sky:[]};
