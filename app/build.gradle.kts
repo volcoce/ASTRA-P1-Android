@@ -11,8 +11,8 @@ android {
         applicationId = "org.astra.publicapp"
         minSdk = 26
         targetSdk = 37
-        versionCode = 510
-        versionName = "0.5.1-city-alpha"
+        versionCode = 520
+        versionName = "0.5.2-preview"
     }
 
     val keystorePath = System.getenv("ASTRA_RELEASE_KEYSTORE")
@@ -39,6 +39,7 @@ android {
         }
         debug {
             isDebuggable = true
+            applicationIdSuffix = ".preview"
         }
     }
 
