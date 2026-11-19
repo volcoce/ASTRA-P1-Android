@@ -17,6 +17,16 @@ android {
 
     val keystorePath = System.getenv("ASTRA_RELEASE_KEYSTORE")
     signingConfigs {
+        getByName("debug") {
+            // Publicly known test credential; never use for release distribution.
+            storeFile = file("../ci/astra-preview-test-signing.p12")
+            storePassword = "astra-preview-TEST-only-2026"
+            keyAlias = "astra_preview"
+            keyPassword = "astra-preview-TEST-only-2026"
+            enableV1Signing = false
+            enableV2Signing = true
+            enableV3Signing = true
+        }
         if (!keystorePath.isNullOrBlank()) {
             create("astraRelease") {
                 storeFile = file(keystorePath)
