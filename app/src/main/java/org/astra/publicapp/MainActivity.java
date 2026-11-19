@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.annotation.SuppressLint;
 import android.window.OnBackInvokedDispatcher;
 import android.content.pm.ApplicationInfo;
+import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
@@ -25,13 +26,26 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 
 /**
- * Conteneur natif minimal : un seul domaine HTTPS virtuel, aucune permission Internet.
+ * Conteneur natif minimal : actifs locaux HTTPS, réseau autorisé seulement pour le géocodage de villes.
  * Le JS ne reçoit PAS de pont natif (@JavascriptInterface), ce qui limite l'exposition.
  */
 public final class MainActivity extends Activity {
     private static final String HOST = "appassets.androidplatform.net";
     private static final String BASE = "https://" + HOST + "/assets/";
     private WebView webView;
+
+    private static boolean isAttributionLink(Uri uri) {
+        if (uri == null || !"https".equalsIgnoreCase(uri.getScheme())) return false;
+        String host = uri.getHost();
+        return "open-meteo.com".equalsIgnoreCase(host) || "www.open-meteo.com".equalsIgnoreCase(host);
+    }
+
+    private static boolean isGeocodingApi(Uri uri) {
+        return uri != null && "https".equalsIgnoreCase(uri.getScheme())
+                && "geocoding-api.open-meteo.com".equalsIgnoreCase(uri.getHost())
+                && "/v1/search".equals(uri.getPath())
+                && uri.getUserInfo() == null;
+    }
 
     private static boolean isLocalAsset(Uri url) {
         return url != null
@@ -107,12 +121,21 @@ public final class MainActivity extends Activity {
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                return !isLocalAsset(request.getUrl());
+                Uri uri = request.getUrl();
+                if (isAttributionLink(uri)) {
+                    try { startActivity(new Intent(Intent.ACTION_VIEW, uri)); }
+                    catch (Exception ignored) { /* Browser not installed; do not navigate in the WebView. */ }
+                    return true;
+                }
+                return !isLocalAsset(uri);
             }
 
             @Override
             public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
                 Uri uri = request.getUrl();
+                // Autoriser seulement la recherche explicite d'une ville via HTTPS.
+                // Les navigations externes restent bloquées ci-dessus.
+                if ("GET".equalsIgnoreCase(request.getMethod()) && isGeocodingApi(uri)) return null;
                 if (!isLocalAsset(uri)) return forbidden();
                 WebResourceResponse response = loader.shouldInterceptRequest(uri);
                 return response != null ? response : forbidden();

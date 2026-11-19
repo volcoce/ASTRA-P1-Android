@@ -1,6 +1,17 @@
-# ASTRA Public — P2 (0.5.0 alpha)
+# ASTRA Public — P2.1 (0.5.1-city-alpha)
 
-Application Android/WebView de suivi astrologique pour **tous les utilisateurs**. Les calculs astronomiques sont réalisés **à la demande** avec `astronomy-engine` dans le JavaScript local. Aucun profil natal ni aucune table personnelle pré-calculée n’est livrée dans l'APK. Aucun compte ni permission INTERNET.
+Application Android/WebView de suivi astrologique pour **tous les utilisateurs**. Les calculs astronomiques sont réalisés **à la demande** avec `astronomy-engine` dans le JavaScript local. Aucun profil natal ni aucune table personnelle pré-calculée n’est livrée dans l'APK. Aucun compte n’est obligatoire. La permission INTERNET sert **uniquement à la recherche volontaire de ville** ; les calculs de transits restent locaux et hors ligne.
+
+## Résolution automatique du lieu de naissance (P2.1)
+
+- Le formulaire demande **date, heure locale et ville**. Les champs techniques latitude, longitude et fuseau ont disparu.
+- La ville est recherchée par l'utilisateur avec le service Open-Meteo Geocoding, alimenté par GeoNames. ASTRA présente les homonymes avec région et pays pour éviter les erreurs. L'utilisateur choisit un résultat.
+- Chaque résultat comprend les coordonnées et un nom de fuseau **IANA** ; ASTRA utilise ce fuseau avec `Intl.DateTimeFormat` pour les règles calendaires correspondant à la date de naissance. L'heure d'été/hiver n'est pas un réglage manuel.
+- **Cas limite réel** : au retour à l'heure d'hiver, certaines heures ont eu lieu deux fois. La ville et l'heure seules ne peuvent pas les départager : l'utilisateur doit choisir entre la première et la seconde occurrence. Une heure locale inexistante est rejetée.
+- Seule la **requête de ville** est envoyée à Open-Meteo : jamais la date/heure de naissance ni le journal. Après sélection, le profil est conservé localement ; le thème et les transits sont calculés sans Internet.
+- Les anciens profils sans `place` restent lisibles, mais doivent refaire une sélection de ville pour valider un nouveau profil.
+- **Licence** : l'API publique gratuite Open-Meteo est réservée aux usages non commerciaux, avec attribution. Pour une distribution commerciale, souscrire à une offre autorisant cet usage ou remplacer le fournisseur. Voir https://open-meteo.com/en/pricing et https://github.com/open-meteo/geocoding-api.
+- **Limite historique** : l'API déduit un fuseau contemporain à partir d'une ville moderne. Pour des lieux ayant changé de frontière ou de réglementation, et pour des dates anciennes, des règles supplémentaires vérifiées peuvent être nécessaires. La qualité des conversions IANA/ICU varie selon la version Android.
 
 ## Fonctions P2
 
@@ -26,6 +37,7 @@ Un build GitHub Actions se déclenche sur la branche `public-runtime`. Les APK d
 ## Architecture
 
 - `astro/runtime.mjs` : éphémérides dynamiques, transits, stations et phases lunaires.
+- `astro/places.mjs` : recherche de villes, validation des coordonnées et fuseaux IANA.
 - `astro/core.mjs` : conversions d'heures et conventions zodiacales.
 - `astro/interpretations.mjs` : descriptions éditoriales indépendantes du moteur astronomique et des profils.
 - `app/src/main/assets/app.js` : interface, journal local et sauvegardes.
@@ -33,7 +45,8 @@ Un build GitHub Actions se déclenche sur la branche `public-runtime`. Les APK d
 
 ## Limites connues
 
-1. Sidéral Lahiri dérivé d'une approximation, **non suffisamment validé** pour une diffusion commerciale.
+1. La recherche de ville nécessite Internet et dépend de la disponibilité et des conditions de licence de l'API de géocodage.
+2. Sidéral Lahiri dérivé d'une approximation, **non suffisamment validé** pour une diffusion commerciale.
 2. Ascendant et maisons absents ; fenêtres d'orbe complètes et passages rétrogrades multiples non encore calculés.
 3. Les aspects actifs sont des relevés à midi local, pas des intervalles continus. Certains contacts rapides ou tangents peuvent échapper à un échantillonnage de 6 h.
 4. Le calcul mensuel se déroule toujours sur le thread principal de la WebView ; il faudra un Web Worker pour assurer la fluidité sur tous les téléphones.

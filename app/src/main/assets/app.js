@@ -52,6 +52,57 @@
   let selected = isoDay(new Date());
   let month = new Date(new Date().getFullYear(),new Date().getMonth(),1);
   let result = null, error='', busy=false, calcToken=0, openDetail=null, journalDraft=null, journalDraftDate='', searchTerm='';
+  // Non-persisted form state. Only a selected city can supply coordinates/timezone.
+  let birthDraft=null;
+  let placeSearch={options:[],selected:null,loading:false,error:'',needFold:false,requestId:0};
+  function draft() {
+    if(!birthDraft){
+      const p=state.profile||{};
+      birthDraft={date:p.date||'',time:p.time||'',city:p.place?.label||'',orb:String(state.orb),fold:p.fold??null};
+      placeSearch.selected=p.place ? E.normalizePlace({...p.place,latitude:p.latitude,longitude:p.longitude,timezone:p.timezone}) : null;
+    }
+    return birthDraft;
+  }
+  function captureBirthForm() {
+    const d=draft();
+    if($('birthDate'))d.date=$('birthDate').value;
+    if($('birthTime'))d.time=$('birthTime').value;
+    if($('birthCity'))d.city=$('birthCity').value;
+    if($('orb'))d.orb=$('orb').value;
+    if($('fold'))d.fold=$('fold').value===''?null:Number($('fold').value);
+  }
+  async function searchBirthCity() {
+    captureBirthForm();
+    const query=draft().city.trim();
+    if(query.length<3){placeSearch.error='Saisis au moins 3 caractères.';render();return;}
+    const requestId=++placeSearch.requestId;
+    placeSearch.loading=true;placeSearch.error='';placeSearch.options=[];
+    placeSearch.selected=null;placeSearch.needFold=false;render();
+    const controller=new AbortController();
+    const timeout=setTimeout(()=>controller.abort(),10000);
+    try{
+      const options=await E.searchCities(query,{signal:controller.signal});
+      if(requestId!==placeSearch.requestId)return;
+      placeSearch.options=options;
+      if(!options.length)placeSearch.error='Aucune ville trouvée. Essaie le nom complet ou une ville voisine.';
+    }catch(err){
+      if(requestId!==placeSearch.requestId)return;
+      placeSearch.error=err?.name==='AbortError'?'Recherche trop longue. Vérifie la connexion.':(err?.message||'Recherche impossible');
+    }finally{
+      clearTimeout(timeout);
+      if(requestId===placeSearch.requestId){placeSearch.loading=false;render();}
+    }
+  }
+  function offsetDescription(d,place) {
+    if(!d.date||!d.time)return 'Choisis aussi ta date et ton heure de naissance.';
+    try{
+      const utc=E.localToUtc(d.date,d.time,place.timezone,d.fold);
+      const [y,m,day]=d.date.split('-').map(Number),[hour,minute]=d.time.split(':').map(Number);
+      const minutes=Math.round((Date.UTC(y,m-1,day,hour,minute)-utc.getTime())/60000);
+      const sign=minutes>=0?'+':'−',v=Math.abs(minutes);
+      return `Fuseau ${place.timezone} · UTC${sign}${pad(Math.floor(v/60))}:${pad(v%60)} à cette date · ${utc.toISOString().slice(0,16).replace('T',' ')} UTC`;
+    }catch(err){return err?.message||'Heure locale à vérifier';}
+  }
   const cache = new Map();
   let renderedEvents = [];
   const persist = () => localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
@@ -160,12 +211,20 @@
       `<section class="card"><h2 class="card-title">Historique</h2><div class="field"><label for="journalSearch">Rechercher dans mes notes</label><input id="journalSearch" type="search" value="${safe(searchTerm)}" placeholder="Mot-clé, date ou thème"></div>${history.map(([day,item])=>`<div class="history-item"><b>${safe(day)} · humeur ${item.mood}/5</b>${item.energy?` <small>· énergie ${item.energy}/5</small>`:''}<p>${safe(item.note)}</p>${(item.tags||[]).map(t=>`<span class="tag-outline small-tag">${safe(themes[t]||t)}</span>`).join('')}<button data-day="${day}">Consulter</button></div>`).join('')||'<p class="muted">Aucune note correspondante.</p>'}</section>`;
   }
   function profile() {
-    const p=state.profile||{},chart=(!busy&&!error&&result?.chart)||null;
-    return header('Mon ciel','Profil natal modifiable à tout moment. Aucun thème personnel n’est fourni avec ASTRA.')+
-      `<section class="card"><h2 class="card-title">Données de naissance</h2><form id="birthForm"><div class="field-grid"><div class="field"><label for="birthDate">Date</label><input required type="date" id="birthDate" name="date" min="1900-01-01" max="2100-12-31" value="${safe(p.date||'')}"></div><div class="field"><label for="birthTime">Heure locale</label><input required type="time" id="birthTime" name="time" value="${safe(p.time||'')}"></div></div><div class="field"><label for="birthZone">Fuseau IANA du lieu de naissance</label><input required id="birthZone" name="timezone" placeholder="Europe/Paris" value="${safe(p.timezone||detectedZone)}"></div><div class="field-grid"><div class="field"><label for="lat">Latitude (°)</label><input required id="lat" name="latitude" type="number" step="any" min="-90" max="90" value="${safe(p.latitude??'')}"></div><div class="field"><label for="lng">Longitude (°)</label><input required id="lng" name="longitude" type="number" step="any" min="-180" max="180" value="${safe(p.longitude??'')}"></div></div><div class="field"><label for="fold">Retour à l’heure d’hiver · occurrence</label><select name="fold" id="fold"><option value="">Non précisée</option><option value="0" ${p.fold===0?'selected':''}>Première</option><option value="1" ${p.fold===1?'selected':''}>Deuxième</option></select></div><div class="field"><label for="orb">Orbe actif (0,1° à 10°)</label><input id="orb" name="orb" type="number" value="${state.orb}" min="0.1" max="10" step="0.1"></div><button class="primary full" type="submit">Calculer mon thème natal</button></form><p class="tiny">Les coordonnées préparent le calcul futur de l’ascendant et des maisons. Les positions actuelles sont géocentriques.</p></section>`+
+    const d=draft(),place=placeSearch.selected,chart=(!busy&&!error&&result?.chart)||null;
+    const suggestions=placeSearch.options.map((p,i)=>`<button type="button" class="city-choice" data-place="${i}" aria-label="Choisir ${safe(p.label)}"><strong>${safe(p.name)}</strong><span>${safe([p.admin1,p.country].filter(Boolean).join(' · '))}</span></button>`).join('');
+    const foldPicker=placeSearch.needFold?`<div class="field"><label for="fold">Cette heure locale a existé deux fois</label><select id="fold" name="fold" required><option value="">Choisir l’occurrence</option><option value="0" ${d.fold===0?'selected':''}>Première occurrence (avant le retour à l’heure d’hiver)</option><option value="1" ${d.fold===1?'selected':''}>Deuxième occurrence (après le retour à l’heure d’hiver)</option></select><p class="field-help">Ce cas rare ne peut pas être déduit de la ville et de l’heure seules. Consulte l’heure indiquée sur l’acte de naissance.</p></div>`:'';
+    return header('Mon ciel','Renseigne uniquement ta naissance et choisis ta ville. ASTRA déduit les coordonnées et le fuseau automatiquement.')+
+      `<section class="card"><h2 class="card-title">Données de naissance</h2><form id="birthForm"><div class="field-grid"><div class="field"><label for="birthDate">Date</label><input required type="date" id="birthDate" name="date" min="1900-01-01" max="2100-12-31" value="${safe(d.date)}"></div><div class="field"><label for="birthTime">Heure locale</label><input required type="time" id="birthTime" name="time" value="${safe(d.time)}"></div></div>`+
+      `<div class="field"><label for="birthCity">Ville de naissance</label><div class="city-search"><input required autocomplete="off" id="birthCity" name="city" placeholder="Ex. Paris, Montréal, Tokyo…" value="${safe(d.city)}"><button type="button" class="ghost" data-search-place="1" ${placeSearch.loading?'disabled':''}>${placeSearch.loading?'Recherche…':'Rechercher'}</button></div><p class="field-help">Recherche avec Internet, puis sélectionne le bon résultat. La position et le fuseau sont déduits de la ville, pas du téléphone.</p></div>`+
+      `${placeSearch.error?`<p class="notice" role="alert">${safe(placeSearch.error)}</p>`:''}`+
+      `${suggestions?`<div class="city-results" aria-label="Villes trouvées">${suggestions}</div>`:''}`+
+      `${place?`<div class="city-confirmed" role="status"><b>Ville sélectionnée : ${safe(place.label)}</b><p>${safe(offsetDescription(d,place))}</p><small>Coordonnées déterminées automatiquement · ${place.latitude.toFixed(4)}°, ${place.longitude.toFixed(4)}°</small></div>`:'<p class="city-unselected">Aucune ville sélectionnée. Les coordonnées et le fuseau ne sont pas à saisir.</p>'}`+
+      `${foldPicker}<div class="field"><label for="orb">Orbe actif (0,1° à 10°)</label><input id="orb" name="orb" type="number" value="${safe(d.orb)}" min="0.1" max="10" step="0.1"></div><button class="primary full" type="submit">Calculer mon thème natal</button></form>`+
+      `<p class="tiny">Recherche de villes fournie par <a href="https://open-meteo.com/" rel="noopener noreferrer">Open-Meteo / GeoNames</a>. Seul le nom de ville recherché est transmis. Ensuite, les calculs restent sur ton appareil, même hors connexion. Les règles historiques sont celles de la base de fuseaux disponible sur l’appareil.</p></section>`+
       `${chart?`<section class="card"><h2 class="card-title">Positions natales · ${safe(state.mode)}</h2><div class="info-grid">${Object.entries(chart.positions).map(([body,lon])=>`<div class="planet"><b>${safe(planets[body])}</b><small>${safe(E.formatSign(lon))}</small></div>`).join('')}</div></section>`:''}`+
-      `<section class="card"><h2 class="card-title">Confidentialité et sauvegarde</h2><p class="tiny">Données sur l’appareil, sans compte ni serveur. Une désinstallation peut tout supprimer. Le fichier JSON exporté contient ta naissance et tes notes personnelles : conserve-le en lieu sûr.</p><div class="actions"><button class="ghost" data-export="1">Exporter JSON</button><button class="ghost" data-import="1">Importer JSON</button></div><input id="importFile" type="file" accept="application/json" hidden><button class="subnav danger" data-clear="1">Effacer les données locales</button></section>`+
-      `<section class="notice"><b>Limites du moteur</b> · Lahiri reste approximatif ; les maisons et l’ascendant ne sont pas calculés. Les aspects actifs sont échantillonnés à midi. Les interprétations sont symboliques et non prédictives.</section>`;
+      `<section class="card"><h2 class="card-title">Confidentialité et sauvegarde</h2><p class="tiny">Les dates et heures de naissance, coordonnées et notes sont stockées uniquement sur l’appareil. Une désinstallation peut les supprimer. Protège le fichier JSON exporté.</p><div class="actions"><button class="ghost" data-export="1">Exporter JSON</button><button class="ghost" data-import="1">Importer JSON</button></div><input id="importFile" type="file" accept="application/json" hidden><button class="subnav danger" data-clear="1">Effacer les données locales</button></section>`+
+      `<section class="notice"><b>Limites</b> · Vérifie les villes homonymes et les frontières historiques. Les dates très anciennes dépendent de la qualité des archives IANA du téléphone. Lahiri reste approximatif ; maisons et ascendant ne sont pas encore calculés.</section>`;
   }
   function render() {
     renderedEvents=[];
@@ -210,6 +269,12 @@
   $('app').addEventListener('click',event=>{
     const button=event.target.closest('button');if(!button)return;
     const a=button.dataset;
+    if(a.searchPlace){searchBirthCity();return;}
+    if(a.place!==undefined){
+      captureBirthForm();const place=placeSearch.options[Number(a.place)];
+      if(place){placeSearch.selected=place;placeSearch.options=[];placeSearch.error='';placeSearch.needFold=false;birthDraft.fold=null;birthDraft.city=place.label;render();}
+      return;
+    }
     if(a.goto){go(a.goto);return;}
     if(a.mode){state.mode=a.mode;openDetail=null;persist();refresh();return;}
     if(a.month){month=new Date(month.getFullYear(),month.getMonth()+Number(a.month),1);selected=isoDay(month);openDetail=null;refresh();return;}
@@ -224,10 +289,24 @@
     if(a['deleteNote'] && confirm('Supprimer cette journée du journal ?')){delete state.journal[selected];persist();journalDraft=null;render();show('Note supprimée');return;}
     if(a.export){const data={format:'astra-public-v1',exportedAt:new Date().toISOString(),...state};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='ASTRA-sauvegarde.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1500);return;}
     if(a.import){$('importFile')?.click();return;}
-    if(a.clear&&confirm('Effacer le thème natal et toutes les notes locales ?')){localStorage.removeItem(STORAGE_KEY);state=defaultState();cache.clear();journalDraft=null;openDetail=null;refresh();show('Données supprimées');}
+    if(a.clear&&confirm('Effacer le thème natal et toutes les notes locales ?')){localStorage.removeItem(STORAGE_KEY);state=defaultState();cache.clear();journalDraft=null;birthDraft=null;placeSearch={options:[],selected:null,loading:false,error:'',needFold:false,requestId:placeSearch.requestId+1};openDetail=null;refresh();show('Données supprimées');}
   });
   $('app').addEventListener('input',event=>{
     if(event.target.id==='energyRange'){initDraft();journalDraft.energy=Number(event.target.value);$('energyValue').textContent=journalDraft.energy+'/5';}
+    if(event.target.id==='birthCity'){
+      const d=draft();d.city=event.target.value;
+      if(placeSearch.selected && d.city!==placeSearch.selected.label){
+        placeSearch.selected=null;placeSearch.options=[];placeSearch.error='';placeSearch.needFold=false;d.fold=null;
+        const notice=document.querySelector('.city-confirmed');
+        if(notice){notice.className='city-unselected';notice.textContent='Ville modifiée : recherche et sélection nécessaires.';}
+      }
+    }
+    if(event.target.id==='birthDate'||event.target.id==='birthTime'){
+      const d=draft();d[event.target.id==='birthDate'?'date':'time']=event.target.value;
+      d.fold=null;placeSearch.needFold=false;
+      if(placeSearch.selected){const v=document.querySelector('.city-confirmed p');if(v)v.textContent=offsetDescription(d,placeSearch.selected);}
+    }
+
   });
   $('app').addEventListener('change',async event=>{
     if(event.target.id==='eventFilter'){state.filter=event.target.value;persist();openDetail=null;render();return;}
@@ -238,19 +317,30 @@
         const backup=JSON.parse(await file.text());if(backup.format!=='astra-public-v1')throw Error('Format non reconnu');
         if(backup.profile)E.validateProfile(backup.profile);
         if(!confirm('Remplacer les données locales par la sauvegarde ?'))return;
-        state=cleanState(backup);journalDraft=null;openDetail=null;cache.clear();persist();refresh();show('Sauvegarde importée');
+        state=cleanState(backup);journalDraft=null;birthDraft=null;placeSearch={options:[],selected:null,loading:false,error:'',needFold:false,requestId:placeSearch.requestId+1};openDetail=null;cache.clear();persist();refresh();show('Sauvegarde importée');
       } catch(err){show('Import impossible : '+(err?.message||'Erreur'));}
     }
   });
   $('app').addEventListener('submit',event=>{
     if(event.target.id!=='birthForm')return;
     event.preventDefault();
-    const f=new FormData(event.target);
-    const profile={date:String(f.get('date')),time:String(f.get('time')),timezone:String(f.get('timezone')).trim(),latitude:Number(f.get('latitude')),longitude:Number(f.get('longitude')),fold:f.get('fold')===''?null:Number(f.get('fold'))};
+    captureBirthForm();
+    const d=draft(),place=placeSearch.selected;
     try {
-      if(!E)throw Error('Moteur non chargé');E.validateProfile(profile);
-      const orb=Number(f.get('orb'));if(!Number.isFinite(orb)||orb<.1||orb>10)throw Error('Orbe invalide');
-      state.profile=profile;state.orb=orb;cache.clear();persist();show('Thème natal enregistré');refresh();
+      if(!place)throw Error('Recherche et sélection de la ville de naissance obligatoires');
+      if(d.city!==place.label)throw Error('Sélectionne la ville dans les résultats de recherche');
+      if(!E)throw Error('Moteur non chargé');
+      const profile={date:d.date,time:d.time,timezone:place.timezone,latitude:place.latitude,
+        longitude:place.longitude,place:{...place},fold:d.fold};
+      try{E.validateProfile(profile);}catch(err){
+        if(/ambiguë/.test(err?.message||'') && d.fold===null){
+          placeSearch.needFold=true;render();show('Cette heure a eu lieu deux fois : choisis l’occurrence.');return;
+        }
+        throw err;
+      }
+      const orb=Number(d.orb);if(!Number.isFinite(orb)||orb<.1||orb>10)throw Error('Orbe invalide');
+      state.profile=profile;state.orb=orb;cache.clear();persist();birthDraft=null;placeSearch.needFold=false;
+      show('Thème natal enregistré');refresh();
     } catch(err){show('Impossible : '+(err?.message||'Erreur'));}
   });
   render();refresh();

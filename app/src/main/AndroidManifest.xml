@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Pas de permission INTERNET, caméra, localisation ou stockage. -->
+    <!-- Réseau uniquement pour rechercher une ville ; aucune permission GPS, caméra ou stockage. -->
+    <uses-permission android:name="android.permission.INTERNET" />
     <application
         android:label="ASTRA"
         android:icon="@drawable/ic_astra"

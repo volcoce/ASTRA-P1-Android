@@ -13,6 +13,9 @@ Object.defineProperty(window,'localStorage',{configurable:true,value:{getItem:k=
 window.ASTRA_ENGINE = {
  validateProfile(p){if(!p.date || !p.time || !p.timezone || !Number.isFinite(Number(p.latitude)))throw Error('Profil invalide');return true;},
  moonPhase(){return 128.1},formatSign(){return '7° Bélier'},
+ normalizePlace(p){return {...p,label:p.label||'Paris · Île-de-France · France'}},
+ searchCities:async q=>[{name:'Paris',label:'Paris · Île-de-France · France',latitude:48.8534,longitude:2.3488,timezone:'Europe/Paris',admin1:'Île-de-France',country:'France'}],
+ localToUtc(date,time,zone,fold=null){if(date==='2026-10-25' && time==='02:30' && fold===null)throw Error('Heure ambiguë');return new Date('1994-05-12T16:40:00.000Z')},
  natalChart(){return {positions:{Sun:7, Moon:23}}},
  describeEvent(e){return {kind:'Interprétation',title:e.name||'Soleil trigone Lune natal',tone:'Lecture symbolique',astronomy:'Mesure astronomique calculée.',interpretation:'Lecture astrologique sans causalité.',question:'Quelle observation personnelle noter ?',disclaimer:'Pas de prédiction scientifique.'}},
  calculateMonth(profile,year,month,mode){
@@ -45,11 +48,16 @@ if __name__ == '__main__':
             page.get_by_text('Configurer mon thème natal').click()
             page.locator('#birthDate').fill('1994-05-12')
             page.locator('#birthTime').fill('18:40')
-            page.locator('#birthZone').fill('Europe/Paris')
-            page.locator('#lat').fill('48.85')
-            page.locator('#lng').fill('2.35')
+            assert page.locator('#birthZone').count()==0 and page.locator('#lat').count()==0 and page.locator('#lng').count()==0
+            page.locator('#birthCity').fill('Paris')
+            page.locator('[data-search-place]').click()
+            page.locator('[data-place]').first.wait_for(timeout=1500)
+            page.locator('[data-place]').first.click()
+            assert 'Europe/Paris' in page.locator('.city-confirmed').inner_text()
             page.get_by_role('button',name='Calculer mon thème natal').click()
             page.wait_for_timeout(250)
+            assert 'Paris' in page.evaluate("JSON.parse(localStorage.getItem('astra-public-v1')).profile.place.label")
+            assert page.evaluate("JSON.parse(localStorage.getItem('astra-public-v1')).profile.latitude")==48.8534
             page.locator('[data-tab="calendar"]').click()
             page.locator('[data-event]').first.click(timeout=2000)
             assert page.locator('#detailPanel').count()==1
