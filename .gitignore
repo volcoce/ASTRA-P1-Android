@@ -11,3 +11,6 @@ app/src/main/assets/runtime.bundle.js
 *.apk
 *.aab
 .DS_Store
+
+# Uncompressed experimental signing file, restored in CI
+ci/*.p12
