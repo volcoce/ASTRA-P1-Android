@@ -8,7 +8,7 @@
   const pad = n => String(n).padStart(2, '0');
   const isoDay = date => `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
   const detectedZone = (() => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'; } catch { return 'UTC'; } })();
-  const defaultState = () => ({profile:null, mode:'tropical', natalView:'essential', natalZodiac:'tropical', orb:'auto', filter:'all', journal:{}});
+  const defaultState = () => ({profile:null, mode:'tropical', natalView:'essential', natalZodiac:'tropical', natalAspectFilter:'all', orb:'auto', filter:'all', journal:{}});
   const moodSymbols = ['','☹','◔','◯','◕','☺'];
   const themes = {relations:'Relations',travail:'Travail',sante:'Bien-être',creation:'Créativité',repos:'Repos',autre:'Autre'};
   const planets = {Sun:'Soleil',Moon:'Lune',Mercury:'Mercure',Venus:'Vénus',Mars:'Mars',Jupiter:'Jupiter',Saturn:'Saturne',Uranus:'Uranus',Neptune:'Neptune',Pluto:'Pluton'};
@@ -42,7 +42,7 @@
     if (raw.profile && E) {
       try { E.validateProfile(raw.profile); profile = raw.profile; } catch { /* Les dates invalides ne doivent pas bloquer l'appli. */ }
     }
-    return {profile,mode,natalView:['essential','complete'].includes(raw.natalView)?raw.natalView:'essential',natalZodiac:['tropical','sidereal'].includes(raw.natalZodiac)?raw.natalZodiac:'tropical',orb:'auto',
+    return {profile,mode,natalView:['essential','complete'].includes(raw.natalView)?raw.natalView:'essential',natalZodiac:['tropical','sidereal'].includes(raw.natalZodiac)?raw.natalZodiac:'tropical',natalAspectFilter:['all','Conjonction','Sextile','Carré','Trigone','Opposition'].includes(raw.natalAspectFilter)?raw.natalAspectFilter:'all',orb:'auto',
       filter:Object.hasOwn(filtersMap,raw.filter)?raw.filter:'all',journal:sanitizeJournal(raw.journal)};
   }
   function loadState() { try { return cleanState(JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}')); } catch { return defaultState(); } }
@@ -57,7 +57,7 @@
   function draft() {
     if(!birthDraft){
       const p=state.profile||{};
-      birthDraft={date:p.date||'',time:p.time||'',city:p.place?.label||'',fold:p.fold??null};
+      birthDraft={date:p.date||'',time:p.time||'',timeKnown:p.timeKnown!==false,city:p.place?.label||'',fold:p.fold??null};
       placeSearch.selected=p.place ? E.normalizePlace({...p.place,latitude:p.latitude,longitude:p.longitude,timezone:p.timezone}) : null;
     }
     return birthDraft;
@@ -66,6 +66,7 @@
     const d=draft();
     if($('birthDate'))d.date=$('birthDate').value;
     if($('birthTime'))d.time=$('birthTime').value;
+    if($('unknownBirthTime'))d.timeKnown=!$('unknownBirthTime').checked;
     if($('birthCity'))d.city=$('birthCity').value;
     if($('fold'))d.fold=$('fold').value===''?null:Number($('fold').value);
   }
@@ -92,7 +93,9 @@
     }
   }
   function offsetDescription(d,place) {
-    if(!d.date||!d.time)return 'Choisis aussi ta date et ton heure de naissance.';
+    if(!d.date)return 'Choisis aussi la date de naissance.';
+    if(d.timeKnown===false)return 'Heure inconnue : midi local utilisé uniquement comme référence de calcul. Ascendant et maisons masqués.';
+    if(!d.time)return 'Choisis aussi ton heure de naissance.';
     try{
       const utc=E.localToUtc(d.date,d.time,place.timezone,d.fold);
       const [y,m,day]=d.date.split('-').map(Number),[hour,minute]=d.time.split(':').map(Number);
@@ -228,8 +231,8 @@
     // The natal wheel is re-rendered: return keyboard focus to the equivalent
     // SVG control instead of leaving the screen reader at the page root.
     if(restoreFocus){
-      const attr=kind==='planet'?'data-natal-body':'data-natal-house';
-      const focus=$('natalChart')?.querySelector('.natal-wheel ['+attr+'="'+String(id)+'"]');
+      const attr=kind==='planet'?'data-natal-body':kind==='house'?'data-natal-house':'data-natal-aspect';
+      const focus=$('natalChart')?.querySelector('['+attr+'="'+String(id)+'"]');
       focus?.focus({preventScroll:true});
     }
   }
@@ -384,10 +387,11 @@
     const d=draft(),place=placeSearch.selected;
     let chart=null;try { if(state.profile&&E)chart=E.natalChart(state.profile,state.natalZodiac); }catch(err){ /* Les anciennes sauvegardes peuvent être incomplètes. */ }
     const suggestions=placeSearch.options.map((p,i)=>`<button type="button" class="city-choice" data-place="${i}" aria-label="Choisir ${safe(p.label)}"><strong>${safe(p.name)}</strong><span>${safe([p.admin1,p.country].filter(Boolean).join(' · '))}</span></button>`).join('');
-    const foldPicker=placeSearch.needFold?`<div class="field"><label for="fold">Cette heure locale a existé deux fois</label><select id="fold" name="fold" required><option value="">Choisir l’occurrence</option><option value="0" ${d.fold===0?'selected':''}>Première occurrence (avant le retour à l’heure d’hiver)</option><option value="1" ${d.fold===1?'selected':''}>Deuxième occurrence (après le retour à l’heure d’hiver)</option></select><p class="field-help">Ce cas rare ne peut pas être déduit de la ville et de l’heure seules. Consulte l’heure indiquée sur l’acte de naissance.</p></div>`:'';
-    return header('Mon ciel','Ton thème natal interactif, calculé à partir de ton lieu et de ton heure de naissance.')+
+    const foldPicker=placeSearch.needFold&&d.timeKnown?`<div class="field"><label for="fold">Cette heure locale a existé deux fois</label><select id="fold" name="fold" required><option value="">Choisir l’occurrence</option><option value="0" ${d.fold===0?'selected':''}>Première occurrence (avant le retour à l’heure d’hiver)</option><option value="1" ${d.fold===1?'selected':''}>Deuxième occurrence (après le retour à l’heure d’hiver)</option></select><p class="field-help">Ce cas rare ne peut pas être déduit de la ville et de l’heure seules. Consulte l’heure indiquée sur l’acte de naissance.</p></div>`:'';
+    return header('Mon ciel','Ton thème natal interactif, avec ou sans heure de naissance connue.')+
       (chart?renderNatalChart(chart):'')+
-      `<section class="card"><h2 class="card-title">Données de naissance</h2><form id="birthForm"><div class="field-grid"><div class="field"><label for="birthDate">Date</label><input required type="date" id="birthDate" name="date" min="1900-01-01" max="2100-12-31" value="${safe(d.date)}"></div><div class="field"><label for="birthTime">Heure locale</label><input required type="time" id="birthTime" name="time" value="${safe(d.time)}"></div></div>`+
+      `<section class="card"><h2 class="card-title">Données de naissance</h2><form id="birthForm"><div class="field-grid"><div class="field"><label for="birthDate">Date</label><input required type="date" id="birthDate" name="date" min="1900-01-01" max="2100-12-31" value="${safe(d.date)}"></div><div class="field"><label for="birthTime">Heure locale</label><input ${d.timeKnown?'required':''} type="time" id="birthTime" name="time" value="${safe(d.time)}" ${d.timeKnown?'':'disabled'}></div></div>`+
+      `<label class="unknown-time-toggle" for="unknownBirthTime"><input type="checkbox" id="unknownBirthTime" name="unknownBirthTime" ${d.timeKnown?'':'checked'}> Je ne connais pas mon heure de naissance</label><p class="field-help">Sans heure connue, ASTRA utilise midi local comme repère provisoire ; il ne calcule ni Ascendant ni maisons et n’annonce aucun instant exact de transit personnalisé.</p>`+
       `<div class="field"><label for="birthCity">Ville de naissance</label><div class="city-search"><input required autocomplete="off" id="birthCity" name="city" placeholder="Ex. Paris, Montréal, Tokyo…" value="${safe(d.city)}"><button type="button" class="ghost" data-search-place="1" ${placeSearch.loading?'disabled':''}>${placeSearch.loading?'Recherche…':'Rechercher'}</button></div><p class="field-help">Recherche avec Internet, puis sélectionne le bon résultat. La position et le fuseau sont déduits de la ville, pas du téléphone.</p></div>`+
       `${placeSearch.error?`<p class="notice" role="alert">${safe(placeSearch.error)}</p>`:''}`+
       `${suggestions?`<div class="city-results" aria-label="Villes trouvées">${suggestions}</div>`:''}`+
@@ -442,6 +446,8 @@
     const a=button.dataset;
     if(a.natalView){captureBirthForm();state.natalView=a.natalView==='complete'?'complete':'essential';persist();render();if(event.detail===0)$('app').querySelector('[data-natal-view="'+a.natalView+'"]')?.focus({preventScroll:true});return;}
     if(a.natalZodiac){captureBirthForm();state.natalZodiac=a.natalZodiac==='sidereal'?'sidereal':'tropical';natalSelection=null;persist();render();if(event.detail===0)$('app').querySelector('[data-natal-zodiac="'+a.natalZodiac+'"]')?.focus({preventScroll:true});return;}
+    if(a.natalAspectFilter){captureBirthForm();state.natalAspectFilter=a.natalAspectFilter;persist();render();if(event.detail===0)$('app').querySelector('[data-natal-aspect-filter="'+a.natalAspectFilter+'"]')?.focus({preventScroll:true});return;}
+    if(a.natalAspect){natalChoose('aspect',a.natalAspect,event.detail===0);return;}
     if(a.natalBody){natalChoose('planet',a.natalBody,event.detail===0);return;}
     if(a.natalHouse){natalChoose('house',Number(a.natalHouse),event.detail===0);return;}
     if(a.searchPlace){searchBirthCity();return;}
@@ -492,6 +498,7 @@
 
   });
   $('app').addEventListener('change',async event=>{
+    if(event.target.id==='unknownBirthTime'){captureBirthForm();birthDraft.timeKnown=!event.target.checked;birthDraft.fold=null;placeSearch.needFold=false;render();return;}
     if(event.target.id==='eventFilter'){state.filter=event.target.value;persist();openDetail=null;render();return;}
     if(event.target.id==='journalSearch'){searchTerm=event.target.value.trim().slice(0,100);render();return;}
     if(event.target.id==='importFile'&&event.target.files?.[0]){
@@ -513,10 +520,10 @@
       if(!place)throw Error('Recherche et sélection de la ville de naissance obligatoires');
       if(d.city!==place.label)throw Error('Sélectionne la ville dans les résultats de recherche');
       if(!E)throw Error('Moteur non chargé');
-      const profile={date:d.date,time:d.time,timezone:place.timezone,latitude:place.latitude,
-        longitude:place.longitude,place:{...place},fold:d.fold};
+      const profile={date:d.date,time:d.timeKnown?d.time:null,timeKnown:d.timeKnown!==false,timezone:place.timezone,latitude:place.latitude,
+        longitude:place.longitude,place:{...place},fold:d.timeKnown?d.fold:null};
       try{E.validateProfile(profile);}catch(err){
-        if(/ambiguë/.test(err?.message||'') && d.fold===null){
+        if(d.timeKnown!==false && /ambiguë/.test(err?.message||'') && d.fold===null){
           placeSearch.needFold=true;render();show('Cette heure a eu lieu deux fois : choisis l’occurrence.');return;
         }
         throw err;
