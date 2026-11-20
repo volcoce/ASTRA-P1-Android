@@ -278,7 +278,7 @@
         '<g class="natal-hit natal-house-hit'+(active?' is-active':'')+'" data-natal-house="'+(i+1)+'" role="button" tabindex="0" focusable="true" aria-label="Voir maison '+(i+1)+'" aria-pressed="'+active+'">'+
         '<circle cx="'+tx+'" cy="'+ty+'" r="16" fill="transparent"/><text x="'+tx+'" y="'+ty+'" pointer-events="none" text-anchor="middle" dominant-baseline="central" class="house-number">'+(i+1)+'</text></g>';
     });
-    const connections=(chart.aspects||[]).filter(a=>sel ? involved.has(a.a)||involved.has(a.b) : complete);
+    const connections=E.filterNatalAspects(chart.aspects||[],state.natalAspectFilter).filter(a=>sel?.kind==='aspect' ? sel.id===a.a+'-'+a.b : sel ? involved.has(a.a)||involved.has(a.b) : complete);
     const aspectLines=connections.map(a=>{
       const p=polar(chart.positions[a.a],77,asc),q=polar(chart.positions[a.b],77,asc);
       return '<line x1="'+p[0]+'" y1="'+p[1]+'" x2="'+q[0]+'" y2="'+q[1]+'" stroke="'+(aspectColors[a.aspect]||'#84639d')+'" stroke-width="'+(sel?2.3:1.35)+'" stroke-opacity="'+(sel?'1':'.75')+'"/>';
@@ -313,6 +313,46 @@
       glyphs.join('')+'<text x="'+(ascPoint[0]-3)+'" y="'+(ascPoint[1]-7)+'" class="angle-label" text-anchor="end">ASC</text>'+
       '<text x="'+mcPoint[0]+'" y="'+(mcPoint[1]-7)+'" class="angle-label" text-anchor="middle">MC</text></svg>';
   }
+  // A date-only chart is intentionally NOT a 12-house horoscope.
+  // A fixed 0° orientation replaces the unknown Ascendant.
+  function wheelSvgDateOnly(chart){
+    const asc=0;
+    const segments=[];
+    for(let i=0;i<12;i++){
+      const start=i*30,end=start+30;
+      const [a,b,c,d]=[polar(start,195,asc),polar(end,195,asc),polar(end,166,asc),polar(start,166,asc)];
+      const [x,y]=polar(start+15,181,asc);
+      segments.push('<path d="M '+a.join(' ')+' A 195 195 0 0 0 '+b.join(' ')+
+        ' L '+c.join(' ')+' A 166 166 0 0 1 '+d.join(' ')+' Z" fill="'+(i%2?'#eee5f6':'#faf5ff')+'" stroke="#a38cb9"/>'+
+        '<text x="'+x+'" y="'+y+'" text-anchor="middle" dominant-baseline="central" class="zodiac-symbol">'+zodiacSymbols[i]+'</text>');
+    }
+    const aligned=E.layoutPlanetLabels(chart.positions),sel=natalSelection,complete=state.natalView==='complete';
+    const connections=E.filterNatalAspects(chart.aspects||[],state.natalAspectFilter)
+      .filter(a=>sel?.kind==='aspect'?sel.id===a.a+'-'+a.b:sel?.kind==='planet'?(sel.id===a.a||sel.id===a.b):complete);
+    const lines=connections.map(a=>{
+      const p=polar(chart.positions[a.a],85,asc),q=polar(chart.positions[a.b],85,asc);
+      return '<line x1="'+p[0]+'" y1="'+p[1]+'" x2="'+q[0]+'" y2="'+q[1]+'" stroke="'+(aspectColors[a.aspect]||'#84639d')+'" stroke-width="1.6"/>';
+    });
+    const bodies=Object.entries(chart.positions).map(([body,lng])=>{
+      const p=aligned[body],locp=polar(p.labelLongitude,142,asc),root=polar(lng,164,asc);
+      const selected=sel?.kind==='planet'&&sel.id===body;
+      return '<line x1="'+root[0]+'" y1="'+root[1]+'" x2="'+locp[0]+'" y2="'+locp[1]+'" stroke="#785f92"/>'+
+        '<circle cx="'+root[0]+'" cy="'+root[1]+'" r="3" fill="#5c447a"/>'+
+        '<g class="natal-hit natal-planet-hit'+(selected?' is-active':'')+'" data-natal-body="'+body+'" data-true-longitude="'+lng.toFixed(6)+'" data-label-longitude="'+p.labelLongitude.toFixed(6)+'" role="button" tabindex="0" focusable="true" aria-label="Voir '+safe(planets[body])+(body==='Moon'?' (position indicative)':'')+'" aria-pressed="'+selected+'">'+
+        '<circle cx="'+locp[0]+'" cy="'+locp[1]+'" r="17" fill="'+(selected?'#e4d3f4':'transparent')+'"/>'+
+        '<text x="'+locp[0]+'" y="'+locp[1]+'" text-anchor="middle" pointer-events="none" dominant-baseline="central" class="natal-planet">'+natalGlyphs[body]+'</text></g>';
+    });
+    return '<svg class="natal-wheel" viewBox="0 0 420 420" role="group" aria-label="Roue du zodiaque sans maisons ni Ascendant, heure natale inconnue" xmlns="http://www.w3.org/2000/svg">'+
+      '<title>Positions zodiacales indicatives pour midi local ; heure inconnue</title>'+
+      '<circle cx="210" cy="210" r="198" fill="#fff"/>'+segments.join('')+
+      '<circle cx="210" cy="210" r="165" fill="#fff" stroke="#a38cb9"/>'+
+      '<circle cx="210" cy="210" r="98" fill="#fff" stroke="#a38cb9"/>'+
+      lines.join('')+'<circle cx="210" cy="210" r="57" fill="#fff" stroke="#b8a3cb"/>'+
+      '<text x="210" y="203" text-anchor="middle" class="wheel-core-title">ASTRA</text>'+
+      '<text x="210" y="218" text-anchor="middle" class="wheel-core-sub">HEURE INCONNUE</text>'+
+      bodies.join('')+'</svg>';
+  }
+
   function natalDetail(chart){
     const sel=natalSelection,h=chart.houses,sign=lng=>safe(E.formatSign(lng));
     if(!sel)return '<div class="natal-selected-empty">Sélectionne une planète ou une maison sur la roue pour voir sa position et ses relations.</div>';
