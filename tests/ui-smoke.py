@@ -564,7 +564,6 @@ if __name__ == '__main__':
             for _ in range(8):
                 if page.locator(f'.astra-week-day[data-day="{target}"]').count():break
                 first=page.locator('.astra-week-day').first.get_attribute('data-day')
-                page.locator('[data-week-shift="-7" if False else "[data-week-shift=\"-7\"]"').count() if False else None
                 page.locator('[data-week-shift="-7"]' if target<first else '[data-week-shift="7"]').click()
                 page.wait_for_timeout(70)
             assert page.locator(f'.astra-week-day[data-day="{target}"]').count()==1
