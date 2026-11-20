@@ -17,7 +17,7 @@
 
 | Écran | Question utilisateur | Visible d'emblée (P0) | Secondaire (P1) | À la demande (P2) |
 | --- | --- | --- | --- | --- |
-| **Ce jour** | Qu'y a-t-il dans le ciel pour la date sélectionnée ? | Sélection de semaine, résumé du jour, accès aux événements | Cartes Lune / Journal / Mon ciel, trois premiers événements | Autres événements, aspects en cours, calcul détaillé |
+| **Ce jour** | Où sont le Soleil et la Lune à la date sélectionnée ? | Sélection de semaine, **Lune en [signe]** et phase à midi local, accès aux événements | Cartes Soleil / Journal / Mon ciel, trois premiers événements | Autres événements, aspects en cours, calcul détaillé |
 | **Ce mois** | Que se passe-t-il pendant le mois affiché ? | Mois, nombre d'événements calculés, Nouvelles Lunes et Pleines Lunes | Premiers événements du mois et jours consignés | Dates détaillées, accès au journal |
 | **Calendrier** | À quelle date est cet événement ? | Grille mensuelle, jour choisi, marqueurs lunaires | Événements de la date, prochaines phases | Filtres, tropical/sidéral, autres détails |
 | **Mon ciel** | Quel est mon thème et comment le comprendre ? | Soleil/Lune/Ascendant en clair, « Comprendre mon thème », carte de naissance | « Comparer deux dates », lecture d'une planète | Matrice d'aspects, systèmes de maisons, détails techniques et exports |
@@ -39,14 +39,15 @@
 │ 16  17  18 [19] 20  21  22      │
 │                                  │
 │ ┌──────────────────────────────┐ │
-│ │ RÉSUMÉ DU CIEL               │ │  seule carte dominante
-│ │  3 événements précis         │ │  (nombre calculé)
+│ │ LE CIEL DU JOUR              │ │  seule carte dominante
+│ │ ☾ Lune en Bélier             │ │  signe/phase à midi local
+│ │  3 événements calculés        │ │  information secondaire
 │ │ Voir les événements       ↓  │ │
 │ └──────────────────────────────┘ │
 │                                  │
 │ À découvrir                      │
 │ ┌───────────┐ ┌───────────┐    │  rail défilable horizontal
-│ │ ☾ Lune    │ │ Journal   │ →  │
+│ │ ☉ Soleil │ │ Journal   │ →  │
 │ │ Phase     │ │ Ma note   │    │
 │ └───────────┘ └───────────┘    │
 │                                  │
@@ -113,8 +114,8 @@ Ne jamais afficher une barre latérale **et** une barre basse concurrentes ; il 
 | Composant | Données / rôle | Contraintes |
 | --- | --- | --- |
 | `WeekPicker` | semaine de 7 jours + sélection d'une date | UTC à midi pour les étiquettes calendaires, accès clavier, boutons 44 px |
-| `DayHero` | date et nombre réel d'événements | un seul exemplaire par écran, état de chargement et zéro événement |
-| `InsightCard` | Lune, Journal, Mon ciel | titre concret, 1 idée/carte, rail défilable avec indication de continuité |
+| `DayHero` | Lune en signe, phase à midi, date et nombre réel d'événements | un seul exemplaire par écran, heure/fuseau explicités, état de chargement et zéro événement |
+| `InsightCard` | Soleil du jour, Journal, Mon ciel | titre concret, 1 idée/carte, rail défilable avec indication de continuité |
 | `EventList` / `EventRow` | corps, angle, moment, détails | description accessible, ne pas confondre observation et interprétation |
 | `ExpandSection` | détails longs et réglages | `summary` explicite, état ouvert lisible et préservé si pertinent |
 | `NatalSignTile` | Soleil, Lune, Ascendant | symbole + **nom en toutes lettres** + signe, option incertitude |

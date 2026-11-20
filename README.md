@@ -1,6 +1,17 @@
-# ASTRA Public — Preview 0.8.3
+# ASTRA Public — Preview 0.8.4
 
 **Référence UI/UX du projet :** [UI_ARCHITECTURE.md](UI_ARCHITECTURE.md) pour la hiérarchie, la navigation, les composants et l'accessibilité ; [DESIGN.md](DESIGN.md) pour l'identité visuelle. Les règles pour assistants de code sont dans [AGENTS.md](AGENTS.md).
+
+## La Lune du jour, avant les chiffres — Preview 0.8.4
+
+« Ce jour » met désormais en avant une position astrologique concrète et lisible, et non uniquement un nombre abstrait d'événements.
+
+- **Carte principale** : « Lune en [signe] », phase lunaire du jour, puis nombre réel d'événements exacts en information secondaire.
+- **Trois cartes secondaires** : Soleil du jour (signe et longitude calculés), Journal, Mon ciel. La phase de Lune n'est plus dupliquée sur deux cartes.
+- **Calcul à midi local** : nouvelle fonction `dailySky(jour, fuseau, mode)` utilisant les éphémérides astronomiques. Fuseau pris sur l'appareil et affiché sur la carte. Le zodiaque tropical/sidéral suit le mode choisi.
+- **Précision** : il s'agit de la position **à midi**, pas nécessairement de la position à chaque instant de la journée. Les textes précisent cette limite ; ASTRA n'invente pas de prédiction.
+- **Robustesse** : échec de calcul signalé explicitement ; compte d'événements indépendant des filtres du calendrier ; calcul toujours en local.
+- **Validation** : tests unitaires des longitudes à midi, fuseaux et modes zodiacaux ; tests UI sur 320–1280 px et vérification de la nouvelle hiérarchie.
 
 ## Cohérence temporelle — Preview 0.8.3
 
