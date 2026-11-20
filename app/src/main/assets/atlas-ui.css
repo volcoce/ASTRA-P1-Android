@@ -287,3 +287,14 @@ textarea:focus-visible,select:focus-visible{outline:3px solid #237b99;outline-of
 @media(prefers-reduced-motion:reduce){
   .primary:active,.natal-main-action:active{transform:none}
 }
+
+/* The learn path must be visible before the wheel on a compact phone. */
+.natal-home-actions--primary{margin:0 0 14px}
+.natal-home-actions--primary button{min-height:65px}
+.natal-home-actions--secondary{margin:13px 0 22px}
+.natal-home .natal-primary-cards--two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.bottom-nav .nav{white-space:normal;overflow-wrap:anywhere;word-break:normal;text-align:center}
+@media(max-width:480px){
+  .bottom-nav .nav{min-height:64px;line-height:1.15}
+  .natal-home-actions--primary button{min-height:64px}
+}
