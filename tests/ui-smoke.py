@@ -98,7 +98,13 @@ if __name__ == '__main__':
             assert px('.nav')>=12
             assert page.locator('[data-tab="today"]').get_attribute('aria-label')=='Aujourd’hui'
             assert page.locator('[data-tab="today"] .nav-label').inner_text()=='Ce jour'
-            assert page.locator('[data-tab="calendar"] .nav-label').inner_text()=='Dates'
+            assert page.locator('.bottom-nav [data-tab]').count()==4
+            assert page.locator('.bottom-nav .nav-label').all_text_contents()==[
+                'Ce jour','Ce mois','Calendrier','Mon ciel'
+            ]
+            assert page.locator('[data-tab="month"]').get_attribute('aria-label')=='Ce mois'
+            assert page.locator('[data-tab="calendar"]').get_attribute('aria-label')=='Calendrier'
+            assert page.locator('.bottom-nav [data-tab="journal"]').count()==0
             assert px('.lead')>=14
             assert px('.tiny')>=13
             assert page.locator('.card').first.evaluate(
@@ -460,7 +466,7 @@ if __name__ == '__main__':
             assert page.evaluate("document.documentElement.scrollWidth")<=322
             assert page.locator('#birthForm').count()==0
             # P0 visual guardrails at 320px across all four destinations.
-            for tab in ('today','calendar','journal','profile'):
+            for tab in ('today','month','calendar','profile'):
                 page.locator(f'[data-tab="{tab}"]').click()
                 assert page.evaluate("document.documentElement.scrollWidth") <= 322, tab
                 if tab=='today':
@@ -476,14 +482,46 @@ if __name__ == '__main__':
                     assert page.locator('.astra-day-hero .astra-hero-stat strong').inner_text()==str(expected_count)
                     assert page.locator('.astra-event-feed').first.locator('[data-event]').count()==expected_count
                     capture('today-flo-layout-320')
+                elif tab=='month':
+                    assert page.locator('h1.page-title').inner_text()=='Ce mois'
+                    assert page.locator('.astra-month-hero').count()==1
+                    assert page.locator('.astra-month-hero strong').first.inner_text().isdigit()
+                    assert page.locator('.astra-month-phase').count()==2
+                    assert page.locator('.astra-month-phase.new').count()==1
+                    assert page.locator('.astra-month-phase.full').count()==1
+                    assert page.locator('.astra-month-event').count()==5
+                    assert page.locator('.calendar').count()==0
+                    assert page.locator('.astra-lunar-milestone').count()==0
+                    capture('month-320')
                 elif tab=='calendar':
                     assert px('.weekday')>=12
+                    assert page.locator('.astra-month-hero').count()==0
                     assert page.locator('.astra-lunar-milestone').count()==4
                     assert page.locator('#lunarTimelineTitle').inner_text()=='Prochaines phases lunaires'
-                elif tab=='journal':
-                    assert px('.field label')>=13
                 elif tab=='profile':
                     assert px('.natal-home-subtitle')>=14
+            # Monthly overview and detailed calendar must be separate but linked.
+            page.locator('[data-tab="month"]').click()
+            initial_month=page.locator('.astra-month-navigation h2').inner_text()
+            page.locator('.astra-month-navigation [data-month="-1"]').click()
+            page.wait_for_timeout(140)
+            assert page.locator('.astra-month-navigation h2').inner_text()!=initial_month
+            page.locator('.astra-month-navigation [data-month="1"]').click()
+            page.wait_for_timeout(140)
+            assert page.locator('.astra-month-navigation h2').inner_text()==initial_month
+            chosen=page.locator('.astra-month-phase.new').get_attribute('data-month-open-day')
+            page.locator('.astra-month-phase.new').click()
+            assert page.locator('[data-tab="calendar"]').get_attribute('aria-current')=='page'
+            assert page.locator('.calendar .day.selected').get_attribute('data-day')==chosen
+            page.locator('[data-tab="month"]').click()
+            page.locator('.astra-month-calendar-link').click()
+            assert page.locator('[data-tab="calendar"]').get_attribute('aria-current')=='page'
+            page.locator('[data-tab="month"]').click()
+            page.locator('.astra-month-metrics button[data-goto="journal"]').click()
+            assert page.locator('#journalNote').count()==1
+            assert page.locator('.astra-journal-back').count()==1
+            page.locator('.astra-journal-back').click()
+            assert page.locator('[data-tab="today"]').get_attribute('aria-current')=='page'
             # Flo-inspired placement remains functional, not just a mockup.
             page.locator('[data-tab="today"]').click()
             before=page.locator('.astra-week-day.is-selected').get_attribute('data-day')
@@ -506,6 +544,11 @@ if __name__ == '__main__':
                     assert page.locator('.astra-week-day').count()==7
                     assert page.locator('.astra-day-hero').is_visible()
                     capture('today-flo-layout-'+str(width))
+                    page.locator('[data-tab="month"]').click()
+                    assert page.locator('.astra-month-hero').is_visible()
+                    assert page.evaluate('document.documentElement.scrollWidth')<=width+2
+                    capture('month-'+str(width))
+                    page.locator('[data-tab="today"]').click()
             page.set_viewport_size({'width':320,'height':730})
             # Return to Mon ciel after exercising the daily home widgets.
             page.locator('[data-tab="profile"]').click()
@@ -571,7 +614,7 @@ if __name__ == '__main__':
             # A new page on the same origin is unavailable without HTTP navigation;
             # verify that the serialized entry survives an in-app view change.
             page.locator('[data-tab="today"]').click()
-            page.locator('[data-tab="journal"]').click()
+            page.locator('.astra-insight-tile[data-goto="journal"]').click()
             assert page.get_by_text('Comment tu te sens ?').count()==1
             capture('journal-320')
             assert page.locator('#journalNote').input_value()=='Une belle journée de création.'
