@@ -1,4 +1,22 @@
-# ASTRA Public — Preview 0.5.8
+# ASTRA Public — Preview 0.5.9
+
+## UX P0 — Mon ciel sans cockpit (Preview 0.5.9)
+
+**Objectif :** le thème astral et la compréhension passent en premier, les réglages sont disponibles sans dominer l'écran.
+
+- L'écran **Mon ciel** d'un profil enregistré présente immédiatement **Soleil, Lune, Ascendant (quand l'heure est connue)**, puis une roue interactive épurée et une fiche de lecture contextuelle.
+- Deux parcours compréhensibles : **Explorer mon thème** pour les positions, maisons, aspects, filtres et matrice ; **Comparer avec les transits** pour la roue double et la date de comparaison.
+- Les vingt commandes techniques initialement placées **au-dessus de la roue** sont déplacées dans **Réglages** : zodiaque, système de maisons, niveaux de détail, roue double, zoom, export SVG/PNG.
+- Les **données de naissance** et les **sauvegardes JSON** sont visibles dans **Réglages**, et uniquement sur cet écran lorsque le profil existe. Le premier lancement sans profil affiche directement le formulaire de création.
+- Sur mobile, les cartes principales, les boutons d'action et les fiches sont plus grands et mieux séparés. La roue conserve au moins 320 px de largeur, avec défilement interne si nécessaire.
+- Une naissance à heure inconnue montre uniquement Soleil et Lune (Lune indiquée comme approximative), sans Ascendant inventé.
+- L'écran de réglages conserve l'ouverture de l'aperçu SVG entre les changements de paramètres. Sur Android, l'export des images utilise toujours le sélecteur de documents créé dans P2.
+- Les choix actuels de calcul, les préférences et le journal existant restent sous la même clé de stockage `astra-public-v1` ; la navigation entre aperçu, exploration et réglages est une préférence d'interface **non persistée**.
+- Les tests Chrome contrôlent explicitement la hiérarchie Soleil/Lune/Ascendant avant la roue, l'absence de paramètres sur l'accueil, la navigation vers l'exploration et les réglages, les tailles tactiles, la vue 320 px et les fonctionnalités P1–P2.
+
+Tester sur PC : `npm install && npm run dev`, puis ouvrir `http://127.0.0.1:4173/`.
+Tester sur Android : compiler l'APK de test signé ASTRA Preview via GitHub Actions. L'ergonomie avec TalkBack et sur téléphone physique reste à vérifier.
+
 
 ## P2 — Expérience avancée (Preview 0.5.8)
 
