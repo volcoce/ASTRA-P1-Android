@@ -23,13 +23,25 @@ window.ASTRA_ENGINE = {
 
  normalizePlace(p){return {...p,label:p.label||'Paris · Île-de-France · France'}},
  searchCities:async q=>[{name:'Paris',label:'Paris · Île-de-France · France',latitude:48.8534,longitude:2.3488,timezone:'Europe/Paris',admin1:'Île-de-France',country:'France'}],
- localToUtc(date,time,zone,fold=null){if(date==='2026-10-25' && time==='02:30' && fold===null)throw Error('Heure ambiguë');return new Date('1994-05-12T16:40:00.000Z')},
+ localToUtc(date,time,zone,fold=null){if(date==='2026-10-25' && time==='02:30' && fold===null)throw Error('Heure ambiguë');return new Date(date+'T'+(time||'12:00')+':00.000Z')},
+ upcomingMoonPhases(start,zone,mode){
+  const d=new Date(start);
+  const names=['Nouvelle Lune','Premier quartier','Pleine Lune','Dernier quartier'];
+  return names.map((name,i)=>{
+    const at=new Date(d.getTime()+(i+1)*6*86400000);
+    return {name,quarter:i,day:at.toISOString().slice(0,10),at:at.toISOString(),moonLongitude:i*90+15};
+  });
+ },
+ transitContactWindow(p,at,body,natal,angle){return {body,natal,angle,orb:2,start:new Date(new Date(at).getTime()-2*86400000).toISOString(),end:new Date(new Date(at).getTime()+2*86400000).toISOString(),limited:false}},
+ secondaryProgressions(p,target,mode){return {target:new Date(target).toISOString(),progressedAt:'1994-06-13T12:00:00.000Z',moonUncertain:p.timeKnown===false,positions:{Sun:40,Mercury:60,Venus:90,Mars:120,Jupiter:150,Saturn:180,Uranus:210,Neptune:240,Pluto:270,...(p.timeKnown!==false?{Moon:45}:{})},convention:'jour-pour-an'}},
+ compositeMidpoints(a,b,mode){return {mode,positions:{Sun:37,Mercury:60,Venus:90,Mars:120,Jupiter:150,Saturn:180,Uranus:210,Neptune:240,Pluto:270,...(a.timeKnown!==false&&b.timeKnown!==false?{Moon:45}:{})},moonUncertain:a.timeKnown===false||b.timeKnown===false,houses:null}},
+
  natalChart(profile,mode,houseSystem='placidus'){const known=profile?.timeKnown!==false;const asc=151.5,mc=53.1,start=houseSystem==='whole'?150:asc;return {timeKnown:known,approximateNoon:!known,positions:{Sun:7,Moon:23,Mercury:32,Venus:55,Mars:91,Jupiter:123,Saturn:141,Uranus:175,Neptune:203,Pluto:270},houses:known?{ascendant:asc,midheaven:mc,system:houseSystem==='whole'?'Signes entiers':houseSystem==='equal'?'Maisons égales':'Placidus',cusps:houseSystem==='placidus'?[151.5,172,199,233,270,304,331.5,352,19,53.1,90,124]:Array.from({length:12},(_,i)=>(start+i*30)%360),polarFallback:false}:null,aspects:[{a:'Sun',b:'Mars',aspect:'Carré',glyph:'□',orb:1}]}},
  transitSnapshot(profile,instant,mode,houseSystem){
    return {at:new Date(instant).toISOString(),mode,houseSystem,
      chart:this.natalChart(profile,mode,houseSystem),
      positions:{Sun:249,Moon:32,Mercury:285,Venus:298,Mars:17,Jupiter:141,Saturn:276,Uranus:51,Neptune:348,Pluto:305},
-     contacts:[{body:'Sun',natal:'Mars',aspect:'Carré',glyph:'□',angle:90,delta:0.34,orb:2}],
+     contacts:[{body:'Sun',natal:'Mars',aspect:'Carré',glyph:'□',angle:90,delta:0.34,orb:2,trend:'applying'}],
      approximateNatal:profile?.timeKnown===false};
  },
  houseOf(lon,cusps){for(let i=0;i<12;i++){let d=(lon-cusps[i]+360)%360,w=(cusps[(i+1)%12]-cusps[i]+360)%360;if(d<w)return i+1;}return null;},
@@ -156,6 +168,18 @@ if __name__ == '__main__':
             assert 'Comprendre mon thème' in page.locator('.natal-main-action').inner_text()
             assert 'Comparer deux dates' in page.locator('.natal-secondary-action').inner_text()
             assert page.locator('.natal-summary-item').first.get_attribute('aria-label')=='Soleil en Bélier'
+            assert page.locator('.natal-overview-tabs button').count()==3
+            page.locator('[data-overview-pane="planets"]').click()
+            assert page.locator('.natal-home .natal-position').count()==10
+            assert page.locator('.natal-home .natal-wheel').count()==0
+            page.locator('[data-overview-pane="aspects"]').click()
+            assert page.locator('.natal-home .natal-aspect').count()==1
+            assert page.locator('.natal-panel-lead').is_visible()
+            page.locator('[data-overview-pane="wheel"]').click()
+            assert page.locator('.natal-home .natal-wheel').count()==1
+            assert page.locator('.natal-glossary').get_attribute('open') is None
+            page.locator('.natal-glossary summary').click()
+            assert 'Orbe' in page.locator('.natal-glossary').inner_text()
             assert page.locator('.natal-advanced').count()==0
             assert page.locator('.natal-control-stack').count()==0
             assert page.locator('.natal-filter').count()==0
@@ -341,6 +365,21 @@ if __name__ == '__main__':
             page.locator('.natal-focus [data-close-focus]').click()
             assert page.locator('.natal-compare .natal-double-wheel').count()==1
             assert page.locator('.natal-contact-section').count()==1
+            assert page.locator('[data-transit-step="1"]').inner_text()=='Suivant →'
+            old_day=page.locator('#transitDay').input_value()
+            page.locator('[data-transit-step="1"]').click()
+            assert page.locator('#transitDay').input_value()!=old_day
+            page.locator('[data-transit-step="-1"]').click()
+            assert page.locator('#transitDay').input_value()==old_day
+            page.locator('[data-transit-range="slow"]').click()
+            assert page.locator('.natal-contact-list button').count()==0
+            page.locator('[data-transit-range="fast"]').click()
+            assert page.locator('.natal-contact-list button').count()==1
+            page.locator('[data-transit-range="all"]').click()
+            page.locator('.natal-contact-list [data-transit-contact]').first.click()
+            assert 'Appliquant' in page.locator('#natalSelectionInfo').inner_text()
+            assert 'Période dans l’orbe' in page.locator('#natalSelectionInfo').inner_text()
+            page.locator('[data-close-natal-detail]').click()
             page.locator('.natal-transit-hit[data-transit-body="Sun"]').click()
             assert 'transit' in page.locator('#natalSelectionInfo').inner_text()
             assert page.locator('.natal-contact-list button').first.get_attribute('aria-pressed')=='true'
@@ -351,6 +390,27 @@ if __name__ == '__main__':
             assert page.evaluate("document.activeElement.id")=='transitTime'
             saved=page.evaluate("JSON.parse(localStorage.getItem('astra-public-v1'))")
             assert saved['transitTime']=='13:30'
+            page.locator('[data-profile-screen="overview"]').click()
+            page.locator('.natal-extras summary').click()
+            page.locator('[data-profile-screen="progressions"]').click()
+            assert page.locator('.natal-progressions').count()==1
+            assert page.locator('.natal-progression-row').count()==10
+            old_year=page.locator('#progressionDay').input_value()
+            page.locator('[data-progression-step="1"]').click()
+            assert page.locator('#progressionDay').input_value()!=old_year
+            page.locator('[data-profile-screen="overview"]').click()
+            page.locator('.natal-extras summary').click()
+            page.locator('[data-profile-screen="composite"]').click()
+            assert page.locator('.natal-composite').count()==1
+            page.locator('#secondDate').fill('1996-07-19')
+            page.locator('#secondTime').fill('06:30')
+            page.locator('#secondCity').fill('Paris')
+            page.locator('[data-search-composite-place]').click()
+            page.locator('[data-composite-place]').first.click()
+            page.locator('#compositeForm button[type="submit"]').click()
+            assert page.locator('.natal-composite-result').count()==1
+            assert page.locator('.natal-composite-result .natal-progression-row').count()==10
+            page.locator('[data-profile-screen="overview"]').click()
             page.locator('[data-profile-screen="settings"]').click()
             # Native settings hold export tools, preview wheel remains available.
             page.locator('.natal-preview-disclosure summary').click()
@@ -414,6 +474,8 @@ if __name__ == '__main__':
                     assert page.locator('.astra-week-day[aria-pressed="true"]').count()==1
                     assert page.locator('.astra-day-hero').count()==1
                     assert page.locator('.astra-insight-tile').count()==3
+                    assert page.locator('.astra-lunar-milestone').count()==4
+                    assert page.locator('[data-step-day="1"]').is_visible()
                     selected_date=page.locator('.astra-week-day.is-selected').get_attribute('data-day')
                     expected_count=2 if int(selected_date[-2:]) in (5,20) else 1
                     assert page.locator('.astra-day-hero .astra-hero-stat strong').inner_text()==str(expected_count)
@@ -433,6 +495,11 @@ if __name__ == '__main__':
             assert after!=before
             page.locator('[data-week-shift="-7"]').click()
             assert page.locator('.astra-week-day.is-selected').get_attribute('data-day')==before
+            day_before=page.locator('.astra-week-day.is-selected').get_attribute('data-day')
+            page.locator('[data-step-day="1"]').click()
+            day_after=page.locator('.astra-week-day.is-selected').get_attribute('data-day')
+            assert day_after!=day_before
+            page.locator('[data-step-day="-1"]').click()
             page.locator('.astra-hero-link').click()
             assert page.evaluate('document.activeElement.id')=='todayEventsTitle'
             page.locator('.astra-insight-tile[data-goto="journal"]').click()
@@ -485,6 +552,9 @@ if __name__ == '__main__':
             page.locator('[data-event]').first.click(timeout=2000)
             assert page.locator('#detailPanel').count()==1
             assert 'Lecture astrologique' in page.locator('#detailPanel').inner_text()
+            assert page.locator('[data-detail-step="1"]').count()==1
+            page.locator('[data-detail-step="1"]').click()
+            assert page.locator('#detailPanel').count()==1
             page.get_by_role('button',name='Répondre dans mon journal').click()
             assert page.locator('#journalNote').count()==1
             assert 'Quelle observation' in page.locator('#journalNote').input_value()
