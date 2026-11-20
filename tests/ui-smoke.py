@@ -3,6 +3,7 @@
 Astronomical truth is tested by runtime.test.mjs in CI, not this mock.
 """
 from pathlib import Path
+from shutil import which
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1] / 'app/src/main/assets'
@@ -33,7 +34,10 @@ window.ASTRA_ENGINE = {
 if __name__ == '__main__':
     try:
         with sync_playwright() as pw:
-            browser=pw.chromium.launch(headless=True,args=['--no-sandbox'],**({'executable_path':'/usr/bin/chromium'} if Path('/usr/bin/chromium').is_file() else {}))
+            chrome=which('chromium') or which('google-chrome') or which('google-chrome-stable')
+            if not chrome:
+                raise RuntimeError('Chromium ou Google Chrome non trouvé sur ce PC/runner.')
+            browser=pw.chromium.launch(headless=True,executable_path=chrome,args=['--no-sandbox'])
             context=browser.new_context(viewport={'width':393,'height':844},accept_downloads=True)
             context.add_init_script(JS)
             page=context.new_page();errors=[]
