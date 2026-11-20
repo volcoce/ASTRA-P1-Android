@@ -75,7 +75,7 @@ La navigation doit toujours afficher **icône + texte**. L'état actif se distin
 
 ### Navigation secondaire
 
-- **Ce jour** — semaine précédente/suivante, « Précédent / Suivant » pour le jour, choix du jour, « Voir les événements », navigation entre événements et quatre jalons lunaires ouvrant le calendrier.
+- **Ce jour** — semaine précédente/suivante, choix du jour, « Voir les événements » et quatre jalons lunaires ouvrant le calendrier. Ne pas ajouter de bouton de progression conversationnelle dans l’application.
 - **Dates** — mois précédent/suivant, jour sélectionné ; filtres dans « Options d'affichage ».
 - **Journal** — jour précédent/suivant, sauvegarde visible ; historique sous la saisie.
 - **Mon ciel** — trois vues de la même carte : « Roue / Planètes / Aspects ». Deux parcours à intitulés compréhensibles restent disponibles : « Comprendre mon thème » et « Comparer deux dates ». Le glossaire est contextuel ; les progressions et la carte composite sont repliées dans les outils avancés.
