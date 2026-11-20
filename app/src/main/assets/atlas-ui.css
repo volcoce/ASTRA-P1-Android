@@ -365,10 +365,10 @@ textarea:focus-visible,select:focus-visible{outline:3px solid #237b99;outline-of
 .astra-phase-graphic{display:block;flex:none;width:18px;height:18px;overflow:visible}
 .astra-phase-graphic .phase-night{fill:#283e50;stroke:#93a5b3;stroke-width:1.1}
 .astra-phase-graphic .phase-light{fill:#f4d391}
-.astra-phase-graphic.hero{width:32px;height:32px}
-.astra-phase-graphic.hero .phase-night{fill:#182e40;stroke:#bed3e1;stroke-width:1.1}
-.astra-phase-graphic.hero .phase-light{fill:#f4d391}
-.astra-phase-graphic.orbit{width:57px;height:57px}
+.astra-phase-graphic.astra-phase-variant-hero{width:32px;height:32px}
+.astra-phase-graphic.astra-phase-variant-hero .phase-night{fill:#182e40;stroke:#bed3e1;stroke-width:1.1}
+.astra-phase-graphic.astra-phase-variant-hero .phase-light{fill:#f4d391}
+.astra-phase-graphic.astra-phase-variant-orbit{width:57px;height:57px}
 .astra-moon-title{margin:0;color:#fff;font:750 clamp(22px,6.4vw,29px)/1.16 system-ui,sans-serif;
   letter-spacing:-.025em;overflow-wrap:break-word}
 .astra-moon-phase{margin:5px 0 0;color:#e8d2a5;font:600 14px/1.4 system-ui,sans-serif}
@@ -690,4 +690,34 @@ button.astra-insight-tile:hover{border-color:#7597aa}
   .astra-month-metrics>div,.astra-month-metrics>button{padding:12px 10px}
   .astra-month-phase{gap:8px;padding:11px 10px}
   .astra-month-event{gap:9px}
+}
+
+
+/* Keep Moon icon, date and Sun aspect line inside one calendar tile.
+   The SVG variant is "astra-phase-variant-cell" (never "calendar"):
+   otherwise it inherits .calendar padding and border and overflows tiles. */
+.calendar .cal-grid{
+  grid-template-columns:repeat(7,minmax(0,1fr));
+  column-gap:2px;row-gap:5px
+}
+.calendar .day{
+  min-width:0;height:55px;min-height:55px;padding:4px 0 0;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+  gap:0;line-height:20px;font-size:14px
+}
+.calendar .day .count{
+  position:absolute;top:7px;right:4px;left:auto;
+  width:4px;height:4px;margin:0
+}
+.calendar .day .moon-phase-badge{
+  position:absolute;bottom:7px;left:50%;transform:translateX(-50%);
+  width:22px;height:22px
+}
+.calendar .day .moon-phase-badge .astra-phase-graphic{width:21px;height:21px}
+.calendar .day.selected .moon-phase-badge{
+  left:50%;bottom:7px;width:23px;height:23px
+}
+.calendar .day .sun-aspect-line{
+  bottom:1px;left:50%;right:auto;transform:translateX(-50%);
+  width:22px;height:3px;box-shadow:none
 }
