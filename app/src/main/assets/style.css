@@ -300,3 +300,6 @@ html{background:radial-gradient(ellipse at 10% 12%,#f3e8ee 0%,transparent 56%),
 .natal-home .natal-detail-body p,.natal-explore .natal-detail-body p{font-size:14px}
 .natal-home .natal-fact>b,.natal-home .natal-symbolic>b,.natal-home .natal-reflection>b,
 .natal-explore .natal-fact>b,.natal-explore .natal-symbolic>b,.natal-explore .natal-reflection>b{font-size:14px}
+
+.natal-primary-cards--two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.natal-primary-cards--two .natal-summary-item{min-height:118px}
