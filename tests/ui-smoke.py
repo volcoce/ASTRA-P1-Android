@@ -38,7 +38,7 @@ window.ASTRA_ENGINE = {
    const n=new Date(year,month,0).getDate(),days={};
    for(let d=1;d<=n;d++){
      const k=year+'-'+String(month).padStart(2,'0')+'-'+String(d).padStart(2,'0');
-     days[k]={active:[{type:'active',body:'Sun',natal:'Moon',aspect:'Trigone',angle:120,delta:.43,orb:1.7}], exact:[{type:'exact',body:'Sun',natal:'Moon',aspect:'Trigone',at:k+'T11:30:00Z'}], sky:[{type:'moon',name:'Pleine Lune',at:k+'T14:00:00Z'}]};
+     days[k]={active:[{type:'active',body:'Sun',natal:'Moon',aspect:'Trigone',angle:120,delta:.43,orb:1.7}], exact:[{type:'exact',body:'Sun',natal:'Moon',aspect:'Trigone',at:k+'T11:30:00Z'}], sky:d===5?[{type:'moon',name:'Nouvelle Lune',at:k+'T14:00:00Z'}]:d===20?[{type:'moon',name:'Pleine Lune',at:k+'T14:00:00Z'}]:[]};
    }
    return {days,chart:this.natalChart(),mode};
  }
@@ -414,8 +414,10 @@ if __name__ == '__main__':
                     assert page.locator('.astra-week-day[aria-pressed="true"]').count()==1
                     assert page.locator('.astra-day-hero').count()==1
                     assert page.locator('.astra-insight-tile').count()==3
-                    assert page.locator('.astra-day-hero .astra-hero-stat strong').inner_text()=='2'
-                    assert page.locator('.astra-event-feed').first.locator('[data-event]').count()==2
+                    selected_date=page.locator('.astra-week-day.is-selected').get_attribute('data-day')
+                    expected_count=2 if int(selected_date[-2:]) in (5,20) else 1
+                    assert page.locator('.astra-day-hero .astra-hero-stat strong').inner_text()==str(expected_count)
+                    assert page.locator('.astra-event-feed').first.locator('[data-event]').count()==expected_count
                     capture('today-flo-layout-320')
                 elif tab=='calendar':
                     assert px('.weekday')>=12
@@ -456,6 +458,28 @@ if __name__ == '__main__':
             assert page.locator('.calendar-options').count()==1
             assert page.locator('.calendar-options').get_attribute('open') is None
             assert page.locator('h1.page-title').inner_text()=='Calendrier'
+            # True Moon-quarter markers: purple for the new Moon (day 5),
+            # amber for the full Moon (day 20), others unmarked.
+            new_moon=page.locator('.calendar .day.moon-new')
+            full_moon=page.locator('.calendar .day.moon-full')
+            assert new_moon.count()==1 and full_moon.count()==1
+            assert new_moon.get_attribute('data-day').endswith('-05')
+            assert full_moon.get_attribute('data-day').endswith('-20')
+            assert 'Nouvelle Lune' in new_moon.get_attribute('aria-label')
+            assert 'Pleine Lune' in full_moon.get_attribute('aria-label')
+            assert page.locator('.calendar .day .moon-phase-badge').count()==2
+            assert page.locator('.calendar-phase-legend .cal-legend-item').count()==2
+            assert 'Nouvelle Lune' in page.locator('.calendar-phase-legend').inner_text()
+            assert 'Pleine Lune' in page.locator('.calendar-phase-legend').inner_text()
+            new_bg=new_moon.evaluate("e=>getComputedStyle(e).backgroundColor")
+            full_bg=full_moon.evaluate("e=>getComputedStyle(e).backgroundColor")
+            assert new_bg!=full_bg,(new_bg,full_bg)
+            # The markers do not disappear when the event list is filtered.
+            page.locator('.calendar-options > summary').click()
+            page.locator('#eventFilter').select_option('exact')
+            assert page.locator('.calendar .day.moon-new').count()==1
+            assert page.locator('.calendar .day.moon-full').count()==1
+            page.locator('#eventFilter').select_option('all')
             capture('calendar-320')
             page.locator('[data-event]').first.click(timeout=2000)
             assert page.locator('#detailPanel').count()==1
