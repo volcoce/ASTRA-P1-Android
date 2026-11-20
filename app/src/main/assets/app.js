@@ -327,7 +327,7 @@
   }
   // A date-only chart is intentionally NOT a 12-house horoscope.
   // A fixed 0° orientation replaces the unknown Ascendant.
-  function wheelSvgDateOnly(chart){
+  function wheelSvgDateOnly(chart,quiet=false){
     const asc=0;
     const segments=[];
     for(let i=0;i<12;i++){
@@ -338,7 +338,7 @@
         ' L '+c.join(' ')+' A 166 166 0 0 1 '+d.join(' ')+' Z" fill="'+(i%2?'#eee5f6':'#faf5ff')+'" stroke="#a38cb9"/>'+
         '<text x="'+x+'" y="'+y+'" text-anchor="middle" dominant-baseline="central" class="zodiac-symbol">'+zodiacSymbols[i]+'</text>');
     }
-    const aligned=E.layoutPlanetLabels(chart.positions),sel=natalSelection,complete=state.natalView==='complete';
+    const aligned=E.layoutPlanetLabels(chart.positions),sel=natalSelection,complete=!quiet&&state.natalView==='complete';
     const connections=E.filterNatalAspects(chart.aspects||[],state.natalAspectFilter)
       .filter(a=>sel?.kind==='aspect'?sel.id===a.a+'-'+a.b:sel?.kind==='planet'?(sel.id===a.a||sel.id===a.b):complete);
     const lines=connections.map(a=>{
@@ -616,7 +616,7 @@
         transitSnapshot=E.transitSnapshot(state.profile,instant,state.natalZodiac,state.houseSystem);
       }catch(err){transitError=err?.message||'Date de transit invalide';}
     }
-    const svg=isOverview?(h?wheelSvg(chart,true):wheelSvgDateOnly(chart)):
+    const svg=isOverview?(h?wheelSvg(chart,true):wheelSvgDateOnly(chart,true)):
       transitSnapshot?doubleWheelSvg(transitSnapshot):h?wheelSvg(chart):wheelSvgDateOnly(chart);
     const resized=svg.replace(/class="natal-wheel([^"]*)"/,
       (_,rest)=>'class="natal-wheel'+rest+'" style="width:calc(100% * '+state.natalZoom+');min-width:'+(320*state.natalZoom)+'px;max-width:none"');
@@ -673,7 +673,7 @@
         '<p class="natal-home-subtitle">Thème natal · '+(isTropical?'Tropical':'Sidéral')+'</p></div>'+
         '<button type="button" class="natal-settings-link" data-profile-screen="settings">Réglages</button></div>'+
         (uncertain?notice:'')+
-        '<div class="natal-primary-cards" aria-label="Mes trois repères astrologiques">'+quickCards+'</div>'+
+        '<div class="natal-primary-cards'+(h?'':' natal-primary-cards--two')+'" aria-label="Mes repères astrologiques">'+quickCards+'</div>'+
         '<div class="natal-wheel-viewport" role="region" tabindex="0" aria-label="Roue natale interactive">'+homeSvg+'</div>'+
         shortCaption+
         '<section id="natalSelectionInfo" class="natal-selection natal-home-selection" aria-live="polite" aria-label="Planète ou maison sélectionnée">'+selectedDetail+'</section>'+
