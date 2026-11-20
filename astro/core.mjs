@@ -54,11 +54,15 @@ export function localToUtc(date,time,zone,fold=null) {
 export const isoDay=(date,zone)=>{const [y,m,d]=wallFields(date,zone);return `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`};
 export function validateProfile(p) {
   if(!p||typeof p!=='object')throw Error('Profil absent');
-  if(!/^\d{4}-\d{2}-\d{2}$/.test(p.date||'')||!/^\d{2}:\d{2}$/.test(p.time||''))throw Error('Date ou heure manquante');
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(p.date||''))throw Error('Date de naissance manquante');
+  const timeKnown=p.timeKnown!==false;
+  if(timeKnown&&!/^\d{2}:\d{2}$/.test(p.time||''))throw Error('Heure locale manquante');
   const year=Number(p.date.slice(0,4));if(year<1900||year>2100)throw Error('Période natale prise en charge : 1900–2100');
   if(!Number.isFinite(Number(p.latitude))||Math.abs(Number(p.latitude))>90)throw Error('Latitude invalide');
   if(!Number.isFinite(Number(p.longitude))||Math.abs(Number(p.longitude))>180)throw Error('Longitude invalide');
   if(!p.timezone||typeof p.timezone!=='string'||p.timezone.length>100)throw Error('Fuseau horaire invalide');
-  // Throws for unknown IANA zone or ambiguous/non-existent local time.
+  // Unknown time: noon is a computational reference only, never a claimed birth time.
+  // The application must hide houses, angles and untrustworthy Moon-based aspects.
+  if(!timeKnown)return localToUtc(p.date,'12:00',p.timezone);
   return localToUtc(p.date,p.time,p.timezone,p.fold??null);
 }
