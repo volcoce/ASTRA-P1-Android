@@ -23,7 +23,14 @@ window.ASTRA_ENGINE = {
  normalizePlace(p){return {...p,label:p.label||'Paris · Île-de-France · France'}},
  searchCities:async q=>[{name:'Paris',label:'Paris · Île-de-France · France',latitude:48.8534,longitude:2.3488,timezone:'Europe/Paris',admin1:'Île-de-France',country:'France'}],
  localToUtc(date,time,zone,fold=null){if(date==='2026-10-25' && time==='02:30' && fold===null)throw Error('Heure ambiguë');return new Date('1994-05-12T16:40:00.000Z')},
- natalChart(profile){const known=profile?.timeKnown!==false;return {timeKnown:known,approximateNoon:!known,positions:{Sun:7,Moon:23,Mercury:32,Venus:55,Mars:91,Jupiter:123,Saturn:141,Uranus:175,Neptune:203,Pluto:270},houses:known?{ascendant:151.5,midheaven:53.1,system:'Placidus',cusps:[151.5,172,199,233,270,304,331.5,352,19,53.1,90,124],polarFallback:false}:null,aspects:[{a:'Sun',b:'Mars',aspect:'Carré',glyph:'□',orb:1}]}},
+ natalChart(profile,mode,houseSystem='placidus'){const known=profile?.timeKnown!==false;const asc=151.5,mc=53.1,start=houseSystem==='whole'?150:asc;return {timeKnown:known,approximateNoon:!known,positions:{Sun:7,Moon:23,Mercury:32,Venus:55,Mars:91,Jupiter:123,Saturn:141,Uranus:175,Neptune:203,Pluto:270},houses:known?{ascendant:asc,midheaven:mc,system:houseSystem==='whole'?'Signes entiers':houseSystem==='equal'?'Maisons égales':'Placidus',cusps:houseSystem==='placidus'?[151.5,172,199,233,270,304,331.5,352,19,53.1,90,124]:Array.from({length:12},(_,i)=>(start+i*30)%360),polarFallback:false}:null,aspects:[{a:'Sun',b:'Mars',aspect:'Carré',glyph:'□',orb:1}]}},
+ transitSnapshot(profile,instant,mode,houseSystem){
+   return {at:new Date(instant).toISOString(),mode,houseSystem,
+     chart:this.natalChart(profile,mode,houseSystem),
+     positions:{Sun:249,Moon:32,Mercury:285,Venus:298,Mars:17,Jupiter:141,Saturn:276,Uranus:51,Neptune:348,Pluto:305},
+     contacts:[{body:'Sun',natal:'Mars',aspect:'Carré',glyph:'□',angle:90,delta:0.34,orb:2}],
+     approximateNatal:profile?.timeKnown===false};
+ },
  houseOf(lon,cusps){for(let i=0;i<12;i++){let d=(lon-cusps[i]+360)%360,w=(cusps[(i+1)%12]-cusps[i]+360)%360;if(d<w)return i+1;}return null;},
  describeEvent(e){return {kind:'Interprétation',title:e.name||'Soleil trigone Lune natal',tone:'Lecture symbolique',astronomy:'Mesure astronomique calculée.',interpretation:'Lecture astrologique sans causalité.',question:'Quelle observation personnelle noter ?',disclaimer:'Pas de prédiction scientifique.'}},
  calculateMonth(profile,year,month,mode){
@@ -116,6 +123,42 @@ if __name__ == '__main__':
             assert page.locator('#natalChart .natal-aspect').count()==0
             page.locator('[data-natal-aspect-filter="all"]').click()
             assert page.locator('#natalChart .natal-aspect').count()==1
+            # P2: matrix, house systems, double wheel and graphic exports.
+            assert page.locator('#natalChart .natal-matrix').count()==1
+            assert page.locator('#natalChart .natal-matrix button').count()==1
+            page.locator('.natal-matrix button').click()
+            assert 'Aspect natal' in page.locator('#natalSelectionInfo').inner_text()
+            page.locator('[data-house-system="whole"]').click()
+            assert page.locator('[data-house-system="whole"]').get_attribute('aria-pressed')=='true'
+            assert 'Signes entiers' in page.locator('#natalChart').inner_text()
+            page.locator('[data-house-system="equal"]').click()
+            assert page.locator('[data-house-system="equal"]').get_attribute('aria-pressed')=='true'
+            page.locator('[data-house-system="placidus"]').click()
+            page.locator('[data-natal-zoom="0.25"]').click()
+            assert '125 %' in page.locator('.natal-zoom').inner_text()
+            page.locator('[data-natal-zoom="reset"]').click()
+            assert '100 %' in page.locator('.natal-zoom').inner_text()
+            page.locator('[data-wheel-layout="double"]').click()
+            assert page.locator('.natal-double-wheel').count()==1
+            assert page.locator('.natal-transit-hit').count()==10
+            page.locator('.natal-transit-hit[data-transit-body="Sun"]').click()
+            assert 'transit' in page.locator('#natalSelectionInfo').inner_text()
+            assert '12:00' in page.locator('#natalSelectionInfo').inner_text() or 'UTC' in page.locator('#natalSelectionInfo').inner_text()
+            page.locator('#transitTime').fill('13:30')
+            page.locator('#transitTime').dispatch_event('change')
+            saved=page.evaluate("JSON.parse(localStorage.getItem('astra-public-v1'))")
+            assert saved['transitTime']=='13:30'
+            # Browser-generated exports should be real files, not only UI alerts.
+            with page.expect_download(timeout=6000) as d:
+                page.locator('[data-export-chart="svg"]').click()
+            assert d.value.suggested_filename.endswith('.svg')
+            assert b'<svg' in Path(d.value.path()).read_bytes()
+            with page.expect_download(timeout=9000) as d:
+                page.locator('[data-export-chart="png"]').click()
+            assert d.value.suggested_filename.endswith('.png')
+            assert Path(d.value.path()).read_bytes().startswith(b'\\x89PNG'.decode('unicode_escape').encode('latin1'))
+            page.locator('[data-wheel-layout="natal"]').click()
+            assert page.locator('.natal-double-wheel').count()==0
             assert page.locator('#natalChart [data-natal-house]').count()>=12
             page.locator('.natal-wheel [data-natal-house="1"]').click()
             assert 'Maison 1' in page.locator('#natalSelectionInfo').inner_text()
