@@ -1,6 +1,17 @@
-# ASTRA Public — Preview 0.8.5
+# ASTRA Public — Preview 0.8.6
 
 **Référence UI/UX du projet :** [UI_ARCHITECTURE.md](UI_ARCHITECTURE.md) pour la hiérarchie, la navigation, les composants et l'accessibilité ; [DESIGN.md](DESIGN.md) pour l'identité visuelle. Les règles pour assistants de code sont dans [AGENTS.md](AGENTS.md).
+
+## Repères solaires et icônes de phase lunaire — Preview 0.8.6
+
+Le calendrier conserve une grille **simple et lisible** en affichant les informations astronomiques par petits indicateurs plutôt qu'en colorant toutes les cases.
+
+- **Huit phases lunaires illustrées** : chaque case du calendrier reçoit une petite Lune dessinée en SVG à partir de l'angle Soleil–Lune **à midi local**, calculé par le moteur pour la date concernée. Les icônes de la carte principale de « Ce jour » sont également calculées : aucun croissant générique.
+- **Événements remarquables conservés** : les cases de Nouvelle Lune restent violettes et celles de Pleine Lune restent dorées. Ces événements astronomiques ont leur propre horaire et leur propre signe zodiacal, distincts de la position de midi.
+- **Trait solaire doré** : une courte ligne apparaît sur un jour lorsqu'un **aspect exact du Soleil en transit avec une planète natale** est calculé pour cette date. L'indicateur ne prétend pas être un transit continu ni un autre type d'aspect ; toucher la date permet d'en voir le détail.
+- **Légende accessible** : icône de phase à midi, Nouvelle Lune, Pleine Lune et trait d'aspect solaire exact. Les marqueurs sont aussi annoncés dans le libellé accessible de chaque date et persistent indépendamment des filtres d'événements.
+- **Performance / confidentialité** : un seul angle lunaire de midi est stocké dans le résultat mensuel déjà calculé ; pas de requête réseau, pas de service tiers et aucune donnée supplémentaire sauvegardée dans le profil.
+- **Tests** : vérification des angles lunaires par jour, des huit phases et de l'indépendance tropical/sidéral ; tests de la grille sur mobile, présence des traits solaires sur les bonnes dates et maintien des repères après filtrage.
 
 ## Une même journée, plusieurs positions lunaires — Preview 0.8.5
 

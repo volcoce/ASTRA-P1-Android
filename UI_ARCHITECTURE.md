@@ -19,7 +19,7 @@
 | --- | --- | --- | --- | --- |
 | **Ce jour** | Où se trouve la Lune à midi et quand change-t-elle de signe ? | Sélection de semaine, **Lune en [signe] à midi** dans le fuseau du profil, changements de signe/phase du jour par ordre chronologique | Cartes Soleil / Journal / Mon ciel, trois premiers événements | Autres événements, aspects en cours, calcul détaillé |
 | **Ce mois** | Que se passe-t-il pendant le mois affiché ? | Mois, nombre d'événements calculés, Nouvelles Lunes et Pleines Lunes | Premiers événements du mois et jours consignés | Dates détaillées, accès au journal |
-| **Calendrier** | À quelle date est cet événement ? | Grille mensuelle, jour choisi, marqueurs lunaires | Événements de la date, prochaines phases | Filtres, tropical/sidéral, autres détails |
+| **Calendrier** | À quelle date est cet événement ? | Grille mensuelle, jour choisi, icône lunaire de midi par date et **trait doré pour un aspect exact du Soleil** | Nouvelle Lune violette, Pleine Lune dorée, événements du jour et prochaines phases | Filtres, tropical/sidéral, autres détails |
 | **Mon ciel** | Quel est mon thème et comment le comprendre ? | Soleil/Lune/Ascendant en clair, « Comprendre mon thème », carte de naissance | « Comparer deux dates », lecture d'une planète | Matrice d'aspects, systèmes de maisons, détails techniques et exports |
 
 **Journal secondaire :** le Journal n'est plus un onglet principal, mais reste accessible depuis Ce jour, Ce mois et les fiches d'événements, y compris sans thème natal. Ses données locales et ses fonctions de saisie/recherche/sauvegarde ne changent pas.
@@ -120,7 +120,7 @@ Ne jamais afficher une barre latérale **et** une barre basse concurrentes ; il 
 | `ExpandSection` | détails longs et réglages | `summary` explicite, état ouvert lisible et préservé si pertinent |
 | `NatalSignTile` | Soleil, Lune, Ascendant | symbole + **nom en toutes lettres** + signe, option incertitude |
 | `ChartViewport` | SVG natal / transits, zoom et export | lisible à 100% sans défilement latéral de page |
-| `DateMonthPicker` | calendrier mensuel, nombre d'événements | Nouvelle Lune violette (●), Pleine Lune dorée (○), légende, `aria-label` et indicateur des notes distinct |
+| `DateMonthPicker` | calendrier mensuel et jours à aspects solaires exacts | Icônes SVG correspondant aux huit phases à midi, Nouvelle Lune violette, Pleine Lune dorée, ligne dorée distincte pour aspect exact du Soleil, légende, `aria-label` et notes distinctes |
 | `MoodPicker` / `JournalEditor` | humeur, énergie, note, sauvegarde | labels explicites, persistance de brouillon lors d'une navigation |
 | `BirthForm` / `CityPicker` | saisie date/heure/ville | erreurs au champ, aucune ville non confirmée, heure inconnue possible |
 | `FeedbackState` | vide, chargement, erreur, confirmation | action suivante visible, ton neutre, pas de faux résultat |

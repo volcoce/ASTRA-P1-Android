@@ -12,10 +12,12 @@ Do not reproduce Flo's visual branding. The reusable information architecture is
 
 **Aujourd'hui** must present:
 1. Select a day from a week strip (Monday–Sunday) with previous/next week accessible.
-2. One hero showing **Moon zodiac sign and lunar phase calculated at local noon**, with timezone and zodiac system stated; when the Moon changes sign or a lunar quarter occurs that civil day, display the precise chronological events and explain any sign difference. Do not imply a noon Moon sign applies all day. The count of exact events is secondary; never invent a prediction or sentiment.
+2. One hero showing **Moon zodiac sign and an illustrated lunar-phase icon calculated at local noon**, with timezone and zodiac system stated; when the Moon changes sign or a lunar quarter occurs that civil day, display the precise chronological events and explain any sign difference. Do not imply a noon Moon sign applies all day. The count of exact events is secondary; never invent a prediction or sentiment.
 3. A compact horizontally scrollable set of **secondary** widgets: Sun sign at that same local noon, journal entry, natal chart. Do not duplicate the Moon phase in a second card.
 4. A vertically scrolling feed of first events with explicit expansion for the remainder.
 5. Secondary in-orb aspects under an accessible disclosure. Ensure no user loses the underlying astronomical data.
+
+Calendar rule: every day may show one small monochrome moon-phase SVG at local noon; a separate short warm-gold underline means **an exact aspect from transiting Sun to natal planet that day**. Do not use a full-row highlight for ordinary solar aspects, and keep violet New Moon and gold Full Moon distinct. Provide a textual legend and accessible day label; markers must not depend on event filters.
 
 Use exactly four bottom tabs in this order: **Ce jour / Ce mois / Calendrier / Mon ciel**. Ce jour and Ce mois are anchored to the current date and month upon entering their tabs; Calendar remains the historical/future browser. Filters chosen in Calendar must not affect daily/monthly summaries. The journal is a secondary route accessible from day and month widgets and without a natal profile. Keep the **bottom navigation persistent** while the viewport is not occupied by the keyboard. Use text labels, not just planet symbols. At 320 CSS pixels, only the secondary widget rail scrolls horizontally; the page must never scroll sideways.
 
