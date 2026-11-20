@@ -44,10 +44,10 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
-      - name: Installer Chromium pour les tests de prévisualisation PC
+      - name: Préparer les tests navigateur avec Chrome du runner
         run: |
           python -m pip install playwright==1.56.0
-          python -m playwright install --with-deps chromium
+          command -v google-chrome || command -v chromium
       - name: Tester Mon ciel, les modes et le journal dans Chromium
         run: python tests/ui-smoke.py
       - name: Préparer la signature stable (DEBUG / Preview uniquement)
