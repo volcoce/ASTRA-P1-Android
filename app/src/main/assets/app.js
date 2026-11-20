@@ -80,6 +80,25 @@
   // Non-persisted form state. Only a selected city can supply coordinates/timezone.
   let birthDraft=null;
   let placeSearch={options:[],selected:null,loading:false,error:'',needFold:false,requestId:0};
+  let birthValidation=null, compositeValidation=null;
+  const validationAttrs=(field,error)=>error?.field===field?
+    ' aria-invalid="true" aria-describedby="'+field+'Error"':'';
+  const validationMessage=(field,error)=>error?.field===field?
+    '<p id="'+field+'Error" class="form-field-error" role="alert">'+safe(error.message)+'</p>':'';
+  function showValidationError(scope,field,message){
+    if(scope==='birth')birthValidation={field,message};
+    else compositeValidation={field,message};
+    render();
+    $(field)?.focus({preventScroll:false});
+  }
+  function clearValidationError(field){
+    if(birthValidation?.field===field)birthValidation=null;
+    if(compositeValidation?.field===field)compositeValidation=null;
+    const control=$(field);
+    control?.removeAttribute('aria-invalid');
+    control?.removeAttribute('aria-describedby');
+    $(field+'Error')?.remove();
+  }
   function draft() {
     if(!birthDraft){
       const p=state.profile||{};
@@ -1100,22 +1119,24 @@
     }
     if(isComposite){
       const d=compositeDraft;
+      const compositeCityError=compositeValidation?.field==='secondCity'?compositeValidation:
+        compositeSearch.error?{field:'secondCity',message:compositeSearch.error}:null;
       const suggestions=compositeSearch.options.map((p,i)=>
         '<button type="button" class="city-choice" data-composite-place="'+i+'"><strong>'+safe(p.name)+'</strong>'+
         '<span>'+safe([p.admin1,p.country].filter(Boolean).join(' · '))+'</span></button>').join('');
       return '<section class="card natal-card natal-composite" id="natalChart">'+
         '<div class="natal-subpage-heading">'+pageBack+'<h2 class="card-title">Carte composite</h2>'+
         '<p class="natal-section-lead">Milieux zodiacaux calculés entre deux thèmes de naissance. Les positions composites sont conventionnelles : ce n’est pas une carte du ciel à un instant réel.</p></div>'+
-        '<form id="compositeForm"><h3 class="natal-subtitle">Seconde personne</h3>'+
+        '<form id="compositeForm" novalidate><h3 class="natal-subtitle">Seconde personne</h3>'+
         '<div class="field-grid"><div class="field"><label for="secondDate">Date de naissance</label>'+
-        '<input type="date" id="secondDate" required min="1900-01-01" max="2100-12-31" value="'+safe(d.date)+'"></div>'+
+        '<input type="date" id="secondDate" required min="1900-01-01" max="2100-12-31" value="'+safe(d.date)+'"'+validationAttrs('secondDate',compositeValidation)+'>'+validationMessage('secondDate',compositeValidation)+'</div>'+
         '<div class="field"><label for="secondTime">Heure de naissance</label>'+
-        '<input type="time" id="secondTime" '+(d.timeKnown?'required':'disabled')+' value="'+safe(d.time)+'"></div></div>'+
+        '<input type="time" id="secondTime" '+(d.timeKnown?'required':'disabled')+' value="'+safe(d.time)+'"'+validationAttrs('secondTime',compositeValidation)+'>'+validationMessage('secondTime',compositeValidation)+'</div></div>'+
         '<label class="unknown-time-toggle" for="secondUnknownTime"><input type="checkbox" id="secondUnknownTime" '+(!d.timeKnown?'checked':'')+'> Je ne connais pas l’heure</label>'+
         '<div class="field"><label for="secondCity">Ville de naissance</label>'+
-        '<div class="city-search"><input type="text" id="secondCity" autocomplete="off" required value="'+safe(d.city)+'" placeholder="Rechercher une ville…">'+
+        '<div class="city-search"><input type="text" id="secondCity" autocomplete="off" required value="'+safe(d.city)+'" placeholder="Rechercher une ville…"'+validationAttrs('secondCity',compositeCityError)+'>'+
         '<button type="button" class="ghost" data-search-composite-place="1" '+(compositeSearch.loading?'disabled':'')+'>Rechercher</button></div></div>'+
-        (compositeSearch.error?'<p class="notice" role="alert">'+safe(compositeSearch.error)+'</p>':'')+
+        validationMessage('secondCity',compositeCityError)+
         (suggestions?'<div class="city-results">'+suggestions+'</div>':'')+
         (d.place?'<p class="city-confirmed">Ville confirmée · '+safe(d.place.label)+'</p>':'<p class="field-help">Sélectionne la ville trouvée dans les résultats.</p>')+
         '<button type="submit" class="primary full">Calculer la carte composite</button></form>'+
@@ -1202,9 +1223,11 @@
 
   function profile() {
     const d=draft(),place=placeSearch.selected;
+    const birthCityError=birthValidation?.field==='birthCity'?birthValidation:
+      placeSearch.error?{field:'birthCity',message:placeSearch.error}:null;
     let chart=null;try { if(state.profile&&E)chart=E.natalChart(state.profile,state.natalZodiac,state.houseSystem); }catch(err){ /* Les anciennes sauvegardes peuvent être incomplètes. */ }
     const suggestions=placeSearch.options.map((p,i)=>`<button type="button" class="city-choice" data-place="${i}" aria-label="Choisir ${safe(p.label)}"><strong>${safe(p.name)}</strong><span>${safe([p.admin1,p.country].filter(Boolean).join(' · '))}</span></button>`).join('');
-    const foldPicker=placeSearch.needFold&&d.timeKnown?`<div class="field"><label for="fold">Cette heure locale a existé deux fois</label><select id="fold" name="fold" required><option value="">Choisir l’occurrence</option><option value="0" ${d.fold===0?'selected':''}>Première occurrence (avant le retour à l’heure d’hiver)</option><option value="1" ${d.fold===1?'selected':''}>Deuxième occurrence (après le retour à l’heure d’hiver)</option></select><p class="field-help">Ce cas rare ne peut pas être déduit de la ville et de l’heure seules. Consulte l’heure indiquée sur l’acte de naissance.</p></div>`:'';
+    const foldPicker=placeSearch.needFold&&d.timeKnown?`<div class="field"><label for="fold">Cette heure locale a existé deux fois</label><select id="fold" name="fold" required${validationAttrs('fold',birthValidation)}><option value="">Choisir l’occurrence</option><option value="0" ${d.fold===0?'selected':''}>Première occurrence (avant le retour à l’heure d’hiver)</option><option value="1" ${d.fold===1?'selected':''}>Deuxième occurrence (après le retour à l’heure d’hiver)</option></select>${validationMessage('fold',birthValidation)}<p class="field-help">Ce cas rare ne peut pas être déduit de la ville et de l’heure seules. Consulte l’heure indiquée sur l’acte de naissance.</p></div>`:'';
     const showSettings=!chart||profileScreen==='settings';
     return (showSettings
       ? header(chart?'Réglages':'Créer mon thème natal',
@@ -1219,10 +1242,10 @@
           profileScreen==='composite'?'Comparer les positions de deux cartes.':'Ton thème de naissance, en clair.'))+
       (chart?renderNatalChart(chart):'')+
       (showSettings?
-      `<section class="card"><h2 class="card-title">Tes informations de naissance</h2><form id="birthForm"><div class="field-grid"><div class="field"><label for="birthDate">Date de naissance</label><input required type="date" id="birthDate" name="date" min="1900-01-01" max="2100-12-31" value="${safe(d.date)}"></div><div class="field"><label for="birthTime">Heure de naissance</label><input ${d.timeKnown?'required':''} type="time" id="birthTime" name="time" value="${safe(d.time)}" ${d.timeKnown?'':'disabled'}></div></div>`+
+      `<section class="card"><h2 class="card-title">Tes informations de naissance</h2><form id="birthForm" novalidate><div class="field-grid"><div class="field"><label for="birthDate">Date de naissance</label><input required type="date" id="birthDate" name="date" min="1900-01-01" max="2100-12-31" value="${safe(d.date)}"${validationAttrs('birthDate',birthValidation)}>${validationMessage('birthDate',birthValidation)}</div><div class="field"><label for="birthTime">Heure de naissance</label><input ${d.timeKnown?'required':''} type="time" id="birthTime" name="time" value="${safe(d.time)}" ${d.timeKnown?'':'disabled'}${validationAttrs('birthTime',birthValidation)}>${validationMessage('birthTime',birthValidation)}</div></div>`+
       `<label class="unknown-time-toggle" for="unknownBirthTime"><input type="checkbox" id="unknownBirthTime" name="unknownBirthTime" ${d.timeKnown?'':'checked'}> Je ne connais pas l’heure</label><p class="field-help">Sans heure, ASTRA ne calcule pas l’Ascendant ni les maisons. Tu peux continuer.</p>`+
-      `<div class="field"><label for="birthCity">Ville de naissance</label><div class="city-search"><input required autocomplete="off" id="birthCity" name="city" placeholder="Ex. Paris, Montréal, Tokyo…" value="${safe(d.city)}"><button type="button" class="ghost" data-search-place="1" ${placeSearch.loading?'disabled':''}>${placeSearch.loading?'Recherche…':'Rechercher'}</button></div><p class="field-help">Recherche avec Internet, puis sélectionne le bon résultat. La position et le fuseau sont déduits de la ville, pas du téléphone.</p></div>`+
-      `${placeSearch.error?`<p class="notice" role="alert">${safe(placeSearch.error)}</p>`:''}`+
+      `<div class="field"><label for="birthCity">Ville de naissance</label><div class="city-search"><input required autocomplete="off" id="birthCity" name="city" placeholder="Ex. Paris, Montréal, Tokyo…" value="${safe(d.city)}"${validationAttrs('birthCity',birthCityError)}><button type="button" class="ghost" data-search-place="1" ${placeSearch.loading?'disabled':''}>${placeSearch.loading?'Recherche…':'Rechercher'}</button></div><p class="field-help">Recherche avec Internet, puis sélectionne le bon résultat. La position et le fuseau sont déduits de la ville, pas du téléphone.</p></div>`+
+      `${validationMessage('birthCity',birthCityError)}`+
       `${suggestions?`<div class="city-results" aria-label="Villes trouvées">${suggestions}</div>`:''}`+
       `${place?`<div class="city-confirmed" role="status"><b>Ville confirmée · ${safe(place.label)}</b><details class="city-technical"><summary>Voir le fuseau et les coordonnées</summary><p>${safe(offsetDescription(d,place))}</p><small>Coordonnées calculées · ${place.latitude.toFixed(4)}°, ${place.longitude.toFixed(4)}°</small></details></div>`:'<p class="city-unselected">Sélectionne une ville pour continuer.</p>'}`+
       `${foldPicker}<details class="calculation-details"><summary>Comment les calculs fonctionnent-ils ?</summary><p class="field-help"><strong>Orbes automatiques.</strong> ASTRA adapte la marge à la planète et à l’aspect. Les instants exacts sont calculés séparément dans le calendrier.</p></details><button class="primary full" type="submit">Calculer mon thème natal</button></form>`+
