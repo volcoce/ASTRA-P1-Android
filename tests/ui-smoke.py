@@ -116,6 +116,8 @@ if __name__ == '__main__':
             page.locator('[data-search-place]').click()
             page.locator('[data-place]').first.wait_for(timeout=1500)
             page.locator('[data-place]').first.click()
+            assert page.locator('.city-technical').get_attribute('open') is None
+            page.locator('.city-technical summary').click()
             assert 'Europe/Paris' in page.locator('.city-confirmed').inner_text()
             page.get_by_role('button',name='Calculer mon thème natal').click()
             page.wait_for_timeout(250)
@@ -298,7 +300,10 @@ if __name__ == '__main__':
             page.locator('[data-close-natal-detail]').click()
             page.locator('[data-profile-screen="settings"]').click()
             assert page.locator('.natal-settings').count()==1
+            assert page.locator('.natal-more-options').get_attribute('open') is None
             capture('settings-393')
+            page.locator('.natal-more-options summary').click()
+            assert page.locator('.natal-more-options').get_attribute('open') is not None
             assert page.locator('#birthForm').count()==1
             assert page.locator('.natal-primary-cards').count()==0
             page.locator('[data-house-system="whole"]').focus()
@@ -410,6 +415,8 @@ if __name__ == '__main__':
                 assert page.evaluate("document.documentElement.scrollWidth") <= width+2, width
             page.set_viewport_size({'width':320,'height':730})
             page.locator('[data-profile-screen="settings"]').click()
+            assert page.locator('.calculation-details').first.get_attribute('open') is None
+            page.locator('.calculation-details summary').first.click()
             assert 'Orbes automatiques' in page.locator('#birthForm').inner_text()
             page.locator('[data-tab="calendar"]').click()
             assert page.locator('.calendar-options').count()==1
