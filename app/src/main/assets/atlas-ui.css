@@ -325,3 +325,123 @@ textarea:focus-visible,select:focus-visible{outline:3px solid #237b99;outline-of
 .event-more{font-size:13px}
 /* Short visual tab labels preserve meaning and remain legible at 200% font size. */
 .bottom-nav .nav-label{font:inherit;line-height:1.2;max-width:100%;white-space:nowrap}
+
+
+/* Home information architecture, inspired by Flo's scannable today / week /
+   daily insights / details sequence. No Flo imagery or styling is reused. */
+.astra-week{margin:5px 0 16px}
+.astra-week-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.astra-week-caption{color:#556a7b;font-size:12px;font-weight:750;letter-spacing:.025em}
+.astra-week-controls{display:flex;align-items:center;gap:7px;font-size:12px;
+  color:#4c6575;font-variant-numeric:tabular-nums;white-space:nowrap}
+.astra-week-controls button{height:36px;width:36px;display:grid;place-items:center;
+  background:#fff;border:1px solid #dbe4e8;border-radius:11px;
+  font-size:22px;line-height:1;color:#274e65;cursor:pointer}
+.astra-week-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+.astra-week-day{display:flex;align-items:center;justify-content:center;flex-direction:column;
+  gap:5px;min-width:0;min-height:65px;padding:7px 0 8px;background:transparent;
+  border:1px solid transparent;border-radius:15px;color:#657689;cursor:pointer;
+  font-family:inherit;line-height:1.1}
+.astra-week-day span{font-size:11px;font-weight:650;text-transform:capitalize}
+.astra-week-day b{font-size:17px;font-weight:750;color:#344d62;font-variant-numeric:tabular-nums}
+.astra-week-day.is-selected{background:#1e435a;color:#e5f1f8;border-color:#1e435a;
+  box-shadow:0 2px 0 #152f42}
+.astra-week-day.is-selected b{color:#fff}
+.astra-week-day.is-today:not(.is-selected){border-color:#8fa9b7}
+.astra-week-day:focus-visible,.astra-week-controls button:focus-visible{
+  outline:3px solid #226987;outline-offset:2px
+}
+.astra-day-hero{position:relative;isolation:isolate;overflow:hidden;
+  background:#172b3e;color:#fff;border-radius:23px;padding:23px 22px 20px;
+  min-height:199px;margin:0 0 24px}
+.astra-day-hero-copy{position:relative;z-index:1;max-width:80%}
+.astra-hero-kicker{color:#aec6d7;font:750 11px/1.4 system-ui,sans-serif;
+  letter-spacing:.11em;margin:0 0 10px}
+.astra-hero-stat{display:flex;align-items:center;gap:13px;line-height:1.12}
+.astra-hero-stat strong{font:760 clamp(55px,13vw,70px)/1 system-ui,sans-serif;
+  font-variant-numeric:tabular-nums;letter-spacing:-.07em;color:#fff}
+.astra-hero-stat span{font:700 17px/1.25 system-ui,sans-serif;color:#fff;
+  max-width:125px}
+.astra-hero-description{margin:9px 0 16px;max-width:30ch;
+  color:#cad9e3;font-size:13px;line-height:1.5}
+.astra-hero-orbit{position:absolute;z-index:0;right:-47px;top:-50px;
+  width:200px;height:200px;border:1px solid #5d7f98;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;opacity:.33}
+.astra-hero-orbit:before{content:'';position:absolute;inset:19px;border:1px solid #92aabc;border-radius:50%}
+.astra-hero-orbit:after{content:'';position:absolute;inset:48px;border:1px solid #a5b9c7;border-radius:50%}
+.astra-hero-orbit span{font:400 37px/1 Georgia,serif;color:#e9bb71}
+.astra-hero-link{position:relative;z-index:1;display:inline-flex;
+  align-items:center;gap:10px;min-height:39px;
+  padding:7px 13px;border:1px solid #69899c;background:#36586e;
+  border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer}
+.astra-hero-link span{font-size:16px}
+.astra-today-insights{margin:0 0 23px}
+.astra-section-head{display:flex;align-items:center;justify-content:space-between;
+  gap:10px;margin:0 0 11px}
+.astra-section-head h2{font:750 19px/1.25 system-ui,sans-serif;letter-spacing:-.025em;
+  color:#23394d;margin:0}
+.astra-section-head>span{font:600 12px/1.3 system-ui,sans-serif;color:#6b7e8b}
+.astra-section-head .astra-count{font-weight:750;border-radius:999px;
+  background:#e5edf1;padding:4px 10px;color:#29536b}
+.astra-insight-track{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x proximity;
+  padding:2px 0 10px;margin-right:-14px;padding-right:14px;
+  overscroll-behavior-inline:contain;-webkit-overflow-scrolling:touch;
+  scrollbar-width:thin;scrollbar-color:#cbd9df transparent}
+.astra-insight-tile{position:relative;display:flex;flex-direction:column;align-items:flex-start;
+  flex:0 0 177px;min-height:143px;gap:8px;scroll-snap-align:start;
+  border:1px solid #d9e4ea;border-radius:17px;padding:15px;
+  text-align:left;background:#fff;color:#203b50;box-sizing:border-box}
+.astra-insight-tile strong{font-size:16px;line-height:1.28;font-weight:750;
+  letter-spacing:-.02em}
+.astra-insight-tile small{font-size:12px;line-height:1.4;color:#617687}
+.astra-tile-kicker{font:800 10.5px/1.2 system-ui,sans-serif;
+  letter-spacing:.085em;color:#3b677c}
+.astra-insight-tile.as-lunar{background:#eaf1f6;border-color:#dbe6ee}
+.astra-insight-tile.as-journal{background:#f6efe7;border-color:#e8ded0}
+.astra-insight-tile.as-journal .astra-tile-kicker{color:#91633b}
+.astra-insight-tile.as-chart{background:#eff4ec;border-color:#e1e7d9}
+.astra-insight-tile.as-chart .astra-tile-kicker{color:#59724c}
+button.astra-insight-tile{cursor:pointer}
+button.astra-insight-tile:hover{border-color:#7597aa}
+.astra-tile-arrow{position:absolute;bottom:13px;right:13px;
+  color:#4f6b7e;font-size:18px}
+.astra-feed{margin-top:9px;scroll-margin-top:18px}
+.astra-section-help{color:#637787;font-size:13px;line-height:1.5;margin:0 0 12px}
+.astra-event-feed{background:#fff;border:1px solid #dbe4e9;border-radius:17px;
+  padding:3px 15px;overflow:hidden}
+.astra-event-feed .event-button{border-top:1px solid #e3e9ed;min-height:80px;
+  padding:12px 0}
+.astra-event-feed .event-button:first-child{border-top:0}
+.astra-empty{font-size:14px;color:#637687;margin:18px 2px;line-height:1.55}
+.astra-more-events{margin:7px 0 0}
+.astra-more-events>summary{min-height:45px;display:flex;align-items:center;justify-content:center;
+  color:#28576d;font-weight:750;font-size:13px;cursor:pointer}
+.astra-more-events .astra-event-feed{margin-top:7px}
+.astra-active-panel{margin:20px 0 20px;padding:0 16px;
+  border:1px solid #dbe5e8;border-radius:16px;background:#fff}
+.astra-active-panel>summary{display:flex;justify-content:space-between;align-items:center;
+  min-height:62px;cursor:pointer;gap:10px;color:#304e61;
+  font-weight:750;font-size:15px}
+.astra-active-panel>summary>span:last-child{color:#637b8b;font-size:13px}
+.astra-active-panel>p{color:#647888;font-size:13px;line-height:1.5;
+  margin:0 0 12px}
+.astra-active-panel .astra-event-feed{border:0;padding:0;border-radius:0}
+.astra-back-today{width:100%;min-height:47px;background:transparent;
+  border:1px solid #c9d7de;color:#2a5871;font-weight:750;
+  border-radius:12px;margin:0 0 18px;cursor:pointer}
+@media(min-width:700px){
+  .astra-insight-track{margin-right:0;padding-right:0}
+  .astra-insight-tile{flex-basis:calc((100% - 20px)/3)}
+}
+@media(max-width:360px){
+  .astra-week-days{gap:2px}
+  .astra-week-day{min-height:61px;border-radius:12px}
+  .astra-week-day b{font-size:16px}
+  .astra-week-title{gap:4px}
+  .astra-week-controls{gap:3px}
+  .astra-week-controls button{height:33px;width:33px}
+  .astra-day-hero{padding:20px 18px 19px;min-height:186px}
+  .astra-day-hero-copy{max-width:85%}
+  .astra-hero-stat span{font-size:15px}
+  .astra-insight-tile{flex-basis:166px}
+}
