@@ -19,3 +19,31 @@ button[data-goto="profile"]{margin-top:16px}.field input[type="date"],.field inp
 
 /* P2.2 — natal tropical wheel, Placidus houses and birth aspects */
 .natal-card{padding:16px 13px}.natal-card>.tiny{margin:7px 6px}.natal-wheel{width:100%;height:auto;display:block;max-width:430px;margin:9px auto}.natal-wheel .zodiac-symbol{font-size:17px;fill:#674f90}.natal-wheel .house-number{font-size:12px;fill:#8f80a5;font-weight:700}.natal-wheel .natal-planet{font-size:19px;fill:#3c3155;font-weight:700}.natal-wheel .angle-label{font-size:10px;fill:#6d4c93;font-weight:800}.wheel-core-title{font:700 14px Georgia,serif;fill:#715790;letter-spacing:2px}.wheel-core-sub{font:8px sans-serif;fill:#a397b2;letter-spacing:2px}.wheel-caption{text-align:center;color:var(--secondary);font-size:10px;line-height:1.5;margin:2px 4px 15px}.natal-highlights{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:12px 3px 16px}.natal-highlights>div{border:1px solid #eee6f4;border-radius:14px;background:#fbf9fd;padding:11px 9px;display:flex;flex-direction:column;gap:5px}.natal-highlights span{font-size:10px;color:var(--secondary)}.natal-highlights b{font-size:12px;color:var(--deep)}.natal-subtitle{font:400 19px Georgia,serif;color:var(--deep);margin:20px 5px 9px}.natal-positions,.natal-aspects{border:1px solid var(--border);border-radius:14px;padding:0 10px;overflow:hidden}.natal-position{display:grid;grid-template-columns:1fr auto 36px;gap:5px;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)}.natal-position:last-child,.natal-aspect:last-child{border-bottom:0}.position-planet{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700}.position-planet>span{font-size:17px;color:var(--violet);min-width:20px}.position-value{font-size:11px;color:var(--deep);font-variant-numeric:tabular-nums}.position-house{font-size:10px;color:var(--secondary);text-align:right}.natal-aspect{display:flex;justify-content:space-between;align-items:center;gap:6px;padding:9px 0;border-bottom:1px solid var(--border);font-size:10.5px}.natal-aspect b{font-size:15px;color:var(--violet)}.natal-aspect>span:last-child{color:var(--secondary);text-align:right;white-space:nowrap}@media(max-width:360px){.natal-card{padding:12px 9px}.natal-wheel .natal-planet{font-size:17px}.natal-position{grid-template-columns:1fr auto 29px}.natal-position .position-value{font-size:10px}}
+
+
+/* ASTRA — Two independent natal reading modes, accessible in both. */
+.natal-control-stack{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:16px 3px 6px}
+.natal-control{display:flex;flex-direction:column;gap:6px}
+.natal-control>span{font-size:11px;font-weight:800;color:var(--secondary)}
+.natal-segments{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px;padding:3px;background:#f1eafa;border-radius:12px}
+.natal-segments>button{background:transparent;border:0;color:#685777;padding:10px 4px;min-height:43px;border-radius:9px;font-size:11px;font-weight:750;cursor:pointer}
+.natal-segments>button.on{background:#fff;box-shadow:0 1px 5px #4030501c;color:#3d245c}
+.natal-hit{cursor:pointer}
+.natal-hit.is-active .natal-planet,.natal-hit.is-active .house-number{fill:#572e8b;font-weight:900}
+.natal-hit:focus-visible,.natal-hit:focus{outline:none}
+.natal-hit:focus-visible>circle{stroke:#5b3f80;stroke-width:2.6;fill:#f4e8ff}
+.natal-selection{background:#f8f5fc;border:1px solid #ded0f1;border-radius:14px;margin:14px 3px;padding:14px 13px;min-height:74px}
+.natal-selected-empty{color:var(--secondary);font-size:12px;line-height:1.65}
+.natal-detail-body h3{font:500 20px Georgia,serif;color:var(--deep);margin:1px 0 8px}
+.natal-detail-body p{font-size:12px;line-height:1.7;margin:7px 0;color:var(--ink)}
+.natal-detail-body ul{padding:0 0 0 18px;margin:7px 0 3px;font-size:11px;line-height:1.9;color:var(--secondary)}
+.natal-highlight{background:#fbf9fd;border:1px solid #eee6f4;border-radius:14px;padding:11px 8px;display:flex;flex-direction:column;text-align:left;gap:5px;min-height:65px;color:var(--ink);cursor:pointer}
+.natal-highlight span{font-size:10px;color:var(--secondary)}
+.natal-highlight b{font-size:12px;color:var(--deep);line-height:1.4}
+.natal-highlight:focus-visible,.natal-position:focus-visible,.natal-house-chip:focus-visible,.natal-segments>button:focus-visible{outline:3px solid #886bb3;outline-offset:2px}
+.natal-position{width:100%;background:transparent;color:var(--ink);text-align:left;border:0;border-bottom:1px solid var(--border);cursor:pointer}
+.natal-position[aria-pressed=true],.natal-house-chip[aria-pressed=true]{background:#f0e7fa}
+.natal-houses{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.natal-house-chip{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-height:46px;padding:8px;background:#fcfafd;border:1px solid var(--border);border-radius:9px;font-size:11px;font-weight:700;color:var(--deep);cursor:pointer}
+.natal-house-chip small{font-size:10px;font-weight:400;color:var(--secondary)}
+@media (max-width:375px){.natal-control-stack{grid-template-columns:1fr}.natal-houses{grid-template-columns:repeat(2,minmax(0,1fr))}}
