@@ -11,7 +11,7 @@
   const pad = n => String(n).padStart(2, '0');
   const isoDay = date => `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
   const detectedZone = (() => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'; } catch { return 'UTC'; } })();
-  const defaultState = () => ({profile:null, mode:'tropical', natalView:'essential', natalZodiac:'tropical', natalAspectFilter:'all', houseSystem:'placidus',wheelLayout:'natal',natalZoom:1,transitDay:isoDay(new Date()),transitTime:'12:00', orb:'auto', filter:'all', journal:{}});
+  const defaultState = () => ({profile:null, mode:'tropical', natalView:'essential', natalZodiac:'tropical', natalAspectFilter:'all', houseSystem:'placidus',wheelLayout:'natal',natalZoom:1,transitDay:isoDay(new Date()),transitTime:'12:00', orb:'auto', filter:'all', appearance:'system', journal:{}});
   const moodSymbols = ['','☹','◔','◯','◕','☺'];
   const themes = {relations:'Relations',travail:'Travail',sante:'Bien-être',creation:'Créativité',repos:'Repos',autre:'Autre'};
   const planets = {Sun:'Soleil',Moon:'Lune',Mercury:'Mercure',Venus:'Vénus',Mars:'Mars',Jupiter:'Jupiter',Saturn:'Saturne',Uranus:'Uranus',Neptune:'Neptune',Pluto:'Pluton'};
@@ -51,10 +51,42 @@
       natalZoom:[1,1.25,1.5,1.75,2].includes(raw.natalZoom)?raw.natalZoom:1,
       transitDay:typeof raw.transitDay==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(raw.transitDay)?raw.transitDay:isoDay(new Date()),
       transitTime:typeof raw.transitTime==='string'&&/^([01]\d|2[0-3]):[0-5]\d$/.test(raw.transitTime)?raw.transitTime:'12:00',orb:'auto',
-      filter:Object.hasOwn(filtersMap,raw.filter)?raw.filter:'all',journal:sanitizeJournal(raw.journal)};
+      filter:Object.hasOwn(filtersMap,raw.filter)?raw.filter:'all',appearance:['system','light','dark'].includes(raw.appearance)?raw.appearance:'system',journal:sanitizeJournal(raw.journal)};
   }
   function loadState() { try { return cleanState(JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}')); } catch { return defaultState(); } }
   let state = loadState();
+  // Theme preference is a user setting; the resolved theme follows OS changes.
+  const colorSchemeQuery=window.matchMedia?.('(prefers-color-scheme: dark)');
+  function applyAppearance(){
+    const resolved=state.appearance==='system'?(colorSchemeQuery?.matches?'dark':'light'):state.appearance;
+    document.documentElement.dataset.astraTheme=resolved;
+    document.documentElement.style.colorScheme=resolved;
+    document.querySelector('meta[name="theme-color"]')?.setAttribute(
+      'content',resolved==='dark'?'#101d2a':'#172b3e');
+  }
+  applyAppearance();
+  colorSchemeQuery?.addEventListener?.('change',()=>{
+    if(state.appearance==='system')applyAppearance();
+  });
+  // Opt-in, in-memory diagnostics. No birth data, journal text or network telemetry.
+  let diagnosticsEnabled=false;
+  const performanceSamples=new Map();
+  const perfClock=()=>window.performance?.now?.()??Date.now();
+  function recordPerformance(label,elapsed){
+    if(!diagnosticsEnabled||!Number.isFinite(elapsed)||elapsed<0)return;
+    const samples=performanceSamples.get(label)||[];
+    samples.push(Math.round(elapsed*10)/10);
+    if(samples.length>60)samples.shift();
+    performanceSamples.set(label,samples);
+  }
+  function performanceReport(){
+    return [...performanceSamples].map(([label,samples])=>{
+      const ordered=[...samples].sort((a,b)=>a-b);
+      const mean=samples.reduce((sum,n)=>sum+n,0)/samples.length;
+      return {label,count:samples.length,mean:Math.round(mean*10)/10,
+        p95:ordered[Math.ceil(ordered.length*.95)-1],max:ordered.at(-1)};
+    });
+  }
   let activeTab = 'today';
   let pendingDayFocus = null;
   let pendingPageFocus = false;
@@ -1295,11 +1327,50 @@
       '<p class="tiny">Ces lectures sont symboliques, pas des prédictions scientifiques.</p></section>';
   }
 
+  function appearancePanel(){
+    const mode=state.appearance;
+    const choices=[['system','Système'],['light','Clair'],['dark','Sombre']];
+    return '<section class="card astra-preferences" aria-labelledby="astraAppearanceTitle">'+
+      '<h2 id="astraAppearanceTitle" class="card-title">Apparence</h2>'+
+      '<p class="tiny">Choisis l’apparence de l’interface. Le mode Système suit les réglages de ton appareil.</p>'+
+      '<div class="astra-appearance-options" role="group" aria-label="Thème visuel">'+
+      choices.map(([id,label])=>'<button type="button" data-appearance="'+id+
+        '" aria-pressed="'+(mode===id)+'" class="'+(mode===id?'selected':'')+'">'+label+'</button>').join('')+
+      '</div></section>';
+  }
+  function diagnosticsPanel(){
+    const rows=performanceReport();
+    const format=n=>new Intl.NumberFormat('fr-FR',{maximumFractionDigits:1}).format(n);
+    return '<section class="card astra-performance" aria-labelledby="astraPerformanceTitle">'+
+      '<h2 id="astraPerformanceTitle" class="card-title">Diagnostics de performances</h2>'+
+      '<p class="tiny">Mesures locales facultatives, conservées uniquement pendant cette session. Aucune donnée personnelle transmise.</p>'+
+      '<div class="actions"><button type="button" class="ghost" data-diagnostics-toggle="1" aria-pressed="'+diagnosticsEnabled+'">'+
+      (diagnosticsEnabled?'Désactiver les mesures':'Activer les mesures')+'</button>'+
+      (diagnosticsEnabled?'<button type="button" class="ghost" data-diagnostics-refresh="1">Actualiser</button>'+
+        '<button type="button" class="ghost" data-diagnostics-reset="1">Réinitialiser</button>':'')+'</div>'+
+      (diagnosticsEnabled?(rows.length?
+        '<div class="astra-performance-scroll" role="region" tabindex="0" aria-label="Mesures de performance">'+
+        '<table><thead><tr><th scope="col">Opération</th><th scope="col">N</th>'+
+        '<th scope="col">Moy.</th><th scope="col">P95</th><th scope="col">Max.</th></tr></thead><tbody>'+
+        rows.map(row=>'<tr><th scope="row">'+safe(row.label)+'</th><td>'+row.count+
+          '</td><td>'+format(row.mean)+'</td><td>'+format(row.p95)+
+          '</td><td>'+format(row.max)+'</td></tr>').join('')+
+        '</tbody></table></div><p class="tiny">Durées en millisecondes. P95 calculé sur les 60 dernières mesures par opération.</p>'+
+        '<button type="button" class="ghost" data-diagnostics-export="1">Exporter les mesures (JSON)</button>'
+        :'<p class="tiny" role="status">Aucune mesure pour le moment. Parcours ASTRA, puis reviens ici.</p>')
+      :'<p class="tiny">Désactivé par défaut. L’activation peut ajouter un faible coût de mesure.</p>')+
+      '<p class="tiny">Rendu = temps JavaScript, hors peinture de l’écran. Interaction = délai jusqu’à la prochaine frame, pas temps d’affichage garanti. Les mesures sont indicatives et dépendent de l’appareil.</p>'+
+      '</section>';
+  }
   function profile() {
     const d=draft(),place=placeSearch.selected;
     const birthCityError=birthValidation?.field==='birthCity'?birthValidation:
       placeSearch.error?{field:'birthCity',message:placeSearch.error}:null;
-    let chart=null;try { if(state.profile&&E)chart=E.natalChart(state.profile,state.natalZodiac,state.houseSystem); }catch(err){ /* Les anciennes sauvegardes peuvent être incomplètes. */ }
+    let chart=null;
+    const natalStart=diagnosticsEnabled&&state.profile?perfClock():0;
+    try { if(state.profile&&E)chart=E.natalChart(state.profile,state.natalZodiac,state.houseSystem); }
+    catch(err){ /* Les anciennes sauvegardes peuvent être incomplètes. */ }
+    if(natalStart)recordPerformance('Calcul natal',perfClock()-natalStart);
     const suggestions=placeSearch.options.map((p,i)=>`<button type="button" class="city-choice" data-place="${i}" aria-label="Choisir ${safe(p.label)}"><strong>${safe(p.name)}</strong><span>${safe([p.admin1,p.country].filter(Boolean).join(' · '))}</span></button>`).join('');
     const foldPicker=placeSearch.needFold&&d.timeKnown?`<div class="field"><label for="fold">Cette heure locale a existé deux fois</label><select id="fold" name="fold" required${validationAttrs('fold',birthValidation)}><option value="">Choisir l’occurrence</option><option value="0" ${d.fold===0?'selected':''}>Première occurrence (avant le retour à l’heure d’hiver)</option><option value="1" ${d.fold===1?'selected':''}>Deuxième occurrence (après le retour à l’heure d’hiver)</option></select>${validationMessage('fold',birthValidation)}<p class="field-help">Ce cas rare ne peut pas être déduit de la ville et de l’heure seules. Consulte l’heure indiquée sur l’acte de naissance.</p></div>`:'';
     const showSettings=!chart||profileScreen==='settings';
@@ -1324,10 +1395,11 @@
       `${place?`<div class="city-confirmed" role="status"><b>Ville confirmée · ${safe(place.label)}</b><details class="city-technical"><summary>Voir le fuseau et les coordonnées</summary><p>${safe(offsetDescription(d,place))}</p><small>Coordonnées calculées · ${place.latitude.toFixed(4)}°, ${place.longitude.toFixed(4)}°</small></details></div>`:'<p class="city-unselected">Sélectionne une ville pour continuer.</p>'}`+
       `${foldPicker}<details class="calculation-details"><summary>Comment les calculs fonctionnent-ils ?</summary><p class="field-help"><strong>Orbes automatiques.</strong> ASTRA adapte la marge à la planète et à l’aspect. Les instants exacts sont calculés séparément dans le calendrier.</p></details><button class="primary full" type="submit">Calculer mon thème natal</button></form>`+
       `<p class="tiny">Recherche de villes fournie par <a href="https://open-meteo.com/" rel="noopener noreferrer">Open-Meteo / GeoNames</a>. Seul le nom de ville recherché est transmis. Ensuite, les calculs restent sur ton appareil, même hors connexion. Les règles historiques sont celles de la base de fuseaux disponible sur l’appareil.</p></section>`+
-      `<section class="card"><h2 class="card-title">Confidentialité et sauvegarde</h2><p class="tiny">Les dates et heures de naissance, coordonnées et notes sont stockées uniquement sur l’appareil. Une désinstallation peut les supprimer. Protège le fichier JSON exporté.</p><div class="actions"><button class="ghost" data-export="1">Exporter JSON</button><button class="ghost" data-import="1">Importer JSON</button></div><input id="importFile" type="file" accept="application/json" hidden><button class="subnav danger" data-clear="1">Effacer les données locales</button></section>`+
+      appearancePanel()+diagnosticsPanel()+`<section class="card"><h2 class="card-title">Confidentialité et sauvegarde</h2><p class="tiny">Les dates et heures de naissance, coordonnées et notes sont stockées uniquement sur l’appareil. Une désinstallation peut les supprimer. Protège le fichier JSON exporté.</p><div class="actions"><button class="ghost" data-export="1">Exporter JSON</button><button class="ghost" data-import="1">Importer JSON</button></div><input id="importFile" type="file" accept="application/json" hidden><button class="subnav danger" data-clear="1">Effacer les données locales</button></section>`+
       `<details class="calculation-details"><summary>Limites et précision des calculs</summary><p>Vérifie les villes homonymes et les frontières historiques. Les dates très anciennes dépendent de la qualité des archives IANA du téléphone. Lahiri sidéral reste approximatif. Le thème tropical calcule l’Ascendant et les maisons Placidus ; près des pôles, des maisons égales les remplacent.</p></details>`:'');
   }
   function render() {
+    const renderStart=diagnosticsEnabled?perfClock():0;
     renderedEvents=[];
     $('app').innerHTML=({today,month:monthOverview,calendar,journal,profile})[activeTab]();
     const focusDialog=activeTab==='profile'&&profileScreen==='focus' ? $('natalChart') : null;
@@ -1350,6 +1422,7 @@
     });
     const heading=$('app').querySelector('h1.page-title');
     if(heading)document.title=heading.textContent+' · ASTRA';
+    if(diagnosticsEnabled)recordPerformance('Rendu JS · '+activeTab,perfClock()-renderStart);
   }
   function go(tab) {
     if(!['today','month','calendar','journal','profile'].includes(tab))return;
@@ -1382,8 +1455,11 @@
       try {
         if(!E)throw new Error('Moteur astronomique indisponible');
         const key=JSON.stringify([state.profile,state.mode,state.orb,month.getFullYear(),month.getMonth()]);
+        const calcStart=diagnosticsEnabled?perfClock():0;
         let data=cache.get(key);
+        const cached=Boolean(data);
         if(!data){data=E.calculateMonth(state.profile,month.getFullYear(),month.getMonth()+1,state.mode,'auto');cache.set(key,data);if(cache.size>4)cache.delete(cache.keys().next().value);}
+        if(diagnosticsEnabled)recordPerformance(cached?'Mois · cache':'Mois · calcul',perfClock()-calcStart);
         if(token!==calcToken)return;
         result=data;
       } catch(e){if(token!==calcToken)return;error=e?.message||'Calcul impossible';}
@@ -1445,6 +1521,13 @@
   window.addEventListener('resize',syncKeyboardVisibility);
   $('homeButton')?.addEventListener('click',()=>{selectDay(isoDay(new Date()));go('today');});
   document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.tab)));
+  // Samples user interactions from click dispatch to the next animation frame.
+  // The callback is before paint: this is a frame-delay proxy, not paint latency.
+  $('app').addEventListener('click',()=>{
+    if(!diagnosticsEnabled||!window.requestAnimationFrame)return;
+    const start=perfClock();
+    window.requestAnimationFrame(()=>recordPerformance('Interaction · prochaine frame',perfClock()-start));
+  },true);
   $('app').addEventListener('click',event=>{
     const wheelSummary=event.target.closest('.natal-explore-wheel > summary');
     if(wheelSummary){exploreWheelOpen=!wheelSummary.parentElement.open;return;}
@@ -1458,6 +1541,35 @@
     if(advancedSummary){settingsAdvancedOpen=!advancedSummary.parentElement.open;return;}
     const button=event.target.closest('button, [role="button"][data-natal-body], [role="button"][data-natal-house], [role="button"][data-transit-body]');if(!button)return;
     const a=button.dataset;
+    if(a.appearance){
+      if(!['system','light','dark'].includes(a.appearance))return;
+      captureBirthForm();state.appearance=a.appearance;persist();applyAppearance();render();
+      $('app').querySelector('[data-appearance="'+a.appearance+'"]')?.focus({preventScroll:true});
+      return;
+    }
+    if(a.diagnosticsToggle){
+      captureBirthForm();diagnosticsEnabled=!diagnosticsEnabled;render();
+      $('app').querySelector('[data-diagnostics-toggle]')?.focus({preventScroll:true});
+      return;
+    }
+    if(a.diagnosticsReset){
+      captureBirthForm();performanceSamples.clear();render();
+      $('app').querySelector('[data-diagnostics-reset]')?.focus({preventScroll:true});
+      return;
+    }
+    if(a.diagnosticsRefresh){
+      captureBirthForm();render();
+      $('app').querySelector('[data-diagnostics-refresh]')?.focus({preventScroll:true});
+      return;
+    }
+    if(a.diagnosticsExport){
+      const report={format:'astra-performance-v1',units:'ms',sampleLimit:60,metrics:performanceReport()};
+      const blob=new Blob([JSON.stringify(report,null,2)],{type:'application/json'});
+      const url=URL.createObjectURL(blob),link=document.createElement('a');
+      link.href=url;link.download='ASTRA-performances.json';link.click();
+      setTimeout(()=>URL.revokeObjectURL(url),1500);
+      return;
+    }
     if(a.scrollTo){
       const node=$(a.scrollTo);
       node?.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth',block:'start'});
@@ -1603,7 +1715,7 @@
     if(a['deleteNote'] && confirm('Supprimer cette journée du journal ?')){delete state.journal[selected];persist();journalDraft=null;render();show('Note supprimée');return;}
     if(a.export){const data={format:'astra-public-v1',exportedAt:new Date().toISOString(),...state};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='ASTRA-sauvegarde.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1500);return;}
     if(a.import){$('importFile')?.click();return;}
-    if(a.clear&&confirm('Effacer le thème natal et toutes les notes locales ?')){localStorage.removeItem(STORAGE_KEY);state=defaultState();cache.clear();journalDraft=null;birthDraft=null;placeSearch={options:[],selected:null,loading:false,error:'',needFold:false,requestId:placeSearch.requestId+1};openDetail=null;refresh();show('Données supprimées');}
+    if(a.clear&&confirm('Effacer le thème natal et toutes les notes locales ?')){localStorage.removeItem(STORAGE_KEY);state=defaultState();applyAppearance();diagnosticsEnabled=false;performanceSamples.clear();cache.clear();journalDraft=null;birthDraft=null;placeSearch={options:[],selected:null,loading:false,error:'',needFold:false,requestId:placeSearch.requestId+1};openDetail=null;refresh();show('Données supprimées');}
   });
   $('app').addEventListener('cancel',event=>{
     if(event.target.matches('dialog.natal-focus')){
@@ -1714,7 +1826,7 @@
         const backup=JSON.parse(await file.text());if(backup.format!=='astra-public-v1')throw Error('Format non reconnu');
         if(backup.profile)E.validateProfile(backup.profile);
         if(!confirm('Remplacer les données locales par la sauvegarde ?'))return;
-        state=cleanState(backup);journalDraft=null;birthDraft=null;placeSearch={options:[],selected:null,loading:false,error:'',needFold:false,requestId:placeSearch.requestId+1};openDetail=null;cache.clear();persist();refresh();show('Sauvegarde importée');
+        state=cleanState(backup);applyAppearance();diagnosticsEnabled=false;performanceSamples.clear();journalDraft=null;birthDraft=null;placeSearch={options:[],selected:null,loading:false,error:'',needFold:false,requestId:placeSearch.requestId+1};openDetail=null;cache.clear();persist();refresh();show('Sauvegarde importée');
       } catch(err){show('Import impossible : '+(err?.message||'Erreur'));}
     }
   });
