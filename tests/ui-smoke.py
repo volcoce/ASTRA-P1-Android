@@ -469,7 +469,7 @@ if __name__ == '__main__':
                     assert page.locator('.astra-week-day[aria-pressed="true"]').count()==1
                     assert page.locator('.astra-day-hero').count()==1
                     assert page.locator('.astra-insight-tile').count()==3
-                    assert page.locator('.astra-lunar-milestone').count()==4
+                    assert page.locator('.astra-lunar-milestone').count()==0
                     assert page.locator('[data-step-day]').count()==0
                     selected_date=page.locator('.astra-week-day.is-selected').get_attribute('data-day')
                     expected_count=2 if int(selected_date[-2:]) in (5,20) else 1
@@ -478,6 +478,8 @@ if __name__ == '__main__':
                     capture('today-flo-layout-320')
                 elif tab=='calendar':
                     assert px('.weekday')>=12
+                    assert page.locator('.astra-lunar-milestone').count()==4
+                    assert page.locator('#lunarTimelineTitle').inner_text()=='Prochaines phases lunaires'
                 elif tab=='journal':
                     assert px('.field label')>=13
                 elif tab=='profile':
@@ -539,6 +541,13 @@ if __name__ == '__main__':
             page.locator('.calendar-options > summary').click()
             page.locator('#eventFilter').select_option('all')
             capture('calendar-320')
+            # Selecting a future phase stays in Dates, opening that exact day.
+            next_phase=page.locator('[data-lunar-day]').first
+            chosen=next_phase.get_attribute('data-lunar-day')
+            next_phase.click()
+            assert page.locator('[data-tab="calendar"]').get_attribute('aria-current')=='page'
+            assert page.locator('.calendar .day.selected').get_attribute('data-day')==chosen
+            assert page.locator('.astra-lunar-milestone').count()==4
             page.locator('[data-event]').first.click(timeout=2000)
             assert page.locator('#detailPanel').count()==1
             assert 'Lecture astrologique' in page.locator('#detailPanel').inner_text()
