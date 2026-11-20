@@ -1,6 +1,19 @@
-# ASTRA Public — Preview 0.6.3
+# ASTRA Public — Preview 0.6.4
 
 **Référence UI/UX du projet :** [DESIGN.md](DESIGN.md). Les règles pour assistants de code sont dans [AGENTS.md](AGENTS.md). Ces documents formalisent le travail de design sans remplacer les fonctionnalités P0–P2.
+
+## Android — Mise en page adaptative (Preview 0.6.4)
+
+Correction transversale de l'interface WebView pour le **Galaxy A15** et les autres téléphones Android : les écrans physiques de 1080 px sont souvent utilisés autour de 360 pixels CSS, selon le facteur d'affichage et de police.
+
+- **Barres Android et clavier** : la WebView tient compte des encoches et barres système ainsi que de l'IME (clavier à l'écran). Le bas de la WebView est redimensionné avec `adjustResize` et `WindowInsets.Type.ime()`. Les marges CSS sont neutralisées lorsqu'elles sont déjà réservées par la fenêtre native, pour éviter de les compter deux fois.
+- **Retour système** : le geste Retour ferme la fiche en cours, puis la lecture agrandie, puis une sous-page Mon ciel, ou revient à Aujourd'hui. Il ferme l'application uniquement depuis l'accueil sans panneau ouvert.
+- **Largeur mobile** : la roue astrologique tient entièrement dans sa zone à **100 % de zoom** (y compris à 320–360 pixels CSS). Les zooms explicites restent accessibles avec défilement horizontal interne ; la roue n'est plus coupée par la largeur fixe de 320 px. Les tableaux d'aspects conservent leur défilement interne.
+- **Navigation, champs et fiches** : tabulation basse adaptée aux petits écrans et masquée pendant la saisie ; formulaires, date/heure et coordonnées de positions passent sur une ou deux colonnes selon la largeur. Le panneau des planètes reste lisible au-dessus de la barre inférieure.
+- **Mode lecture agrandie** : la fenêtre est désormais défilable verticalement sur les écrans très courts ou en paysage, afin de garder le bouton Fermer et les outils accessibles.
+- **Tests** : simulation de résolutions CSS 320, 360, 375, 393, 412, 480, 768 et 1280 ; variations de hauteur, agrandissement des textes, ouverture de clavier simulée par focus, retour Android simulé côté JS et captures d'écran enregistrées en CI.
+
+**Limites** : des tests de navigateur ne prouvent pas le résultat sur la WebView Samsung réelle ni avec le clavier natif, la navigation à trois boutons et les réglages de police. Il faut confirmer le rendu et les barres système sur un Galaxy A15 physique. Les calculs astronomiques, les exports et la base locale `astra-public-v1` restent inchangés.
 
 ## UX P1 — Design system et interactions cohérentes (Preview 0.6.3)
 

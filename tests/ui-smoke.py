@@ -87,6 +87,21 @@ if __name__ == '__main__':
                 "el => getComputedStyle(el).backgroundImage"
             ) == 'none'
             page.get_by_text('Configurer mon thème natal').click()
+            # A15 and compact screen: birth fields remain usable with keyboard.
+            page.set_viewport_size({'width':360,'height':720})
+            capture('galaxy-a15-form-360')
+            assert page.evaluate("document.documentElement.scrollWidth")<=362
+            page.locator('#birthCity').focus()
+            assert page.evaluate("document.body.classList.contains('astra-input-active')")
+            assert page.locator('.bottom-nav').evaluate(
+                "el => getComputedStyle(el).visibility"
+            )=='hidden'
+            page.locator('#birthCity').evaluate("el => el.blur()")
+            page.wait_for_timeout(50)
+            assert page.locator('.bottom-nav').evaluate(
+                "el => getComputedStyle(el).visibility"
+            )=='visible'
+            page.set_viewport_size({'width':393,'height':844})
             page.locator('#birthDate').fill('1994-05-12')
             page.locator('#birthTime').fill('18:40')
             assert page.locator('#birthZone').count()==0 and page.locator('#lat').count()==0 and page.locator('#lng').count()==0
@@ -122,11 +137,34 @@ if __name__ == '__main__':
             assert page.locator('.natal-filter').count()==0
             assert page.locator('#birthForm').count()==0
             assert page.locator('.natal-home-actions button').count()==2
-            # P1: actual browser screenshots, with synthetic chart data only.
-            for width in (320,393,768,1280):
-                page.set_viewport_size({'width':width,'height':844})
-                assert page.evaluate('document.documentElement.scrollWidth')<=width+2
-                capture('overview-'+str(width))
+            # A15 layout (~360 CSS px) plus compact and large phones, tablets
+            # and desktop. These are simulated responsive layouts, not
+            # measurements taken on a physical Samsung A15.
+            for width,height in ((320,700),(360,780),(360,620),(375,812),
+                                 (393,844),(412,915),(480,860),
+                                 (768,1024),(1280,800)):
+                page.set_viewport_size({'width':width,'height':height})
+                assert page.evaluate('document.documentElement.scrollWidth')<=width+2,(width,height)
+                metrics=page.locator('.natal-home .natal-wheel-viewport').evaluate("""el=>({
+                  client:el.clientWidth,scroll:el.scrollWidth,
+                  svg:el.querySelector('svg').getBoundingClientRect().width
+                })""")
+                assert metrics['svg']<=metrics['client']+2,(width,height,metrics)
+                assert metrics['scroll']<=metrics['client']+2,(width,height,metrics)
+                nav=page.locator('.bottom-nav').evaluate("""el=>({
+                  top:el.getBoundingClientRect().top,
+                  bottom:el.getBoundingClientRect().bottom,
+                  window:innerHeight
+                })""")
+                assert nav['top']>=0 and nav['bottom']<=height+2,(width,height,nav)
+                if (width,height) in ((320,700),(360,780),(360,620),(393,844),(412,915),(768,1024),(1280,800)):
+                    capture('overview-'+str(width)+'x'+str(height))
+            page.set_viewport_size({'width':360,'height':780})
+            text_style=page.add_style_tag(content=
+                '.nav{font-size:18px!important}.natal-home-header .card-title{font-size:27px!important}')
+            assert page.evaluate('document.documentElement.scrollWidth')<=362
+            capture('galaxy-a15-large-text-360')
+            text_style.evaluate('node=>node.remove()')
             page.set_viewport_size({'width':393,'height':844})
             assert page.evaluate(
                 "getComputedStyle(document.documentElement).getPropertyValue('--astra-focus-ring').trim()"
@@ -139,6 +177,17 @@ if __name__ == '__main__':
             assert page.locator('.natal-focus .natal-wheel').count()==1
             assert page.evaluate("document.body.classList.contains('astra-focus-open')")
             assert page.evaluate("document.activeElement.hasAttribute('data-close-focus')")
+            # Samsung's system back gesture closes the full-screen chart first.
+            assert page.evaluate('window.ASTRA_HANDLE_BACK()') is True
+            assert page.locator('.natal-focus').count()==0
+            assert page.locator('.natal-home').count()==1
+            page.locator('.natal-home [data-open-focus]').click()
+            for width,height in ((320,480),(360,580),(360,780)):
+                page.set_viewport_size({'width':width,'height':height})
+                assert page.locator('.natal-focus-close').is_visible()
+                assert page.evaluate('document.documentElement.scrollWidth')<=width+2
+                capture('focus-'+str(width)+'x'+str(height))
+            page.set_viewport_size({'width':393,'height':844})
             page.locator('.natal-focus [data-natal-zoom="0.25"]').click()
             assert '125 %' in page.locator('.natal-focus .natal-zoom').inner_text()
             page.locator('.natal-focus [data-natal-zoom="reset"]').click()
@@ -182,6 +231,10 @@ if __name__ == '__main__':
             assert 'Donnée calculée' in page.locator('#natalSelectionInfo').inner_text()
             page.locator('[data-close-natal-detail]').click()
             assert page.locator('#natalSelectionInfo').count()==0
+            page.locator('[data-profile-screen="explore"]').click()
+            assert page.locator('.natal-explore').count()==1
+            assert page.evaluate('window.ASTRA_HANDLE_BACK()') is True
+            assert page.locator('.natal-home').count()==1
             page.locator('[data-profile-screen="explore"]').click()
             assert page.locator('.natal-explore').count()==1
             capture('explore-393')
@@ -299,15 +352,15 @@ if __name__ == '__main__':
             settings=page.evaluate("JSON.parse(localStorage.getItem('astra-public-v1'))")
             assert settings['natalView']=='essential' and settings['natalZodiac']=='tropical'
             assert page.locator('#orb').count()==0
-            # Ensure the wheel remains legible with a narrow 320 px viewport,
-            # without creating page-wide horizontal overflow.
+            # New default: full wheel is fitted to the 320 px screen.
+            # Explicit 125–200% zoom is the only reason for internal scrolling.
             page.set_viewport_size({'width':320,'height':730})
             assert page.locator('.natal-wheel-viewport').count()==1
             widths=page.locator('.natal-wheel-viewport').evaluate("""e => ({
               client:e.clientWidth,scroll:e.scrollWidth,width:e.querySelector('svg').getBoundingClientRect().width
             })""")
-            assert widths['scroll']>widths['client'],widths
-            assert widths['width']>=319,widths
+            assert widths['scroll']<=widths['client']+2,widths
+            assert 180<=widths['width']<=widths['client']+2,widths
             assert page.evaluate("document.documentElement.scrollWidth")<=322
             assert page.locator('#birthForm').count()==0
             # P0 visual guardrails at 320px across all four destinations.
@@ -322,8 +375,8 @@ if __name__ == '__main__':
                     assert px('.field label')>=13
                 elif tab=='profile':
                     assert px('.natal-home-subtitle')>=14
-            # Medium/desktop widths should also avoid page-wide overflow.
-            for width in (393,768,1280):
+            # Samsung-sized widths and tablet/desktop should not overflow.
+            for width in (360,375,393,412,768,1280):
                 page.set_viewport_size({'width':width,'height':844})
                 assert page.evaluate("document.documentElement.scrollWidth") <= width+2, width
             page.set_viewport_size({'width':320,'height':730})
@@ -357,6 +410,16 @@ if __name__ == '__main__':
             capture('journal-320')
             assert page.locator('#journalNote').input_value()=='Une belle journée de création.'
             assert page.locator('[data-tag="creation"]').get_attribute('aria-pressed')=='true'
+            assert page.locator('#journalNote').is_visible()
+            page.locator('#journalNote').focus()
+            assert page.locator('.bottom-nav').evaluate(
+                "e => getComputedStyle(e).visibility"
+            )=='hidden'
+            page.locator('#journalNote').evaluate('e => e.blur()')
+            page.wait_for_timeout(50)
+            assert page.locator('.bottom-nav').evaluate(
+                "e => getComputedStyle(e).visibility"
+            )=='visible'
             # P1: unknown birth hour should not invent an Ascendant or houses.
             page.locator('[data-tab="profile"]').click()
             assert page.locator('#birthForm').count()==0
@@ -384,8 +447,15 @@ if __name__ == '__main__':
             page.locator('[data-explore-section="aspects"]').click()
             assert page.locator('#natalChart .natal-house-chip').count()==0
             assert page.locator('#natalChart .natal-aspect').count()==1
+            # Back goes from Explorer to home, then to Today; on Today
+            # without a panel the native Activity may exit normally.
+            assert page.evaluate('window.ASTRA_HANDLE_BACK()') is True
+            assert page.locator('.natal-home').count()==1
+            assert page.evaluate('window.ASTRA_HANDLE_BACK()') is True
+            assert page.locator('[data-tab="today"]').get_attribute('aria-current')=='page'
+            assert page.evaluate('window.ASTRA_HANDLE_BACK()') is False
             assert not errors, errors
-            print('UI P2: profil, détails, prompt, humeurs, énergie, tags, enregistrement, recherche, rafraîchissement et journal : OK')
+            print('UI Android adaptive: 320–1280 px, Galaxy A15, IME, Android Back, natal and journal: OK')
             browser.close()
     finally:
         pass
