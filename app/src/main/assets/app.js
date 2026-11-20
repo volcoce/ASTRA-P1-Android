@@ -613,8 +613,37 @@
       glyphRing(snapshot.positions,247,234,'natal-transit-hit','data-transit-body')+
       '</svg>';
   }
+  const transitWindowCache=new Map();
   function transitDetail(snapshot){
     const selected=natalSelection;
+    if(selected?.kind==='contact'){
+      const contact=snapshot.contacts.find(c=>[c.body,c.natal,c.angle].join('-')===selected.id);
+      if(!contact)return '';
+      const trendLabels={applying:'Appliquant : les planètes se rapprochent de l’angle exact',
+        separating:'Séparant : les planètes s’en éloignent',
+        exact:'Angle presque exact à cet instant',
+        stable:'Variation trop faible pour déterminer le sens'};
+      const key=snapshot.at+'|'+snapshot.mode+'|'+selected.id;
+      let windowData=transitWindowCache.get(key);
+      if(windowData===undefined){
+        try{windowData=E.transitContactWindow?.(state.profile,snapshot.at,contact.body,contact.natal,contact.angle,snapshot.mode)||null;}
+        catch{windowData=null;}
+        transitWindowCache.set(key,windowData);
+        if(transitWindowCache.size>30)transitWindowCache.delete(transitWindowCache.keys().next().value);
+      }
+      const range=windowData?
+        '<p class="natal-value">'+(windowData.start?formatMoment(windowData.start):'Début hors de la période étudiée')+
+        ' → '+(windowData.end?formatMoment(windowData.end):'Fin hors de la période étudiée')+'</p>':
+        '<p>Fenêtre non disponible pour ce contact.</p>';
+      return '<article class="natal-detail-body"><h3>'+safe(planets[contact.body])+' '+safe(contact.glyph)+' '+safe(planets[contact.natal])+'</h3>'+
+        '<p class="natal-value">'+safe(contact.aspect)+' · Angle '+contact.angle+'° · Écart '+safe(E.formatOrbExact(contact.delta))+
+        ' (orbe '+safe(E.formatOrbExact(contact.orb))+')</p>'+
+        '<div class="natal-fact"><b>Évolution du contact</b><p>'+safe(trendLabels[contact.trend]||'Sens non disponible')+'</p></div>'+
+        '<div class="natal-fact"><b>Période dans l’orbe automatique (estimation)</b>'+range+
+        '<p>Durée approchée entre l’entrée et la sortie de l’orbe retenu, hors éventuels retours rétrogrades.</p></div>'+
+        '<div class="natal-symbolic"><b>Comprendre</b><p>Un aspect mesure un angle entre la planète à la date choisie et sa position natale. Son interprétation astrologique est symbolique.</p></div>'+
+        '<p class="natal-disclaimer">Conventions astrologiques, pas de prédiction scientifique.</p></article>';
+    }
     if(selected?.kind!=='transit')return natalDetail(snapshot.chart);
     const lng=snapshot.positions[selected.id];
     if(!Number.isFinite(lng))return '';
@@ -706,6 +735,7 @@
 
   function renderNatalChart(chart){
     const isOverview=profileScreen==='overview',isSettings=profileScreen==='settings',isCompare=profileScreen==='compare';
+    const isProgressions=profileScreen==='progressions',isComposite=profileScreen==='composite';
     const isFocus=profileScreen==='focus';
     const focusDouble=isFocus&&(focusReturnScreen==='compare'||(focusReturnScreen==='settings'&&state.wheelLayout==='double'));
     const h=chart.houses,isFull=state.natalView==='complete'||profileScreen==='explore',isTropical=state.natalZodiac==='tropical';
@@ -756,7 +786,7 @@
     // The default wheel fits phone width; explicit zoom creates internal scroll.
     const resized=svg.replace(/class="natal-wheel([^"]*)"/,
       (_,rest)=>'class="natal-wheel'+rest+'" style="width:calc(100% * '+state.natalZoom+');min-width:0;max-width:none"');
-    const selectedDetail=transitSnapshot&&natalSelection?.kind==='transit'?transitDetail(transitSnapshot):natalDetail(chart);
+    const selectedDetail=transitSnapshot&&['transit','contact'].includes(natalSelection?.kind)?transitDetail(transitSnapshot):natalDetail(chart);
     const filtered=E.filterNatalAspects(chart.aspects||[],state.natalAspectFilter);
     const highlights=[['Soleil',chart.positions.Sun,'Sun'],['Lune',chart.positions.Moon,'Moon']];
     if(h)highlights.push(['Ascendant',h.ascendant,'H1'],['Milieu du Ciel',h.midheaven,'H10']);
@@ -893,18 +923,32 @@
     }
     if(isCompare){
       const contacts=transitSnapshot?.contacts||[];
-      const comparing='<div class="natal-transit-time">'+
+      const comparing='<div class="natal-transit-pager" role="group" aria-label="Navigation entre dates de transit">'+
+        '<button type="button" data-transit-step="-1">← Précédent</button>'+
+        '<button type="button" data-transit-step="1" class="natal-transit-next">Suivant →</button></div>'+
+        '<div class="natal-transit-time">'+
         '<label for="transitDay">Date à comparer<input id="transitDay" type="date" min="1900-01-01" max="2100-12-31" value="'+safe(state.transitDay)+'"></label>'+
         '<label for="transitTime">Heure<input id="transitTime" type="time" value="'+safe(state.transitTime)+'"></label>'+
         '</div><p class="natal-compare-zone">Fuseau utilisé : '+safe(detectedZone)+'</p>';
+      const shownContacts=contacts.filter(c=>transitRange==='all'||(
+        transitRange==='slow'?slowPlanets.has(c.body):!slowPlanets.has(c.body)));
       const contactList=transitSnapshot?
         '<section class="natal-contact-section"><h3>Liens entre les planètes <span>'+contacts.length+'</span></h3>'+
+        '<div class="natal-transit-filters" role="group" aria-label="Vitesse des transits">'+
+        [['all','Tous'],['fast','Rapides'],['slow','Lents']].map(([k,label])=>
+          '<button type="button" data-transit-range="'+k+'" aria-pressed="'+(transitRange===k)+'" class="'+(transitRange===k?'selected':'')+'">'+label+'</button>').join('')+
+        '</div>'+
         '<p>Les angles entre les planètes de cette date et celles de ta naissance. Appuie pour en savoir plus.</p>'+
-        (contacts.length?'<div class="natal-contact-list">'+contacts.slice(0,16).map(c=>
-          '<button type="button" data-transit-body="'+c.body+'" aria-pressed="'+(natalSelection?.kind==='transit'&&natalSelection.id===c.body)+'"><span>'+safe(planets[c.body])+
-          ' '+safe(c.glyph)+' '+safe(planets[c.natal])+'</span><small>Écart '+safe(E.formatOrbExact(c.delta))+
-          '</small></button>').join('')+'</div>':'<p class="natal-contact-empty">Aucun contact dans les orbes retenus à cet instant.</p>')+
-        (contacts.length>16?'<p class="tiny">Les seize écarts les plus proches sont affichés. Sélectionne une planète sur la roue pour consulter tous ses contacts.</p>':'')+
+        (shownContacts.length?'<div class="natal-contact-list">'+shownContacts.slice(0,16).map(c=>{
+          const key=[c.body,c.natal,c.angle].join('-');
+          const active=natalSelection?.kind==='contact'&&natalSelection.id===key;
+          const trend={applying:'Appliquant',separating:'Séparant',exact:'Exact',stable:'Sens indéterminé'};
+          return '<button type="button" data-transit-contact="'+key+'" aria-pressed="'+
+            (active||(natalSelection?.kind==='transit'&&natalSelection.id===c.body))+'"><span>'+
+            safe(planets[c.body])+' '+safe(c.glyph)+' '+safe(planets[c.natal])+'</span>'+
+            '<small>Orbe '+safe(E.formatOrbExact(c.delta))+' · '+safe(trend[c.trend]||'')+'</small></button>';
+        }).join('')+'</div>':'<p class="natal-contact-empty">Aucun contact dans cette catégorie à cet instant.</p>')+
+        (shownContacts.length>16?'<p class="tiny">16 contacts sur '+shownContacts.length+' affichés. Affine le filtre ou sélectionne une planète sur la roue.</p>':'')+
         '</section>':'';
       return '<section class="card natal-card natal-compare" id="natalChart">'+
         '<div class="natal-subpage-heading">'+pageBack+
@@ -1182,6 +1226,20 @@
       return;
     }
     if(a.exportChart){exportNatalGraphic(a.exportChart);return;}
+    if(a.transitStep){
+      const next=shiftDay(state.transitDay,Number(a.transitStep));
+      if(next<'1900-01-01'||next>'2100-12-31')return;
+      state.transitDay=next;natalSelection=null;persist();render();
+      $('app').querySelector('[data-transit-step="'+a.transitStep+'"]')?.focus({preventScroll:true});
+      return;
+    }
+    if(a.transitRange){
+      if(!['all','fast','slow'].includes(a.transitRange))return;
+      transitRange=a.transitRange;natalSelection=null;render();
+      $('app').querySelector('[data-transit-range="'+a.transitRange+'"]')?.focus({preventScroll:true});
+      return;
+    }
+    if(a.transitContact){natalChoose('contact',a.transitContact,event.detail===0);return;}
     if(a.transitBody){natalChoose('transit',a.transitBody,event.detail===0);return;}
     if(a.natalAspect){natalChoose('aspect',a.natalAspect,event.detail===0);return;}
     if(a.natalBody){natalChoose('planet',a.natalBody,event.detail===0);return;}
