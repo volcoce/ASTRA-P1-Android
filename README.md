@@ -1,6 +1,19 @@
-# ASTRA Public — Preview 0.6.2
+# ASTRA Public — Preview 0.6.3
 
 **Référence UI/UX du projet :** [DESIGN.md](DESIGN.md). Les règles pour assistants de code sont dans [AGENTS.md](AGENTS.md). Ces documents formalisent le travail de design sans remplacer les fonctionnalités P0–P2.
+
+## UX P1 — Design system et interactions cohérentes (Preview 0.6.3)
+
+La charte [DESIGN.md](DESIGN.md) s'applique désormais aussi aux composants interactifs et aux styles partagés.
+
+- **Tokens consolidés** : couleurs sémantiques (papier, surface, violet natal, bleu transit, focus et sélection), rayons de bordure, espacements et durée de transition définis une seule fois dans `:root`. Les anciennes variables de compatibilité restent disponibles.
+- **États cohérents** : la matrice d'aspects et les contacts de transits marquent désormais la sélection par `aria-pressed` et un état visuel dédié. Les boutons disposent de règles de focus/hover communes. La navigation de fond est masquée en mode roue agrandie.
+- **Lecture stable** : choisir une planète, une maison ou un aspect ne réinitialise plus le défilement interne de la roue. Le retour clavier est conservé après changement de système de maisons ou de disposition ; la date/heure des transits et la recherche du journal restaurent leur champ.
+- **Micro-interaction discrète** : apparition du panneau de lecture en 150 ms uniquement lorsque l'utilisateur n'a pas demandé une réduction des mouvements. Aucune animation sur les positions astronomiques.
+- **Régression visuelle** : les tests Chromium enregistrent des captures d'écrans à 320, 393, 768 et 1280 px ainsi que des vues Explorer, Comparer, Réglages, Calendrier et Journal, avec un profil purement synthétique. Les captures sont publiées comme artefact GitHub Actions.
+- **Moteur intact** : aucune modification des calculs astronomiques, données natales, exports ou du stockage `astra-public-v1`.
+
+**Limites :** les tests navigateur restent simulés pour les calculs. Une inspection visuelle des captures et des tests sur téléphone Android (gestes, TalkBack, grossissement système) sont nécessaires avant une publication publique.
 
 ## UX P0 — Lisibilité et sobriété visuelle (Preview 0.6.2)
 
