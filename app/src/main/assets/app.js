@@ -117,7 +117,7 @@
   const show = msg => { const t=$('toast');t.textContent=msg;t.hidden=false;setTimeout(()=>t.hidden=true,3500); };
   const dateTime = iso => new Intl.DateTimeFormat('fr-FR',{dateStyle:'short',timeStyle:'short',timeZone:state.profile?.timezone || detectedZone}).format(new Date(iso));
   const displayDate = day => new Intl.DateTimeFormat('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(day+'T12:00:00Z'));
-  const header = (name,description) => `<div class="eyebrow">ASTRA · Suivi quotidien</div><h1 class="page-title">${name}</h1><p class="lead">${description}</p>`;
+  const header = (name,description) => `<div class="eyebrow">ASTRA · Suivi quotidien</div><h1 tabindex="-1" class="page-title">${name}</h1><p class="lead">${description}</p>`;
   const switcher = () => `<div class="switch" aria-label="Type de zodiaque"><button data-mode="tropical" class="${state.mode==='tropical'?'on':''}" aria-pressed="${state.mode==='tropical'}">Tropical</button><button data-mode="sidereal" class="${state.mode==='sidereal'?'on':''}" aria-pressed="${state.mode==='sidereal'}">Sidéral · Lahiri approx.</button></div>`;
   const status = () => busy ? '<p class="loading" role="status">Calcul astronomique à la demande…</p>' : error ? `<p class="notice" role="alert">${safe(error)}</p>` : '';
   const unconfigured = () => header('Ton ciel à découvrir','Crée ton thème natal pour obtenir un calendrier calculé sur ton appareil.') + '<section class="card"><h2 class="card-title">Commencer</h2><p class="tiny">Aucun profil ni événement personnel n’est préchargé. Aucun compte nécessaire.</p><button class="primary full" data-goto="profile">Configurer mon thème natal</button></section>';
@@ -609,7 +609,7 @@
       '<button type="button" data-export-chart="svg">Exporter SVG</button>'+
       '<button type="button" data-export-chart="png">Exporter PNG</button></div></div></section>';
     let transitSnapshot=null,transitError='';
-    if(state.wheelLayout==='double'){
+    if(state.wheelLayout==='double'&&!isOverview){
       try{
         const instant=E.localToUtc(state.transitDay,state.transitTime,detectedZone);
         transitSnapshot=E.transitSnapshot(state.profile,instant,state.natalZodiac,state.houseSystem);
@@ -783,11 +783,13 @@
       profileScreen=state.profile?a.profileScreen:'settings';
       natalSelection=null;render();
       window.scrollTo({top:0,behavior:'instant'});
+      $('app').querySelector('h1.page-title')?.focus({preventScroll:true});
       return;
     }
     if(a.exploreTransits){
       captureBirthForm();profileScreen='explore';state.wheelLayout='double';
-      natalSelection=null;persist();render();window.scrollTo({top:0,behavior:'instant'});return;
+      natalSelection=null;persist();render();window.scrollTo({top:0,behavior:'instant'});
+      $('app').querySelector('h1.page-title')?.focus({preventScroll:true});return;
     }
     if(a.natalView){captureBirthForm();state.natalView=a.natalView==='complete'?'complete':'essential';persist();render();if(event.detail===0)$('app').querySelector('[data-natal-view="'+a.natalView+'"]')?.focus({preventScroll:true});return;}
     if(a.natalZodiac){captureBirthForm();state.natalZodiac=a.natalZodiac==='sidereal'?'sidereal':'tropical';natalSelection=null;persist();render();if(event.detail===0)$('app').querySelector('[data-natal-zodiac="'+a.natalZodiac+'"]')?.focus({preventScroll:true});return;}
