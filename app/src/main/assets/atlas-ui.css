@@ -1,0 +1,289 @@
+/* ASTRA / Atlas — Visual language v0.7.0
+   A calm, contemporary astronomical notebook. Not a generic gradient landing page.
+   Applied after the legacy stylesheet until component migration is complete. */
+:root{
+  --ink:#172637;--secondary:#526273;--violet:#315e79;--deep:#193c54;
+  --pale:#f1f5f6;--border:#d8e1e6;--plum:#e5edf2;--shadow:none;
+  --astra-ink:#172637;--astra-muted:#526273;--astra-brand:#315e79;
+  --astra-brand-strong:#193c54;--astra-paper:#f6f7f7;--astra-surface:#fff;
+  --astra-secondary-surface:#edf3f5;--astra-rule:#d8e1e6;
+  --astra-selected:#e3eff3;--astra-selected-border:#47809b;
+  --astra-focus-ring:#226987;--astra-natal:#315e79;--astra-transit:#be714e;
+  --atlas-night:#172b3e;--atlas-sea:#2b5970;--atlas-gold:#e9bb71;
+  --atlas-subtle:#e9eef1;--atlas-radius:18px;
+}
+html,body{background:#f6f7f7;color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;font-size:15px;line-height:1.55}
+body{overscroll-behavior-x:none}
+.app-shell{background:var(--astra-paper);box-shadow:none}
+.top{display:flex;align-items:center;min-height:78px;gap:14px;
+  padding:16px 20px;background:var(--atlas-night);color:#fff}
+.top .identity{gap:11px;min-width:0}
+.top .emblem{width:41px;height:41px;border:1px solid #7490a3;background:transparent;
+  color:var(--atlas-gold);border-radius:14px;font-size:25px;box-shadow:none}
+.brand{font:800 20px/1.1 system-ui,sans-serif;letter-spacing:.105em;color:#fff}
+.brand-sub{color:#bfcbd4;font-size:12px;letter-spacing:0;margin-top:5px}
+.top-today{display:none}
+.main{padding:0 18px}
+.screen-intro{padding:24px 0 2px;margin:0 0 16px}
+.eyebrow{display:none}
+.page-title{font:750 clamp(27px,6vw,35px)/1.16 system-ui,sans-serif;
+  letter-spacing:-.035em;color:var(--ink);margin:0 0 7px}
+.lead{color:var(--secondary);font:400 15px/1.5 system-ui,sans-serif;
+  margin:0;max-width:45ch}
+.card{background:var(--astra-surface);border:1px solid var(--astra-rule);
+  border-radius:var(--atlas-radius);box-shadow:none;padding:18px}
+.card-title{color:var(--ink);font:700 19px/1.3 system-ui,sans-serif;letter-spacing:-.015em}
+.card .card-title{margin-top:0}
+.tiny,.field-help,.natal-disclaimer{color:var(--secondary);font-size:13px;line-height:1.5}
+.notice,.natal-warning{border-radius:13px}
+a,.subnav,.history-item button{color:var(--atlas-sea)}
+button{font-family:inherit}
+.primary,.natal-main-action{background:var(--atlas-night);color:#fff;border:1px solid var(--atlas-night);
+  border-radius:13px;font-weight:750;box-shadow:none}
+.primary:active,.natal-main-action:active{transform:translateY(1px)}
+.ghost,.natal-secondary-action,.natal-settings-link{border:1px solid #c8d5dc;background:#fff;
+  color:var(--atlas-night);border-radius:12px;font-weight:700}
+button:focus-visible,[role="button"]:focus-visible,summary:focus-visible,input:focus-visible,
+textarea:focus-visible,select:focus-visible{outline:3px solid #237b99;outline-offset:3px}
+.bottom-nav{z-index:40;border-top:1px solid #dce4e8;background:#fff;
+  padding:9px 9px max(11px,var(--astra-safe-bottom));gap:3px;box-shadow:0 -5px 22px #172b3e0b}
+.bottom-nav .nav{color:#60707e;border-radius:13px;min-height:58px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:4px;line-height:1.25;font-size:12px;font-weight:650;padding:7px 1px;
+  white-space:nowrap;overflow-wrap:normal}
+.nav .nav-ico{width:23px;height:23px;display:grid;place-items:center;line-height:1}
+.nav .nav-ico svg{width:23px;height:23px;display:block;stroke:currentColor;fill:none;
+  stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.bottom-nav .nav.active{background:#eaf1f5;color:#163e54;font-weight:750}
+.bottom-nav .nav.active .nav-ico{color:#1a637f}
+.toast{border-radius:12px;background:#1b3246;box-shadow:0 8px 24px #172b3e32;
+  font-size:13px;bottom:calc(87px + var(--astra-safe-bottom));z-index:70}
+.tag,.tag-outline{font-size:12px;background:#eaf1f5;color:#31576a;border:0;padding:5px 9px}
+.tag-outline{border:1px solid #d1dfe5;background:#fff}
+.section-row{margin-bottom:8px}
+.section-row .card-title{margin:0}
+
+/* Home: one readable chart, three explicit signs, two clear paths. */
+.natal-home.card{background:transparent;border:0;box-shadow:none;padding:0;margin-top:0}
+.natal-home-header{align-items:center;gap:12px;margin:0 0 12px}
+.natal-home-header .card-title{font:750 18px/1.3 system-ui,sans-serif;
+  color:var(--ink);letter-spacing:-.02em}
+.natal-home-subtitle{font-size:13px;color:var(--secondary);line-height:1.5}
+.natal-settings-link{font-size:13px;min-width:0;min-height:43px;
+  padding:8px 12px;border-radius:11px}
+.natal-home .natal-primary-cards{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;
+  gap:8px;padding:0;border:0;background:transparent;border-radius:0;
+  max-width:none;width:100%;margin:0 0 14px
+}
+.natal-home .natal-summary-item{
+  min-width:0;min-height:122px;display:flex;flex-direction:column;justify-content:center;
+  align-items:center;gap:3px;padding:10px 4px 9px;white-space:normal;
+  background:#fff;border:1px solid #d7e1e6;border-radius:14px;
+  color:var(--ink);font-family:inherit;box-sizing:border-box
+}
+.natal-home .natal-summary-item[aria-pressed="true"]{
+  background:#e3eff3;border-color:#315e79;box-shadow:inset 0 0 0 1px #315e79;
+  outline:none
+}
+.natal-home .natal-summary-icon{display:none}
+.natal-home .natal-summary-name{position:static!important;clip:auto!important;overflow:visible!important;
+  width:auto!important;height:auto!important;margin:0!important;white-space:normal!important;
+  font:750 12px/1.3 system-ui,sans-serif;color:#627281}
+.natal-home .natal-summary-sign{font:500 29px/1.15 Georgia,serif;color:#295a72}
+.natal-home .natal-summary-value{font:750 13px/1.3 system-ui,sans-serif;color:var(--ink);
+  overflow-wrap:anywhere;text-align:center}
+.natal-home .natal-summary-approx{font-size:12px}
+.natal-glyph-separator{display:none}
+.natal-home .natal-wheel-viewport{margin:0;max-width:none;border-radius:20px;
+  border:1px solid #d7e1e7;padding:11px;background:#fff;box-shadow:0 2px 0 #e1e9ed}
+.natal-home .natal-wheel-viewport .natal-wheel{margin:0 auto;max-width:none}
+.natal-wheel .zodiac-symbol{fill:#375f83;font-size:18px}
+.natal-wheel .house-number{fill:#486b85;font-weight:700}
+.natal-wheel .natal-planet{fill:#20384c;font-weight:800}
+.natal-wheel .angle-label{fill:#265674}
+.wheel-core-title{fill:#31556c;font:bold 13px system-ui,sans-serif;letter-spacing:1px}
+.wheel-core-sub{fill:#6b8390;font-size:8px}
+.natal-home-hint{font-size:13px;color:#506474;line-height:1.5;
+  text-align:center;margin:9px 2px 2px}
+.natal-focus-launch{margin:0 0 18px}
+.natal-focus-launch button{font:650 13px/1.4 system-ui,sans-serif;
+  background:transparent;color:#315c74;border:0;border-radius:10px;min-height:42px;padding:8px 12px}
+.natal-focus-launch button:hover{background:#e9f0f3}
+.natal-home-actions{gap:10px;margin:0 0 24px}
+.natal-home-actions button{display:flex;gap:14px;align-items:center;min-height:76px;
+  padding:15px 16px;text-align:left;border-radius:15px;font-size:16px;
+  justify-content:space-between}
+.natal-home-actions .action-label{display:flex;flex-direction:column;align-items:flex-start;gap:4px;
+  font:inherit;line-height:1.35;min-width:0}
+.action-label strong{font-size:16px;font-weight:750;line-height:1.25}
+.action-label small{font-size:12px;line-height:1.45;font-weight:450;opacity:.86;white-space:normal}
+.natal-main-action .action-label small{color:#dae6ee}
+.natal-secondary-action .action-label small{color:#506474}
+.natal-home-actions button .action-arrow{font:400 25px/1 system-ui,sans-serif;flex:none}
+.natal-main-action{background:var(--atlas-night);color:#fff}
+.natal-secondary-action{background:#fff;color:var(--atlas-night);border:1px solid #bdccd4}
+
+/* Explore: no second title, clearly scoped choices. */
+.natal-explore.card,.natal-compare.card,.natal-settings.card{border-color:var(--astra-rule);
+  margin-top:0;padding:18px;background:#fff;box-shadow:none}
+.natal-subpage-heading{margin:0 0 18px;gap:6px}
+.natal-subpage-heading .card-title{font:700 18px/1.3 system-ui,sans-serif}
+.natal-subpage-heading .natal-section-lead{font-size:14px;line-height:1.5;color:var(--secondary)}
+.natal-back{padding:7px 0;min-height:39px;font-weight:650;color:#315e79}
+.natal-explore-tabs{display:grid;gap:5px;border-radius:12px;padding:4px;
+  background:#edf3f5;border:0;margin:12px 0 22px}
+.natal-explore-tabs button{font:700 13px/1.3 system-ui,sans-serif;
+  min-height:46px;border-radius:9px;color:#486275}
+.natal-explore-tabs button.selected{background:var(--atlas-night);color:#fff;border:0;
+  box-shadow:none}
+.natal-explore-list h3,.natal-contact-section h3{font:750 20px/1.3 system-ui,sans-serif;
+  color:var(--ink);letter-spacing:-.025em;margin-bottom:6px}
+.natal-explore-list>p,.natal-contact-section>p{font-size:14px;color:var(--secondary);line-height:1.5}
+.natal-position,.natal-explore-list .natal-position,.natal-house-chip,
+.natal-explore-list .natal-aspect{background:#fff;border-bottom:1px solid var(--astra-rule);
+  font:600 14px/1.4 system-ui,sans-serif;color:var(--ink);min-height:59px}
+.natal-position .position-planet{font:650 14px/1.4 system-ui,sans-serif;color:#243c4f}
+.natal-position .position-value{font-size:12px;color:#506779}
+.natal-position .position-house{font-size:12px;color:#657988}
+.natal-positions,.natal-aspects{border-color:var(--astra-rule);border-radius:13px}
+.natal-house-chip[aria-pressed="true"],.natal-position[aria-pressed="true"],
+.natal-aspect[aria-pressed="true"]{background:#eaf3f6;color:#17455b}
+.natal-related button{min-height:42px}
+.natal-detail-body h3{font:750 21px/1.2 system-ui,sans-serif;color:#1f3545}
+.natal-detail-body p{font-size:14px;line-height:1.55}
+.natal-context-sheet{border:1px solid #b6cbd5;background:#fff;box-shadow:0 12px 40px #162c4040;
+  border-radius:17px}
+.natal-context-bar{background:#f3f7f9;border-bottom:1px solid #dae4e9}
+.natal-matrix-disclosure,.natal-explore-wheel,.natal-preview-disclosure{background:#f7f9fa;
+  border-color:var(--astra-rule)}
+.natal-matrix-disclosure>summary,.natal-explore-wheel>summary,
+.natal-preview-disclosure>summary{font:700 14px/1.4 system-ui,sans-serif;color:#234e66}
+
+/* Compare: the date picker should precede the technical figure. */
+.natal-compare .natal-transit-time{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;margin:16px 0 7px}
+.natal-transit-time label{font:700 13px/1.4 system-ui,sans-serif;color:#3e5363}
+.natal-transit-time input{font:600 15px system-ui,sans-serif;color:#243c4f;
+  border:1px solid #c7d7df;border-radius:11px;min-height:48px}
+.natal-compare-zone{color:#657987;font-size:12px}
+.natal-contact-list{border-color:var(--astra-rule);border-radius:13px}
+.natal-contact-list button{font:650 14px/1.4 system-ui,sans-serif;color:#273c50}
+.natal-contact-list button small{font-size:12px;color:#617687}
+.natal-contact-section{margin-top:20px}
+.natal-contact-empty{color:#586e7b}
+
+/* Settings: avoid the appearance of a configuration cockpit. */
+.natal-settings .natal-control>span{color:#486171;font-size:13px}
+.natal-segments{background:#eff3f5;border-radius:10px}
+.natal-segments button{font-size:13px;color:#486171}
+.natal-segments button.on{background:var(--atlas-night);color:#fff;box-shadow:none}
+.natal-advanced{background:transparent}
+.natal-advanced-buttons button,.natal-downloads button,.natal-zoom button{color:#274c60}
+.natal-advanced-buttons button[aria-pressed="true"]{background:var(--atlas-night);color:#fff}
+.natal-preview-disclosure{margin-top:20px}
+.field label,.tags-field legend{font-size:13px;font-weight:750;color:#405766}
+.field input,.field select,.field textarea{border:1px solid #cad7de;border-radius:11px;
+  min-height:46px;background:#fff;color:var(--ink);font-size:15px}
+.field textarea{min-height:122px;line-height:1.5}
+.field-help{font-size:13px;color:#5e7180}
+.city-confirmed{background:#eef4f5;border-color:#cddfe2;color:#29485a}
+.city-search .ghost{min-height:46px}
+.city-choice strong{font-size:14px}
+.city-choice span{font-size:12px}
+.unknown-time-toggle{color:#344f60}
+.natal-disclaimer{color:#627581}
+
+/* Today and calendar: make meaningful content scannable. */
+.metric{display:flex;flex-direction:column;align-items:flex-start;
+  background:var(--atlas-night);color:#fff;border:0;border-radius:18px;
+  padding:20px 22px;text-align:left;margin:8px 0 16px}
+.metric h2{font:730 22px/1.25 system-ui,sans-serif;color:#fff;margin:7px 0 6px}
+.metric p{color:#bdccd7;font-size:13px;line-height:1.5;margin:0}
+.metric .moon-symbol{font-size:26px;color:var(--atlas-gold);line-height:1}
+.event-button{border-top:1px solid #e4e9ed;padding:12px 0;min-height:68px}
+.event-body b{font:700 14px/1.3 system-ui,sans-serif;color:#243b4d}
+.event-sub{font-size:12px;color:#617384}
+.event-more{font-size:12px;color:#315e79;font-weight:700}
+.event-glyph{border-radius:12px;background:#e9f0f4;color:#2d5e79}
+.event-arrow{color:#315e79}
+.month-head{margin:12px 0 13px}
+.month-head h2{font:750 19px/1.3 system-ui,sans-serif;color:var(--ink)}
+.month-head .arrow{border-radius:11px;border-color:#d1dde2;color:#315e79}
+.calendar{background:#fff;border:1px solid #d8e1e6;border-radius:18px;padding:11px 9px 14px}
+.cal-grid{gap:2px}
+.weekday{font-size:12px;color:#657888}
+.day{border-radius:10px;color:#344b5e;height:49px;font-size:14px}
+.day.today{border:1px solid #577c94}
+.day.selected{background:#21465c;color:#fff}
+.day .count{font-size:0;display:block;width:5px;height:5px;border-radius:50%;
+  background:#7196a5;margin-top:3px}
+.day.selected .count{background:#fff}
+.day .pinhole{background:#d99965}
+.calendar .tiny{font-size:12px;color:#687988;margin:11px 0 0}
+.calendar-options{margin:8px 0 14px}
+.calendar-options>summary{cursor:pointer;min-height:44px;display:flex;align-items:center;
+  font-size:13px;color:#315e79;font-weight:700}
+.calendar-options .switch{margin:8px 0}
+.filter-wrap{margin:8px 0 13px}
+
+/* Journal: an inviting diary, not five technical widgets. */
+.mood-row{gap:6px}
+.mood{min-height:79px;padding:10px 2px;border:1px solid #d7e0e6;background:#fff;
+  border-radius:11px;gap:6px;font-size:22px}
+.mood .mood-symbol{font-size:25px;line-height:1.15}
+.mood span:last-child{font-size:11px;font-weight:600;line-height:1.3;
+  color:#64788a;white-space:normal;overflow-wrap:anywhere}
+.mood.on{background:#e7f1f4;border:2px solid #31637b;color:#21495f}
+.mood.on span:last-child{color:#1c4a61}
+.tag-button{background:#f7fafb;border-color:#d4e0e6;color:#435f70;font-size:12px}
+.tag-button.on{background:#e7f1f4;border-color:#477991;color:#17465a}
+.insights>div{background:#edf3f5;border-radius:12px}
+.insights b{color:#224e63;font-size:19px}
+.history-item{border-bottom-color:#e0e8eb}
+
+/* Welcome view: one action and short, human explanation. */
+.welcome-card{padding:23px 20px}
+.welcome-card>p{font-size:15px;line-height:1.6;color:var(--secondary)}
+.welcome-card .tiny{margin-top:14px;font-size:13px;text-align:center}
+.welcome-illustration{width:100%;height:130px;border-radius:14px;
+  background:#e9f1f4;color:#25586d;display:flex;gap:38px;align-items:center;
+  justify-content:center;font:500 50px/1 Georgia,serif;margin-bottom:18px}
+.welcome-illustration span{color:#b37f54;font-size:42px}
+
+/* Tight screens must not transform the whole page into a miniature desktop. */
+@media(min-width:800px){
+  .top{padding-left:28px;padding-right:28px}
+  .screen-intro{padding-top:30px}
+  .main{padding:0 28px}
+  .natal-home .natal-primary-cards{max-width:680px;margin-left:auto;margin-right:auto}
+  .natal-home .natal-wheel-viewport{max-width:670px;margin-left:auto;margin-right:auto}
+  .natal-home .natal-home-actions{max-width:670px;margin-left:auto;margin-right:auto;grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:480px){
+  .top{padding:14px 16px;min-height:69px}
+  .main{padding:0 14px}
+  .screen-intro{padding:21px 0 1px;margin-bottom:16px}
+  .card{padding:16px}
+  .natal-home.card{padding:0}
+  .natal-home .natal-primary-cards{gap:7px}
+  .natal-home .natal-summary-item{min-height:114px;padding:10px 3px}
+  .natal-home .natal-summary-name{font-size:12px}
+  .natal-home .natal-summary-sign{font-size:28px}
+  .natal-home .natal-wheel-viewport{padding:8px}
+  .natal-compare .natal-transit-time{grid-template-columns:minmax(0,1fr)}
+  .natal-settings.card,.natal-explore.card,.natal-compare.card{padding:16px}
+  .bottom-nav{padding-left:5px;padding-right:5px}
+}
+@media(max-width:360px){
+  .main{padding:0 10px}
+  .top{padding-left:12px;padding-right:12px}
+  .natal-home .natal-summary-item{min-height:108px}
+  .natal-home .natal-summary-value{font-size:12px}
+  .bottom-nav .nav{font-size:11.5px;min-height:56px}
+  .calendar{padding:9px 5px 13px}
+  .natal-settings.card,.natal-explore.card,.natal-compare.card{padding:13px}
+}
+@media(prefers-reduced-motion:reduce){
+  .primary:active,.natal-main-action:active{transform:none}
+}
