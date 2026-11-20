@@ -46,7 +46,8 @@ button{font-family:inherit}
 button:focus-visible,[role="button"]:focus-visible,summary:focus-visible,input:focus-visible,
 textarea:focus-visible,select:focus-visible{outline:3px solid #237b99;outline-offset:3px}
 .bottom-nav{z-index:40;border-top:1px solid #dce4e8;background:#fff;
-  padding:9px 9px max(11px,var(--astra-safe-bottom));gap:3px;box-shadow:0 -5px 22px #172b3e0b}
+  padding:9px 9px max(11px,var(--astra-safe-bottom));gap:3px;box-shadow:0 -5px 22px #172b3e0b;
+  grid-template-columns:minmax(0,.9fr) minmax(0,.9fr) minmax(0,1.3fr) minmax(0,.9fr)}
 .bottom-nav .nav{color:#60707e;border-radius:13px;min-height:58px;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   gap:4px;line-height:1.25;font-size:12px;font-weight:650;padding:7px 1px;
