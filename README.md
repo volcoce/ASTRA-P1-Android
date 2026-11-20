@@ -1,6 +1,17 @@
-# ASTRA Public — Preview 0.6.1
+# ASTRA Public — Preview 0.6.2
 
 **Référence UI/UX du projet :** [DESIGN.md](DESIGN.md). Les règles pour assistants de code sont dans [AGENTS.md](AGENTS.md). Ces documents formalisent le travail de design sans remplacer les fonctionnalités P0–P2.
+
+## UX P0 — Lisibilité et sobriété visuelle (Preview 0.6.2)
+
+La charte [DESIGN.md](DESIGN.md) s'applique à **Aujourd'hui, Calendrier, Journal et Mon ciel**. La palette astronomique demeure, mais les surfaces sont volontairement plus neutres.
+
+- **Typographie** : les textes informatifs, aides de formulaire, légendes, dates et libellés de navigation sont désormais généralement à **12–15 px**, au lieu de 10–11 px. Les titres principaux restent plus grands.
+- **Sobriété** : fond papier uni, cartes sans ombre décorative, roue sur fond blanc, dégradés superflus retirés des panneaux principaux, résumé Soleil–Lune–Ascendant simplement séparé par une ligne.
+- **Aucune perte fonctionnelle** : calculs, modes de lecture, réglages, zoom, exports, journal et stockage local `astra-public-v1` inchangés.
+- **Vérification** : tests de style calculé et de débordement horizontal à 320, 393, 768 et 1280 px, en complément des tests d'interaction. Tests physiques TalkBack et inspection de captures restent à faire avant distribution publique.
+
+Pour mettre à jour localement : `git pull origin main && npm install && npm run dev`.
 
 ## UX P2.1 — Lecture agrandie de la roue (Preview 0.6.1)
 
