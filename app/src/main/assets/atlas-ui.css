@@ -445,3 +445,45 @@ button.astra-insight-tile:hover{border-color:#7597aa}
   .astra-hero-stat span{font-size:15px}
   .astra-insight-tile{flex-basis:166px}
 }
+
+
+/* Calendar phases — violet new moon, warm gold full moon.
+   Source: SearchMoonQuarter events; the colour is never the only cue. */
+.calendar .day.moon-new:not(.selected){
+  background:#eeeafb;
+  box-shadow:inset 0 0 0 1px #c9c0e9;
+}
+.calendar .day.moon-full:not(.selected){
+  background:#fff1d7;
+  box-shadow:inset 0 0 0 1px #edd29f;
+}
+.calendar .day.moon-new.selected{box-shadow:inset 0 0 0 2px #bcb2f3}
+.calendar .day.moon-full.selected{box-shadow:inset 0 0 0 2px #f1c779}
+.calendar .day .moon-phase-badge{
+  position:absolute;bottom:2px;left:3px;
+  display:grid;place-items:center;width:13px;height:15px;
+  line-height:1;font-size:13px;font-weight:900;pointer-events:none;
+}
+.calendar .day.moon-new .moon-phase-badge{color:#55459a}
+.calendar .day.moon-full .moon-phase-badge{color:#8a530d}
+.calendar .day.selected .moon-phase-badge{
+  background:#fff;border-radius:100%;width:16px;height:16px;left:2px;bottom:1px;
+}
+.calendar .day.moon-new .pinhole,.calendar .day.moon-full .pinhole{
+  left:4px;top:4px;right:auto;
+}
+.calendar-phase-legend{
+  display:flex;align-items:center;flex-wrap:wrap;column-gap:16px;row-gap:8px;
+  margin:13px 2px 5px;
+  color:#465967;font-size:12px;font-weight:650;
+}
+.calendar-phase-legend .cal-legend-item{display:inline-flex;align-items:center;gap:7px}
+.calendar-phase-legend .moon-phase-legend-dot{
+  display:inline-grid;place-items:center;width:22px;height:22px;border-radius:7px;
+  font-size:14px;line-height:1;font-weight:850;
+}
+.calendar-phase-legend .moon-phase-legend-dot.new{background:#eeeafb;color:#55459a;border:1px solid #c9c0e9}
+.calendar-phase-legend .moon-phase-legend-dot.full{background:#fff1d7;color:#8a530d;border:1px solid #edd29f}
+@media(max-width:360px){
+  .calendar-phase-legend{column-gap:11px;font-size:11.5px}
+}
