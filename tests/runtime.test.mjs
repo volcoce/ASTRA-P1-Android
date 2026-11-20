@@ -217,3 +217,25 @@ test('Moon ingress uses actual civil-day bounds in timezone and handles DST',()=
   assert.throws(()=>moonSignChanges('2026-02-30','Europe/Paris'));
   assert.throws(()=>moonSignChanges('2026-11-24','Europe/Paris','unrecognized'));
 });
+
+test('calendar preserves physical lunar phase at local noon for each civil day',()=>{
+  const out=calculateMonth(p,2026,11,'tropical');
+  const dates=Object.keys(out.days);
+  assert.equal(dates.length,30);
+  const indices=new Set();
+  for(const day of dates){
+    const val=out.days[day].moonPhaseAtNoon;
+    const expected=dailySky(day,p.timezone,'tropical').moonPhase;
+    assert.ok(Number.isFinite(val)&&val>=0&&val<360);
+    assert.ok(Math.abs(val-expected)<=0.0000051,`Moon at local noon: ${day}`);
+    indices.add(Math.floor((val+22.5)/45)%8);
+  }
+  assert.ok(indices.size>=7,'Month actually moves through nearly all eight phases');
+  const other=calculateMonth(p,2026,11,'sidereal');
+  assert.ok(Math.abs(other.days['2026-11-20'].moonPhaseAtNoon-
+    out.days['2026-11-20'].moonPhaseAtNoon)<0.00001,
+    'Physical Moon illumination is independent of zodiac choice');
+  const solarDays=dates.filter(day=>out.days[day].exact.some(e=>e.type==='exact'&&e.body==='Sun'));
+  assert.ok(solarDays.length>0);
+  assert.ok(solarDays.length<dates.length,'Solar exact contacts must be occasional');
+});
