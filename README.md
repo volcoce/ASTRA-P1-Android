@@ -1,4 +1,20 @@
-# ASTRA Public — Preview 0.5.6
+# ASTRA Public — Preview 0.5.7
+
+## P1 — Compréhension et analyse (Preview 0.5.7)
+
+**Dans Mon ciel :**
+
+- Fiches pédagogiques interactives pour les dix corps astrologiques, les douze maisons et les aspects natals : **donnée calculée**, **lecture symbolique traditionnelle** et **question de réflexion** présentées séparément. Les significations des signes et des maisons sont liées à la position sélectionnée.
+- Mode **Complet** : affichage des positions zodiacales à la seconde d'arc (`dd°mm′ss″`), avec arrondi normalisé aux frontières des signes. Ce format exprime une résolution d'affichage, **pas** une précision physique certifiée à la seconde d'arc.
+- Filtres natals **Tous / Conjonctions / Sextiles / Carrés / Trigones / Oppositions**. Le même filtre agit sur les lignes de la roue, la liste des aspects et la fiche de la planète sélectionnée. La préférence reste locale et est préservée dans l'export JSON.
+- **Heure de naissance inconnue** : une case à cocher accepte date + ville, même sans heure. ASTRA choisit **12 h locales comme référence informatique provisoire** : il ne prétend pas qu'il s'agit de l'heure de naissance. L'Ascendant, le Milieu du Ciel et les douze maisons sont supprimés ; une roue zodiacale sans maisons apparaît. Les planètes sont marquées **indicatives**, particulièrement la Lune, qui peut même changer de signe durant la journée.
+- Les aspects natals associés à la **Lune natale** sont exclus lorsque l'heure manque. Dans Aujourd'hui et Calendrier, les aspects personnalisés actifs sont marqués indicatifs ; les **instants exacts des contacts personnels** sont supprimés. Les stations planétaires et les phases lunaires, indépendantes de l'heure natale, restent disponibles.
+- Les profils et journaux déjà enregistrés conservent la clé `astra-public-v1`, avec `timeKnown` absent interprété comme **heure connue** pour rétrocompatibilité.
+- L'application demande encore la **date et la ville**. Sans date ou sans lieu, le formulaire exige ces éléments plutôt que d'inventer un fuseau, des maisons ou une date de naissance.
+- `tests/natal-learning.test.mjs` contrôle les frontières zodiacales, l'arrondi dms, les filtres et les fiches ; `tests/runtime.test.mjs` vérifie les naissances à heure inconnue ; `tests/ui-smoke.py` vérifie l'interaction des filtres, la lecture et la préservation du journal en navigateur.
+
+**Limites :** le mode sidéral reste approximatif. Les conventions d'interprétation astrologiques ne sont pas des relations causales ou prédictions scientifiquement établies. Aucune donnée de naissance personnelle n'est intégrée au code ou à l'APK.
+
 ## P0 — Lisibilité et fiabilité de la roue (Preview 0.5.6)
 
 - **Placement anti-collision** : les 10 glyphes sont distribués automatiquement sur un anneau avec un écart minimal de 14°, suivant une régression isotone circulaire déterministe. Aucun symbole planétaire ne chevauche un autre même lors de conjonctions très serrées. Le repère de degré de chaque planète **reste fixe à la longitude astronomique exacte** ; un trait relie le repère à son glyphe si ce dernier est décalé.
