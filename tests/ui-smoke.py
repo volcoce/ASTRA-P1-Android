@@ -235,6 +235,11 @@ if __name__ == '__main__':
               w:e.clientWidth,scroll:e.scrollWidth
             }))""")
             assert all(x['scroll']<=x['w']+2 for x in tabwidths),tabwidths
+            calendar_label=page.locator('[data-tab="calendar"] .nav-label').evaluate("""el=>({
+              height:el.getBoundingClientRect().height,
+              line:parseFloat(getComputedStyle(el).lineHeight)
+            })""")
+            assert calendar_label['height']<=calendar_label['line']*1.2,calendar_label
             capture('galaxy-a15-large-text-360')
             text_style.evaluate('node=>node.remove()')
             page.set_viewport_size({'width':393,'height':844})
