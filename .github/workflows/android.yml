@@ -1,7 +1,7 @@
 name: ASTRA Public — Calcul dynamique Android 17
 on:
   push:
-    branches: [public-runtime]
+    branches: [main, public-runtime]
   workflow_dispatch:
 permissions:
   contents: read
