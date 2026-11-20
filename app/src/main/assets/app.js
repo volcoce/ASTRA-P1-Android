@@ -205,9 +205,9 @@
       '<div class="astra-section-head"><h2 id="lunarTimelineTitle">Prochaines phases lunaires</h2><span>Depuis la date choisie</span></div>'+
       '<div class="astra-lunar-track" role="group" aria-label="Phases lunaires calculées">'+
       phases.map(phase=>'<button type="button" class="astra-lunar-milestone phase-'+phase.quarter+'" data-lunar-day="'+safe(phase.day)+'" aria-label="'+
-        safe(phase.name+', le '+displayDate(phase.day)+', '+E.formatSign(phase.moonLongitude))+'">'+
+        safe(phase.name+' en '+zodiacSignAt(phase.moonLongitude)+', le '+displayDate(phase.day)+', '+E.formatSign(phase.moonLongitude))+'">'+
         '<span class="astra-lunar-symbol" aria-hidden="true">'+symbols[phase.quarter]+'</span>'+
-        '<strong>'+safe(phase.name)+'</strong><small>'+safe(new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'short',timeZone:'UTC'}).format(new Date(phase.day+'T12:00:00Z')))+'</small>'+
+        '<strong>'+safe(phase.name)+'</strong><small>'+safe(zodiacSignAt(phase.moonLongitude))+' · '+safe(new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'short',timeZone:'UTC'}).format(new Date(phase.day+'T12:00:00Z')))+'</small>'+
         '</button>').join('')+'</div>'+
       '<p class="astra-section-help">Dates des quatre prochaines phases à partir du jour sélectionné. Touche une phase pour ouvrir cette journée.</p></section>';
   }
@@ -245,8 +245,10 @@
   const currentDay=()=>classify(result?.days?.[selected]);
   const dayEvents=day=>[...day.exact,...day.sky].sort((a,b)=>a.at.localeCompare(b.at));
   const filters=()=>`<div class="filter-wrap"><label for="eventFilter">Afficher</label><select id="eventFilter">${Object.entries(filtersMap).map(([k,v])=>`<option value="${k}" ${state.filter===k?'selected':''}>${v}</option>`).join('')}</select></div>`;
+  const zodiacSignAt=longitude=>E.formatSign(longitude).replace(/^.*?°\s*/,'');
   function eventTitle(event) {
-    if(event.type==='moon')return event.name;
+    if(event.type==='moon')return Number.isFinite(event.moonLongitude)?
+      event.name+' en '+zodiacSignAt(event.moonLongitude):event.name;
     if(event.type==='station')return `${planets[event.body]} · changement de direction apparente`;
     const angle={Conjonction:0,Sextile:60,Carré:90,Trigone:120,Opposition:180}[event.aspect];
     return `${planets[event.body]} et ${planets[event.natal]} · ${angle===undefined?event.aspect.toLowerCase():'angle de '+angle+'°'}`;
@@ -285,12 +287,30 @@
     const events=dayEvents(day),active=day.active.slice(0,8);
     // Daily sky is measured at local noon, independently of the natal place.
     // Never interpolate a lunar sign from the phase angle.
-    let sky=null;
-    try{sky=E.dailySky(selected,detectedZone,state.mode);}catch{/* Show honest missing data. */}
-    const zodiacSign=longitude=>sky?E.formatSign(longitude).replace(/^.*?°\s*/,''):'indisponible';
-    const moonSign=sky?zodiacSign(sky.moonLongitude):'indisponible';
-    const sunSign=sky?zodiacSign(sky.sunLongitude):'indisponible';
+    // The monthly ephemerides use the birth-profile timezone for civil-day
+    // boundaries. Use the same timezone throughout the daily narrative.
+    const zone=state.profile.timezone||detectedZone;
+    let sky=null,moonChanges=null;
+    try{sky=E.dailySky(selected,zone,state.mode);}catch{/* Position indisponible. */}
+    try{moonChanges=E.moonSignChanges(selected,zone,state.mode);}catch{/* Transitions indisponibles. */}
+    const moonSign=sky?zodiacSignAt(sky.moonLongitude):'indisponible';
+    const sunSign=sky?zodiacSignAt(sky.sunLongitude):'indisponible';
     const moonStage=sky?lunarLabel(sky.moonPhase):'Phase indisponible';
+    const atTime=at=>new Intl.DateTimeFormat('fr-FR',
+      {hour:'2-digit',minute:'2-digit',timeZone:zone}).format(new Date(at));
+    const timeline=[
+      ...(moonChanges||[]).map(entry=>({at:entry.at,
+        title:'La Lune entre en '+entry.toSign,kind:'ingress'})),
+      ...day.sky.filter(event=>event.type==='moon').map(event=>({at:event.at,
+        title:eventTitle(event),kind:'phase'}))
+    ].sort((a,b)=>a.at.localeCompare(b.at));
+    const dailyLunarMoments=timeline.length?
+      '<section class="astra-day-moon-moments" aria-label="Événements lunaires de la journée">'+
+      '<h3>Évolution de la Lune dans la journée</h3>'+
+      '<div class="astra-day-moon-moment-list">'+timeline.map(event=>
+        '<div class="astra-day-moon-moment '+event.kind+'"><time datetime="'+safe(event.at)+'">'+
+        safe(atTime(event.at))+'</time><span>'+safe(event.title)+'</span></div>').join('')+
+      '</div></section>':'';
     const entry=state.journal[selected];
     const todayKey=isoDay(new Date()),isCurrent=selected===todayKey;
     const count=events.length;
@@ -303,7 +323,8 @@
         '<div class="astra-hero-moon"><span class="astra-hero-moon-icon" aria-hidden="true">☾</span>'+
         '<div><h2 class="astra-moon-title">'+(sky?'Lune en '+safe(moonSign):'Position lunaire indisponible')+'</h2>'+
         '<p class="astra-moon-phase">'+safe(moonStage)+'</p></div></div>'+
-        '<p class="astra-sky-reference">Position à 12 h · '+safe(detectedZone)+' · '+(state.mode==='sidereal'?'sidéral':'tropical')+'</p>'+
+        '<p class="astra-sky-reference">Position à 12 h · '+safe(zone)+' · '+(state.mode==='sidereal'?'sidéral':'tropical')+'</p>'+
+        dailyLunarMoments+
         '<div class="astra-hero-stat"><strong>'+count+'</strong><span>'+(
           count===1?'événement calculé':'événements calculés')+' pour cette date</span></div></div>'+
         '<div class="astra-hero-orbit" aria-hidden="true"><span>☾</span></div>'+
@@ -378,7 +399,7 @@
           return '<button type="button" class="astra-month-phase '+(isNew?'new':'full')+
             '" data-month-open-day="'+day+'" aria-label="'+safe(event.name+', le '+displayDate(day))+'">'+
             '<span class="astra-month-phase-icon" aria-hidden="true">'+(isNew?'●':'○')+'</span>'+
-            '<span class="astra-month-phase-copy"><strong>'+safe(event.name)+'</strong>'+
+            '<span class="astra-month-phase-copy"><strong>'+safe(eventTitle(event))+'</strong>'+
             '<small>'+safe(dayLabel(day))+(event.at?' · '+safe(new Intl.DateTimeFormat('fr-FR',{hour:'2-digit',minute:'2-digit',timeZone:state.profile.timezone}).format(new Date(event.at))):'')+
             '</small></span><span aria-hidden="true">›</span></button>';
         }).join('')||'<p class="astra-empty">Aucune Nouvelle ou Pleine Lune calculée pour ce mois.</p>')+'</div>'+
