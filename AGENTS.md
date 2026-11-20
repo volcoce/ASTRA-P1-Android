@@ -1,6 +1,6 @@
 # ASTRA coding-agent working rules
 
-Read [DESIGN.md](DESIGN.md) before making any UX or visual changes. The design contract is project-specific and takes precedence over generic design templates. Read [README.md](README.md) for feature behavior and history.
+Read [UI_ARCHITECTURE.md](UI_ARCHITECTURE.md) and [DESIGN.md](DESIGN.md) before making any UX or visual changes. The architecture specifies information hierarchy, navigation, components, states and accessibility; the design contract specifies visual identity. Both take precedence over generic templates. Read [README.md](README.md) for behavior and history.
 
 - ASTRA is a functional chart-reading application, not a landing-page demo. Do not replace the existing user flows or remove functionality during cosmetic work.
 - Respect P0/P1 information hierarchy: summary + quiet wheel on Mon ciel; separate Explorer, Comparer and Réglages destinations.

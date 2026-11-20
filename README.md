@@ -1,6 +1,6 @@
 # ASTRA Public — Preview 0.7.1
 
-**Référence UI/UX du projet :** [DESIGN.md](DESIGN.md). Les règles pour assistants de code sont dans [AGENTS.md](AGENTS.md). Ces documents formalisent le travail de design sans remplacer les fonctionnalités P0–P2.
+**Référence UI/UX du projet :** [UI_ARCHITECTURE.md](UI_ARCHITECTURE.md) pour la hiérarchie, la navigation, les composants et l'accessibilité ; [DESIGN.md](DESIGN.md) pour l'identité visuelle. Les règles pour assistants de code sont dans [AGENTS.md](AGENTS.md).
 
 ## Accueil en widgets — Inspiration Flo (Preview 0.7.1)
 
