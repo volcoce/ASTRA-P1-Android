@@ -152,6 +152,7 @@ if __name__ == '__main__':
             assert page.locator('#natalChart .natal-aspect').count()==1
             page.locator('#natalChart .natal-aspect').first.click()
             assert 'Lecture astrologique traditionnelle' in page.locator('#natalSelectionInfo').inner_text()
+            page.locator('[data-close-natal-detail]').click()
             page.locator('[data-natal-aspect-filter="Sextile"]').click()
             assert page.locator('#natalChart .natal-aspect').count()==0
             page.locator('[data-natal-aspect-filter="all"]').click()
