@@ -720,7 +720,7 @@
     const a=button.dataset;
     if(a.natalView){captureBirthForm();state.natalView=a.natalView==='complete'?'complete':'essential';persist();render();if(event.detail===0)$('app').querySelector('[data-natal-view="'+a.natalView+'"]')?.focus({preventScroll:true});return;}
     if(a.natalZodiac){captureBirthForm();state.natalZodiac=a.natalZodiac==='sidereal'?'sidereal':'tropical';natalSelection=null;persist();render();if(event.detail===0)$('app').querySelector('[data-natal-zodiac="'+a.natalZodiac+'"]')?.focus({preventScroll:true});return;}
-    if(a.natalAspectFilter){captureBirthForm();state.natalAspectFilter=a.natalAspectFilter;persist();render();if(event.detail===0)$('app').querySelector('[data-natal-aspect-filter="'+a.natalAspectFilter+'"]')?.focus({preventScroll:true});return;}
+    if(a.natalAspectFilter){captureBirthForm();state.natalAspectFilter=a.natalAspectFilter;natalSelection=null;persist();render();if(event.detail===0)$('app').querySelector('[data-natal-aspect-filter="'+a.natalAspectFilter+'"]')?.focus({preventScroll:true});return;}
     if(a.houseSystem){
       if(!['placidus','equal','whole'].includes(a.houseSystem))return;
       captureBirthForm();state.houseSystem=a.houseSystem;natalSelection=null;persist();render();return;
