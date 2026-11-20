@@ -1,0 +1,226 @@
+/* ASTRA P2 — semantic appearance tokens and optional, local diagnostics. */
+.astra-preferences,.astra-performance{min-width:0}
+.astra-appearance-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:14px}
+.astra-appearance-options button{min-height:48px;padding:10px 7px;border:1px solid var(--astra-rule);
+  border-radius:12px;background:var(--astra-surface);color:var(--astra-ink);
+  font:700 .9375rem/1.3 system-ui,sans-serif;cursor:pointer;overflow-wrap:anywhere}
+.astra-appearance-options button[aria-pressed="true"]{border:2px solid var(--astra-selected-border);
+  background:var(--astra-selected);color:var(--astra-ink)}
+.astra-performance .actions{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.astra-performance .actions>button{flex:1 1 150px;min-height:44px}
+.astra-performance-scroll{max-width:100%;overflow-x:auto;scrollbar-gutter:stable;
+  margin:12px 0;border:1px solid var(--astra-rule);border-radius:12px}
+.astra-performance-scroll:focus-visible{outline:3px solid var(--astra-focus-ring);outline-offset:2px}
+.astra-performance table{width:100%;min-width:490px;border-collapse:collapse;
+  font:500 .8125rem/1.4 system-ui,sans-serif;font-variant-numeric:tabular-nums}
+.astra-performance th,.astra-performance td{padding:10px 9px;border-bottom:1px solid var(--astra-rule);text-align:right}
+.astra-performance th:first-child{text-align:left}
+.astra-performance thead th{background:var(--astra-secondary-surface);font-weight:750}
+.astra-performance tbody th{font-weight:650}
+.astra-performance tr:last-child th,.astra-performance tr:last-child td{border-bottom:0}
+@media(max-width:360px){.astra-appearance-options{gap:4px}.astra-appearance-options button{padding:10px 3px}}
+
+/* Preserve the established light visual design; dark mode is isolated. */
+:root[data-astra-theme="dark"]{
+  --ink:#e5eef5;--secondary:#b9cbd8;--violet:#a5d2e6;--deep:#daedf8;
+  --border:#385367;--pale:#111f2d;--plum:#243d4f;
+  --astra-ink:#e5eef5;--astra-muted:#b9cbd8;
+  --astra-brand:#a5d2e6;--astra-brand-strong:#e1f1f8;
+  --astra-paper:#101d2a;--astra-surface:#192b3b;
+  --astra-secondary-surface:#22394c;--astra-rule:#385367;
+  --astra-selected:#294b61;--astra-selected-border:#a4d3e9;
+  --astra-focus-ring:#c4e6f5;--astra-natal:#8ac0d9;--astra-transit:#f3bf92;
+  --atlas-night:#0b1826;--atlas-sea:#a8d8ef;--atlas-subtle:#263b4e;
+  --atlas-gold:#f1c981;
+  color-scheme:dark;
+}
+:root[data-astra-theme="dark"],
+:root[data-astra-theme="dark"] body{background:var(--astra-paper);color:var(--astra-ink)}
+:root[data-astra-theme="dark"] .app-shell{background:var(--astra-paper);box-shadow:none}
+:root[data-astra-theme="dark"] :is(.card,.calendar,.natal-overview-panel,.natal-explore,
+  .natal-compare,.natal-settings,.natal-preview-disclosure,.natal-selection,
+  .natal-context-sheet,.natal-composite-result,.natal-advanced,.natal-matrix-scroll,
+  .natal-positions,.natal-aspects,.astra-active-panel,.astra-event-feed,
+  .astra-month-metrics>div,.astra-month-metrics>button,.astra-month-events,
+  .astra-month-phase,.astra-month-event,.natal-glossary,
+  .natal-focus,.natal-progress-controls,.city-results,.city-confirmed,
+  .natal-transit-time,.natal-explore-list,.natal-contact-section){
+  background:var(--astra-surface);border-color:var(--astra-rule);color:var(--astra-ink)
+}
+:root[data-astra-theme="dark"] :is(.page-title,.card-title,.section-title,
+  .natal-subtitle,.natal-home-header .card-title,.astra-section-head h2,
+  .natal-explore-list h3,.natal-contact-section h3,.natal-composite-result h3,
+  .natal-context-bar h2,.natal-detail-body h3,.astra-moon-phase,
+  .natal-panel-lead strong,.astra-month-event-text,.planet b,
+  .natal-position .position-planet,.astra-performance th){
+  color:var(--astra-ink)
+}
+:root[data-astra-theme="dark"] :is(.lead,.tiny,.field-help,.muted,
+  .natal-home-hint,.natal-home-subtitle,.natal-section-lead,.natal-panel-lead,
+  .natal-glossary dd,.natal-disclaimer,.natal-selected-empty,
+  .astra-section-help,.astra-empty,.astra-section-head>span,
+  .event-sub,.event-more,.event-body p,.event-body small,
+  .natal-compare-zone,.natal-contact-list button small,
+  .natal-position .position-value,.natal-position .position-house,
+  .natal-aspect span,.natal-focus-legend,.natal-focus-warning,
+  .astra-month-event-day,.astra-month-metrics span,.month-head h2){
+  color:var(--astra-muted)
+}
+:root[data-astra-theme="dark"] :is(.field label,.tags-field legend,
+  .filter-wrap label,.natal-control>span,.natal-settings .natal-control>span,
+  .natal-progress-controls label,.natal-transit-time label){
+  color:var(--astra-ink)
+}
+:root[data-astra-theme="dark"] :is(.field input,.field select,.field textarea,
+  .filter-wrap select,.natal-transit-time input,.natal-progress-controls input,
+  .city-search input,.natal-composite input,.natal-compare input){
+  color:var(--astra-ink);background:#142637;border-color:#567086;
+}
+:root[data-astra-theme="dark"] input::placeholder,
+:root[data-astra-theme="dark"] textarea::placeholder{color:#a2b9c8;opacity:1}
+:root[data-astra-theme="dark"] :is(.ghost,.natal-settings-link,.natal-back,
+  .subnav,.top-today,.arrow,.astra-back-today,.natal-more-link,
+  .natal-focus-launch button,.natal-focus-close,.natal-downloads button,
+  .natal-zoom button,.city-search .ghost){
+  color:var(--astra-ink);background:var(--astra-secondary-surface);
+  border-color:#567086
+}
+:root[data-astra-theme="dark"] :is(.primary,.natal-main-action,
+  .astra-month-calendar-link){color:#fff;background:#215573;border-color:#619abb}
+:root[data-astra-theme="dark"] :is(.primary,.natal-main-action):hover{
+  background:#2b6788
+}
+:root[data-astra-theme="dark"] a{color:#a6d9f0}
+:root[data-astra-theme="dark"] .bottom-nav{background:#142637;border-color:var(--astra-rule)}
+:root[data-astra-theme="dark"] .bottom-nav .nav{color:#b5c9d8;background:transparent}
+:root[data-astra-theme="dark"] .bottom-nav .nav.active{color:#eaf7ff;background:#2c4c60}
+:root[data-astra-theme="dark"] .bottom-nav .nav.active .nav-ico{color:#bce8fa}
+:root[data-astra-theme="dark"] .top{background:var(--atlas-night);color:#fff}
+:root[data-astra-theme="dark"] .brand,.natal-home .natal-summary-sign{color:inherit}
+:root[data-astra-theme="dark"] .brand-sub{color:#c8d8e3}
+:root[data-astra-theme="dark"] :is(.switch,.natal-segments,.natal-overview-tabs,
+  .natal-transit-filters,.natal-filter-items,.natal-advanced-buttons){
+  background:var(--astra-secondary-surface);border-color:var(--astra-rule)
+}
+:root[data-astra-theme="dark"] :is(.switch button,.natal-segments button,
+  .natal-overview-tabs button,.natal-transit-filters button,
+  .natal-filter-items button,.natal-advanced-buttons button){
+  color:var(--astra-ink);background:transparent
+}
+:root[data-astra-theme="dark"] :is(.switch button.on,.natal-segments button.on,
+  .natal-overview-tabs button.selected,.natal-transit-filters button.selected,
+  .natal-filter-items button.selected,.natal-advanced-buttons button.selected,
+  .natal-zoom button[aria-pressed="true"]){
+  background:#315c75;color:#fff;border-color:#8ec5dc
+}
+:root[data-astra-theme="dark"] :is(.tag,.tag-outline,.small-tag,
+  .natal-highlight,.natal-house-chip,.natal-position[aria-pressed="true"],
+  .natal-house-chip[aria-pressed="true"],.natal-contact-list button,
+  .natal-related button,.natal-summary-item,.natal-primary-cards button,
+  .natal-overview-panel .natal-position,.natal-overview-panel .natal-aspect,
+  .city-choice,.tag-button,.mood,.planet,.history-item){
+  color:var(--astra-ink);background:var(--astra-secondary-surface);
+  border-color:var(--astra-rule)
+}
+:root[data-astra-theme="dark"] :is(.natal-home .natal-summary-item,
+  .natal-home .natal-primary-cards .natal-summary-item){
+  background:var(--astra-surface);border-color:var(--astra-rule)
+}
+:root[data-astra-theme="dark"] :is(.natal-home .natal-summary-name,
+  .natal-home .natal-summary-value,.natal-home .natal-summary-sign,
+  .natal-highlight b,.natal-highlight span,.natal-house-chip small,
+  .natal-home .natal-home-hint,.natal-glossary dt){
+  color:var(--astra-ink)
+}
+:root[data-astra-theme="dark"] :is(.natal-summary-item[aria-pressed="true"],
+  .tag-button.on,.mood.on,.natal-contact-list button[aria-pressed="true"],
+  .natal-aspect[aria-pressed="true"],.natal-highlight[aria-pressed="true"]){
+  color:#fff;background:#2d5067;border-color:#94c5d9
+}
+:root[data-astra-theme="dark"] :is(.mood span:last-child,
+  .natal-home .natal-summary-approx,.tag-button,.natal-aspect>span:last-child){
+  color:#c1d1dc
+}
+:root[data-astra-theme="dark"] :is(.calendar .day,.calendar .weekday,
+  .calendar .day .count,.calendar .cal-legend,.calendar-phase-legend,
+  .calendar-phase-legend .cal-legend-item,.month-head h2){
+  color:var(--astra-ink)
+}
+:root[data-astra-theme="dark"] .calendar .day.today{border-color:#b3d9ec}
+:root[data-astra-theme="dark"] .calendar .day.selected{color:#fff;background:#245773}
+:root[data-astra-theme="dark"] .calendar .day .count{background:#9bc6dc}
+:root[data-astra-theme="dark"] .calendar .day.selected .count{background:#fff}
+:root[data-astra-theme="dark"] :is(.astra-week-day,.astra-week-caption,.astra-week-controls){
+  color:var(--astra-muted)
+}
+:root[data-astra-theme="dark"] .astra-week-day b{color:var(--astra-ink)}
+:root[data-astra-theme="dark"] .astra-week-day.is-selected{background:#245773;border-color:#6da9c5;color:#fff}
+:root[data-astra-theme="dark"] .astra-week-day.is-selected b{color:#fff}
+:root[data-astra-theme="dark"] :is(.astra-week-controls button,.astra-hero-link,
+  .astra-more-events>summary,.calendar-options>summary){
+  color:var(--astra-ink);background:var(--astra-secondary-surface);
+  border-color:var(--astra-rule)
+}
+:root[data-astra-theme="dark"] .astra-day-hero,
+:root[data-astra-theme="dark"] .astra-month-hero{background:#172f42;color:#fff}
+:root[data-astra-theme="dark"] :is(.astra-day-hero .astra-moon-title,
+  .astra-day-hero .astra-moon-phase,.astra-day-hero .astra-sky-reference,
+  .astra-day-hero .astra-hero-stat span,.astra-day-hero .astra-hero-kicker){
+  color:#e1edf4
+}
+:root[data-astra-theme="dark"] :is(.astra-insight-tile,
+  .astra-insight-tile.as-sun,.astra-insight-tile.as-journal,
+  .astra-insight-tile.as-chart,.astra-lunar-milestone,
+  .astra-lunar-milestone.phase-0,.astra-lunar-milestone.phase-2,
+  .astra-month-phase.new,.astra-month-phase.full){
+  background:var(--astra-secondary-surface);color:var(--astra-ink);border-color:var(--astra-rule)
+}
+:root[data-astra-theme="dark"] :is(.astra-insight-tile strong,
+  .astra-insight-tile small,.astra-insight-tile .astra-tile-kicker,
+  .astra-insight-tile.as-sun .astra-tile-kicker,
+  .astra-insight-tile.as-journal .astra-tile-kicker,
+  .astra-insight-tile.as-chart .astra-tile-kicker,
+  .astra-lunar-milestone strong,.astra-lunar-milestone small,
+  .astra-month-phase-copy strong,.astra-month-phase-copy small,
+  .astra-month-phase-icon,.astra-month-phase>span:last-child){
+  color:var(--astra-ink)
+}
+:root[data-astra-theme="dark"] :is(.event-button,.period-trigger,.natal-matrix td button,
+  .natal-position,.natal-aspect){color:var(--astra-ink);border-color:var(--astra-rule)}
+:root[data-astra-theme="dark"] :is(.event-glyph,.moon-phase-badge,
+  .period-detail,.natal-contact-section .natal-contact-list){
+  background:var(--astra-secondary-surface);border-color:var(--astra-rule);color:var(--astra-ink)
+}
+:root[data-astra-theme="dark"] :is(.natal-focus,.natal-context-sheet){background:var(--astra-paper)}
+:root[data-astra-theme="dark"] :is(.natal-context-bar,.natal-focus-header,
+  .natal-focus-footer){color:var(--astra-ink)}
+:root[data-astra-theme="dark"] :is(.natal-focus-header h2,
+  .natal-focus-kicker,.natal-focus-moment,.natal-context-content p){
+  color:var(--astra-ink)
+}
+:root[data-astra-theme="dark"] .form-field-error{color:#ffc3c6}
+:root[data-astra-theme="dark"] .field input[aria-invalid="true"]{background:#39252f;border-color:#ffadb8}
+:root[data-astra-theme="dark"] .toast{background:#2d495f;color:#fff}
+:root[data-astra-theme="dark"] .notice,
+:root[data-astra-theme="dark"] .natal-warning{
+  background:#3a2e3e;color:#ffe1e5;border-color:#755368
+}
+/* The chart deliberately remains a light paper surface to preserve SVG
+   labels, thin orbit geometry, and export legibility. */
+:root[data-astra-theme="dark"] .natal-wheel-viewport,
+:root[data-astra-theme="dark"] .natal-home .natal-wheel-viewport,
+:root[data-astra-theme="dark"] .natal-focus .natal-wheel-viewport{
+  background:#f7f9fb;border-color:#8aa7b8;color:#1a3042
+}
+:root[data-astra-theme="dark"] .natal-wheel-viewport .natal-wheel{
+  color:#1a3042
+}
+:root[data-astra-theme="dark"] .astra-performance thead th{
+  background:var(--astra-secondary-surface)
+}
+:root[data-astra-theme="dark"] .astra-performance tr{
+  border-color:var(--astra-rule)
+}
+@media(prefers-reduced-motion:reduce){
+  .astra-appearance-options button,.astra-performance button{transition:none!important}
+}
