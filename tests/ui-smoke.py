@@ -162,7 +162,7 @@ if __name__ == '__main__':
             page.locator('[data-wheel-layout="double"]').click()
             page.locator('[data-profile-screen="overview"]').click()
             assert page.locator('.natal-home').count()==1
-            page.locator('[data-profile-screen="explore"]').click()
+            page.locator('[data-explore-transits]').click()
             assert page.locator('.natal-double-wheel').count()==1
             assert page.locator('.natal-transit-hit').count()==10
             page.locator('.natal-transit-hit[data-transit-body="Sun"]').click()
