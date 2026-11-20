@@ -1,0 +1,256 @@
+/* ASTRA — wheel visual refresh.
+   SVG coordinates and scientific positions remain owned by app.js.
+   This stylesheet is deliberately self-contained for offline Android WebView. */
+.natal-wheel.wheel-modern{
+  display:block;
+  isolation:isolate;
+  overflow:visible;
+  color:#23475e;
+  text-rendering:geometricPrecision;
+}
+.natal-wheel.wheel-modern .wheel-paper{
+  fill:#fff;
+  stroke:#9db4c1;
+  stroke-width:1.15;
+}
+.natal-wheel.wheel-modern .wheel-zodiac-sector{
+  stroke:#b9cdd8;
+  stroke-width:.88;
+  stroke-linejoin:round;
+}
+.natal-wheel.wheel-modern .wheel-zodiac-sector.is-even{fill:#f4f8fb}
+.natal-wheel.wheel-modern .wheel-zodiac-sector.is-odd{fill:#e8f1f6}
+.natal-wheel.wheel-modern .wheel-zodiac-sector.is-sign-active{
+  fill:#ffedcf;
+  stroke:#b17c38;
+  stroke-width:1.5;
+}
+.natal-wheel.wheel-modern .zodiac-symbol{
+  fill:#28516a;
+  font-family:Georgia,"Times New Roman",serif;
+  font-weight:700;
+  font-size:18px;
+  paint-order:stroke;
+  stroke:#f6fafc;
+  stroke-width:.55;
+  pointer-events:none;
+}
+.natal-wheel.wheel-modern .wheel-degree-tick{
+  stroke:#a6becc;
+  stroke-width:1.05;
+  stroke-linecap:round;
+  pointer-events:none;
+}
+.natal-wheel.wheel-modern .wheel-degree-tick.is-medium{
+  stroke:#6b93a9;
+  stroke-width:1.3;
+}
+.natal-wheel.wheel-modern .wheel-degree-tick.is-major{
+  stroke:#345e77;
+  stroke-width:1.9;
+}
+.natal-wheel.wheel-modern .wheel-zodiac-inner{
+  fill:#fff;
+  stroke:#9fb7c6;
+  stroke-width:1.35;
+}
+.natal-wheel.wheel-modern .wheel-house-backdrop{
+  fill:#f9fbfc;
+  stroke:#a9c0cd;
+  stroke-width:1.15;
+}
+.natal-wheel.wheel-modern .wheel-house-sector.is-even{fill:#fafcfd}
+.natal-wheel.wheel-modern .wheel-house-sector.is-odd{fill:#f0f6f9}
+.natal-wheel.wheel-modern .wheel-active-house{
+  fill:#cfe7f4;
+  fill-opacity:.86;
+}
+.natal-wheel.wheel-modern .wheel-house-divider{
+  stroke:#b1c4ce;
+  stroke-width:1.25;
+  pointer-events:none;
+}
+.natal-wheel.wheel-modern .wheel-house-divider.is-major{
+  stroke:#6c8a9c;
+  stroke-width:2.15;
+}
+.natal-wheel.wheel-modern .wheel-house-divider.is-active{
+  stroke:#246283;
+  stroke-width:2.8;
+}
+.natal-wheel.wheel-modern .house-number{
+  fill:#365a70;
+  font:700 12px/1 system-ui,Arial,sans-serif;
+  paint-order:stroke;
+  stroke:#fff;
+  stroke-width:2.5;
+  stroke-linejoin:round;
+}
+.natal-wheel.wheel-modern .natal-house-hit.is-active .house-number{
+  fill:#174b6b;
+  stroke:#d6edf8;
+  stroke-width:3.3;
+}
+.natal-wheel.wheel-modern .wheel-aspect-backdrop{
+  fill:#fff;
+  stroke:#bcced8;
+  stroke-width:1.1;
+}
+.natal-wheel.wheel-modern .wheel-aspect-line{
+  stroke-linecap:round;
+  pointer-events:none;
+}
+.natal-wheel.wheel-modern .wheel-aspect-line.is-emphasized{
+  stroke-width:2.35;
+}
+.natal-wheel.wheel-modern .wheel-planet-leader,
+.natal-wheel.wheel-modern .natal-leader line{
+  stroke:#819bad;
+  stroke-width:1.15;
+  stroke-linecap:round;
+  pointer-events:none;
+}
+.natal-wheel.wheel-modern .wheel-true-anchor,
+.natal-wheel.wheel-modern .natal-leader circle{
+  fill:#446a83;
+  stroke:#fff;
+  stroke-width:.75;
+  pointer-events:none;
+}
+.natal-wheel.wheel-modern .natal-leader.is-active line{stroke:#245d7d;stroke-width:1.75}
+.natal-wheel.wheel-modern .natal-leader.is-active circle{fill:#174e71}
+.natal-wheel.wheel-modern .natal-planet-hit .wheel-planet-disc{
+  fill:#fff;
+  stroke:#a7bfcd;
+  stroke-width:1.35;
+}
+.natal-wheel.wheel-modern .natal-planet-hit .natal-planet{
+  fill:#23455e;
+  font-family:Georgia,"Times New Roman",serif;
+  font-weight:700;
+  font-size:20px;
+}
+.natal-wheel.wheel-modern .natal-planet-hit.is-sun .natal-planet{fill:#9d6422}
+.natal-wheel.wheel-modern .natal-planet-hit.is-sun .wheel-planet-disc{stroke:#c8a16a;fill:#fffaf0}
+.natal-wheel.wheel-modern .natal-planet-hit.is-moon .natal-planet{fill:#365f99}
+.natal-wheel.wheel-modern .natal-planet-hit.is-moon .wheel-planet-disc{stroke:#8ca9d2;fill:#f7faff}
+.natal-wheel.wheel-modern .natal-planet-hit.is-active .wheel-planet-disc{
+  fill:#225a78;
+  stroke:#143e59;
+  stroke-width:2;
+}
+.natal-wheel.wheel-modern .natal-planet-hit.is-active .natal-planet{
+  fill:#fff;
+  font-weight:800;
+}
+.natal-wheel.wheel-modern .natal-planet-hit:focus-visible .wheel-planet-disc,
+.natal-wheel.wheel-modern .natal-planet-hit:focus .wheel-planet-disc{
+  stroke:#123e5a;
+  stroke-width:3;
+  fill:#d5ecf8;
+}
+.natal-wheel.wheel-modern .natal-planet-hit:focus-visible .natal-planet{
+  fill:#173e57;
+}
+.natal-wheel.wheel-modern .wheel-core-disc{
+  fill:#fff;
+  stroke:#a7bfcd;
+  stroke-width:1.3;
+}
+.natal-wheel.wheel-modern .wheel-core-star{fill:#c09357}
+.natal-wheel.wheel-modern .wheel-core-title{
+  fill:#254a63;
+  font:750 12px/1 system-ui,Arial,sans-serif;
+  letter-spacing:2px;
+}
+.natal-wheel.wheel-modern .wheel-core-sub{
+  fill:#6c8292;
+  font:700 8.5px/1 system-ui,Arial,sans-serif;
+  letter-spacing:1px;
+}
+.natal-wheel.wheel-modern .angle-label{
+  fill:#245774;
+  stroke:#fff;
+  stroke-width:3px;
+  stroke-linejoin:round;
+  paint-order:stroke;
+  font:850 10.5px/1 system-ui,Arial,sans-serif;
+  letter-spacing:.35px;
+}
+.natal-wheel.wheel-date-only .wheel-aspect-backdrop{
+  fill:#fff;
+}
+.natal-wheel.wheel-date-only .wheel-core-sub{
+  font-size:8px;
+  letter-spacing:.45px;
+}
+/* Double wheel — the transit band is blue, the natal layer remains violet.
+   These classes distinguish layers without changing glyph coordinates. */
+.natal-double-wheel.wheel-modern .wheel-paper{
+  fill:#e8f3f9;
+  stroke:#86aabc;
+}
+.natal-double-wheel.wheel-modern .wheel-transit-band{
+  fill:#fff;
+  stroke:#b4cbd7;
+  stroke-width:1.25;
+}
+.natal-double-wheel.wheel-modern .wheel-zodiac-inner{
+  stroke:#9bb5c4;
+}
+.natal-double-wheel.wheel-modern .wheel-house-backdrop{fill:#fafbfd}
+.natal-double-wheel.wheel-modern .natal-planet-hit .wheel-planet-disc{
+  fill:#fdfaff;
+  stroke:#a99cc1;
+}
+.natal-double-wheel.wheel-modern .natal-planet-hit .natal-planet{
+  fill:#654d80;
+  font-size:20px;
+}
+.natal-double-wheel.wheel-modern .natal-transit-hit .wheel-planet-disc{
+  fill:#f4fbff;
+  stroke:#80afc6;
+  stroke-width:1.4;
+}
+.natal-double-wheel.wheel-modern .natal-transit-hit .natal-planet{
+  fill:#205f80;
+  font-size:19px;
+}
+.natal-double-wheel.wheel-modern .natal-transit-hit .wheel-true-anchor{
+  fill:#3d89a6;
+}
+.natal-double-wheel.wheel-modern .natal-planet-hit .wheel-true-anchor{
+  fill:#735a8f;
+}
+.natal-double-wheel.wheel-modern :is(.natal-planet-hit,.natal-transit-hit).is-active .wheel-planet-disc{
+  fill:#245877;
+  stroke:#133d58;
+  stroke-width:2;
+}
+.natal-double-wheel.wheel-modern :is(.natal-planet-hit,.natal-transit-hit).is-active .natal-planet{fill:#fff}
+.natal-double-wheel.wheel-modern :is(.natal-planet-hit,.natal-transit-hit):focus-visible .wheel-planet-disc{
+  fill:#d9edf8;
+  stroke:#183f5b;
+  stroke-width:3;
+}
+.natal-double-wheel.wheel-modern .wheel-core-title{font-size:14px}
+.natal-double-wheel.wheel-modern .wheel-core-sub{font-size:9px}
+.natal-wheel-viewport:has(> .wheel-modern){
+  background:#fff;
+  border-color:#cadbe5;
+  box-shadow:none;
+}
+.wheel-modern:focus-visible{outline:none}
+.natal-home .natal-wheel-viewport:has(> .wheel-modern){
+  background:#fff;
+  border-color:#ccdae4;
+  box-shadow:0 1px 0 #e6edf2;
+}
+/* In dark UI the chart intentionally stays light as a legible technical drawing. */
+:root[data-astra-theme="dark"] .natal-wheel-viewport:has(> .wheel-modern){
+  background:#f7fafc;
+  border-color:#7396aa;
+}
+@media(prefers-reduced-motion:reduce){
+  .natal-wheel.wheel-modern *{animation:none!important;transition:none!important}
+}
