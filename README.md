@@ -1,4 +1,13 @@
-# ASTRA Public — Preview 0.5.5
+# ASTRA Public — Preview 0.5.6
+## P0 — Lisibilité et fiabilité de la roue (Preview 0.5.6)
+
+- **Placement anti-collision** : les 10 glyphes sont distribués automatiquement sur un anneau avec un écart minimal de 14°, suivant une régression isotone circulaire déterministe. Aucun symbole planétaire ne chevauche un autre même lors de conjonctions très serrées. Le repère de degré de chaque planète **reste fixe à la longitude astronomique exacte** ; un trait relie le repère à son glyphe si ce dernier est décalé.
+- **Anneaux distincts** : les 12 signes du zodiaque tropical occupent chacun exactement 30°, dans l'anneau extérieur. Les 12 maisons Placidus (largeurs variables) ont désormais un anneau intérieur distinct et une légende explicite. Le système de maisons indiqué par le moteur reste visible.
+- **Mobile** : sur les écrans étroits, la roue garde au moins 320 px de largeur et peut défiler horizontalement dans son propre conteneur ; le reste de la page ne doit pas déborder.
+- **Accessibilité** : couleurs des éléments essentiels renforcées et valeur de texte secondaire plus contrastée ; navigation clavier Entrée/Espace des planètes et maisons, avec restauration du focus après chaque re-rendu. Les boutons du niveau d'affichage et du zodiaque conservent aussi le focus lors d'une activation au clavier.
+- **Vérification** : `tests/chart-layout.test.mjs` couvre un grand nombre de placements aléatoires, les conjonctions, la traversée 359°/0°, la conservation des repères astronomiques ; `tests/ui-smoke.py` vérifie la vraie disposition en Chrome, la légende, le focus et la largeur à 320 px.
+- **Limites** : l'espacement des glyphes n'augmente pas l'exactitude des éphémérides ni celle des maisons ; la vérification complète des contrastes sur tous les écrans et la validation sur téléphone physique restent indépendantes des tests automatisés.
+
 
 ## Modes d'affichage du thème natal (0.5.5)
 
