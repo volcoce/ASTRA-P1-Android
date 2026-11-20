@@ -80,6 +80,7 @@ test('P1: dynamic titles, deferred heading focus and reduced motion are implemen
   assert.match(app,/if\(pendingPageFocus\)/);
   assert.match(app,/prefers-reduced-motion: reduce/);
   assert.match(app,/window\.addEventListener\('popstate'/);
+  assert.match(app,/window\.addEventListener\('hashchange'/);
 });
 
 test('P1: responsive CSS includes compact, tablet and desktop breakpoints', () => {
