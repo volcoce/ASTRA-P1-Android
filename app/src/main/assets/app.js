@@ -301,7 +301,7 @@
       '<section class="astra-day-hero" aria-label="Lune et événements pour cette date">'+
         '<div class="astra-day-hero-copy"><p class="astra-hero-kicker">LE CIEL DU '+safe(new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'long',timeZone:'UTC'}).format(new Date(selected+'T12:00:00Z')).toLocaleUpperCase('fr-FR'))+'</p>'+
         '<div class="astra-hero-moon"><span class="astra-hero-moon-icon" aria-hidden="true">☾</span>'+
-        '<div><h2 class="astra-moon-title">Lune en '+safe(moonSign)+'</h2>'+
+        '<div><h2 class="astra-moon-title">'+(sky?'Lune en '+safe(moonSign):'Position lunaire indisponible')+'</h2>'+
         '<p class="astra-moon-phase">'+safe(moonStage)+'</p></div></div>'+
         '<p class="astra-sky-reference">Position à 12 h · '+safe(detectedZone)+' · '+(state.mode==='sidereal'?'sidéral':'tropical')+'</p>'+
         '<div class="astra-hero-stat"><strong>'+count+'</strong><span>'+(
@@ -312,7 +312,7 @@
       '<section class="astra-today-insights" aria-labelledby="astraTodayInsightsTitle">'+
         '<div class="astra-section-head"><h2 id="astraTodayInsightsTitle">À découvrir</h2><span>Pour '+(isCurrent?'aujourd’hui':'cette date')+'</span></div>'+
         '<div class="astra-insight-track" role="region" tabindex="0" aria-label="Informations et raccourcis du jour">'+
-          '<div class="astra-insight-tile as-sun"><span class="astra-tile-kicker">☉ SOLEIL</span><strong>Soleil en '+safe(sunSign)+'</strong><small>'+(sky?'À midi · '+safe(E.formatSign(sky.sunLongitude)):'Position indisponible')+'</small></div>'+
+          '<div class="astra-insight-tile as-sun"><span class="astra-tile-kicker">☉ SOLEIL</span><strong>'+(sky?'Soleil en '+safe(sunSign):'Position solaire indisponible')+'</strong><small>'+(sky?'À midi · '+safe(E.formatSign(sky.sunLongitude)):'Position indisponible')+'</small></div>'+
           '<button type="button" class="astra-insight-tile as-journal" data-goto="journal"><span class="astra-tile-kicker">✎ JOURNAL</span><strong>'+(entry?'Relire ma journée':'Noter ma journée')+'</strong><small>'+(entry?'Humeur '+entry.mood+'/5 enregistrée':'Émotions, humeur, souvenirs')+'</small><span class="astra-tile-arrow" aria-hidden="true">↗</span></button>'+
           '<button type="button" class="astra-insight-tile as-chart" data-goto="profile"><span class="astra-tile-kicker">✧ MON CIEL</span><strong>Ma carte de naissance</strong><small>Planètes, Soleil et Ascendant</small><span class="astra-tile-arrow" aria-hidden="true">↗</span></button>'+
         '</div></section>'+
