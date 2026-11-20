@@ -96,7 +96,7 @@
 :root[data-astra-theme="dark"] .bottom-nav .nav.active{color:#eaf7ff;background:#2c4c60}
 :root[data-astra-theme="dark"] .bottom-nav .nav.active .nav-ico{color:#bce8fa}
 :root[data-astra-theme="dark"] .top{background:var(--atlas-night);color:#fff}
-:root[data-astra-theme="dark"] .brand,.natal-home .natal-summary-sign{color:inherit}
+:root[data-astra-theme="dark"] .brand{color:inherit}
 :root[data-astra-theme="dark"] .brand-sub{color:#c8d8e3}
 :root[data-astra-theme="dark"] :is(.switch,.natal-segments,.natal-overview-tabs,
   .natal-transit-filters,.natal-filter-items,.natal-advanced-buttons){
