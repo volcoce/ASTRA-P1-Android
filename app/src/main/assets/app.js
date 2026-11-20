@@ -354,37 +354,51 @@
   }
 
   function natalDetail(chart){
-    const sel=natalSelection,h=chart.houses,sign=lng=>safe(E.formatSign(lng));
-    if(!sel)return '<div class="natal-selected-empty">Sélectionne une planète ou une maison sur la roue pour voir sa position et ses relations.</div>';
+    const sel=natalSelection,h=chart.houses;
+    const fmt=lng=>safe(chart.approximateNoon?'≈ '+E.formatSign(lng):E.formatSignExact(lng));
+    if(!sel)return '<div class="natal-selected-empty">Sélectionne une planète, une maison ou un aspect pour afficher ses données et leur lecture astrologique.</div>';
+    let text=null,technical='';
     if(sel.kind==='planet'){
       const lng=chart.positions[sel.id];
       if(!Number.isFinite(lng))return '';
-      const related=(chart.aspects||[]).filter(a=>a.a===sel.id||a.b===sel.id);
-      const out=related.map(a=>{
-        const other=a.a===sel.id?a.b:a.a;
-        return '<li>'+safe(planets[other])+' — '+safe(a.aspect)+', orbe '+a.orb.toFixed(2)+'°</li>';
-      }).join('');
-      return '<div class="natal-detail-body"><h3>'+natalGlyphs[sel.id]+' '+safe(planets[sel.id])+'</h3>'+
-        '<p><b>Longitude</b> '+sign(lng)+' · <b>Maison</b> '+(E.houseOf(lng,h.cusps)||'–')+'</p>'+
-        '<p><b>Aspects natals</b> '+related.length+' (orbe ≤ 5°)</p>'+
-        (out?'<ul>'+out+'</ul>':'<p>Aucun aspect natal majeur dans l’orbe retenu.</p>')+'</div>';
+      const house=h?E.houseOf(lng,h.cusps):null;
+      text=E.describeNatalPlanet(sel.id,lng,house,chart.approximateNoon);
+      const related=E.filterNatalAspects(chart.aspects||[],state.natalAspectFilter).filter(a=>a.a===sel.id||a.b===sel.id);
+      technical='<p class="natal-value">Position '+fmt(lng)+(house?' · Maison '+house:' · Maisons indisponibles')+'</p>'+
+        '<p>Aspects du filtre : '+related.length+'</p>'+
+        (related.length?'<div class="natal-related">'+related.map(a=>{
+          const other=a.a===sel.id?a.b:a.a;
+          return '<button type="button" data-natal-aspect="'+a.a+'-'+a.b+'">'+safe(planets[other])+
+            ' · '+safe(a.aspect)+' · '+safe(E.formatOrbExact(a.orb))+'</button>';
+        }).join('')+'</div>':'');
+      if(chart.approximateNoon&&sel.id==='Moon')technical+='<p class="natal-warning">La Lune peut changer de signe au cours de cette journée : sa position est indicative et ses aspects sont volontairement exclus.</p>';
+    }else if(sel.kind==='house'&&h){
+      const number=Number(sel.id);
+      if(!Number.isInteger(number)||number<1||number>12)return '';
+      const lng=h.cusps[number-1],occupants=Object.entries(chart.positions).filter(([,position])=>E.houseOf(position,h.cusps)===number);
+      text=E.describeNatalHouse(number,lng,occupants);
+      technical='<p class="natal-value">Cuspide '+fmt(lng)+'</p><p>Planètes dans la maison : '+occupants.length+'</p>'+
+        '<div class="natal-related">'+occupants.map(([body])=>'<button type="button" data-natal-body="'+body+'">'+safe(planets[body])+'</button>').join('')+'</div>';
+    }else if(sel.kind==='aspect'){
+      const aspect=(chart.aspects||[]).find(a=>a.a+'-'+a.b===sel.id);
+      if(!aspect)return '';
+      text=E.describeNatalAspect(aspect);
+      technical='<p class="natal-value">'+safe(planets[aspect.a])+' '+safe(aspect.glyph)+' '+safe(planets[aspect.b])+
+        ' · Orbe '+safe(E.formatOrbExact(aspect.orb))+'</p>';
     }
-    if(sel.kind==='house'){
-      const n=Number(sel.id);
-      if(!Number.isInteger(n)||n<1||n>12)return '';
-      const occupants=Object.entries(chart.positions).filter(([,lng])=>E.houseOf(lng,h.cusps)===n);
-      const listing=occupants.map(([body,lng])=>'<li>'+safe(planets[body])+' — '+sign(lng)+'</li>').join('');
-      return '<div class="natal-detail-body"><h3>Maison '+n+'</h3><p><b>Cuspide</b> '+sign(h.cusps[n-1])+'</p>'+
-        '<p><b>Planètes présentes</b> '+occupants.length+'</p>'+(listing?'<ul>'+listing+'</ul>':'<p>Aucune planète majeure dans cette maison.</p>')+'</div>';
-    }
-    return '';
+    if(!text)return '';
+    return '<article class="natal-detail-body">'+
+      '<h3>'+safe(text.title)+'</h3>'+technical+
+      '<div class="natal-fact"><b>Donnée calculée</b><p>'+safe(text.astronomy)+'</p></div>'+
+      '<div class="natal-symbolic"><b>Lecture astrologique traditionnelle</b><p>'+safe(text.convention)+'</p></div>'+
+      '<div class="natal-reflection"><b>Pour réfléchir</b><p>'+safe(text.question)+'</p></div>'+
+      '<p class="natal-disclaimer">'+safe(text.disclaimer)+'</p></article>';
   }
   function renderNatalChart(chart){
-    const h=chart.houses;
-    if(!h)return '';
-    const isFull=state.natalView==='complete',isTropical=state.natalZodiac==='tropical';
-    const sign=lng=>safe(E.formatSign(lng)),house=lng=>E.houseOf(lng,h.cusps);
-    const highlights=[['Soleil',chart.positions.Sun,'Sun'],['Lune',chart.positions.Moon,'Moon'],['Ascendant',h.ascendant,'H1'],['Milieu du Ciel',h.midheaven,'H10']];
+    const h=chart.houses,isFull=state.natalView==='complete',isTropical=state.natalZodiac==='tropical';
+    const uncertain=chart.approximateNoon===true;
+    const fmt=lng=>safe(uncertain?'≈ '+E.formatSign(lng):isFull?E.formatSignExact(lng):E.formatSign(lng));
+    const house=lng=>h?E.houseOf(lng,h.cusps):null;
     const controls='<div class="natal-control-stack">'+
       '<div class="natal-control"><span>Affichage</span><div role="group" aria-label="Niveau de détail du thème natal" class="natal-segments">'+
       '<button type="button" data-natal-view="essential" aria-pressed="'+(!isFull)+'" class="'+(!isFull?'on':'')+'">Essentiel</button>'+
@@ -392,35 +406,52 @@
       '<div class="natal-control"><span>Zodiaque</span><div role="group" aria-label="Zodiaque du thème natal" class="natal-segments">'+
       '<button type="button" data-natal-zodiac="tropical" aria-pressed="'+isTropical+'" class="'+(isTropical?'on':'')+'">Tropical</button>'+
       '<button type="button" data-natal-zodiac="sidereal" aria-pressed="'+(!isTropical)+'" class="'+(!isTropical?'on':'')+'">Sidéral</button></div></div></div>';
+    const filterNames={all:'Tous',Conjonction:'Conjonctions',Sextile:'Sextiles',Carré:'Carrés',Trigone:'Trigones',Opposition:'Oppositions'};
+    const filterBar='<section class="natal-filter"><h3 class="natal-subtitle">Filtrer les aspects natals</h3>'+
+      '<div class="natal-filter-items" role="group" aria-label="Type d’aspect natal">'+
+      Object.entries(filterNames).map(([name,label])=>{
+        const count=name==='all'?(chart.aspects||[]).length:(chart.aspects||[]).filter(a=>a.aspect===name).length;
+        return '<button type="button" data-natal-aspect-filter="'+name+'" aria-pressed="'+(state.natalAspectFilter===name)+'" class="'+(state.natalAspectFilter===name?'selected':'')+'">'+label+' <span>'+count+'</span></button>';
+      }).join('')+'</div></section>';
+    const filtered=E.filterNatalAspects(chart.aspects||[],state.natalAspectFilter);
+    const highlights=[['Soleil',chart.positions.Sun,'Sun'],['Lune',chart.positions.Moon,'Moon']];
+    if(h)highlights.push(['Ascendant',h.ascendant,'H1'],['Milieu du Ciel',h.midheaven,'H10']);
     const blocks=highlights.map(([label,lng,key])=>{
       const data=key.startsWith('H')?'data-natal-house="'+key.slice(1)+'"':'data-natal-body="'+key+'"';
-      return '<button type="button" class="natal-highlight" '+data+'><span>'+safe(label)+'</span><b>'+sign(lng)+'</b></button>';
+      return '<button type="button" class="natal-highlight" '+data+'><span>'+safe(label)+'</span><b>'+fmt(lng)+'</b></button>';
     }).join('');
     const bodyButtons=Object.entries(chart.positions).map(([body,lng])=>
       '<button type="button" class="natal-position" data-natal-body="'+body+'" aria-pressed="'+(natalSelection?.kind==='planet'&&natalSelection.id===body)+'">'+
       '<span class="position-planet"><span aria-hidden="true">'+natalGlyphs[body]+'</span>'+safe(planets[body])+'</span>'+
-      '<span class="position-value">'+sign(lng)+'</span><span class="position-house">M'+(house(lng)||'–')+'</span></button>').join('');
-    const houseButtons=h.cusps.map((lng,i)=>
+      '<span class="position-value">'+fmt(lng)+'</span>'+(h?'<span class="position-house">M'+(house(lng)||'–')+'</span>':'<span class="position-house">—</span>')+'</button>').join('');
+    const houseButtons=h?h.cusps.map((lng,i)=>
       '<button type="button" class="natal-house-chip" data-natal-house="'+(i+1)+'" aria-pressed="'+(natalSelection?.kind==='house'&&Number(natalSelection.id)===i+1)+'">'+
-      'Maison '+(i+1)+' <small>'+sign(lng)+'</small></button>').join('');
-    const aspects=(chart.aspects||[]).map(a=>
-      '<div class="natal-aspect"><span>'+safe(planets[a.a])+' <b>'+a.glyph+'</b> '+safe(planets[a.b])+'</span>'+
-      '<span>'+safe(a.aspect)+' · '+a.orb.toFixed(2)+'°</span></div>').join('');
+      'Maison '+(i+1)+' <small>'+fmt(lng)+'</small></button>').join(''):'';
+    const aspects=filtered.map(a=>
+      '<button type="button" class="natal-aspect" data-natal-aspect="'+a.a+'-'+a.b+'" aria-pressed="'+(natalSelection?.kind==='aspect'&&natalSelection.id===a.a+'-'+a.b)+'">'+
+      '<span>'+safe(planets[a.a])+' <b>'+a.glyph+'</b> '+safe(planets[a.b])+'</span>'+
+      '<span>'+safe(a.aspect)+' · '+safe(E.formatOrbExact(a.orb))+'</span></button>').join('');
+    const notice=uncertain?
+      '<div class="natal-warning" role="status"><b>Heure de naissance inconnue</b><p>Les positions sont calculées à midi local à titre indicatif. La Lune peut avoir sensiblement changé de place ou de signe pendant la journée. Ascendant et maisons non calculés ; aspects natals à la Lune et transits personnalisés exacts exclus.</p></div>':'';
+    const full=isFull?
+      '<h3 class="natal-subtitle">Positions planétaires'+(uncertain?' indicatives':' précises')+'</h3>'+
+      '<div class="natal-positions">'+bodyButtons+'</div>'+
+      (h?'<h3 class="natal-subtitle">Maisons</h3><div class="natal-houses">'+houseButtons+'</div>':'')+
+      '<h3 class="natal-subtitle">Aspects natals ('+filtered.length+')</h3>'+
+      '<div class="natal-aspects">'+(aspects||'<p class="muted">Aucun aspect avec ce filtre.</p>')+'</div>':'';
     return '<section class="card natal-card" id="natalChart">'+
       '<div class="section-row"><h2 class="card-title">Thème natal '+(isTropical?'tropical':'sidéral')+'</h2><span class="tag">'+(isFull?'Complet':'Essentiel')+'</span></div>'+
-      '<p class="tiny">Positions calculées pour ta naissance · Maisons '+safe(h.system)+'.</p>'+controls+
-      '<div class="natal-wheel-viewport" role="region" tabindex="0" aria-label="Roue natale. Sur petit écran, la faire défiler horizontalement pour voir les éléments masqués.">'+wheelSvg(chart)+'</div><div class="wheel-ring-legend" aria-label="Légende de la roue"><span><i class="sign-swatch"></i>Signes · 30°</span><span><i class="house-swatch"></i>Maisons · tailles variables</span></div><p class="wheel-caption">Les points à l’extérieur des glyphes marquent les degrés exacts. Les symboles sont espacés pour rester lisibles.</p><p class="wheel-caption">Zodiaque '+(isTropical?'tropical':'sidéral (Lahiri approximatif)')+
-      ' · Touchez une planète ou une maison pour explorer ses données.'+
-      (isFull?' Les aspects sont visibles au repos.':' Les aspects apparaissent lors de la sélection.')+'</p>'+
+      '<p class="tiny">'+(uncertain?'Date et ville connues, heure inconnue.': 'Positions calculées pour la date, l’heure et la ville de naissance · Maisons '+safe(h.system)+'.')+'</p>'+
+      controls+notice+filterBar+
+      '<div class="natal-wheel-viewport" role="region" tabindex="0" aria-label="Roue du thème natal">'+(h?wheelSvg(chart):wheelSvgDateOnly(chart))+'</div>'+
+      (h?'<div class="wheel-ring-legend" aria-label="Légende de la roue"><span><i class="sign-swatch"></i>Signes · 30°</span><span><i class="house-swatch"></i>Maisons · tailles variables</span></div>':'<p class="wheel-caption">Zodiaque seul : orientation fixe, aucun Ascendant ni aucune maison supposés.</p>')+
+      '<p class="wheel-caption">Les repères marquent les longitudes calculées ; les glyphes sont espacés pour rester lisibles. '+(uncertain?'Les positions sont indicatives.':'Les valeurs en degrés, minutes et secondes d’arc sont une précision d’affichage, non une garantie d’exactitude des éphémérides.')+'</p>'+
       '<div class="natal-highlights">'+blocks+'</div>'+
-      '<section id="natalSelectionInfo" class="natal-selection" aria-live="polite" aria-label="Détail de l’élément sélectionné">'+
-      natalDetail(chart)+'</section>'+
-      (isFull?'<h3 class="natal-subtitle">Positions planétaires</h3><div class="natal-positions">'+bodyButtons+'</div>'+
-      '<h3 class="natal-subtitle">Maisons</h3><div class="natal-houses">'+houseButtons+'</div>'+
-      '<h3 class="natal-subtitle">Aspects natals ('+(chart.aspects||[]).length+')</h3><div class="natal-aspects">'+(aspects||'<p class="muted">Aucun aspect retenu.</p>')+'</div>':'')+
-      (h.polarFallback?'<p class="notice">À cette latitude, les maisons égales remplacent Placidus.</p>':'')+
-      (h.approximateSidereal?'<p class="tiny">En sidéral, les maisons tropicales ont été décalées selon une approximation de l’ayanamsa Lahiri. La précision sidérale reste à valider.</p>':'')+
-      '<p class="tiny">Les degrés proviennent du calcul astronomique. Les significations astrologiques sont des interprétations, non des prédictions scientifiques.</p></section>';
+      '<section id="natalSelectionInfo" class="natal-selection" aria-live="polite" aria-label="Fiche de lecture de l’élément sélectionné">'+natalDetail(chart)+'</section>'+
+      full+
+      (h?.polarFallback?'<p class="notice">À cette latitude, les maisons égales remplacent Placidus.</p>':'')+
+      (h?.approximateSidereal?'<p class="tiny">Maisons sidérales et ayanamsa Lahiri approximatifs : validation approfondie requise.</p>':'')+
+      '<p class="tiny">La lecture symbolique relève de conventions astrologiques, non de prédictions scientifiquement établies.</p></section>';
   }
 
   function profile() {
