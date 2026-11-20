@@ -68,6 +68,77 @@
   let focusReturnScreen='overview';
   let selected = isoDay(new Date());
   let month = new Date(new Date().getFullYear(),new Date().getMonth(),1);
+  // Browser-only deep links. The Android shell keeps its native back handler.
+  const webRouting = !window.ASTRA_CHART_EXPORT && window.location.protocol !== 'file:' &&
+    typeof window.history?.pushState === 'function';
+  const routeTabs = new Set(['today','month','calendar','journal','profile']);
+  const routeScreens = new Set(['overview','explore','compare','settings','progressions','composite','focus']);
+  function validRouteDay(value){
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(value||''))return false;
+    const date=new Date(value+'T12:00:00Z');
+    return Number.isFinite(date.getTime())&&date.toISOString().slice(0,10)===value;
+  }
+  function validRouteMonth(value){
+    return /^\d{4}-(0[1-9]|1[0-2])$/.test(value||'');
+  }
+  function readBrowserRoute(){
+    if(!webRouting||!window.location.hash.startsWith('#/'))return null;
+    const parts=window.location.hash.slice(2).split('/');
+    if(parts.length>2||!routeTabs.has(parts[0]))return null;
+    const [tab,argument]=parts;
+    if(tab==='profile'){
+      if(argument&&!routeScreens.has(argument))return null;
+      return {tab,screen:argument||'overview'};
+    }
+    if(tab==='month'){
+      if(argument&&!validRouteMonth(argument))return null;
+      return {tab,month:argument||null};
+    }
+    if(argument&&!validRouteDay(argument))return null;
+    return {tab,day:argument||null};
+  }
+  function currentBrowserHash(){
+    if(activeTab==='profile')return '#/profile'+(profileScreen==='overview'?'':'/'+profileScreen);
+    if(activeTab==='month')return '#/month/'+month.getFullYear()+'-'+pad(month.getMonth()+1);
+    if(activeTab==='calendar'||activeTab==='journal')return '#/'+activeTab+'/'+selected;
+    return '#/today'+(selected===isoDay(new Date())?'':'/'+selected);
+  }
+  function writeBrowserRoute(method='push'){
+    if(!webRouting)return;
+    const hash=currentBrowserHash();
+    if(window.location.hash===hash)return;
+    window.history[method==='replace'?'replaceState':'pushState'](null,'',hash);
+  }
+  function applyBrowserRoute(route,{focus=true}={}){
+    if(!route)return;
+    captureBirthForm();
+    const beforeMonth=month.getFullYear()+'-'+month.getMonth();
+    if(route.tab==='month'){
+      const now=route.month||isoDay(new Date()).slice(0,7);
+      const [y,m]=now.split('-').map(Number);
+      month=new Date(y,m-1,1);
+      selected=isoDay(month);
+    }else if(route.day){
+      selected=route.day;
+      const [y,m]=selected.split('-').map(Number);
+      month=new Date(y,m-1,1);
+    }else if(route.tab==='today'){
+      selected=isoDay(new Date());
+      const [y,m]=selected.split('-').map(Number);
+      month=new Date(y,m-1,1);
+    }
+    activeTab=route.tab;
+    if(activeTab==='profile'){
+      profileScreen=state.profile?route.screen:'settings';
+      focusReturnScreen='overview';
+    }
+    natalSelection=null;openDetail=null;pendingDayFocus=null;
+    const afterMonth=month.getFullYear()+'-'+month.getMonth();
+    if(!result||afterMonth!==beforeMonth)refresh();
+    else render();
+    window.scrollTo({top:0,behavior:'instant'});
+    if(focus)$('app').querySelector('h1.page-title')?.focus({preventScroll:true});
+  }
   // The home feed is a glanceable overview, with detail revealed on request.
   let todayExpanded = false;
   let overviewPane='wheel';
@@ -1270,6 +1341,8 @@
       button.classList.toggle('active',active);
       button.setAttribute('aria-current',active?'page':'false');
     });
+    const heading=$('app').querySelector('h1.page-title');
+    if(heading)document.title=heading.textContent+' · ASTRA';
   }
   function go(tab) {
     if(!['today','month','calendar','journal','profile'].includes(tab))return;
@@ -1288,7 +1361,9 @@
     if(tab==='profile')profileScreen=state.profile?'overview':'settings';
     openDetail=null;
     if(needsRefresh)refresh();else render();
+    writeBrowserRoute('push');
     window.scrollTo({top:0,behavior:'instant'});
+    $('app').querySelector('h1.page-title')?.focus({preventScroll:true});
   }
   function refresh() {
     const token=++calcToken;
@@ -1312,6 +1387,7 @@
     const [year,mon]=day.split('-').map(Number);
     if(year!==month.getFullYear()||mon!==month.getMonth()+1){month=new Date(year,mon-1,1);refresh();}
     else render();
+    writeBrowserRoute('replace');
   }
   // Samsung system back / Android gesture back should navigate ASTRA, not
   // close the app while a sheet or subpage is still open.
@@ -1388,11 +1464,13 @@
     if(a.openFocus&&state.profile){
       captureBirthForm();focusReturnScreen=profileScreen;
       profileScreen='focus';natalSelection=null;render();
+      writeBrowserRoute('push');
       $('app').querySelector('[data-close-focus]')?.focus({preventScroll:true});
       return;
     }
     if(a.closeFocus){
       profileScreen=focusReturnScreen;natalSelection=null;render();
+      writeBrowserRoute('replace');
       [...$('app').querySelectorAll('[data-open-focus]')]
         .find(node=>node.getClientRects().length>0)?.focus({preventScroll:true});
       return;
@@ -1427,13 +1505,14 @@
       profileScreen=state.profile?a.profileScreen:'settings';
       if(profileScreen==='explore'){exploreSection='planets';exploreWheelOpen=false;}
       natalSelection=null;render();
+      writeBrowserRoute('push');
       window.scrollTo({top:0,behavior:'instant'});
       $('app').querySelector('h1.page-title')?.focus({preventScroll:true});
       return;
     }
     if(a.exploreTransits){
       captureBirthForm();profileScreen='compare';
-      natalSelection=null;render();window.scrollTo({top:0,behavior:'instant'});
+      natalSelection=null;render();writeBrowserRoute('push');window.scrollTo({top:0,behavior:'instant'});
       $('app').querySelector('h1.page-title')?.focus({preventScroll:true});return;
     }
     if(a.natalView){captureBirthForm();state.natalView=a.natalView==='complete'?'complete':'essential';persist();render();if(event.detail===0)$('app').querySelector('[data-natal-view="'+a.natalView+'"]')?.focus({preventScroll:true});return;}
@@ -1497,10 +1576,17 @@
     }
     if(a.goto){go(a.goto);return;}
     if(a.mode){state.mode=a.mode;openDetail=null;persist();refresh();return;}
-    if(a.month){month=new Date(month.getFullYear(),month.getMonth()+Number(a.month),1);selected=isoDay(month);openDetail=null;refresh();return;}
+    if(a.month){month=new Date(month.getFullYear(),month.getMonth()+Number(a.month),1);selected=isoDay(month);openDetail=null;refresh();writeBrowserRoute('replace');return;}
     if(a.day){pendingDayFocus=a.day;selectDay(a.day);return;}
     if(a.offset){const [year,mon,day]=selected.split('-').map(Number);selectDay(isoDay(new Date(year,mon-1,day+Number(a.offset))));return;}
-    if(a.event!==undefined){openDetail=renderedEvents[Number(a.event)]||null;render();$('detailPanel')?.scrollIntoView({behavior:'smooth',block:'start'});return;}
+    if(a.event!==undefined){
+      openDetail=renderedEvents[Number(a.event)]||null;render();
+      $('detailPanel')?.scrollIntoView({
+        behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',
+        block:'start'
+      });
+      return;
+    }
     if(a.close){openDetail=null;render();return;}
     if(a.prompt){journalDraft=null;initDraft();journalDraft.note=[journalDraft.note,a.prompt+'\n'].filter(Boolean).join('\n').trimStart();go('journal');return;}
     if(a.mood){captureDraft();journalDraft.mood=Number(a.mood);render();return;}
@@ -1684,5 +1770,18 @@
       showValidationError('birth',field,message);
     }
   });
-  render();refresh();
+  window.addEventListener('popstate',()=>{
+    const route=readBrowserRoute();
+    if(route)applyBrowserRoute(route);
+    else{
+      applyBrowserRoute({tab:'today',day:null});
+      writeBrowserRoute('replace');
+    }
+  });
+  const initialBrowserRoute=readBrowserRoute();
+  if(initialBrowserRoute)applyBrowserRoute(initialBrowserRoute,{focus:false});
+  else{
+    render();refresh();
+    writeBrowserRoute('replace');
+  }
 })();
