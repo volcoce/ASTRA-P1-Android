@@ -18,11 +18,13 @@
 | Écran | Question utilisateur | Visible d'emblée (P0) | Secondaire (P1) | À la demande (P2) |
 | --- | --- | --- | --- | --- |
 | **Ce jour** | Qu'y a-t-il dans le ciel pour la date sélectionnée ? | Sélection de semaine, résumé du jour, accès aux événements | Cartes Lune / Journal / Mon ciel, trois premiers événements | Autres événements, aspects en cours, calcul détaillé |
-| **Dates** | À quelle date est cet événement ? | Mois, jours sélectionnables, événements du jour | Indicateurs d'événements et notes | Filtres, tropical/sidéral, autres détails |
-| **Journal** | Comment noter mon ressenti ? | Date, humeur, zone de note, Enregistrer | Énergie, thèmes facultatifs | Tendances, historique, recherche, suppression |
+| **Ce mois** | Que se passe-t-il pendant le mois affiché ? | Mois, nombre d'événements calculés, Nouvelles Lunes et Pleines Lunes | Premiers événements du mois et jours consignés | Dates détaillées, accès au journal |
+| **Calendrier** | À quelle date est cet événement ? | Grille mensuelle, jour choisi, marqueurs lunaires | Événements de la date, prochaines phases | Filtres, tropical/sidéral, autres détails |
 | **Mon ciel** | Quel est mon thème et comment le comprendre ? | Soleil/Lune/Ascendant en clair, « Comprendre mon thème », carte de naissance | « Comparer deux dates », lecture d'une planète | Matrice d'aspects, systèmes de maisons, détails techniques et exports |
 
-**Nouveau profil :** une seule carte de démarrage avec un appel à l'action « Créer ma carte de naissance », les champs de naissance et l'explication des données locales. Ne pas saturer chaque page de messages techniques. Le Journal doit rester accessible sans thème natal.
+**Journal secondaire :** le Journal n'est plus un onglet principal, mais reste accessible depuis Ce jour, Ce mois et les fiches d'événements, y compris sans thème natal. Ses données locales et ses fonctions de saisie/recherche/sauvegarde ne changent pas.
+
+**Nouveau profil :** une seule carte de démarrage avec un appel à l'action « Créer ma carte de naissance », les champs de naissance et l'explication des données locales. Ne pas saturer chaque page de messages techniques.
 
 **Naissance sans heure connue :** ne pas inventer Ascendant ou maisons. Afficher une explication courte, conserver les données calculables, marquer les données incertaines.
 
@@ -54,7 +56,7 @@
 │ └──────────────────────────────┘ │
 │ Aspects en cours              ▾  │  disclosure
 ├──────────────────────────────────┤
-│ Ce jour   Dates  Journal Mon ciel │  navigation fixe
+│ Ce jour Ce mois Calendr. Mon ciel │  navigation fixe
 └──────────────────────────────────┘
 ```
 
@@ -66,9 +68,9 @@ Le *résumé* ne doit pas être une métrique spectaculaire mais vide de sens : 
 
 Quatre destinations persistantes, dans cet ordre :
 
-1. **Ce jour** (icône soleil) — état de référence, résumé et semaine.
-2. **Dates** (icône calendrier) — navigation temporelle complète.
-3. **Journal** (icône carnet) — saisie et historique personnel.
+1. **Ce jour** (icône soleil) — journée sélectionnée, résumé et semaine.
+2. **Ce mois** (icône vue mensuelle) — synthèse du mois et phases majeures de ce mois.
+3. **Calendrier** (icône calendrier) — grille complète, sélection et événements détaillés.
 4. **Mon ciel** (icône étoile) — thème natal, compréhension et comparaison.
 
 La navigation doit toujours afficher **icône + texte**. L'état actif se distingue par fond et typographie, pas seulement la couleur. La barre demeure accessible sauf quand le clavier virtuel couvre la zone utile ou qu'une vue immersive modale est ouverte.
@@ -76,8 +78,9 @@ La navigation doit toujours afficher **icône + texte**. L'état actif se distin
 ### Navigation secondaire
 
 - **Ce jour** — semaine précédente/suivante, choix du jour, « Voir les événements » et phase lunaire de la journée seulement. Ne pas afficher de chronologie lunaire future ni ajouter de bouton de progression conversationnelle dans l’application.
-- **Dates** — mois précédent/suivant, jour sélectionné, Nouvelle Lune et Pleine Lune colorées, quatre prochaines phases lunaires interactives ; filtres dans « Options d'affichage ».
-- **Journal** — jour précédent/suivant, sauvegarde visible ; historique sous la saisie.
+- **Ce mois** — mois précédent/suivant, compte réel d'événements, phases majeures du mois, cinq premiers événements et accès au calendrier.
+- **Calendrier** — mois précédent/suivant, jour sélectionné, Nouvelle Lune et Pleine Lune colorées, quatre prochaines phases lunaires interactives ; filtres dans « Options d'affichage ».
+- **Journal (secondaire)** — accès depuis une carte ou une fiche, retour à Ce jour, jour précédent/suivant, sauvegarde et historique sous la saisie.
 - **Mon ciel** — trois vues de la même carte : « Roue / Planètes / Aspects ». Deux parcours à intitulés compréhensibles restent disponibles : « Comprendre mon thème » et « Comparer deux dates ». Le glossaire est contextuel ; les progressions et la carte composite sont repliées dans les outils avancés.
 - **Réglages** — paramètres essentiels en premier, « Options avancées » et exports repliables.
 

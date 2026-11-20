@@ -17,7 +17,7 @@ Do not reproduce Flo's visual branding. The reusable information architecture is
 4. A vertically scrolling feed of first events with explicit expansion for the remainder.
 5. Secondary in-orb aspects under an accessible disclosure. Ensure no user loses the underlying astronomical data.
 
-Keep the **bottom navigation persistent** while the viewport is not occupied by the keyboard. Use text labels, not just planet symbols. At 320 CSS pixels, only the secondary widget rail scrolls horizontally; the page must never scroll sideways.
+Use exactly four bottom tabs in this order: **Ce jour / Ce mois / Calendrier / Mon ciel**. The journal is a secondary route accessible from day and month widgets and without a natal profile. Keep the **bottom navigation persistent** while the viewport is not occupied by the keyboard. Use text labels, not just planet symbols. At 320 CSS pixels, only the secondary widget rail scrolls horizontally; the page must never scroll sideways.
 
 This document complements `README.md` and protects P0–P2 usability improvements. It is not permission to replace the existing palette, calculations, personal data storage, navigation, or technologies wholesale.
 

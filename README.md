@@ -1,11 +1,23 @@
-# ASTRA Public — Preview 0.8.1
+# ASTRA Public — Preview 0.8.2
 
 **Référence UI/UX du projet :** [UI_ARCHITECTURE.md](UI_ARCHITECTURE.md) pour la hiérarchie, la navigation, les composants et l'accessibilité ; [DESIGN.md](DESIGN.md) pour l'identité visuelle. Les règles pour assistants de code sont dans [AGENTS.md](AGENTS.md).
+
+## Navigation en quatre univers (Preview 0.8.2)
+
+La navigation principale suit maintenant exactement cet ordre, dans la barre inférieure : **Ce jour / Ce mois / Calendrier / Mon ciel**.
+
+- **Ce jour** : choix du jour, phase lunaire de cette journée, événements et raccourci vers le journal.
+- **Ce mois** : synthèse du mois affiché (nombre réel d'événements exacts et de jours concernés), jours notés, Nouvelles Lunes et Pleines Lunes du mois et cinq premiers événements. Les raccourcis ouvrent la date correspondante dans le calendrier.
+- **Calendrier** : grille complète des dates, repères lunaires colorés, tous les événements du jour et prochaines phases lunaires.
+- **Mon ciel** : thème natal, lecture roue/planètes/aspects, transits et outils avancés.
+- **Journal** : toujours accessible depuis la carte de « Ce jour », le bilan mensuel, les questions de journal et même sans profil natal ; un lien « Retour à Ce jour » remplace l'ancien onglet. Les données sauvegardées ne changent pas.
+
+Le résumé mensuel n'affiche aucun chiffre de zéro inventé pendant le chargement. Les tests contrôlent le contenu et les transitions sur des résolutions mobiles, tablette et bureau.
 
 ## Phases lunaires au bon endroit (Preview 0.8.1)
 
 - **Ce jour** se limite à la date choisie : la carte « Lune » affiche sa phase indicative, sans chronologie des phases futures.
-- **Dates** présente le calendrier et les événements du jour, puis les quatre phases lunaires suivantes. Les jalons, calculés astronomiquement, ouvrent la date correspondante dans le calendrier.
+- **Calendrier** présente le calendrier et les événements du jour, puis les quatre phases lunaires suivantes. Les jalons, calculés astronomiquement, ouvrent la date correspondante dans le calendrier.
 - Les repères violet/doré de Nouvelle Lune et Pleine Lune restent dans les cases du mois.
 - Un test navigateur empêche le retour des phases futures dans « Ce jour » et vérifie leur emplacement ainsi que le lien depuis le calendrier.
 
