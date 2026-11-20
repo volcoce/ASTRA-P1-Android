@@ -2,7 +2,7 @@ import * as Astronomy from 'astronomy-engine';
 import {describeEvent, DISCLAIMER} from './interpretations.mjs';
 import {searchCities, normalizePlace} from './places.mjs';
 import {tropicalHouses,houseOf,natalAspects} from './natal.mjs';
-import {ASPECTS,TARGETS,mod,signed,angularDistance,zodiacLongitude,formatSign,localToUtc,isoDay,validateProfile} from './core.mjs';
+import {ASPECTS,TARGETS,mod,signed,angularDistance,zodiacLongitude,lahiriApprox,formatSign,localToUtc,isoDay,validateProfile} from './core.mjs';
 export {ASPECTS,formatSign,localToUtc,validateProfile,describeEvent,DISCLAIMER,searchCities,normalizePlace,houseOf};
 export const BODIES=['Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto'];
 export const BODY_FR={Sun:'Soleil',Moon:'Lune',Mercury:'Mercure',Venus:'Vénus',Mars:'Mars',Jupiter:'Jupiter',Saturn:'Saturne',Uranus:'Uranus',Neptune:'Neptune',Pluto:'Pluton'};
@@ -24,7 +24,16 @@ export function longitude(body,date,mode='tropical') {return zodiacLongitude(tro
 export function natalChart(profile,mode='tropical') {
   const birth=validateProfile(profile);
   const positions=Object.fromEntries(BODIES.map(body=>[body,longitude(body,birth,mode)]));
-  const houses=mode==='tropical'?tropicalHouses(birth,profile.latitude,profile.longitude,Astronomy.SiderealTime(birth)):null;
+  const tropical=tropicalHouses(birth,profile.latitude,profile.longitude,Astronomy.SiderealTime(birth));
+  // Sidereal cusps use the same local horizon and Placidus geometry, with longitudes
+  // shifted by the approximate Lahiri ayanamsa. No saved profile or lookup tables.
+  const shift=mode==='sidereal'?lahiriApprox(birth):0;
+  const houses=shift===0?tropical:{
+    ...tropical,ascendant:mod(tropical.ascendant-shift),
+    midheaven:mod(tropical.midheaven-shift),
+    cusps:tropical.cusps.map(value=>mod(value-shift)),
+    approximateSidereal:true
+  };
   return {birth:birth.toISOString(),positions,houses,aspects:natalAspects(positions),zodiac:mode,engine:'astronomy-engine@2.1.19'};
 }
 export function moonPhase(date) {return Astronomy.MoonPhase(date);}
