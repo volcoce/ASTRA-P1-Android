@@ -211,6 +211,28 @@
         '</button>').join('')+'</div>'+
       '<p class="astra-section-help">Dates des quatre prochaines phases à partir du jour sélectionné. Touche une phase pour ouvrir cette journée.</p></section>';
   }
+  // Simple monochrome Moon icons with actual phase geometry; no color emoji
+  // variance between Android WebView and desktop rendering.
+  function moonPhaseIcon(angle,variant='calendar'){
+    if(!Number.isFinite(angle))return '';
+    const index=Math.floor(((((angle%360)+360)%360)+22.5)/45)%8;
+    const shapes=[
+      '',
+      'M12 3 A9 9 0 0 1 12 21 C16.5 18.8 16.5 5.2 12 3 Z',
+      'M12 3 A9 9 0 0 1 12 21 L12 3 Z',
+      'M12 3 A9 9 0 0 1 12 21 C8 18.8 8 5.2 12 3 Z',
+      'M12 3 A9 9 0 0 1 12 21 A9 9 0 0 1 12 3 Z',
+      'M12 3 A9 9 0 0 0 12 21 C16 18.8 16 5.2 12 3 Z',
+      'M12 3 A9 9 0 0 0 12 21 L12 3 Z',
+      'M12 3 A9 9 0 0 0 12 21 C8 18.8 8 5.2 12 3 Z'
+    ];
+    return '<svg class="astra-phase-graphic astra-phase-'+index+' '+variant+
+      '" viewBox="0 0 24 24" focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">'+
+      '<circle class="phase-night" cx="12" cy="12" r="9"/>'+
+      (index===4?'<circle class="phase-light" cx="12" cy="12" r="9"/>':
+        shapes[index]?'<path class="phase-light" d="'+shapes[index]+'"/>':'')+
+      '</svg>';
+  }
   function lunarLabel(angle){
     if(!Number.isFinite(angle))return 'Phase non disponible';
     const value=((angle%360)+360)%360;
@@ -324,14 +346,14 @@
       weekStrip()+birthTimeWarning()+
       '<section class="astra-day-hero" aria-label="Lune et événements pour cette date">'+
         '<div class="astra-day-hero-copy"><p class="astra-hero-kicker">LE CIEL DU '+safe(new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'long',timeZone:'UTC'}).format(new Date(selected+'T12:00:00Z')).toLocaleUpperCase('fr-FR'))+'</p>'+
-        '<div class="astra-hero-moon"><span class="astra-hero-moon-icon" aria-hidden="true">☾</span>'+
+        '<div class="astra-hero-moon"><span class="astra-hero-moon-icon" aria-hidden="true">'+moonPhaseIcon(sky?.moonPhase,'hero')+'</span>'+
         '<div><h2 class="astra-moon-title">'+(sky?'Lune en '+safe(moonSign):'Position lunaire indisponible')+'</h2>'+
         '<p class="astra-moon-phase">'+safe(moonStage)+'</p></div></div>'+
         '<p class="astra-sky-reference">Position à 12 h · '+safe(zone)+' · '+(state.mode==='sidereal'?'sidéral':'tropical')+'</p>'+
         dailyLunarMoments+
         '<div class="astra-hero-stat"><strong>'+count+'</strong><span>'+(
           count===1?'événement calculé':'événements calculés')+' pour cette date</span></div></div>'+
-        '<div class="astra-hero-orbit" aria-hidden="true"><span>☾</span></div>'+
+        '<div class="astra-hero-orbit" aria-hidden="true">'+moonPhaseIcon(sky?.moonPhase,'orbit')+'</div>'+
         '<button type="button" class="astra-hero-link" data-scroll-to="todayEvents">Voir les événements <span aria-hidden="true">↓</span></button>'+
       '</section>'+status()+
       '<section class="astra-today-insights" aria-labelledby="astraTodayInsightsTitle">'+
@@ -426,20 +448,25 @@
     for(let d=1;d<=count;d++){
       const day=`${year}-${pad(m+1)}-${pad(d)}`,entry=classify(result?.days?.[day]);
       const total=entry.exact.length+entry.sky.length;
-      // Highlight the actual moon-quarter event of the local calendar day,
-      // independently from filters that may hide events in the list below.
-      const sky=result?.days?.[day]?.sky||[];
+      const calendarDay=result?.days?.[day];
+      // Mark real phase events and exact transit-Sun-to-natal-planet aspects.
+      // Both markers ignore the active Calendar event filters.
+      const sky=calendarDay?.sky||[];
       const isNew=sky.some(e=>e.type==='moon'&&e.name==='Nouvelle Lune');
       const isFull=sky.some(e=>e.type==='moon'&&e.name==='Pleine Lune');
       const phase=isNew?'new':isFull?'full':null;
       const phaseLabel=phase==='new'?'Nouvelle Lune':phase==='full'?'Pleine Lune':'';
-      const phaseGlyph=phase==='new'?'●':'○';
-      cells.push(`<button class="day ${day===selected?'selected':''} ${day===isoDay(new Date())?'today':''} ${phase?'moon-'+phase:''}" data-day="${day}" aria-label="${day}, ${total} événement(s) exact(s), ${entry.active.length} aspect(s) actif(s)${phase?', '+phaseLabel:''}">${d}<span class="count">${total?total+' ✦':entry.active.length?entry.active.length+' ~':''}</span>${phase?'<span class="moon-phase-badge" aria-hidden="true">'+phaseGlyph+'</span>':''}${state.journal[day]?'<span class="pinhole"></span>':''}</button>`);
+      const sunCount=(calendarDay?.exact||[]).filter(e=>e.type==='exact'&&e.body==='Sun').length;
+      const phaseAngle=calendarDay?.moonPhaseAtNoon;
+      const phaseName=lunarLabel(phaseAngle);
+      const moonIndicator=Number.isFinite(phaseAngle)?
+        '<span class="moon-phase-badge" aria-hidden="true">'+moonPhaseIcon(phaseAngle)+'</span>':'';
+      cells.push(`<button class="day ${day===selected?'selected':''} ${day===isoDay(new Date())?'today':''} ${phase?'moon-'+phase:''} ${sunCount?'sun-exact':''}" data-day="${day}" aria-label="${day}, ${total} événement(s) exact(s), ${entry.active.length} aspect(s) actif(s)${Number.isFinite(phaseAngle)?', '+phaseName+' à midi':''}${phase?', '+phaseLabel:''}${sunCount?', '+sunCount+' aspect(s) exact(s) du Soleil':''}">${d}<span class="count">${total?total+' ✦':entry.active.length?entry.active.length+' ~':''}</span>${moonIndicator}${sunCount?'<span class="sun-aspect-line" aria-hidden="true"></span>':''}${state.journal[day]?'<span class="pinhole"></span>':''}</button>`);
     }
     const day=currentDay(),events=dayEvents(day);
     return header('Calendrier','Choisis une date pour découvrir les événements du ciel.')+birthTimeWarning()+
       `<div class="month-head"><button class="arrow" data-month="-1" aria-label="Mois précédent">‹</button><h2>${safe(new Intl.DateTimeFormat('fr-FR',{month:'long',year:'numeric'}).format(month))}</h2><button class="arrow" data-month="1" aria-label="Mois suivant">›</button></div>`+'<details class="calendar-options"><summary>Options d’affichage</summary>'+switcher()+filters()+'</details>'+
-      `<div class="calendar"><div class="cal-grid">${['L','M','M','J','V','S','D'].map(x=>`<span class="weekday">${x}</span>`).join('')}${cells.join('')}</div><div class="calendar-phase-legend" aria-label="Légende des phases lunaires"><span class="cal-legend-item"><span class="moon-phase-legend-dot new" aria-hidden="true">●</span> Nouvelle Lune</span><span class="cal-legend-item"><span class="moon-phase-legend-dot full" aria-hidden="true">○</span> Pleine Lune</span></div><p class="tiny">✦ contact exact · ~ aspect à midi · point rose : journal</p></div>${status()}`+
+      `<div class="calendar"><div class="cal-grid">${['L','M','M','J','V','S','D'].map(x=>`<span class="weekday">${x}</span>`).join('')}${cells.join('')}</div><div class="calendar-phase-legend" aria-label="Légende des marqueurs du calendrier"><span class="cal-legend-item"><span class="moon-phase-legend-dot new" aria-hidden="true">${moonPhaseIcon(0)}</span> Nouvelle Lune</span><span class="cal-legend-item"><span class="moon-phase-legend-dot full" aria-hidden="true">${moonPhaseIcon(180)}</span> Pleine Lune</span><span class="cal-legend-item"><span class="moon-phase-legend-mini" aria-hidden="true">${moonPhaseIcon(90)}</span> Icône : phase à midi</span><span class="cal-legend-item"><span class="sun-aspect-legend" aria-hidden="true"></span> Trait doré : aspect exact du Soleil</span></div><p class="tiny">✦ contact exact · ~ aspect à midi · point rose : journal</p></div>${status()}`+
       `<section class="card"><div class="section-row"><h2 class="card-title">${safe(displayDate(selected))}</h2></div><div class="pill-row"><span class="tag">${events.length} événement(s)</span><span class="tag-outline">${day.active.length} actif(s)</span></div>${events.map(row).join('')||'<p class="tiny">Aucun événement exact ce jour.</p>'}${day.active.slice(0,30).map(e=>row({...e,type:'active'})).join('')}</section>`+detailView()+lunarTimeline();
   }
   function initDraft() {
