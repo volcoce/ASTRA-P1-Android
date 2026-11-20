@@ -672,7 +672,7 @@
     const signLabels=['Bélier','Taureau','Gémeaux','Cancer','Lion','Vierge',
       'Balance','Scorpion','Sagittaire','Capricorne','Verseau','Poissons'];
     const summaryItems=highlights.filter(([,,key])=>key!=='H10');
-    const quickCards=summaryItems.map(([label,lng,key],index)=>{
+    const quickCards=summaryItems.map(([label,lng,key])=>{
       const isAngle=key==='H1';
       const signIndex=Math.floor(((lng%360)+360)%360/30);
       const glyph=isAngle?'↑':key==='Sun'?'☼':'☽';
@@ -680,13 +680,12 @@
       const attr=isAngle?'data-natal-house="1"':'data-natal-body="'+key+'"';
       const chosen=natalSelection?.kind===(isAngle?'house':'planet')&&String(natalSelection.id)===(isAngle?'1':key);
       const approx=uncertain&&key==='Moon';
-      return (index?'<span class="natal-glyph-separator" aria-hidden="true">|</span>':'')+
-        '<button type="button" class="natal-summary-item" '+attr+' aria-pressed="'+chosen+'"'+
+      return '<button type="button" class="natal-summary-item" '+attr+' aria-pressed="'+chosen+'"'+
         ' aria-label="'+safe(label+' en '+signLabels[signIndex]+(approx?', position indicative':''))+'">'+
         '<span class="natal-summary-icon" aria-hidden="true">'+glyph+'</span>'+
+        '<span class="natal-summary-name">'+safe(label)+'</span>'+
         '<span class="natal-summary-sign" aria-hidden="true">'+sign+'</span>'+
-        (approx?'<span class="natal-summary-approx" aria-label="Position indicative">≈</span>':'')+
-        '<span class="natal-summary-name sr-only">'+safe(label)+'</span>'+
+        '<span class="natal-summary-value">'+safe(signLabels[signIndex])+(approx?' ≈':'')+'</span>'+
         '</button>';
     }).join('');
     const contextSheet=natalSelection?
@@ -696,7 +695,7 @@
       '<div class="natal-context-content">'+selectedDetail+'</div></section>':'';
     const shortCaption=uncertain
       ?'<p class="natal-home-hint">Heure inconnue : la Lune est indicative. Ascendant et maisons non calculés.</p>'
-      :'<p class="natal-home-hint">Touchez une planète de la roue pour la découvrir.</p>';
+      :'<p class="natal-home-hint">Appuie sur une planète pour savoir ce qu’elle représente.</p>';
     const pageBack='<button type="button" class="natal-back" data-profile-screen="overview">← Mon ciel</button>';
     const focusLaunch='<div class="natal-focus-launch"><button type="button" data-open-focus="1" aria-label="Agrandir la roue du ciel">Agrandir la roue <span aria-hidden="true">⤢</span></button></div>';
     if(isFocus){
@@ -729,23 +728,23 @@
       const homeSvg=svg.replace(/class="natal-wheel([^"]*)"/,(_,rest)=>
         'class="natal-wheel'+rest+'" style="width:100%;min-width:0;max-width:none"');
       return '<section class="card natal-card natal-home" id="natalChart">'+
-        '<div class="natal-home-header"><div><h2 class="card-title">Ma carte du ciel</h2>'+
-        '<p class="natal-home-subtitle">Thème natal · '+(isTropical?'Tropical':'Sidéral')+'</p></div>'+
+        '<div class="natal-home-header"><div><h2 class="card-title">Ta carte de naissance</h2>'+
+        '<p class="natal-home-subtitle">Positions à ta naissance · '+(isTropical?'Tropical':'Sidéral')+'</p></div>'+
         '<button type="button" class="natal-settings-link" data-profile-screen="settings">Réglages</button></div>'+
         (uncertain?notice:'')+
         '<div class="natal-primary-cards'+(h?'':' natal-primary-cards--two')+'" role="group" aria-label="Soleil, Lune et Ascendant en signes astrologiques">'+quickCards+'</div>'+
         '<div class="natal-wheel-viewport" role="region" tabindex="0" aria-label="Roue natale interactive">'+homeSvg+'</div>'+
         shortCaption+focusLaunch+
         contextSheet+
-        '<div class="natal-home-actions"><button type="button" class="natal-main-action" data-profile-screen="explore">Explorer mon thème <span aria-hidden="true">›</span></button>'+
-        '<button type="button" class="natal-secondary-action" data-explore-transits="1">Comparer avec les transits <span aria-hidden="true">›</span></button></div>'+
+        '<div class="natal-home-actions"><button type="button" class="natal-main-action" data-profile-screen="explore"><span class="action-label"><strong>Comprendre mon thème</strong><small>Planètes, signes et maisons</small></span><span class="action-arrow" aria-hidden="true">→</span></button>'+
+        '<button type="button" class="natal-secondary-action" data-explore-transits="1"><span class="action-label"><strong>Comparer deux dates</strong><small>Le ciel d’un autre jour</small></span><span class="action-arrow" aria-hidden="true">→</span></button></div>'+
         (h?.polarFallback?'<p class="notice">Maisons égales utilisées à cette latitude.</p>':'')+
         '</section>';
     }
     if(isSettings){
       return '<section class="card natal-card natal-settings" id="natalChart">'+
-        '<div class="natal-subpage-heading">'+pageBack+'<h2 class="card-title">Réglages du thème</h2>'+
-        '<p class="natal-section-lead">Personnalise les calculs et les outils de la carte. Les données de naissance se modifient plus bas.</p></div>'+
+        '<div class="natal-subpage-heading">'+pageBack+'<h2 class="card-title">Personnaliser la carte</h2>'+
+        '<p class="natal-section-lead">Choisis ton affichage. Tes informations de naissance sont plus bas.</p></div>'+
         '<div class="natal-settings-controls">'+controls+advancedControls+'</div>'+
         '<details class="natal-preview-disclosure"'+(settingsPreviewOpen?' open':'')+'><summary>Aperçu de la carte et export graphique</summary>'+
         '<div class="natal-wheel-viewport" role="region" tabindex="0" aria-label="Aperçu de la carte astrologique">'+resized+'</div>'+
@@ -756,12 +755,12 @@
     if(isCompare){
       const contacts=transitSnapshot?.contacts||[];
       const comparing='<div class="natal-transit-time">'+
-        '<label for="transitDay">Date des transits<input id="transitDay" type="date" min="1900-01-01" max="2100-12-31" value="'+safe(state.transitDay)+'"></label>'+
-        '<label for="transitTime">Heure locale<input id="transitTime" type="time" value="'+safe(state.transitTime)+'"></label>'+
+        '<label for="transitDay">Date à comparer<input id="transitDay" type="date" min="1900-01-01" max="2100-12-31" value="'+safe(state.transitDay)+'"></label>'+
+        '<label for="transitTime">Heure<input id="transitTime" type="time" value="'+safe(state.transitTime)+'"></label>'+
         '</div><p class="natal-compare-zone">Fuseau utilisé : '+safe(detectedZone)+'</p>';
       const contactList=transitSnapshot?
-        '<section class="natal-contact-section"><h3>Contacts à cet instant <span>'+contacts.length+'</span></h3>'+
-        '<p>Écarts angulaires calculés dans les orbes automatiques. Sélectionne une planète pour les détails.</p>'+
+        '<section class="natal-contact-section"><h3>Liens entre les planètes <span>'+contacts.length+'</span></h3>'+
+        '<p>Les angles entre les planètes de cette date et celles de ta naissance. Appuie pour en savoir plus.</p>'+
         (contacts.length?'<div class="natal-contact-list">'+contacts.slice(0,16).map(c=>
           '<button type="button" data-transit-body="'+c.body+'" aria-pressed="'+(natalSelection?.kind==='transit'&&natalSelection.id===c.body)+'"><span>'+safe(planets[c.body])+
           ' '+safe(c.glyph)+' '+safe(planets[c.natal])+'</span><small>Écart '+safe(E.formatOrbExact(c.delta))+
@@ -770,8 +769,8 @@
         '</section>':'';
       return '<section class="card natal-card natal-compare" id="natalChart">'+
         '<div class="natal-subpage-heading">'+pageBack+
-        '<h2 class="card-title">Comparer avec les transits</h2>'+
-        '<p class="natal-section-lead">La roue intérieure est ton ciel de naissance. La roue extérieure montre les positions à la date choisie.</p>'+
+        '<h2 class="card-title">Deux ciels, une seule carte</h2>'+
+        '<p class="natal-section-lead">Au centre : ton ciel de naissance. À l’extérieur : les planètes à la date choisie.</p>'+
         '<button type="button" class="natal-settings-link" data-profile-screen="settings">Réglages</button></div>'+
         comparing+notice+(transitError?'<p class="notice" role="alert">'+safe(transitError)+'</p>':'')+
         '<div class="natal-wheel-viewport" role="region" tabindex="0" aria-label="Roue double, natal et transits">'+resized+'</div>'+
@@ -790,11 +789,11 @@
     const matrixDetails='<details class="natal-matrix-disclosure"'+(aspectMatrixOpen?' open':'')+'>'+
       '<summary>Afficher la matrice des aspects</summary>'+renderAspectMatrix(chart)+'</details>';
     const aspectsList='<section class="natal-explore-list"><h3>Aspects natals</h3>'+
-      '<p>Les aspects indiquent des écarts angulaires entre planètes. Filtre ceux que tu souhaites étudier.</p>'+
+      '<p>Les aspects sont les angles entre les planètes à ta naissance.</p>'+
       filterBar+'<div class="natal-aspects">'+(aspects||'<p class="natal-contact-empty">Aucun aspect avec ce filtre.</p>')+'</div>'+
       matrixDetails+'</section>';
     const planetList='<section class="natal-explore-list"><h3>Mes planètes</h3>'+
-      '<p>Touche une planète pour lire sa position, sa maison et ses interprétations.</p>'+
+      '<p>Découvre dans quel signe se trouvait chaque planète à ta naissance.</p>'+
       '<div class="natal-positions">'+bodyButtons+'</div></section>';
     const housesList='<section class="natal-explore-list"><h3>Mes maisons</h3>'+
       '<p>Les maisons représentent les domaines de vie dans la tradition astrologique.</p>'+
@@ -822,14 +821,14 @@
     const foldPicker=placeSearch.needFold&&d.timeKnown?`<div class="field"><label for="fold">Cette heure locale a existé deux fois</label><select id="fold" name="fold" required><option value="">Choisir l’occurrence</option><option value="0" ${d.fold===0?'selected':''}>Première occurrence (avant le retour à l’heure d’hiver)</option><option value="1" ${d.fold===1?'selected':''}>Deuxième occurrence (après le retour à l’heure d’hiver)</option></select><p class="field-help">Ce cas rare ne peut pas être déduit de la ville et de l’heure seules. Consulte l’heure indiquée sur l’acte de naissance.</p></div>`:'';
     const showSettings=!chart||profileScreen==='settings';
     return (showSettings
-      ? header(chart?'Paramètres du thème':'Créer mon thème natal',
-          chart?'Modifie tes préférences et tes données de naissance.':'Renseigne ta date et ton lieu de naissance pour découvrir ton ciel.')
-      : header(profileScreen==='explore'?'Explorer mon thème':profileScreen==='compare'?'Comparer les transits':'Mon ciel',
-          profileScreen==='explore'?'Planètes, maisons et aspects de ta carte.':profileScreen==='compare'?'Ton ciel natal et les planètes à la date choisie.':'Ton thème natal, en un regard.'))+
+      ? header(chart?'Réglages':'Créer mon thème natal',
+          chart?'Personnalise ta carte et retrouve tes informations.':'Entre ta date et ta ville de naissance pour commencer.')
+      : header(profileScreen==='explore'?'Comprendre mon thème':profileScreen==='compare'?'Comparer deux dates':'Mon ciel',
+          profileScreen==='explore'?'Planètes, maisons et liens entre les planètes.':profileScreen==='compare'?'Le ciel d’une autre date comparé à ta naissance.':'Ton thème de naissance, en clair.'))+
       (chart?renderNatalChart(chart):'')+
       (showSettings?
-      `<section class="card"><h2 class="card-title">Données de naissance</h2><form id="birthForm"><div class="field-grid"><div class="field"><label for="birthDate">Date</label><input required type="date" id="birthDate" name="date" min="1900-01-01" max="2100-12-31" value="${safe(d.date)}"></div><div class="field"><label for="birthTime">Heure locale</label><input ${d.timeKnown?'required':''} type="time" id="birthTime" name="time" value="${safe(d.time)}" ${d.timeKnown?'':'disabled'}></div></div>`+
-      `<label class="unknown-time-toggle" for="unknownBirthTime"><input type="checkbox" id="unknownBirthTime" name="unknownBirthTime" ${d.timeKnown?'':'checked'}> Je ne connais pas mon heure de naissance</label><p class="field-help">Sans heure connue, ASTRA utilise midi local comme repère provisoire ; il ne calcule ni Ascendant ni maisons et n’annonce aucun instant exact de transit personnalisé.</p>`+
+      `<section class="card"><h2 class="card-title">Tes informations de naissance</h2><form id="birthForm"><div class="field-grid"><div class="field"><label for="birthDate">Date de naissance</label><input required type="date" id="birthDate" name="date" min="1900-01-01" max="2100-12-31" value="${safe(d.date)}"></div><div class="field"><label for="birthTime">Heure de naissance</label><input ${d.timeKnown?'required':''} type="time" id="birthTime" name="time" value="${safe(d.time)}" ${d.timeKnown?'':'disabled'}></div></div>`+
+      `<label class="unknown-time-toggle" for="unknownBirthTime"><input type="checkbox" id="unknownBirthTime" name="unknownBirthTime" ${d.timeKnown?'':'checked'}> Je ne connais pas l’heure</label><p class="field-help">Sans heure, ASTRA ne calcule pas l’Ascendant ni les maisons. Tu peux continuer.</p>`+
       `<div class="field"><label for="birthCity">Ville de naissance</label><div class="city-search"><input required autocomplete="off" id="birthCity" name="city" placeholder="Ex. Paris, Montréal, Tokyo…" value="${safe(d.city)}"><button type="button" class="ghost" data-search-place="1" ${placeSearch.loading?'disabled':''}>${placeSearch.loading?'Recherche…':'Rechercher'}</button></div><p class="field-help">Recherche avec Internet, puis sélectionne le bon résultat. La position et le fuseau sont déduits de la ville, pas du téléphone.</p></div>`+
       `${placeSearch.error?`<p class="notice" role="alert">${safe(placeSearch.error)}</p>`:''}`+
       `${suggestions?`<div class="city-results" aria-label="Villes trouvées">${suggestions}</div>`:''}`+
@@ -927,7 +926,7 @@
   document.addEventListener('focusout',()=>requestAnimationFrame(syncKeyboardVisibility));
   window.visualViewport?.addEventListener('resize',syncKeyboardVisibility);
   window.addEventListener('resize',syncKeyboardVisibility);
-  $('homeButton').addEventListener('click',()=>{selectDay(isoDay(new Date()));go('today');});
+  $('homeButton')?.addEventListener('click',()=>{selectDay(isoDay(new Date()));go('today');});
   document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.tab)));
   $('app').addEventListener('click',event=>{
     const wheelSummary=event.target.closest('.natal-explore-wheel > summary');
