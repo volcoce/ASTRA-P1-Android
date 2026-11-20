@@ -1,4 +1,19 @@
-# ASTRA Public — Preview 0.5.9
+# ASTRA Public — Preview 0.6.0
+
+## UX P1 — Explorer, comparer et lire sans encombrement (Preview 0.6.0)
+
+La page **Mon ciel** utilise désormais un bandeau zodiacal compact **☼ ♌︎ | ☽ ♓︎ | ↑ ♋︎** à titre d'exemple de format : les signes affichés viennent **exclusivement des longitudes du profil**, dans le zodiaque tropical ou sidéral sélectionné. Chaque paire symbole + signe reste un bouton accessible avec son nom complet. En l'absence d'heure natale, l'Ascendant est absent et la Lune est signalée comme indicative.
+
+- **Explorer mon thème** affiche une seule des trois rubriques **Planètes / Maisons / Aspects**, sans déployer les autres listes. Les maisons ne sont proposées que si l'heure natale est connue. La matrice des aspects et la roue détaillée sont ouvertes sur demande ; les filtres d'aspects n'apparaissent que dans leur rubrique.
+- **Fiche contextuelle** : sélectionner une planète, une maison ou un aspect ouvre un panneau de lecture. Sur petit écran, il apparaît au-dessus de la navigation basse, avec un bouton Fermer et la touche Échap ; sur grand écran, il s'affiche sur le côté. Il ne prétend pas remplacer le calcul natal ni produire des interprétations scientifiques.
+- **Comparer avec les transits** est une destination distincte de l'exploration natale : une seule roue double, des champs date et heure directement accessibles, et la liste des contacts à l'instant choisi. Les outils professionnels (zodiaque, systèmes de maisons, niveaux de détail, zoom et export SVG/PNG) restent dans **Réglages**.
+- Les écrans avancés conservent le moteur, les calculs et les sauvegardes introduits en P0–P2. Les nouvelles rubriques et l'ouverture des fiches sont des états d'interface temporaires, sans modifier le contenu du profil `astra-public-v1`.
+- Les tests `tests/ui-smoke.py` contrôlent les pictogrammes zodiacaux calculés, la séparation des rubriques, la fermeture des fiches au clavier, la roue double indépendante, les exports, les maisons sans heure connue, le journal et l'affichage à 320 px.
+
+**Essai local :** `git pull origin main`, puis `npm install && npm run dev` et ouvrir http://127.0.0.1:4173/.
+
+**Limites :** les tests Chrome utilisent un moteur astrologique simulé pour l'interface. Le rendu tactile sur un appareil Android physique et l'accessibilité TalkBack restent à vérifier.
+
 
 ## UX P0 — Mon ciel sans cockpit (Preview 0.5.9)
 
