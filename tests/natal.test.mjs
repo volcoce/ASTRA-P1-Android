@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {tropicalHouses,houseOf,natalAspects} from '../astro/natal.mjs';
+import {tropicalHouses,selectHouseSystem,houseOf,natalAspects} from '../astro/natal.mjs';
 const angularError=(a,b)=>Math.abs(((a-b+540)%360)-180);
 const fixtures=[
   // Reference tropical Placidus cusps from Swiss Ephemeris 2.10, rounded.
@@ -30,4 +30,30 @@ test('Natal aspects are computed from actual individual planetary longitudes',()
   assert.ok(aspects.some(a=>a.a==='Sun'&&a.b==='Moon'&&a.aspect==='Sextile'&&a.orb===0));
   assert.ok(aspects.some(a=>a.a==='Sun'&&a.b==='Venus'&&a.aspect==='Carré'&&a.orb===0));
   assert.ok(!aspects.some(a=>a.a==='Sun'&&a.b==='Mercury'));
+});
+
+test('Equal and Whole Sign houses preserve horizon and meridian while changing cusps',()=>{
+  const f=fixtures[1];
+  const base=tropicalHouses(new Date(f.date),f.lat,f.lon,f.gast);
+  const equal=selectHouseSystem(base,'equal'),whole=selectHouseSystem(base,'whole');
+  assert.equal(equal.system,'Maisons égales');
+  assert.equal(whole.system,'Signes entiers');
+  assert.equal(whole.ascendant,base.ascendant);
+  assert.equal(whole.midheaven,base.midheaven);
+  assert.ok(angularError(equal.cusps[0],base.ascendant)<1e-9);
+  assert.equal(whole.cusps[0]%30,0);
+  for(const h of [equal,whole]){
+    assert.equal(h.cusps.length,12);
+    for(let i=0;i<12;i++){
+      assert.ok(angularError(h.cusps[i],(h.cusps[0]+i*30)%360)<1e-8);
+      assert.equal(houseOf(h.cusps[i],h.cusps),i+1);
+    }
+  }
+  assert.equal(selectHouseSystem(base,'placidus').system,'Placidus');
+  assert.throws(()=>selectHouseSystem(base,'koch'));
+});
+test('Placidus polar fallback is labelled, explicit Equal is not fallback',()=>{
+  const base=tropicalHouses(new Date('2026-01-01T12:00:00Z'),78,15,18.7436715743);
+  assert.equal(selectHouseSystem(base,'placidus').polarFallback,true);
+  assert.equal(selectHouseSystem(base,'equal').polarFallback,false);
 });
