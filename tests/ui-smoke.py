@@ -33,7 +33,7 @@ window.ASTRA_ENGINE = {
 if __name__ == '__main__':
     try:
         with sync_playwright() as pw:
-            browser=pw.chromium.launch(headless=True,executable_path='/usr/bin/chromium',args=['--no-sandbox'])
+            browser=pw.chromium.launch(headless=True,args=['--no-sandbox'],**({'executable_path':'/usr/bin/chromium'} if Path('/usr/bin/chromium').is_file() else {}))
             context=browser.new_context(viewport={'width':393,'height':844},accept_downloads=True)
             context.add_init_script(JS)
             page=context.new_page();errors=[]
