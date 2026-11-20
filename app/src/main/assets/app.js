@@ -220,11 +220,18 @@
   // The display mode changes presentation only; astronomical positions stay identical.
   // The natal zodiac is independent of the transit zodiac selection.
   let natalSelection=null;
-  function natalChoose(kind,id){
+  function natalChoose(kind,id,restoreFocus=false){
     if(activeTab==='profile')captureBirthForm();
     const same=natalSelection?.kind===kind&&String(natalSelection.id)===String(id);
     natalSelection=same?null:{kind,id};
     render();
+    // The natal wheel is re-rendered: return keyboard focus to the equivalent
+    // SVG control instead of leaving the screen reader at the page root.
+    if(restoreFocus){
+      const attr=kind==='planet'?'data-natal-body':'data-natal-house';
+      const focus=$('natalChart')?.querySelector('.natal-wheel ['+attr+'="'+String(id)+'"]');
+      focus?.focus({preventScroll:true});
+    }
   }
   function wheelSvg(chart) {
     const h=chart.houses;
@@ -234,51 +241,70 @@
     const inHouse=body=>E.houseOf(chart.positions[body],h.cusps);
     const involved=new Set(sel?.kind==='house'?Object.keys(chart.positions).filter(b=>inHouse(b)===activeHouse):[]);
     if(sel?.kind==='planet')involved.add(sel.id);
+
+    // The zodiac ring is twelve equal 30° sectors; it must never be confused
+    // with the variable-width Placidus house ring.
     const segments=[];
     for(let i=0;i<12;i++){
       const start=i*30,end=start+30;
       const [a,b,c,d]=[polar(start,195,asc),polar(end,195,asc),polar(end,169,asc),polar(start,169,asc)];
       const path='M '+a.join(' ')+' A 195 195 0 0 0 '+b.join(' ')+' L '+c.join(' ')+' A 169 169 0 0 1 '+d.join(' ')+' Z';
       const [gx,gy]=polar(start+15,182,asc);
-      segments.push('<path d="'+path+'" fill="'+(i%2?'#f1eafa':'#faf7fe')+'" stroke="#d9cce9" stroke-width=".8"/><text x="'+gx+'" y="'+gy+'" text-anchor="middle" dominant-baseline="central" class="zodiac-symbol">'+zodiacSymbols[i]+'</text>');
+      segments.push('<path class="wheel-zodiac-sector" d="'+path+'" fill="'+(i%2?'#eee5f6':'#faf5ff')+'" stroke="#a38cb9" stroke-width="1.2"/>'+
+        '<text x="'+gx+'" y="'+gy+'" text-anchor="middle" dominant-baseline="central" class="zodiac-symbol">'+zodiacSymbols[i]+'</text>');
     }
+
+    const houses=h.cusps.map((lng,i)=>{
+      const end=h.cusps[(i+1)%12],span=(end-lng+360)%360,large=span>180?1:0;
+      const a=polar(lng,121,asc),b=polar(end,121,asc),c=polar(end,95,asc),d=polar(lng,95,asc);
+      return '<path class="wheel-house-sector" d="M '+a.join(' ')+' A 121 121 0 '+large+' 0 '+b.join(' ')+
+        ' L '+c.join(' ')+' A 95 95 0 '+large+' 1 '+d.join(' ')+' Z" fill="'+(i%2?'#f1ecf7':'#faf7fc')+'"/>';
+    });
     let highlight='';
     if(activeHouse!==null&&activeHouse>=1&&activeHouse<=12){
       const start=h.cusps[activeHouse-1],end=h.cusps[activeHouse%12],span=(end-start+360)%360,large=span>180?1:0;
-      const a=polar(start,167,asc),b=polar(end,167,asc),c=polar(end,94,asc),d=polar(start,94,asc);
-      highlight='<path d="M '+a.join(' ')+' A 167 167 0 '+large+' 0 '+b.join(' ')+' L '+c.join(' ')+' A 94 94 0 '+large+' 1 '+d.join(' ')+' Z" fill="#dfccf2" fill-opacity=".57"/>';
+      const a=polar(start,166,asc),b=polar(end,166,asc),c=polar(end,94,asc),d=polar(start,94,asc);
+      highlight='<path class="wheel-active-house" d="M '+a.join(' ')+' A 166 166 0 '+large+' 0 '+b.join(' ')+
+        ' L '+c.join(' ')+' A 94 94 0 '+large+' 1 '+d.join(' ')+' Z" fill="#e3d1f6" fill-opacity=".62"/>';
     }
     const houseLines=h.cusps.map((v,i)=>{
       const p=polar(v,166,asc),q=polar(v,94,asc),next=h.cusps[(i+1)%12];
-      const mid=v+((next-v+360)%360)/2,[tx,ty]=polar(mid,117,asc);
+      const mid=v+((next-v+360)%360)/2,[tx,ty]=polar(mid,108,asc);
       const major=[0,3,6,9].includes(i),active=activeHouse===i+1;
-      return '<line x1="'+p[0]+'" y1="'+p[1]+'" x2="'+q[0]+'" y2="'+q[1]+'" stroke="'+(active?'#694392':major?'#7d659d':'#d7cae6')+'" stroke-width="'+(active?3:major?2:1)+'"/>'+
+      return '<line x1="'+p[0]+'" y1="'+p[1]+'" x2="'+q[0]+'" y2="'+q[1]+'" stroke="'+(active?'#50306d':major?'#6c5682':'#9985ac')+'" stroke-width="'+(active?3:major?2.3:1.2)+'"/>'+
         '<g class="natal-hit natal-house-hit'+(active?' is-active':'')+'" data-natal-house="'+(i+1)+'" role="button" tabindex="0" focusable="true" aria-label="Voir maison '+(i+1)+'" aria-pressed="'+active+'">'+
-        '<circle cx="'+tx+'" cy="'+ty+'" r="15" fill="transparent"/><text x="'+tx+'" y="'+ty+'" pointer-events="none" text-anchor="middle" dominant-baseline="central" class="house-number">'+(i+1)+'</text></g>';
+        '<circle cx="'+tx+'" cy="'+ty+'" r="16" fill="transparent"/><text x="'+tx+'" y="'+ty+'" pointer-events="none" text-anchor="middle" dominant-baseline="central" class="house-number">'+(i+1)+'</text></g>';
     });
     const connections=(chart.aspects||[]).filter(a=>sel ? involved.has(a.a)||involved.has(a.b) : complete);
     const aspectLines=connections.map(a=>{
       const p=polar(chart.positions[a.a],77,asc),q=polar(chart.positions[a.b],77,asc);
-      return '<line x1="'+p[0]+'" y1="'+p[1]+'" x2="'+q[0]+'" y2="'+q[1]+'" stroke="'+(aspectColors[a.aspect]||'#a996c4')+'" stroke-width="'+(sel?2.2:1.1)+'" stroke-opacity="'+(sel?'.88':'.42')+'"/>';
+      return '<line x1="'+p[0]+'" y1="'+p[1]+'" x2="'+q[0]+'" y2="'+q[1]+'" stroke="'+(aspectColors[a.aspect]||'#84639d')+'" stroke-width="'+(sel?2.3:1.35)+'" stroke-opacity="'+(sel?'1':'.75')+'"/>';
     });
-    const ordered=Object.entries(chart.positions).sort((a,b)=>a[1]-b[1]);
-    const glyphs=ordered.map(([body,lng],i)=>{
-      const nearby=ordered.filter(([other,n])=>other!==body&&Math.abs(((n-lng+540)%360)-180)<7).length;
-      const previous=ordered.slice(0,i).filter(([,n])=>Math.abs(((n-lng+540)%360)-180)<9).length;
-      const radius=nearby?147-(previous%3)*15:145,active=sel?.kind==='planet'&&sel.id===body;
-      const [x,y]=polar(lng,radius,asc),[bx,by]=polar(lng,164,asc);
-      return '<line x1="'+bx+'" y1="'+by+'" x2="'+x+'" y2="'+y+'" stroke="#b7a2cf" stroke-width=".9"/>'+
-        '<circle cx="'+bx+'" cy="'+by+'" r="2.6" fill="'+(active?'#563078':'#70538f')+'"/>'+
-        '<g class="natal-hit natal-planet-hit'+(active?' is-active':'')+'" data-natal-body="'+body+'" tabindex="0" focusable="true" role="button" aria-label="Voir '+safe(planets[body])+'" aria-pressed="'+active+'">'+
-        '<circle cx="'+x+'" cy="'+y+'" r="16" fill="'+(active?'#efe5fa':'transparent')+'"/>'+
+
+    const positioned=E.layoutPlanetLabels(chart.positions);
+    const glyphs=Object.entries(chart.positions).sort((a,b)=>a[1]-b[1]).map(([body,lng])=>{
+      const item=positioned[body];
+      const active=sel?.kind==='planet'&&sel.id===body;
+      const [x,y]=polar(item.labelLongitude,143,asc),[bx,by]=polar(lng,164,asc);
+      const [hx,hy]=polar(item.labelLongitude,162,asc);
+      // True-degree anchor and the moved glyph are always separate objects.
+      return '<g class="natal-leader'+(active?' is-active':'')+'">'+
+        '<line x1="'+bx+'" y1="'+by+'" x2="'+hx+'" y2="'+hy+'" stroke="'+(active?'#543674':'#8c76a7')+'" stroke-width="'+(active?1.7:1.15)+'"/>'+
+        '<line x1="'+hx+'" y1="'+hy+'" x2="'+x+'" y2="'+y+'" stroke="'+(active?'#543674':'#8c76a7')+'" stroke-width="'+(active?1.7:1.15)+'"/>'+
+        '<circle cx="'+bx+'" cy="'+by+'" r="3" fill="'+(active?'#4e306f':'#5c447a')+'"/></g>'+
+        '<g class="natal-hit natal-planet-hit'+(active?' is-active':'')+'" data-natal-body="'+body+'" data-true-longitude="'+lng.toFixed(6)+'" data-label-longitude="'+item.labelLongitude.toFixed(6)+'" tabindex="0" focusable="true" role="button" aria-label="Voir '+safe(planets[body])+' à '+safe(E.formatSign(lng))+'" aria-pressed="'+active+'">'+
+        '<circle cx="'+x+'" cy="'+y+'" r="17" fill="'+(active?'#e4d3f4':'transparent')+'"/>'+
         '<text x="'+x+'" y="'+y+'" text-anchor="middle" pointer-events="none" dominant-baseline="central" class="natal-planet">'+(natalGlyphs[body]||body)+'</text></g>';
     });
     const ascPoint=polar(asc,198,asc),mcPoint=polar(h.midheaven,198,asc);
-    return '<svg class="natal-wheel" viewBox="0 0 420 420" role="group" aria-label="Roue du thème natal '+(state.natalZodiac==='tropical'?'tropical':'sidéral')+'. Choisir une planète ou une maison." xmlns="http://www.w3.org/2000/svg">'+
-      '<title>Thème natal interactif</title><circle cx="210" cy="210" r="198" fill="#fff" stroke="#bfaed6" stroke-width="1.2"/>'+
-      segments.join('')+'<circle cx="210" cy="210" r="169" fill="#fffafc" stroke="#d9cee7"/>'+
-      highlight+houseLines.join('')+'<circle cx="210" cy="210" r="94" fill="#fff" stroke="#e8dff0"/>'+
-      aspectLines.join('')+'<circle cx="210" cy="210" r="47" fill="#fff" stroke="#f0ebf7"/>'+
+    return '<svg class="natal-wheel" viewBox="0 0 420 420" role="group" aria-label="Roue du thème natal '+(state.natalZodiac==='tropical'?'tropical':'sidéral')+'. Anneau extérieur : signes égaux, anneau intérieur : maisons. Choisir une planète ou une maison." xmlns="http://www.w3.org/2000/svg">'+
+      '<title>Thème natal interactif : signes, maisons, planètes et aspects</title>'+
+      '<circle cx="210" cy="210" r="198" fill="#fff" stroke="#7d639a" stroke-width="1.3"/>'+
+      segments.join('')+'<circle cx="210" cy="210" r="169" fill="#fff" stroke="#9d88b4" stroke-width="1.5"/>'+
+      '<circle cx="210" cy="210" r="121" fill="#fbf9fd" stroke="#9b85b2" stroke-width="1.5"/>'+
+      houses.join('')+highlight+houseLines.join('')+
+      '<circle cx="210" cy="210" r="94" fill="#fff" stroke="#9b85b2" stroke-width="1.4"/>'+
+      aspectLines.join('')+'<circle cx="210" cy="210" r="47" fill="#fff" stroke="#aa94bc" stroke-width="1.2"/>'+
       '<text x="210" y="204" text-anchor="middle" class="wheel-core-title">ASTRA</text>'+
       '<text x="210" y="219" text-anchor="middle" class="wheel-core-sub">'+(state.natalZodiac==='tropical'?'TROPICAL':'SIDÉRAL')+'</text>'+
       glyphs.join('')+'<text x="'+(ascPoint[0]-3)+'" y="'+(ascPoint[1]-7)+'" class="angle-label" text-anchor="end">ASC</text>'+
@@ -340,7 +366,7 @@
     return '<section class="card natal-card" id="natalChart">'+
       '<div class="section-row"><h2 class="card-title">Thème natal '+(isTropical?'tropical':'sidéral')+'</h2><span class="tag">'+(isFull?'Complet':'Essentiel')+'</span></div>'+
       '<p class="tiny">Positions calculées pour ta naissance · Maisons '+safe(h.system)+'.</p>'+controls+
-      wheelSvg(chart)+'<p class="wheel-caption">Zodiaque '+(isTropical?'tropical':'sidéral (Lahiri approximatif)')+
+      wheelSvg(chart)+'<div class="wheel-ring-legend" aria-label="Légende de la roue"><span><i class="sign-swatch"></i>Signes · 30°</span><span><i class="house-swatch"></i>Maisons · tailles variables</span></div><p class="wheel-caption">Les points à l’extérieur des glyphes marquent les degrés exacts. Les symboles sont espacés pour rester lisibles.</p><p class="wheel-caption">Zodiaque '+(isTropical?'tropical':'sidéral (Lahiri approximatif)')+
       ' · Touchez une planète ou une maison pour explorer ses données.'+
       (isFull?' Les aspects sont visibles au repos.':' Les aspects apparaissent lors de la sélection.')+'</p>'+
       '<div class="natal-highlights">'+blocks+'</div>'+
@@ -416,8 +442,8 @@
     const a=button.dataset;
     if(a.natalView){captureBirthForm();state.natalView=a.natalView==='complete'?'complete':'essential';persist();render();return;}
     if(a.natalZodiac){captureBirthForm();state.natalZodiac=a.natalZodiac==='sidereal'?'sidereal':'tropical';natalSelection=null;persist();render();return;}
-    if(a.natalBody){natalChoose('planet',a.natalBody);return;}
-    if(a.natalHouse){natalChoose('house',Number(a.natalHouse));return;}
+    if(a.natalBody){natalChoose('planet',a.natalBody,event.detail===0);return;}
+    if(a.natalHouse){natalChoose('house',Number(a.natalHouse),event.detail===0);return;}
     if(a.searchPlace){searchBirthCity();return;}
     if(a.place!==undefined){
       captureBirthForm();const place=placeSearch.options[Number(a.place)];
@@ -445,8 +471,8 @@
     const item=event.target.closest('[role="button"][data-natal-body], [role="button"][data-natal-house]');
     if(!item)return;
     event.preventDefault();
-    if(item.dataset.natalBody)natalChoose('planet',item.dataset.natalBody);
-    else natalChoose('house',Number(item.dataset.natalHouse));
+    if(item.dataset.natalBody)natalChoose('planet',item.dataset.natalBody,true);
+    else natalChoose('house',Number(item.dataset.natalHouse),true);
   });
   $('app').addEventListener('input',event=>{
     if(event.target.id==='energyRange'){initDraft();journalDraft.energy=Number(event.target.value);$('energyValue').textContent=journalDraft.energy+'/5';}
