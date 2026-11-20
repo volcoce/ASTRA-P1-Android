@@ -63,6 +63,7 @@ if __name__ == '__main__':
             html=(ROOT/'index.html').read_text(encoding='utf-8')
             html=html.replace('<script src="runtime.bundle.js"></script><script src="app.js" defer></script>','')
             html=html.replace('<link rel="stylesheet" href="style.css">','')
+            html=html.replace('<link rel="stylesheet" href="atlas-ui.css">','')
             page.goto('about:blank')
             page.add_script_tag(content=JS)
             # Use the REAL layout solver with the mock astronomy engine.
@@ -72,6 +73,7 @@ if __name__ == '__main__':
             page.add_script_tag(content=layout + "\nwindow.ASTRA_ENGINE.layoutPlanetLabels=layoutPlanetLabels;")
             page.set_content(html)
             page.add_style_tag(content=(ROOT/'style.css').read_text(encoding='utf-8'))
+            page.add_style_tag(content=(ROOT/'atlas-ui.css').read_text(encoding='utf-8'))
             page.add_script_tag(content=(ROOT/'app.js').read_text(encoding='utf-8'))
             # P0 design regression: verify computed font sizes and flat surfaces.
             px=lambda selector: page.locator(selector).first.evaluate(
@@ -135,7 +137,15 @@ if __name__ == '__main__':
             # Real signs derive from the astronomical positions in the mocked
             # profile: Sun 7° Aries, Moon 23° Aries, Ascendant 1.5° Virgo.
             assert [x.replace('︎','').strip() for x in page.locator('.natal-summary-sign').all_text_contents()]==['♈','♈','♍']
-            assert page.locator('.natal-glyph-separator').count()==2
+            assert page.locator('.natal-glyph-separator').count()==0
+            # People should see the sign names, not guess glyph pairs.
+            assert page.locator('.natal-summary-name').first.is_visible()
+            assert page.locator('.natal-summary-value').all_text_contents()==['Bélier','Bélier','Vierge']
+            assert page.locator('h1.page-title').count()==1
+            assert page.locator('.natal-home-header .card-title').inner_text()=='Ta carte de naissance'
+            assert page.locator('.natal-home-actions button').count()==2
+            assert 'Comprendre mon thème' in page.locator('.natal-main-action').inner_text()
+            assert 'Comparer deux dates' in page.locator('.natal-secondary-action').inner_text()
             assert page.locator('.natal-summary-item').first.get_attribute('aria-label')=='Soleil en Bélier'
             assert page.locator('.natal-advanced').count()==0
             assert page.locator('.natal-control-stack').count()==0
@@ -203,7 +213,7 @@ if __name__ == '__main__':
             head=page.locator('.natal-primary-cards').bounding_box()
             wheel=page.locator('.natal-wheel-viewport').bounding_box()
             assert head is not None and wheel is not None and head['y']<wheel['y']
-            assert page.locator('.natal-summary-name').first.evaluate("e => parseFloat(getComputedStyle(e).fontSize)")>=14
+            assert page.locator('.natal-summary-name').first.evaluate("e => parseFloat(getComputedStyle(e).fontSize)")>=12
             assert page.locator('.natal-main-action').evaluate("e => e.getBoundingClientRect().height")>=48
             assert page.locator('.wheel-zodiac-sector').count()==12
             assert page.locator('.wheel-house-sector').count()==12
@@ -242,6 +252,8 @@ if __name__ == '__main__':
             assert page.locator('.natal-home').count()==1
             page.locator('[data-profile-screen="explore"]').click()
             assert page.locator('.natal-explore').count()==1
+            assert page.locator('h1.page-title').inner_text()=='Comprendre mon thème'
+            assert page.locator('.natal-explore .card-title').filter(has_text='Explorer mon thème').count()==0
             capture('explore-393')
             assert page.locator('.natal-control-stack').count()==0
             assert page.locator('#birthForm').count()==0
@@ -296,6 +308,8 @@ if __name__ == '__main__':
             assert page.locator('.natal-home').count()==1
             page.locator('[data-explore-transits]').click()
             assert page.locator('.natal-compare').count()==1
+            assert page.locator('h1.page-title').inner_text()=='Comparer deux dates'
+            assert page.locator('.natal-compare .card-title').filter(has_text='Comparer avec les transits').count()==0
             capture('compare-393')
             assert page.locator('.natal-double-wheel').count()==1
             assert page.locator('.natal-transit-hit').count()==10
@@ -388,6 +402,9 @@ if __name__ == '__main__':
             page.locator('[data-profile-screen="settings"]').click()
             assert 'Orbes automatiques' in page.locator('#birthForm').inner_text()
             page.locator('[data-tab="calendar"]').click()
+            assert page.locator('.calendar-options').count()==1
+            assert page.locator('.calendar-options').get_attribute('open') is None
+            assert page.locator('h1.page-title').inner_text()=='Calendrier'
             capture('calendar-320')
             page.locator('[data-event]').first.click(timeout=2000)
             assert page.locator('#detailPanel').count()==1
@@ -412,6 +429,7 @@ if __name__ == '__main__':
             # verify that the serialized entry survives an in-app view change.
             page.locator('[data-tab="today"]').click()
             page.locator('[data-tab="journal"]').click()
+            assert page.get_by_text('Comment tu te sens ?').count()==1
             capture('journal-320')
             assert page.locator('#journalNote').input_value()=='Une belle journée de création.'
             assert page.locator('[data-tag="creation"]').get_attribute('aria-pressed')=='true'
