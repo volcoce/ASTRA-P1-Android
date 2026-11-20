@@ -79,6 +79,21 @@ export function transitSnapshot(profile,instant,mode='tropical',houseSystem='pla
 
 export function moonPhase(date) {return Astronomy.MoonPhase(date);}
 
+/** Daily, glanceable sky at noon in the device's selected civil timezone.
+ * Natal location and hour do not change today's physical sky.
+ * Noon is labelled so sign changes occurring later that day are not hidden.
+ */
+export function dailySky(day,zone='UTC',mode='tropical'){
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(day))throw new Error('Date du jour invalide');
+  if(!['tropical','sidereal'].includes(mode))throw new Error('Zodiaque invalide');
+  const instant=localToUtc(day,'12:00',zone);
+  if(isoDay(instant,zone)!==day)throw new Error('Date du jour invalide');
+  return {day,timezone:zone,mode,at:instant.toISOString(),
+    sunLongitude:longitude('Sun',instant,mode),
+    moonLongitude:longitude('Moon',instant,mode),
+    moonPhase:moonPhase(instant)};
+}
+
 /** Four actual lunar-quarter instants following the chosen day.
  * Events are local-calendar labelled, not inferred from the phase at noon.
  */
@@ -246,4 +261,4 @@ export function calculateMonth(profile,year,month,mode='tropical',orb='auto',opt
   return {year,month,mode,orb,chart,days,exact:exact.length,stations:stations.length,phases:phases.length,
     approximateNatal:!chart.timeKnown,calculatedAt:new Date().toISOString()};
 }
-if(typeof window!=='undefined')window.ASTRA_ENGINE={BODIES,BODY_FR,natalChart,calculateMonth,moonPhase,upcomingMoonPhases,transitContactWindow,secondaryProgressions,compositeMidpoints,formatSign,validateProfile,localToUtc,describeEvent,DISCLAIMER,searchCities,normalizePlace,houseOf,layoutPlanetLabels,MIN_LABEL_SPACING_DEGREES,formatSignExact,formatOrbExact,filterNatalAspects,describeNatalPlanet,describeNatalHouse,describeNatalAspect,NATAL_ASPECT_FILTERS,transitSnapshot,HOUSE_SYSTEMS};
+if(typeof window!=='undefined')window.ASTRA_ENGINE={BODIES,BODY_FR,natalChart,calculateMonth,moonPhase,dailySky,upcomingMoonPhases,transitContactWindow,secondaryProgressions,compositeMidpoints,formatSign,validateProfile,localToUtc,describeEvent,DISCLAIMER,searchCities,normalizePlace,houseOf,layoutPlanetLabels,MIN_LABEL_SPACING_DEGREES,formatSignExact,formatOrbExact,filterNatalAspects,describeNatalPlanet,describeNatalHouse,describeNatalAspect,NATAL_ASPECT_FILTERS,transitSnapshot,HOUSE_SYSTEMS};
