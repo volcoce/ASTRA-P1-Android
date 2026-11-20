@@ -487,3 +487,112 @@ button.astra-insight-tile:hover{border-color:#7597aa}
 @media(max-width:360px){
   .calendar-phase-legend{column-gap:11px;font-size:11.5px}
 }
+
+
+/* Reading-first TimePassages integration: chart/list modes, simple next action,
+   exact Moon milestones, deeper calculations only when opened explicitly. */
+.astra-day-pager,.astra-detail-pager,.natal-transit-pager{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;
+  margin:10px 0 17px
+}
+.astra-day-pager button,.astra-detail-pager button,.natal-transit-pager button{
+  background:#fff;color:#2a536b;border:1px solid #cbdbe3;border-radius:13px;
+  min-height:47px;padding:9px 11px;font:750 13px/1.3 system-ui,sans-serif;
+  cursor:pointer;min-width:0
+}
+.astra-day-pager button:last-child,.astra-detail-pager button:last-child,
+.natal-transit-pager .natal-transit-next{
+  color:#fff;background:#1e435a;border-color:#1e435a
+}
+.astra-day-pager button:disabled,.astra-detail-pager button:disabled,
+.natal-transit-pager button:disabled{opacity:.43;cursor:default}
+.astra-day-pager button:focus-visible,.astra-detail-pager button:focus-visible,
+.natal-transit-pager button:focus-visible{outline:3px solid #226987;outline-offset:2px}
+.astra-detail-pager{margin:20px 0 8px}
+.astra-lunar-timeline{margin:4px 0 24px}
+.astra-lunar-track{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.astra-lunar-milestone{
+  display:flex;min-width:0;flex-direction:column;align-items:center;gap:5px;
+  padding:12px 4px;min-height:102px;border:1px solid #d8e3e9;border-radius:13px;
+  background:#fff;color:#294457;text-align:center;cursor:pointer
+}
+.astra-lunar-milestone .astra-lunar-symbol{
+  display:grid;place-items:center;width:30px;height:30px;border-radius:50%;
+  font-size:21px;line-height:1;color:#516c7d
+}
+.astra-lunar-milestone.phase-0{background:#f0ecfa;border-color:#d9cdef}
+.astra-lunar-milestone.phase-0 .astra-lunar-symbol{color:#584a9f}
+.astra-lunar-milestone.phase-2{background:#fff4df;border-color:#eddcb9}
+.astra-lunar-milestone.phase-2 .astra-lunar-symbol{color:#8b5815}
+.astra-lunar-milestone strong{font-size:11.5px;line-height:1.22;font-weight:700;
+  overflow-wrap:anywhere;min-height:27px}
+.astra-lunar-milestone small{color:#627687;font-size:11px}
+.astra-lunar-timeline .astra-section-help{margin:9px 0 0;font-size:12px}
+.natal-overview-tabs,.natal-transit-filters{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;
+  border-radius:14px;background:#e9f0f4;padding:5px;margin:12px 0 14px
+}
+.natal-overview-tabs button,.natal-transit-filters button{
+  min-width:0;min-height:45px;border:0;background:transparent;color:#4d6878;
+  border-radius:10px;font:750 13px/1.25 system-ui,sans-serif;cursor:pointer
+}
+.natal-overview-tabs button.selected,.natal-transit-filters button.selected{
+  background:#1e435a;color:#fff
+}
+.natal-overview-panel{min-width:0;background:#fff;border:1px solid #dae5e9;
+  border-radius:16px;padding:13px 12px 8px;margin:0 0 15px}
+.natal-overview-panel .natal-positions,.natal-overview-panel .natal-aspects{
+  border:0;border-radius:0
+}
+.natal-panel-lead{font-size:13px;line-height:1.5;color:#5c7080;margin:2px 0 11px}
+.natal-more-link{background:transparent;border:0;color:#285770;font-weight:750;
+  font-size:13px;min-height:44px;width:100%;text-align:left}
+.natal-glossary,.natal-extras{background:#fff;border:1px solid #dbe5e9;
+  border-radius:13px;margin:13px 0;overflow:hidden}
+.natal-glossary>summary,.natal-extras>summary{
+  min-height:48px;padding:13px 15px;cursor:pointer;color:#2b5368;
+  font-size:13px;font-weight:750
+}
+.natal-glossary[open]>summary,.natal-extras[open]>summary{
+  border-bottom:1px solid #dbe5e9
+}
+.natal-glossary dl{padding:10px 16px;margin:0;display:grid;gap:4px}
+.natal-glossary dt{font:750 14px/1.4 system-ui,sans-serif;color:#223a4e;margin-top:8px}
+.natal-glossary dd{font:400 13px/1.55 system-ui,sans-serif;color:#5a7180;
+  margin:0 0 4px}
+.natal-glossary .tiny{padding:0 16px 12px;margin:0}
+.natal-extras{margin-top:20px}
+.natal-extras>button{display:flex;align-items:center;min-height:47px;
+  padding:9px 15px;width:100%;background:#fff;border:0;border-bottom:1px solid #ebeff1;
+  color:#244c65;font:700 14px/1.35 system-ui,sans-serif;text-align:left;cursor:pointer}
+.natal-extras>button:last-child{border-bottom:0}
+.natal-transit-pager{margin:4px 0 12px}
+.natal-transit-filters{margin:13px 0}
+.natal-contact-list button[aria-pressed="true"]{background:#e6f1f5}
+.natal-contact-list button small{font-size:12px;line-height:1.4;white-space:normal}
+.natal-progressions,.natal-composite{min-width:0}
+.natal-progress-controls{display:grid;gap:8px;margin:18px 0}
+.natal-progress-controls label{font:750 14px/1.4 system-ui,sans-serif;color:#314f60}
+.natal-progress-controls input{width:100%;min-width:0;min-height:48px;
+  border:1px solid #cbd8de;border-radius:12px;padding:10px;color:#193d54;font-size:16px;
+  background:#fff}
+.natal-progress-controls .astra-day-pager{margin:2px 0 6px}
+.natal-progression-row{display:grid;grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;gap:10px;min-height:56px}
+.natal-progression-row .position-value{text-align:right;overflow-wrap:anywhere}
+.natal-composite-result{border-top:1px solid #dce5e9;margin:22px 0 0;padding-top:18px}
+.natal-composite-result h3{margin:0 0 12px;font-size:19px;color:#243d4c}
+.natal-composite .city-results{margin:10px 0}
+@media(max-width:360px){
+  .astra-day-pager,.astra-detail-pager,.natal-transit-pager{gap:7px}
+  .astra-day-pager button,.astra-detail-pager button,.natal-transit-pager button{
+    font-size:12px;padding-left:7px;padding-right:7px
+  }
+  .astra-lunar-track{gap:4px}
+  .astra-lunar-milestone{padding:11px 2px}
+  .astra-lunar-milestone strong{font-size:10.5px}
+  .astra-lunar-milestone small{font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){
+  .astra-lunar-track{scroll-behavior:auto}
+}
