@@ -202,14 +202,14 @@
     }
     const symbols=['●','◐','○','◑'];
     return '<section class="astra-lunar-timeline" aria-labelledby="lunarTimelineTitle">'+
-      '<div class="astra-section-head"><h2 id="lunarTimelineTitle">Cycle lunaire</h2><span>Prochaines phases</span></div>'+
+      '<div class="astra-section-head"><h2 id="lunarTimelineTitle">Prochaines phases lunaires</h2><span>Depuis la date choisie</span></div>'+
       '<div class="astra-lunar-track" role="group" aria-label="Phases lunaires calculées">'+
       phases.map(phase=>'<button type="button" class="astra-lunar-milestone phase-'+phase.quarter+'" data-lunar-day="'+safe(phase.day)+'" aria-label="'+
         safe(phase.name+', le '+displayDate(phase.day)+', '+E.formatSign(phase.moonLongitude))+'">'+
         '<span class="astra-lunar-symbol" aria-hidden="true">'+symbols[phase.quarter]+'</span>'+
         '<strong>'+safe(phase.name)+'</strong><small>'+safe(new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'short',timeZone:'UTC'}).format(new Date(phase.day+'T12:00:00Z')))+'</small>'+
         '</button>').join('')+'</div>'+
-      '<p class="astra-section-help">Phases aux instants astronomiques. Sélectionne une étape pour ouvrir sa date dans le calendrier.</p></section>';
+      '<p class="astra-section-help">Dates des quatre prochaines phases à partir du jour sélectionné. Touche une phase pour ouvrir cette journée.</p></section>';
   }
   function lunarLabel(angle){
     if(!Number.isFinite(angle))return 'Phase non disponible';
@@ -296,7 +296,7 @@
           '<div class="astra-insight-tile as-lunar"><span class="astra-tile-kicker">☾ LUNE</span><strong>'+safe(lunarLabel(moon))+'</strong><small>Phase approximative à midi UTC</small></div>'+
           '<button type="button" class="astra-insight-tile as-journal" data-goto="journal"><span class="astra-tile-kicker">✎ JOURNAL</span><strong>'+(entry?'Relire ma journée':'Noter ma journée')+'</strong><small>'+(entry?'Humeur '+entry.mood+'/5 enregistrée':'Émotions, humeur, souvenirs')+'</small><span class="astra-tile-arrow" aria-hidden="true">↗</span></button>'+
           '<button type="button" class="astra-insight-tile as-chart" data-goto="profile"><span class="astra-tile-kicker">✧ MON CIEL</span><strong>Ma carte de naissance</strong><small>Planètes, Soleil et Ascendant</small><span class="astra-tile-arrow" aria-hidden="true">↗</span></button>'+
-        '</div></section>'+lunarTimeline()+
+        '</div></section>'+
       '<section class="astra-feed" id="todayEvents" aria-labelledby="todayEventsTitle">'+
         '<div class="astra-section-head"><h2 id="todayEventsTitle">Événements du jour</h2><span class="astra-count">'+count+'</span></div>'+
         '<p class="astra-section-help">Positions et horaires calculés, sans prédiction de ton vécu.</p>'+
@@ -333,7 +333,7 @@
     return header('Calendrier','Choisis une date pour découvrir les événements du ciel.')+birthTimeWarning()+
       `<div class="month-head"><button class="arrow" data-month="-1" aria-label="Mois précédent">‹</button><h2>${safe(new Intl.DateTimeFormat('fr-FR',{month:'long',year:'numeric'}).format(month))}</h2><button class="arrow" data-month="1" aria-label="Mois suivant">›</button></div>`+'<details class="calendar-options"><summary>Options d’affichage</summary>'+switcher()+filters()+'</details>'+
       `<div class="calendar"><div class="cal-grid">${['L','M','M','J','V','S','D'].map(x=>`<span class="weekday">${x}</span>`).join('')}${cells.join('')}</div><div class="calendar-phase-legend" aria-label="Légende des phases lunaires"><span class="cal-legend-item"><span class="moon-phase-legend-dot new" aria-hidden="true">●</span> Nouvelle Lune</span><span class="cal-legend-item"><span class="moon-phase-legend-dot full" aria-hidden="true">○</span> Pleine Lune</span></div><p class="tiny">✦ contact exact · ~ aspect à midi · point rose : journal</p></div>${status()}`+
-      `<section class="card"><div class="section-row"><h2 class="card-title">${safe(displayDate(selected))}</h2></div><div class="pill-row"><span class="tag">${events.length} événement(s)</span><span class="tag-outline">${day.active.length} actif(s)</span></div>${events.map(row).join('')||'<p class="tiny">Aucun événement exact ce jour.</p>'}${day.active.slice(0,30).map(e=>row({...e,type:'active'})).join('')}</section>`+detailView();
+      `<section class="card"><div class="section-row"><h2 class="card-title">${safe(displayDate(selected))}</h2></div><div class="pill-row"><span class="tag">${events.length} événement(s)</span><span class="tag-outline">${day.active.length} actif(s)</span></div>${events.map(row).join('')||'<p class="tiny">Aucun événement exact ce jour.</p>'}${day.active.slice(0,30).map(e=>row({...e,type:'active'})).join('')}</section>`+detailView()+lunarTimeline();
   }
   function initDraft() {
     if(journalDraftDate!==selected||!journalDraft){
