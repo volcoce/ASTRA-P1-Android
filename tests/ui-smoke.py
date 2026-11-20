@@ -83,7 +83,20 @@ if __name__ == '__main__':
             assert page.evaluate("JSON.parse(localStorage.getItem('astra-public-v1')).profile.latitude")==48.8534
             page.locator('[data-tab="profile"]').click()
             assert page.locator('#natalChart .natal-wheel').count()==1
-            assert page.locator('.wheel-ring-legend').count()==1
+            # UX P0: sky-first landing. No advanced toolbars or form on home.
+            assert page.locator('.natal-home').count()==1
+            assert page.locator('.natal-summary-item').count()==3
+            assert [x.strip() for x in page.locator('.natal-summary-name').all_text_contents()]==['Soleil','Lune','Ascendant']
+            assert page.locator('.natal-advanced').count()==0
+            assert page.locator('.natal-control-stack').count()==0
+            assert page.locator('.natal-filter').count()==0
+            assert page.locator('#birthForm').count()==0
+            assert page.locator('.natal-home-actions button').count()==2
+            head=page.locator('.natal-primary-cards').bounding_box()
+            wheel=page.locator('.natal-wheel-viewport').bounding_box()
+            assert head is not None and wheel is not None and head['y']<wheel['y']
+            assert page.locator('.natal-summary-name').first.evaluate("e => parseFloat(getComputedStyle(e).fontSize)")>=14
+            assert page.locator('.natal-main-action').evaluate("e => e.getBoundingClientRect().height")>=48
             assert page.locator('.wheel-zodiac-sector').count()==12
             assert page.locator('.wheel-house-sector').count()==12
             # The true degree markers never move; labels use the actual solver.
@@ -100,8 +113,9 @@ if __name__ == '__main__':
             gaps=[(vals[(i+1)%len(vals)]-vals[i]+360)%360 for i in range(len(vals))]
             assert min(gaps)>=13.99, gaps
             assert page.locator('#natalChart .natal-position').count()==0  # essential hides detailed tables
-            assert page.locator('[data-natal-view="essential"]').get_attribute('aria-pressed')=='true'
-            assert page.locator('[data-natal-zodiac="tropical"]').get_attribute('aria-pressed')=='true'
+            assert page.locator('[data-natal-view]').count()==0
+            assert page.locator('[data-house-system]').count()==0
+            assert page.evaluate("JSON.parse(localStorage.getItem('astra-public-v1')).natalZodiac")=='tropical'
             # Interactive planet wheel in both modes
             page.locator('.natal-wheel [data-natal-body="Sun"]').click()
             assert 'Soleil' in page.locator('#natalSelectionInfo').inner_text()
@@ -111,7 +125,10 @@ if __name__ == '__main__':
             assert page.evaluate("document.activeElement.dataset.natalBody")=='Moon'
             assert 'Lune' in page.locator('#natalSelectionInfo').inner_text()
             assert 'Donnée calculée' in page.locator('#natalSelectionInfo').inner_text()
-            page.locator('[data-natal-view="complete"]').click()
+            page.locator('[data-profile-screen="explore"]').click()
+            assert page.locator('.natal-explore').count()==1
+            assert page.locator('.natal-control-stack').count()==0
+            assert page.locator('#birthForm').count()==0
             assert page.locator('#natalChart .natal-position').count()==10
             assert page.locator('#natalChart .natal-aspect').count()==1
             assert '07°00′00″' in page.locator('#natalChart .natal-positions').inner_text()
@@ -128,6 +145,10 @@ if __name__ == '__main__':
             assert page.locator('#natalChart .natal-matrix button').count()==1
             page.locator('.natal-matrix button').click()
             assert 'Aspect natal' in page.locator('#natalSelectionInfo').inner_text()
+            page.locator('[data-profile-screen="settings"]').click()
+            assert page.locator('.natal-settings').count()==1
+            assert page.locator('#birthForm').count()==1
+            assert page.locator('.natal-primary-cards').count()==0
             page.locator('[data-house-system="whole"]').click()
             assert page.locator('[data-house-system="whole"]').get_attribute('aria-pressed')=='true'
             assert 'Signes entiers' in page.locator('#natalChart').inner_text()
@@ -139,15 +160,22 @@ if __name__ == '__main__':
             page.locator('[data-natal-zoom="reset"]').click()
             assert '100 %' in page.locator('.natal-zoom').inner_text()
             page.locator('[data-wheel-layout="double"]').click()
+            page.locator('[data-profile-screen="overview"]').click()
+            assert page.locator('.natal-home').count()==1
+            page.locator('[data-profile-screen="explore"]').click()
             assert page.locator('.natal-double-wheel').count()==1
             assert page.locator('.natal-transit-hit').count()==10
             page.locator('.natal-transit-hit[data-transit-body="Sun"]').click()
             assert 'transit' in page.locator('#natalSelectionInfo').inner_text()
             assert '12:00' in page.locator('#natalSelectionInfo').inner_text() or 'UTC' in page.locator('#natalSelectionInfo').inner_text()
+            page.locator('[data-profile-screen="settings"]').click()
             page.locator('#transitTime').fill('13:30')
             page.locator('#transitTime').dispatch_event('change')
             saved=page.evaluate("JSON.parse(localStorage.getItem('astra-public-v1'))")
             assert saved['transitTime']=='13:30'
+            # Native settings hold export tools, preview wheel remains available.
+            page.locator('.natal-preview-disclosure summary').click()
+            assert page.locator('.natal-settings .natal-wheel').count()==1
             # Browser-generated exports should be real files, not only UI alerts.
             with page.expect_download(timeout=6000) as d:
                 page.locator('[data-export-chart="svg"]').click()
@@ -158,7 +186,9 @@ if __name__ == '__main__':
             assert d.value.suggested_filename.endswith('.png')
             assert Path(d.value.path()).read_bytes().startswith(b'\\x89PNG'.decode('unicode_escape').encode('latin1'))
             page.locator('[data-wheel-layout="natal"]').click()
+            page.locator('[data-profile-screen="overview"]').click()
             assert page.locator('.natal-double-wheel').count()==0
+            page.locator('[data-profile-screen="explore"]').click()
             assert page.locator('#natalChart [data-natal-house]').count()>=12
             page.locator('.natal-wheel [data-natal-house="1"]').click()
             assert 'Maison 1' in page.locator('#natalSelectionInfo').inner_text()
@@ -166,11 +196,15 @@ if __name__ == '__main__':
             page.keyboard.press('Space')
             assert page.evaluate("document.activeElement.dataset.natalHouse")=='2'
             assert 'Maison 2' in page.locator('#natalSelectionInfo').inner_text()
+            page.locator('[data-profile-screen="settings"]').click()
             page.locator('[data-natal-zodiac="sidereal"]').click()
             assert page.locator('[data-natal-zodiac="sidereal"]').get_attribute('aria-pressed')=='true'
-            assert 'sidéral' in page.locator('#natalChart').inner_text()
+            page.locator('[data-profile-screen="overview"]').click()
+            assert 'Sidéral' in page.locator('#natalChart').inner_text()
+            page.locator('[data-profile-screen="settings"]').click()
             page.locator('[data-natal-zodiac="tropical"]').click()
             page.locator('[data-natal-view="essential"]').click()
+            page.locator('[data-profile-screen="overview"]').click()
             settings=page.evaluate("JSON.parse(localStorage.getItem('astra-public-v1'))")
             assert settings['natalView']=='essential' and settings['natalZodiac']=='tropical'
             assert page.locator('#orb').count()==0
@@ -184,6 +218,8 @@ if __name__ == '__main__':
             assert widths['scroll']>widths['client'],widths
             assert widths['width']>=319,widths
             assert page.evaluate("document.documentElement.scrollWidth")<=322
+            assert page.locator('#birthForm').count()==0
+            page.locator('[data-profile-screen="settings"]').click()
             assert 'Orbes automatiques' in page.locator('#birthForm').inner_text()
             page.locator('[data-tab="calendar"]').click()
             page.locator('[data-event]').first.click(timeout=2000)
@@ -213,6 +249,8 @@ if __name__ == '__main__':
             assert page.locator('[data-tag="creation"]').get_attribute('aria-pressed')=='true'
             # P1: unknown birth hour should not invent an Ascendant or houses.
             page.locator('[data-tab="profile"]').click()
+            assert page.locator('#birthForm').count()==0
+            page.locator('[data-profile-screen="settings"]').click()
             page.locator('#unknownBirthTime').check()
             assert page.locator('#birthTime').is_disabled()
             page.get_by_role('button',name='Calculer mon thème natal').click()
@@ -229,7 +267,7 @@ if __name__ == '__main__':
             assert 'Ascendant' not in page.locator('.natal-highlights').inner_text()
             page.locator('.natal-wheel [data-natal-body="Moon"]').click()
             assert 'indicative' in page.locator('#natalSelectionInfo').inner_text()
-            page.locator('[data-natal-view="complete"]').click()
+            page.locator('[data-profile-screen="explore"]').click()
             assert page.locator('#natalChart .natal-position').count()==10
             assert page.locator('#natalChart .natal-house-chip').count()==0
             assert page.locator('#natalChart .natal-aspect').count()==1
