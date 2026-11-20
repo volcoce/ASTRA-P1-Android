@@ -1,8 +1,30 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {natalChart,transitSnapshot,calculateMonth,moonPhase,automaticTransitOrb,upcomingMoonPhases,transitContactWindow,secondaryProgressions,compositeMidpoints} from '../astro/runtime.mjs';
+import {natalChart,transitSnapshot,calculateMonth,moonPhase,automaticTransitOrb,upcomingMoonPhases,transitContactWindow,secondaryProgressions,compositeMidpoints,dailySky,tropicalLongitude} from '../astro/runtime.mjs';
 const p={date:'1994-05-12',time:'18:40',timezone:'Europe/Paris',latitude:48.85,longitude:2.35,fold:null};
 test('dynamic natal uses input rather than static ephemeris',()=>{const a=natalChart(p,'tropical');const b=natalChart({...p,date:'1985-05-12'},'tropical');assert.notEqual(a.positions.Moon,b.positions.Moon);assert.equal(Object.keys(a.positions).length,10);assert.equal(a.houses.system,'Placidus');assert.equal(a.houses.cusps.length,12);});
 test('lunar phase is calculated at runtime',()=>assert.ok(moonPhase(new Date('2026-11-19T12:00:00Z'))>=0));
+
+test('daily sky uses real local noon, both zodiac modes and no natal-data dependence',()=>{
+  const paris=dailySky('2026-11-20','Europe/Paris','tropical');
+  assert.equal(paris.at,'2026-11-20T11:00:00.000Z');
+  assert.equal(paris.day,'2026-11-20');
+  assert.equal(paris.timezone,'Europe/Paris');
+  assert.equal(paris.mode,'tropical');
+  assert.ok(paris.sunLongitude>=0&&paris.sunLongitude<360);
+  assert.ok(paris.moonLongitude>=0&&paris.moonLongitude<360);
+  assert.ok(paris.moonPhase>=0&&paris.moonPhase<360);
+  assert.ok(Math.abs(paris.moonLongitude-tropicalLongitude('Moon',new Date(paris.at)))<1e-9);
+  assert.ok(Math.abs(paris.sunLongitude-tropicalLongitude('Sun',new Date(paris.at)))<1e-9);
+  const ny=dailySky('2026-11-20','America/New_York','tropical');
+  assert.notEqual(paris.at,ny.at);
+  const sidereal=dailySky('2026-11-20','Europe/Paris','sidereal');
+  assert.equal(sidereal.at,paris.at);
+  assert.notEqual(sidereal.moonLongitude,paris.moonLongitude);
+  assert.equal(sidereal.moonPhase,paris.moonPhase);
+  assert.throws(()=>dailySky('2026/11/20','Europe/Paris'));
+  assert.throws(()=>dailySky('2026-11-20','Europe/Paris','not-a-zodiac'));
+});
+
 test('dynamic month for user date, both zodiac modes',()=>{const t=calculateMonth(p,2026,11,'tropical','auto');const s=calculateMonth(p,2026,11,'sidereal','auto');assert.equal(Object.keys(t.days).length,30);assert.equal(Object.keys(s.days).length,30);assert.ok(t.phases>=4);assert.ok(t.days['2026-11-19'].active.length>=0);assert.notEqual(t.chart.positions.Sun,s.chart.positions.Sun);});
 
 test('automatic transit orbs depend on body and aspect',()=>{
