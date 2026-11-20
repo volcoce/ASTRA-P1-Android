@@ -150,8 +150,9 @@
   const filters=()=>`<div class="filter-wrap"><label for="eventFilter">Afficher</label><select id="eventFilter">${Object.entries(filtersMap).map(([k,v])=>`<option value="${k}" ${state.filter===k?'selected':''}>${v}</option>`).join('')}</select></div>`;
   function eventTitle(event) {
     if(event.type==='moon')return event.name;
-    if(event.type==='station')return `${planets[event.body]} station ${event.direction}`;
-    return `${planets[event.body]} ${event.aspect.toLowerCase()} ${planets[event.natal]} natal`;
+    if(event.type==='station')return `${planets[event.body]} · changement de direction apparente`;
+    const angle={Conjonction:0,Sextile:60,Carré:90,Trigone:120,Opposition:180}[event.aspect];
+    return `${planets[event.body]} et ${planets[event.natal]} · ${event.aspect.toLowerCase()}${angle===undefined?'':` (${angle}°)`}`;
   }
   function row(event) {
     const id=renderedEvents.push(event)-1;
@@ -787,7 +788,7 @@
         '<button type="button" data-explore-section="'+id+'" aria-pressed="'+(choice===id)+'" class="'+(choice===id?'selected':'')+'">'+label+'</button>').join('')+
       '</div>';
     const matrixDetails='<details class="natal-matrix-disclosure"'+(aspectMatrixOpen?' open':'')+'>'+
-      '<summary>Afficher la matrice des aspects</summary>'+renderAspectMatrix(chart)+'</details>';
+      '<summary>Comparer les aspects dans un tableau</summary>'+renderAspectMatrix(chart)+'</details>';
     const aspectsList='<section class="natal-explore-list"><h3>Aspects natals</h3>'+
       '<p>Les aspects sont les angles entre les planètes à ta naissance.</p>'+
       filterBar+'<div class="natal-aspects">'+(aspects||'<p class="natal-contact-empty">Aucun aspect avec ce filtre.</p>')+'</div>'+
@@ -796,22 +797,22 @@
       '<p>Découvre dans quel signe se trouvait chaque planète à ta naissance.</p>'+
       '<div class="natal-positions">'+bodyButtons+'</div></section>';
     const housesList='<section class="natal-explore-list"><h3>Mes maisons</h3>'+
-      '<p>Les maisons représentent les domaines de vie dans la tradition astrologique.</p>'+
+      '<p>Ce sont les douze secteurs de ta carte. Leur position dépend de l’heure de naissance.</p>'+
       '<div class="natal-houses">'+houseButtons+'</div></section>';
     const contents=choice==='aspects'?aspectsList:choice==='houses'?housesList:planetList;
     return '<section class="card natal-card natal-explore" id="natalChart">'+
-      '<div class="natal-subpage-heading">'+pageBack+'<h2 class="card-title">Explorer mon thème</h2>'+
-      '<p class="natal-section-lead">Choisis ce que tu veux comprendre, une rubrique à la fois.</p>'+
+      '<div class="natal-subpage-heading">'+pageBack+
+      '<p class="natal-section-lead">Choisis une rubrique, puis appuie sur un élément pour le découvrir.</p>'+
       '<button type="button" class="natal-settings-link" data-profile-screen="settings">Réglages</button></div>'+
       notice+selector+'<div id="natalExplorerPanel" class="natal-explorer-panel">'+contents+'</div>'+
       '<details class="natal-explore-wheel"'+(exploreWheelOpen?' open':'')+'>'+
-      '<summary>Voir la roue interactive</summary>'+
+      '<summary>Voir aussi la carte du ciel</summary>'+
       '<div class="natal-wheel-viewport" role="region" tabindex="0" aria-label="Roue natale interactive">'+resized+'</div>'+
-      '<p class="natal-home-hint">Les points marquent les degrés réels. Les glyphes sont espacés pour être lisibles.</p>'+focusLaunch+
+      '<p class="natal-home-hint">Les petites marques montrent les positions exactes. Appuie sur un symbole pour en savoir plus.</p>'+focusLaunch+
       '</details>'+contextSheet+
       (h?.polarFallback?'<p class="notice">À cette latitude, les maisons égales remplacent Placidus.</p>':'')+
       (h?.approximateSidereal?'<p class="tiny">Le zodiaque sidéral utilise ici un ayanamsa Lahiri approximatif.</p>':'')+
-      '<p class="tiny">Les interprétations astrologiques sont des conventions symboliques, non des prédictions scientifiques.</p></section>';
+      '<p class="tiny">Ces lectures sont symboliques, pas des prédictions scientifiques.</p></section>';
   }
 
   function profile() {
