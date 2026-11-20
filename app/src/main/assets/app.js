@@ -492,6 +492,82 @@
         ' · '+safe(E.formatOrbExact(c.delta))+' d’écart (orbe '+safe(E.formatOrbExact(c.orb))+')</p>').join('')+'</div>':'<p>Aucun contact dans les orbes automatiques.</p>')+
       '</div><p class="natal-disclaimer">Positions astronomiques instantanées et conventions astrologiques ; aucune prédiction scientifique d’événement.</p></article>';
   }
+
+  /** Portable SVG export with embedded typography; PNG rasterized in-browser.
+   * Android invokes a narrow native create-document bridge. No network upload.
+   */
+  async function saveChartBlob(blob,filename,mime){
+    if(window.ASTRA_CHART_EXPORT?.saveChart){
+      const base64=await new Promise((resolve,reject)=>{
+        const reader=new FileReader();
+        reader.onload=()=>resolve(String(reader.result).split(',')[1]);
+        reader.onerror=()=>reject(Error('Lecture impossible du fichier'));
+        reader.readAsDataURL(blob);
+      });
+      window.ASTRA_CHART_EXPORT.saveChart(filename,mime,base64);
+      return;
+    }
+    const url=URL.createObjectURL(blob);
+    try{
+      const link=document.createElement('a');
+      link.href=url;link.download=filename;link.rel='noopener';document.body.appendChild(link);
+      link.click();link.remove();
+      show('Export '+mime.split('/')[1].toUpperCase()+' préparé');
+    }finally{setTimeout(()=>URL.revokeObjectURL(url),12000);}
+  }
+  async function exportNatalGraphic(kind){
+    try{
+      if(!['svg','png'].includes(kind))throw Error('Format d’image non reconnu');
+      const displayed=$('natalChart')?.querySelector('.natal-wheel');
+      if(!displayed)throw Error('Aucune roue à exporter');
+      const clone=displayed.cloneNode(true);
+      const box=displayed.viewBox.baseVal;
+      const output=kind==='png'?1600:1080;
+      clone.removeAttribute('style');
+      clone.setAttribute('xmlns','http://www.w3.org/2000/svg');
+      clone.setAttribute('width',String(output));
+      clone.setAttribute('height',String(output));
+      const embedded=document.createElementNS('http://www.w3.org/2000/svg','style');
+      embedded.textContent=[
+        '.zodiac-symbol{font:800 19px Georgia,serif;fill:#594471}',
+        '.house-number{font:800 13px Arial,sans-serif;fill:#49385f}',
+        '.natal-planet{font:700 21px Georgia,serif;fill:#332544}',
+        '.natal-transit-hit .natal-planet{fill:#396a83}',
+        '.angle-label{font:800 11px Arial,sans-serif;fill:#574075}',
+        '.wheel-core-title{font:800 14px Georgia,serif;fill:#58426c;letter-spacing:2px}',
+        '.wheel-core-sub{font:800 9px Arial,sans-serif;fill:#78658a;letter-spacing:1.3px}',
+        'text{text-rendering:geometricPrecision}'
+      ].join('\n');
+      clone.insertBefore(embedded,clone.firstChild);
+      // Everything is generated locally. No external stylesheets or links.
+      const xml='<?xml version="1.0" encoding="UTF-8"?>\n'+new XMLSerializer().serializeToString(clone);
+      const svgBlob=new Blob([xml],{type:'image/svg+xml;charset=utf-8'});
+      const filename='ASTRA-theme-'+(state.wheelLayout==='double'?'transits-':'')+
+        (state.natalZodiac==='tropical'?'tropical':'sideral');
+      if(kind==='svg'){
+        await saveChartBlob(svgBlob,filename+'.svg','image/svg+xml');return;
+      }
+      const sourceUrl=URL.createObjectURL(svgBlob);
+      try{
+        const img=await new Promise((resolve,reject)=>{
+          const element=new Image();
+          element.onload=()=>resolve(element);
+          element.onerror=()=>reject(Error('Impossible de convertir la roue SVG en PNG'));
+          element.src=sourceUrl;
+        });
+        const canvas=document.createElement('canvas');
+        canvas.width=output;canvas.height=output;
+        const ctx=canvas.getContext('2d');
+        if(!ctx)throw Error('Canvas indisponible');
+        ctx.fillStyle='#ffffff';ctx.fillRect(0,0,output,output);
+        ctx.drawImage(img,0,0,output,output);
+        const png=await new Promise((resolve,reject)=>canvas.toBlob(
+          result=>result?resolve(result):reject(Error('Conversion PNG impossible')),'image/png'));
+        await saveChartBlob(png,filename+'.png','image/png');
+      }finally{URL.revokeObjectURL(sourceUrl);}
+    }catch(error){show('Export impossible : '+(error?.message||'Erreur'));}
+  }
+
   function renderNatalChart(chart){
     const h=chart.houses,isFull=state.natalView==='complete',isTropical=state.natalZodiac==='tropical';
     const uncertain=chart.approximateNoon===true;
