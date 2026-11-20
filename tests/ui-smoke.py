@@ -14,9 +14,12 @@ window._store = {};
 Object.defineProperty(window,'localStorage',{configurable:true,value:{getItem:k=>window._store[k]||null,setItem:(k,v)=>{window._store[k]=String(v)},removeItem:k=>{delete window._store[k]}}});
 window.ASTRA_ENGINE = {
  validateProfile(p){if(!p.date || (p.timeKnown!==false&&!p.time) || !p.timezone || !Number.isFinite(Number(p.latitude)))throw Error('Profil invalide');return true;},
- moonPhase(){return 128.1},formatSign(lon){return lon===250?'10° Sagittaire':'7° Bélier'},
+ moonPhase(){return 128.1},
+ formatSign(lon){return lon===250?'10° Sagittaire':lon===37?'7° Taureau':lon===61?'1° Gémeaux':'7° Bélier'},
  dailySky(day,zone,mode){return {day,timezone:zone,mode,at:new Date(day+'T12:00:00Z').toISOString(),
-  sunLongitude:250,moonLongitude:7,moonPhase:128.1}},
+  sunLongitude:250,moonLongitude:window.__moonScenario&&day.endsWith('-20')?37:7,moonPhase:128.1}},
+ moonSignChanges(day,zone,mode){return window.__moonScenario&&day.endsWith('-20')?
+  [{at:day+'T13:09:00Z',fromSign:'Taureau',toSign:'Gémeaux',fromIndex:1,toIndex:2,mode}]:[]},
  formatSignExact(){return '07°00′00″ Bélier'},formatOrbExact(orb){return orb.toFixed(2)+'°'},
  filterNatalAspects(list,filter){return filter==='all'?[...list]:list.filter(a=>a.aspect===filter)},
  describeNatalPlanet(body,lng,house,approx){return {title:body==='Moon'?'Lune':'Soleil',astronomy:approx?'Position indicative à midi local':'Longitude calculée',convention:'Lecture astrologique traditionnelle du signe et de la planète.',question:'Quel sens pour ce domaine ?',disclaimer:'Lecture symbolique non prédictive'}},
@@ -52,7 +55,7 @@ window.ASTRA_ENGINE = {
    const n=new Date(year,month,0).getDate(),days={};
    for(let d=1;d<=n;d++){
      const k=year+'-'+String(month).padStart(2,'0')+'-'+String(d).padStart(2,'0');
-     days[k]={active:[{type:'active',body:'Sun',natal:'Moon',aspect:'Trigone',angle:120,delta:.43,orb:1.7}], exact:[{type:'exact',body:'Sun',natal:'Moon',aspect:'Trigone',at:k+'T11:30:00Z'}], sky:d===5?[{type:'moon',name:'Nouvelle Lune',at:k+'T14:00:00Z'}]:d===20?[{type:'moon',name:'Pleine Lune',at:k+'T14:00:00Z'}]:[]};
+     days[k]={active:[{type:'active',body:'Sun',natal:'Moon',aspect:'Trigone',angle:120,delta:.43,orb:1.7}], exact:[{type:'exact',body:'Sun',natal:'Moon',aspect:'Trigone',at:k+'T11:30:00Z'}], sky:d===5?[{type:'moon',name:'Nouvelle Lune',at:k+'T14:00:00Z',moonLongitude:11}]:d===20?[{type:'moon',name:'Pleine Lune',at:k+'T14:00:00Z',moonLongitude:61}]:[]};
    }
    return {days,chart:this.natalChart(),mode};
  }
@@ -510,6 +513,7 @@ if __name__ == '__main__':
                     assert page.locator('.astra-month-phase').count()==2
                     assert page.locator('.astra-month-phase.new').count()==1
                     assert page.locator('.astra-month-phase.full').count()==1
+                    assert 'Pleine Lune en Gémeaux' in page.locator('.astra-month-phase.full').inner_text()
                     assert page.locator('.astra-month-event').count()==5
                     assert page.locator('.calendar').count()==0
                     assert page.locator('.astra-lunar-milestone').count()==0
@@ -549,6 +553,34 @@ if __name__ == '__main__':
             assert page.locator('.astra-journal-back').count()==1
             page.locator('.astra-journal-back').click()
             assert page.locator('[data-tab="today"]').get_attribute('aria-current')=='page'
+            # Reproduce the confusing case: Taurus at noon, ingress later,
+            # and Full Moon in Gemini that evening. All are simultaneous truths
+            # about different instants, never conflicting labels.
+            page.locator('[data-tab="today"]').click()
+            target=page.evaluate("""() => {
+              const d=new Date();
+              return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-20';
+            }""")
+            for _ in range(8):
+                if page.locator(f'.astra-week-day[data-day="{target}"]').count():break
+                first=page.locator('.astra-week-day').first.get_attribute('data-day')
+                page.locator('[data-week-shift="-7" if False else "[data-week-shift=\"-7\"]"').count() if False else None
+                page.locator('[data-week-shift="-7"]' if target<first else '[data-week-shift="7"]').click()
+                page.wait_for_timeout(70)
+            assert page.locator(f'.astra-week-day[data-day="{target}"]').count()==1
+            page.evaluate('window.__moonScenario=true')
+            page.locator(f'.astra-week-day[data-day="{target}"]').click()
+            assert page.locator('.astra-moon-title').inner_text()=='Lune en Taureau'
+            assert 'Position à 12 h' in page.locator('.astra-sky-reference').inner_text()
+            assert page.locator('.astra-day-moon-moment.ingress').count()==1
+            assert 'La Lune entre en Gémeaux' in page.locator('.astra-day-moon-moment.ingress').inner_text()
+            assert page.locator('.astra-day-moon-moment.phase').count()==1
+            assert 'Pleine Lune en Gémeaux' in page.locator('.astra-day-moon-moment.phase').inner_text()
+            timeline=page.locator('.astra-day-moon-moment time').all_text_contents()
+            assert len(timeline)==2
+            assert page.locator('.astra-lunar-milestone').count()==0
+            page.evaluate('window.__moonScenario=false')
+            page.locator('[data-tab="today"]').click()
             # Flo-inspired placement remains functional, not just a mockup.
             page.locator('[data-tab="today"]').click()
             before=page.locator('.astra-week-day.is-selected').get_attribute('data-day')
