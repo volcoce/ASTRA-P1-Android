@@ -1,5 +1,7 @@
 # ASTRA Public — Preview 0.6.1
 
+**Référence UI/UX du projet :** [DESIGN.md](DESIGN.md). Les règles pour assistants de code sont dans [AGENTS.md](AGENTS.md). Ces documents formalisent le travail de design sans remplacer les fonctionnalités P0–P2.
+
 ## UX P2.1 — Lecture agrandie de la roue (Preview 0.6.1)
 
 La roue possède un **mode lecture agrandie**, accessible depuis Mon ciel, Explorer (roue déployée), Comparer et l'aperçu des Réglages. L'accueil n'expose aucun des réglages avancés avant demande explicite.
