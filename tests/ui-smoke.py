@@ -61,8 +61,26 @@ if __name__ == '__main__':
             assert page.evaluate("JSON.parse(localStorage.getItem('astra-public-v1')).profile.latitude")==48.8534
             page.locator('[data-tab="profile"]').click()
             assert page.locator('#natalChart .natal-wheel').count()==1
+            assert page.locator('#natalChart .natal-position').count()==0  # essential hides detailed tables
+            assert page.locator('[data-natal-view="essential"]').get_attribute('aria-pressed')=='true'
+            assert page.locator('[data-natal-zodiac="tropical"]').get_attribute('aria-pressed')=='true'
+            # Interactive planet wheel in both modes
+            page.locator('.natal-wheel [data-natal-body="Sun"]').click()
+            assert 'Soleil' in page.locator('#natalSelectionInfo').inner_text()
+            assert 'Aspects natals' in page.locator('#natalSelectionInfo').inner_text()
+            page.locator('[data-natal-view="complete"]').click()
             assert page.locator('#natalChart .natal-position').count()==10
             assert page.locator('#natalChart .natal-aspect').count()==1
+            assert page.locator('#natalChart [data-natal-house]').count()>=12
+            page.locator('.natal-wheel [data-natal-house="1"]').click()
+            assert 'Maison 1' in page.locator('#natalSelectionInfo').inner_text()
+            page.locator('[data-natal-zodiac="sidereal"]').click()
+            assert page.locator('[data-natal-zodiac="sidereal"]').get_attribute('aria-pressed')=='true'
+            assert 'sidéral' in page.locator('#natalChart').inner_text()
+            page.locator('[data-natal-zodiac="tropical"]').click()
+            page.locator('[data-natal-view="essential"]').click()
+            settings=page.evaluate("JSON.parse(localStorage.getItem('astra-public-v1'))")
+            assert settings['natalView']=='essential' and settings['natalZodiac']=='tropical'
             assert page.locator('#orb').count()==0
             assert 'Orbes automatiques' in page.locator('#birthForm').inner_text()
             page.locator('[data-tab="calendar"]').click()
