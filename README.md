@@ -1,4 +1,18 @@
-# ASTRA Public — P2.3 (0.5.4-preview)
+# ASTRA Public — Preview 0.5.5
+
+## Modes d'affichage du thème natal (0.5.5)
+
+Dans **Mon ciel**, le thème est calculé à partir de la date, l'heure et la ville propres à l'utilisateur. Deux **modes de lecture** indépendants de l'astronomie sont disponibles :
+
+- **Essentiel** (par défaut) : roue avec signes, planètes et maisons, sans réseau d'aspects au repos, plus quatre repères clés (Soleil, Lune, Ascendant et Milieu du Ciel). Sélectionner une planète révèle ses aspects.
+- **Complet** : même roue avec les aspects affichés, tableau de toutes les positions, cuspides des douze maisons et liste complète des aspects natals retenus.
+- **Interaction dans les deux modes** : cliquer ou activer au clavier une planète ou une maison sur la roue affiche ses valeurs calculées et ses relations. Les listes détaillées sont elles aussi sélectionnables.
+- **Zodiaque séparé du niveau de détail** : tropical par défaut ; sidéral possible avec ayanamsa Lahiri **approximatif**. Les cuspides Placidus sidérales sont obtenues en décalant les cuspides tropicales. Le zodiaque choisi pour le thème natal ne modifie pas le mode choisi pour les transits.
+- Les réglages `natalView` et `natalZodiac` sont mémorisés dans la sauvegarde existante `astra-public-v1`. Les anciens journaux sont conservés.
+- Le niveau de détail ne change **aucune position astronomique**. Les aspects natals de la roue sont retenus à 5° d'orbe dans cette version, tandis que les transits conservent leur politique d'orbes automatiques.
+
+Pour essayer sur PC, utiliser `npm install && npm run dev`, puis ouvrir http://127.0.0.1:4173/. Après validation, construire le debug Android signé avec la clé de test ASTRA Preview déjà utilisée dans les versions précédentes.
+
 
 ## Prévisualiser sur PC avant de générer un APK
 
