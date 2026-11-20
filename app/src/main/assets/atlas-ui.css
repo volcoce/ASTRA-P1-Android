@@ -572,3 +572,79 @@ button.astra-insight-tile:hover{border-color:#7597aa}
 @media(prefers-reduced-motion:reduce){
   .astra-lunar-track{scroll-behavior:auto}
 }
+
+
+/* Four-level navigation: Ce jour / Ce mois / Calendrier / Mon ciel.
+   Secondary journal remains a reachable route, not a fifth bottom tab. */
+.bottom-nav .nav{min-width:0}
+.bottom-nav .nav-label{display:block;max-width:100%;text-align:center;line-height:1.22}
+.astra-journal-back{display:inline-flex;align-items:center;min-height:44px;
+  padding:8px 6px;margin:14px 0 -12px;border:0;background:transparent;
+  color:#2a566d;font-size:14px;font-weight:700;cursor:pointer}
+.astra-month-navigation{margin:0 0 18px}
+.astra-month-navigation h2{text-transform:capitalize}
+.astra-month-hero{overflow:hidden;position:relative;margin:0 0 14px;
+  padding:23px 22px;border-radius:21px;background:#172b3e;color:#fff}
+.astra-month-hero:after{position:absolute;content:'';width:165px;height:165px;
+  right:-54px;top:-59px;border:1px solid #7c9caf;border-radius:50%;
+  box-shadow:0 0 0 22px #213d54,0 0 0 23px #54778c;opacity:.32;
+  pointer-events:none}
+.astra-month-kicker{font-size:11px;font-weight:750;letter-spacing:.11em;color:#b8cddb;
+  margin:0 0 9px}
+.astra-month-headline{display:flex;align-items:center;gap:15px;position:relative;z-index:1}
+.astra-month-headline strong{font-size:clamp(53px,12vw,72px);line-height:1;
+  font-weight:760;letter-spacing:-.07em;font-variant-numeric:tabular-nums}
+.astra-month-headline span{font-size:17px;font-weight:730;line-height:1.35;max-width:140px}
+.astra-month-hero>p:last-child{color:#cddce7;font-size:13px;line-height:1.5;
+  margin:9px 0 0;position:relative;z-index:1}
+.astra-month-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:9px;margin:0 0 25px}
+.astra-month-metrics>div,.astra-month-metrics>button{
+  display:flex;flex-direction:column;align-items:flex-start;justify-content:center;
+  gap:5px;min-width:0;min-height:99px;border:1px solid #d7e2e7;
+  border-radius:15px;background:#fff;padding:15px;text-align:left;color:#274455
+}
+.astra-month-metrics strong{font-size:27px;font-weight:770;line-height:1.1;
+  font-variant-numeric:tabular-nums}
+.astra-month-metrics span{font-size:12px;line-height:1.35;color:#607484}
+.astra-month-metrics button{cursor:pointer}
+.astra-month-metrics button:hover{border-color:#8eacba}
+.astra-month-section{margin:0 0 25px}
+.astra-month-phases,.astra-month-events{display:flex;flex-direction:column;
+  gap:8px;min-width:0}
+.astra-month-phase{display:flex;align-items:center;gap:12px;min-height:78px;
+  width:100%;padding:13px 15px;border-radius:15px;border:1px solid #d8e3e7;
+  background:#fff;text-align:left;cursor:pointer;color:#253e52;min-width:0}
+.astra-month-phase.new{background:#f0ecfb;border-color:#d7cbee}
+.astra-month-phase.full{background:#fff2df;border-color:#ead7ad}
+.astra-month-phase-icon{flex:none;width:31px;height:31px;display:grid;place-items:center;
+  font-size:27px;line-height:1;color:#574a99}
+.astra-month-phase.full .astra-month-phase-icon{color:#90611d}
+.astra-month-phase-copy{display:flex;flex:1;min-width:0;flex-direction:column;gap:4px}
+.astra-month-phase-copy strong{font-size:15px;font-weight:750;line-height:1.25}
+.astra-month-phase-copy small{color:#5e7280;font-size:12px;line-height:1.4}
+.astra-month-phase>span:last-child{font-size:24px;color:#53697a}
+.astra-month-events{background:#fff;border:1px solid #dbe5e9;border-radius:16px;
+  padding:3px 14px;overflow:hidden}
+.astra-month-event{display:flex;align-items:center;gap:12px;min-height:62px;width:100%;
+  padding:11px 0;background:#fff;border:0;border-bottom:1px solid #e1e8ec;
+  text-align:left;color:#273f51;cursor:pointer}
+.astra-month-event:last-child{border-bottom:0}
+.astra-month-event-day{flex:none;min-width:61px;font-size:12px;
+  font-weight:750;color:#527287}
+.astra-month-event-text{flex:1;min-width:0;font-size:13px;font-weight:650;line-height:1.45;
+  overflow-wrap:anywhere}
+.astra-month-event>span:last-child{flex:none;font-size:21px;color:#527287}
+.astra-month-calendar-link{display:flex;align-items:center;justify-content:space-between;
+  width:100%;min-height:51px;padding:13px 16px;margin:14px 0 0;
+  color:#fff;background:#1e435a;border:1px solid #1e435a;border-radius:13px;
+  text-align:left;font-weight:740;font-size:14px;cursor:pointer}
+.astra-month-calendar-link span{font-size:19px}
+@media(max-width:375px){
+  .bottom-nav .nav{min-height:64px;padding:6px 1px}
+  .bottom-nav .nav-label{white-space:normal;overflow-wrap:anywhere}
+  .astra-month-hero{padding:19px 17px}
+  .astra-month-metrics>div,.astra-month-metrics>button{padding:12px 10px}
+  .astra-month-phase{gap:8px;padding:11px 10px}
+  .astra-month-event{gap:9px}
+}
