@@ -367,6 +367,17 @@ textarea:focus-visible,select:focus-visible{outline:3px solid #237b99;outline-of
 .astra-moon-phase{margin:5px 0 0;color:#e8d2a5;font:600 14px/1.4 system-ui,sans-serif}
 .astra-sky-reference{margin:12px 0 0;color:#cedce5;font:450 11.5px/1.5 system-ui,sans-serif;
   overflow-wrap:anywhere}
+.astra-day-moon-moments{margin:14px 0 0;padding:11px 12px;border:1px solid #637f91;
+  border-radius:12px;background:rgba(255,255,255,.055)}
+.astra-day-moon-moments h3{font:750 12px/1.35 system-ui,sans-serif;
+  margin:0 0 8px;color:#f3e0bd}
+.astra-day-moon-moment-list{display:grid;gap:9px}
+.astra-day-moon-moment{display:grid;grid-template-columns:46px minmax(0,1fr);
+  align-items:start;gap:8px;font:550 12px/1.4 system-ui,sans-serif;color:#fff}
+.astra-day-moon-moment time{font:750 12px/1.4 system-ui,sans-serif;color:#f3d49f;
+  font-variant-numeric:tabular-nums}
+.astra-day-moon-moment.phase span{font-weight:750}
+.astra-day-moon-moment span{overflow-wrap:anywhere}
 .astra-hero-stat{display:flex;align-items:center;gap:9px;line-height:1.3;
   border-top:1px solid #496779;padding-top:11px;margin-top:12px}
 .astra-hero-stat strong{font:770 23px/1 system-ui,sans-serif;
