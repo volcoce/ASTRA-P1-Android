@@ -1329,6 +1329,24 @@
     if(a.natalAspect){natalChoose('aspect',a.natalAspect,event.detail===0);return;}
     if(a.natalBody){natalChoose('planet',a.natalBody,event.detail===0);return;}
     if(a.natalHouse){natalChoose('house',Number(a.natalHouse),event.detail===0);return;}
+    if(a.progStep||a.progressionStep){
+      const step=Number(a.progStep||a.progressionStep);
+      if(![-1,1].includes(step))return;
+      const d=new Date(progressionDay+'T12:00:00Z');d.setUTCFullYear(d.getUTCFullYear()+step);
+      progressionDay=d.toISOString().slice(0,10);render();
+      $('app').querySelector('[data-progression-step="'+step+'"]')?.focus({preventScroll:true});
+      return;
+    }
+    if(a.searchCompositePlace){searchCompositeCity();return;}
+    if(a.compositePlace!==undefined){
+      captureCompositeForm();
+      const found=compositeSearch.options[Number(a.compositePlace)];
+      if(found){
+        compositeDraft.place=found;compositeDraft.city=found.label;
+        compositeSearch.options=[];compositeSearch.error='';compositeResult=null;render();
+      }
+      return;
+    }
     if(a.searchPlace){searchBirthCity();return;}
     if(a.place!==undefined){
       captureBirthForm();const place=placeSearch.options[Number(a.place)];
@@ -1384,6 +1402,18 @@
   });
   $('app').addEventListener('input',event=>{
     if(event.target.id==='energyRange'){initDraft();journalDraft.energy=Number(event.target.value);$('energyValue').textContent=journalDraft.energy+'/5';}
+    if(event.target.id==='secondCity'){
+      compositeDraft.city=event.target.value;
+      if(compositeDraft.place&&compositeDraft.city!==compositeDraft.place.label){
+        compositeDraft.place=null;compositeResult=null;compositeSearch.options=[];
+        const notice=$('app').querySelector('.natal-composite .city-confirmed');
+        if(notice){notice.className='city-unselected';notice.textContent='Ville modifiée : recherche et sélection nécessaires.';}
+      }
+    }
+    if(event.target.id==='secondDate'||event.target.id==='secondTime'){
+      compositeDraft[event.target.id==='secondDate'?'date':'time']=event.target.value;
+      compositeResult=null;
+    }
     if(event.target.id==='birthCity'){
       const d=draft();d.city=event.target.value;
       if(placeSearch.selected && d.city!==placeSearch.selected.label){
@@ -1400,6 +1430,17 @@
 
   });
   $('app').addEventListener('change',async event=>{
+    if(event.target.id==='progressionDay'){
+      if(/^\d{4}-\d{2}-\d{2}$/.test(event.target.value)){
+        progressionDay=event.target.value;render();
+        $('progressionDay')?.focus({preventScroll:true});
+      }
+      return;
+    }
+    if(event.target.id==='secondUnknownTime'){
+      captureCompositeForm();compositeDraft.timeKnown=!event.target.checked;
+      compositeResult=null;render();return;
+    }
     if(event.target.id==='transitDay'||event.target.id==='transitTime'){
       captureBirthForm();
       const date=$('transitDay')?.value||state.transitDay;
@@ -1431,6 +1472,21 @@
     }
   });
   $('app').addEventListener('submit',event=>{
+    if(event.target.id==='compositeForm'){
+      event.preventDefault();captureCompositeForm();
+      try{
+        const d=compositeDraft;
+        if(!d.place||d.city!==d.place.label)throw Error('Sélectionne la ville de naissance dans les résultats.');
+        const second={date:d.date,time:d.timeKnown?d.time:null,timeKnown:d.timeKnown,
+          timezone:d.place.timezone,latitude:d.place.latitude,longitude:d.place.longitude,
+          place:d.place,fold:null};
+        E.validateProfile(second);
+        compositeResult=E.compositeMidpoints(state.profile,second,state.natalZodiac);
+        compositeSearch.error='';render();
+        $('app').querySelector('.natal-composite-result')?.scrollIntoView({block:'nearest'});
+      }catch(error){compositeSearch.error=error?.message||'Calcul composite impossible';render();}
+      return;
+    }
     if(event.target.id!=='birthForm')return;
     event.preventDefault();
     captureBirthForm();
