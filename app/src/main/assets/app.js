@@ -134,7 +134,8 @@
       profileScreen=state.profile?route.screen:'settings';
       focusReturnScreen='overview';
     }
-    natalSelection=null;openDetail=null;pendingDayFocus=null;pendingPageFocus=focus;
+    natalSelection=null;openDetail=null;pendingDayFocus=null;
+    pendingPageFocus=focus&&profileScreen!=='focus';
     const afterMonth=month.getFullYear()+'-'+month.getMonth();
     if(!result||afterMonth!==beforeMonth)refresh();
     else render();
@@ -1777,14 +1778,17 @@
       showValidationError('birth',field,message);
     }
   });
-  window.addEventListener('popstate',()=>{
+  function restoreBrowserRoute(){
+    if(!webRouting||window.location.hash===currentBrowserHash())return;
     const route=readBrowserRoute();
     if(route)applyBrowserRoute(route);
     else{
       applyBrowserRoute({tab:'today',day:null});
       writeBrowserRoute('replace');
     }
-  });
+  }
+  window.addEventListener('popstate',restoreBrowserRoute);
+  window.addEventListener('hashchange',restoreBrowserRoute);
   const initialBrowserRoute=readBrowserRoute();
   if(initialBrowserRoute)applyBrowserRoute(initialBrowserRoute,{focus:false});
   else{
