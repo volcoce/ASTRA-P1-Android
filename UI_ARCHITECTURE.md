@@ -77,8 +77,8 @@ La navigation doit toujours afficher **icône + texte**. L'état actif se distin
 
 ### Navigation secondaire
 
-- **Ce jour** — semaine précédente/suivante, choix du jour, « Voir les événements » et phase lunaire de la journée seulement. Ne pas afficher de chronologie lunaire future ni ajouter de bouton de progression conversationnelle dans l’application.
-- **Ce mois** — mois précédent/suivant, compte réel d'événements, phases majeures du mois, cinq premiers événements et accès au calendrier.
+- **Ce jour** — à chaque ouverture de l’onglet, revenir à la date actuelle ; le sélecteur de semaine peut temporairement afficher une autre journée. Résumé sans filtres du calendrier, « Voir les événements » et phase lunaire de cette journée seulement. Ne pas afficher de chronologie lunaire future ni de bouton de progression conversationnelle.
+- **Ce mois** — à chaque ouverture de l’onglet, revenir au mois actuel ; les flèches permettent d'explorer d’autres mois temporairement. Nombre réel d'événements, phases majeures du mois, cinq premiers événements et accès au calendrier. Les filtres du calendrier n'y changent rien.
 - **Calendrier** — mois précédent/suivant, jour sélectionné, Nouvelle Lune et Pleine Lune colorées, quatre prochaines phases lunaires interactives ; filtres dans « Options d'affichage ».
 - **Journal (secondaire)** — accès depuis une carte ou une fiche, retour à Ce jour, jour précédent/suivant, sauvegarde et historique sous la saisie.
 - **Mon ciel** — trois vues de la même carte : « Roue / Planètes / Aspects ». Deux parcours à intitulés compréhensibles restent disponibles : « Comprendre mon thème » et « Comparer deux dates ». Le glossaire est contextuel ; les progressions et la carte composite sont repliées dans les outils avancés.

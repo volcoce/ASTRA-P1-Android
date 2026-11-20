@@ -1,6 +1,15 @@
-# ASTRA Public — Preview 0.8.2
+# ASTRA Public — Preview 0.8.3
 
 **Référence UI/UX du projet :** [UI_ARCHITECTURE.md](UI_ARCHITECTURE.md) pour la hiérarchie, la navigation, les composants et l'accessibilité ; [DESIGN.md](DESIGN.md) pour l'identité visuelle. Les règles pour assistants de code sont dans [AGENTS.md](AGENTS.md).
+
+## Cohérence temporelle — Preview 0.8.3
+
+- **Ce jour** retrouve la date actuelle chaque fois qu’on ouvre son onglet, même après exploration d’un autre mois dans Calendrier. La sélection ponctuelle d’une autre date reste possible via la semaine affichée.
+- **Ce mois** retrouve le mois courant chaque fois qu’on ouvre son onglet. Les flèches permettent de consulter d’autres mois dans cette même vue, sans modifier l'accueil quotidien à la prochaine visite.
+- **Calendrier** reste l’espace d’exploration des dates : ses filtres d’événements **n’altèrent plus** les chiffres et les événements de « Ce jour ». Le résumé mensuel utilise toujours le total calculé, indépendamment du filtre.
+- Pendant un nouveau calcul, « Ce jour » affiche un état de chargement, pas un faux « 0 événement ».
+- Le Journal conserve les notes historiques à leur date : revenir à « Ce jour » n’affiche pas une note ancienne comme si elle concernait aujourd’hui.
+- Tests de régression Chromium : retour d’un mois historique, respect de la date courante, absence d’interférence des filtres et conservation des notes.
 
 ## Navigation en quatre univers (Preview 0.8.2)
 
