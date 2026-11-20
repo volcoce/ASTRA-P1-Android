@@ -84,7 +84,7 @@
       const ordered=[...samples].sort((a,b)=>a-b);
       const mean=samples.reduce((sum,n)=>sum+n,0)/samples.length;
       return {label,count:samples.length,mean:Math.round(mean*10)/10,
-        p95:ordered[Math.ceil(ordered.length*.95)-1],max:ordered.at(-1)};
+        p95:ordered[Math.ceil(ordered.length*.95)-1],max:ordered[ordered.length-1]};
     });
   }
   let activeTab = 'today';
