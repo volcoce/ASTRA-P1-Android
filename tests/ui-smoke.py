@@ -89,6 +89,7 @@ if __name__ == '__main__':
             html=html.replace('<link rel="stylesheet" href="style.css">','')
             html=html.replace('<link rel="stylesheet" href="atlas-ui.css">','')
             html=html.replace('<link rel="stylesheet" href="theme.css">','')
+            html=html.replace('<link rel="stylesheet" href="wheel-ui.css">','')
             html=html.replace('<script src="theme-bootstrap.js"></script>','')
             page.goto('about:blank')
             page.add_script_tag(content=JS)
@@ -102,6 +103,7 @@ if __name__ == '__main__':
             page.add_style_tag(content=(ROOT/'style.css').read_text(encoding='utf-8'))
             page.add_style_tag(content=(ROOT/'atlas-ui.css').read_text(encoding='utf-8'))
             page.add_style_tag(content=(ROOT/'theme.css').read_text(encoding='utf-8'))
+            page.add_style_tag(content=(ROOT/'wheel-ui.css').read_text(encoding='utf-8'))
             page.add_script_tag(content=(ROOT/'app.js').read_text(encoding='utf-8'))
             # P0 design regression: verify computed font sizes and flat surfaces.
             px=lambda selector: page.locator(selector).first.evaluate(
