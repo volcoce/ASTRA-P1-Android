@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {natalChart,transitSnapshot,calculateMonth,moonPhase,automaticTransitOrb,upcomingMoonPhases,transitContactWindow,secondaryProgressions,compositeMidpoints,dailySky,tropicalLongitude} from '../astro/runtime.mjs';
+import {natalChart,transitSnapshot,calculateMonth,moonPhase,automaticTransitOrb,upcomingMoonPhases,transitContactWindow,secondaryProgressions,compositeMidpoints,dailySky,moonSignChanges,longitude,tropicalLongitude} from '../astro/runtime.mjs';
 const p={date:'1994-05-12',time:'18:40',timezone:'Europe/Paris',latitude:48.85,longitude:2.35,fold:null};
 test('dynamic natal uses input rather than static ephemeris',()=>{const a=natalChart(p,'tropical');const b=natalChart({...p,date:'1985-05-12'},'tropical');assert.notEqual(a.positions.Moon,b.positions.Moon);assert.equal(Object.keys(a.positions).length,10);assert.equal(a.houses.system,'Placidus');assert.equal(a.houses.cusps.length,12);});
 test('lunar phase is calculated at runtime',()=>assert.ok(moonPhase(new Date('2026-11-19T12:00:00Z'))>=0));
@@ -174,4 +174,44 @@ test('composite midpoints use shortest zodiacal arc and exclude uncertain Moon',
   assert.equal(unknown.positions.Moon,undefined);
   assert.equal(unknown.moonUncertain,true);
   assert.throws(()=>compositeMidpoints(p,other,'invalid'));
+});
+
+test('Moon sign ingress and Full Moon have distinct exact instants and zodiac signs',()=>{
+  const zone='Europe/Paris',day='2026-11-24',mode='tropical';
+  const sky=dailySky(day,zone,mode);
+  assert.ok(sky.moonLongitude>=30&&sky.moonLongitude<60,
+    'Moon is in Taurus at noon local time');
+  const changes=moonSignChanges(day,zone,mode);
+  const ingress=changes.find(e=>e.fromSign==='Taureau'&&e.toSign==='Gémeaux');
+  assert.ok(ingress,'Moon enters Gemini later that civil day');
+  const time=new Date(ingress.at).getTime();
+  assert.ok(time>new Date(sky.at).getTime());
+  const before=longitude('Moon',new Date(time-120000),mode);
+  const after=longitude('Moon',new Date(time+120000),mode);
+  assert.ok(before<60&&before>58.5,{before,at:ingress.at});
+  assert.ok(after>=60&&after<61.5,{after,at:ingress.at});
+  const full=calculateMonth(p,2026,11,mode).days[day].sky
+    .find(e=>e.type==='moon'&&e.name==='Pleine Lune');
+  assert.ok(full);
+  assert.ok(Number.isFinite(full.moonLongitude));
+  assert.ok(full.moonLongitude>=60&&full.moonLongitude<90,
+    'Full Moon occurs in Gemini, regardless of the noon sign');
+  assert.ok(new Date(full.at)>new Date(ingress.at));
+  assert.ok(new Date(full.at).getTime()-time<8*3600000);
+});
+
+test('Moon ingress uses actual civil-day bounds in timezone and handles DST',()=>{
+  for(const day of ['2026-03-29','2026-10-25','2026-11-24']){
+    const changes=moonSignChanges(day,'Europe/Paris');
+    assert.ok(changes.length<=2);
+    for(const change of changes){
+      assert.equal(new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Paris',
+        year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(change.at)),day);
+      assert.ok(change.fromSign!==change.toSign);
+    }
+  }
+  const sidereal=moonSignChanges('2026-11-24','Europe/Paris','sidereal');
+  assert.ok(Array.isArray(sidereal));
+  assert.throws(()=>moonSignChanges('2026-02-30','Europe/Paris'));
+  assert.throws(()=>moonSignChanges('2026-11-24','Europe/Paris','unrecognized'));
 });
