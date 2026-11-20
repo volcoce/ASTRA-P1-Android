@@ -110,8 +110,10 @@ test('transit applying/separating labels follow local angular change',()=>{
 });
 
 test('automatic-orb boundaries include the selected contact instant',()=>{
-  const snap=transitSnapshot(p,'2026-11-20T12:00:00Z');
-  const candidate=snap.contacts.find(c=>c.body==='Moon')||snap.contacts.find(c=>c.body==='Sun');
+  // At the birth instant the transiting Moon is necessarily conjunct
+  // its own natal position: deterministic and fast for regression tests.
+  const snap=transitSnapshot(p,natalChart(p).birth);
+  const candidate=snap.contacts.find(c=>c.body==='Moon'&&c.natal==='Moon'&&c.angle===0);
   assert.ok(candidate);
   const w=transitContactWindow(p,snap.at,candidate.body,candidate.natal,candidate.angle);
   assert.ok(w.start&&w.end,'Fast-planet contact has finite entry/exit');
