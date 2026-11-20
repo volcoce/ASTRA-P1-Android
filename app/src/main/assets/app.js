@@ -240,11 +240,19 @@
   // The display mode changes presentation only; astronomical positions stay identical.
   // The natal zodiac is independent of the transit zodiac selection.
   let natalSelection=null;
+  // Rebuilding the SVG must preserve where the reader was looking.
+  function renderKeepingWheelPosition(){
+    const before=$('natalChart')?.querySelector('.natal-wheel-viewport');
+    const left=before?.scrollLeft||0,top=before?.scrollTop||0;
+    render();
+    const after=$('natalChart')?.querySelector('.natal-wheel-viewport');
+    if(after){after.scrollLeft=left;after.scrollTop=top;}
+  }
   function natalChoose(kind,id,restoreFocus=false){
     if(activeTab==='profile')captureBirthForm();
     const same=natalSelection?.kind===kind&&String(natalSelection.id)===String(id);
     natalSelection=same?null:{kind,id};
-    render();
+    renderKeepingWheelPosition();
     // A non-modal contextual sheet becomes the reading destination for keyboard users.
     if(restoreFocus){
       const close=$('natalChart')?.querySelector('[data-close-natal-detail]');
@@ -421,7 +429,7 @@
         if(j<=i)return '<td class="matrix-empty" aria-label="Sans objet">—</td>';
         const aspect=cells[row+'-'+column]||cells[column+'-'+row];
         if(!aspect)return '<td class="matrix-empty" aria-label="Aucun aspect retenu">—</td>';
-        return '<td><button type="button" data-natal-aspect="'+aspect.a+'-'+aspect.b+'" aria-label="'+safe(planets[row])+' et '+safe(planets[column])+', '+safe(aspect.aspect)+', orbe '+safe(E.formatOrbExact(aspect.orb))+'" title="'+safe(aspect.aspect)+' · '+safe(E.formatOrbExact(aspect.orb))+'">'+
+        return '<td><button type="button" data-natal-aspect="'+aspect.a+'-'+aspect.b+'" aria-pressed="'+(natalSelection?.kind==='aspect'&&natalSelection.id===aspect.a+'-'+aspect.b)+'" aria-label="'+safe(planets[row])+' et '+safe(planets[column])+', '+safe(aspect.aspect)+', orbe '+safe(E.formatOrbExact(aspect.orb))+'" title="'+safe(aspect.aspect)+' · '+safe(E.formatOrbExact(aspect.orb))+'">'+
           safe(aspect.glyph)+'</button></td>';
       }).join('');
       return '<tr><th scope="row" title="'+safe(planets[row])+'" aria-label="'+safe(planets[row])+'">'+natalGlyphs[row]+'</th>'+cols+'</tr>';
@@ -751,7 +759,7 @@
         '<section class="natal-contact-section"><h3>Contacts à cet instant <span>'+contacts.length+'</span></h3>'+
         '<p>Écarts angulaires calculés dans les orbes automatiques. Sélectionne une planète pour les détails.</p>'+
         (contacts.length?'<div class="natal-contact-list">'+contacts.slice(0,16).map(c=>
-          '<button type="button" data-transit-body="'+c.body+'"><span>'+safe(planets[c.body])+
+          '<button type="button" data-transit-body="'+c.body+'" aria-pressed="'+(natalSelection?.kind==='transit'&&natalSelection.id===c.body)+'"><span>'+safe(planets[c.body])+
           ' '+safe(c.glyph)+' '+safe(planets[c.natal])+'</span><small>Écart '+safe(E.formatOrbExact(c.delta))+
           '</small></button>').join('')+'</div>':'<p class="natal-contact-empty">Aucun contact dans les orbes retenus à cet instant.</p>')+
         (contacts.length>16?'<p class="tiny">Les seize écarts les plus proches sont affichés. Sélectionne une planète sur la roue pour consulter tous ses contacts.</p>':'')+
@@ -886,7 +894,8 @@
     }
     if(a.closeFocus){
       profileScreen=focusReturnScreen;natalSelection=null;render();
-      $('app').querySelector('[data-open-focus]')?.focus({preventScroll:true});
+      [...$('app').querySelectorAll('[data-open-focus]')]
+        .find(node=>node.getClientRects().length>0)?.focus({preventScroll:true});
       return;
     }
     if(a.exploreSection){
@@ -898,7 +907,7 @@
     }
     if(a.closeNatalDetail){
       const previous=natalSelection;
-      natalSelection=null;render();
+      natalSelection=null;renderKeepingWheelPosition();
       if(previous){
         const attr=previous.kind==='planet'?'data-natal-body':previous.kind==='house'?'data-natal-house':
           previous.kind==='transit'?'data-transit-body':'data-natal-aspect';
@@ -927,11 +936,15 @@
     if(a.natalAspectFilter){captureBirthForm();state.natalAspectFilter=a.natalAspectFilter;natalSelection=null;persist();render();if(event.detail===0)$('app').querySelector('[data-natal-aspect-filter="'+a.natalAspectFilter+'"]')?.focus({preventScroll:true});return;}
     if(a.houseSystem){
       if(!['placidus','equal','whole'].includes(a.houseSystem))return;
-      captureBirthForm();state.houseSystem=a.houseSystem;natalSelection=null;persist();render();return;
+      captureBirthForm();state.houseSystem=a.houseSystem;natalSelection=null;persist();render();
+      if(event.detail===0)$('app').querySelector('[data-house-system="'+a.houseSystem+'"]')?.focus({preventScroll:true});
+      return;
     }
     if(a.wheelLayout){
       if(!['natal','double'].includes(a.wheelLayout))return;
-      captureBirthForm();state.wheelLayout=a.wheelLayout;natalSelection=null;persist();render();return;
+      captureBirthForm();state.wheelLayout=a.wheelLayout;natalSelection=null;persist();render();
+      if(event.detail===0)$('app').querySelector('[data-wheel-layout="'+a.wheelLayout+'"]')?.focus({preventScroll:true});
+      return;
     }
     if(a.natalZoom){
       const adjustment=a.natalZoom==='reset'?1:Math.max(1,Math.min(2,Math.round((state.natalZoom+Number(a.natalZoom))*4)/4));
@@ -1029,11 +1042,21 @@
       const date=$('transitDay')?.value||state.transitDay;
       const time=$('transitTime')?.value||state.transitTime;
       if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!/^([01]\d|2[0-3]):[0-5]\d$/.test(time))return;
-      state.transitDay=date;state.transitTime=time;natalSelection=null;persist();render();return;
+      const changedId=event.target.id;
+      state.transitDay=date;state.transitTime=time;natalSelection=null;persist();render();
+      $(changedId)?.focus({preventScroll:true});return;
     }
     if(event.target.id==='unknownBirthTime'){captureBirthForm();birthDraft.timeKnown=!event.target.checked;birthDraft.fold=null;placeSearch.needFold=false;render();return;}
     if(event.target.id==='eventFilter'){state.filter=event.target.value;persist();openDetail=null;render();return;}
-    if(event.target.id==='journalSearch'){searchTerm=event.target.value.trim().slice(0,100);render();return;}
+    if(event.target.id==='journalSearch'){
+      const wasFocused=document.activeElement===event.target,caret=event.target.selectionStart;
+      searchTerm=event.target.value.trim().slice(0,100);render();
+      if(wasFocused){
+        const next=$('journalSearch');next?.focus({preventScroll:true});
+        if(Number.isInteger(caret))next?.setSelectionRange(caret,caret);
+      }
+      return;
+    }
     if(event.target.id==='importFile'&&event.target.files?.[0]){
       try {
         const file=event.target.files[0];if(file.size>2000000)throw Error('Sauvegarde trop volumineuse');
