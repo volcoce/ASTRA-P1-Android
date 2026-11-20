@@ -112,6 +112,6 @@ export function selectHouseSystem(tropical,system='placidus'){
   const asc=tropical.ascendant;
   const start=system==='whole'?Math.floor(mod(asc)/30)*30:asc;
   return {ascendant:asc,midheaven:tropical.midheaven,system:HOUSE_SYSTEMS[system],
-    requestedSystem:system,polarFallback:false,
+    requestedSystem:system,polarFallback:false,approximateSidereal:!!tropical.approximateSidereal,
     cusps:Array.from({length:12},(_,i)=>mod(start+i*30))};
 }
