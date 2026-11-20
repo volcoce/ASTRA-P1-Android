@@ -95,6 +95,32 @@
     if($('birthCity'))d.city=$('birthCity').value;
     if($('fold'))d.fold=$('fold').value===''?null:Number($('fold').value);
   }
+  function captureCompositeForm(){
+    const d=compositeDraft;
+    if($('secondDate'))d.date=$('secondDate').value;
+    if($('secondTime'))d.time=$('secondTime').value;
+    if($('secondCity'))d.city=$('secondCity').value;
+    if($('secondUnknownTime'))d.timeKnown=!$('secondUnknownTime').checked;
+  }
+  async function searchCompositeCity(){
+    captureCompositeForm();
+    const term=compositeDraft.city.trim();
+    if(term.length<3){compositeSearch.error='Entre au moins trois lettres.';render();return;}
+    const requestId=++compositeSearch.requestId;
+    compositeSearch.loading=true;compositeSearch.error='';compositeSearch.options=[];
+    compositeDraft.place=null;compositeResult=null;render();
+    try{
+      const matches=await E.searchCities(term);
+      if(requestId!==compositeSearch.requestId)return;
+      compositeSearch.options=matches;
+      if(!matches.length)compositeSearch.error='Aucune ville trouvée. Essaie un nom plus précis.';
+    }catch(error){
+      if(requestId!==compositeSearch.requestId)return;
+      compositeSearch.error=error?.message||'Recherche indisponible.';
+    }finally{
+      if(requestId===compositeSearch.requestId){compositeSearch.loading=false;render();}
+    }
+  }
   async function searchBirthCity() {
     captureBirthForm();
     const query=draft().city.trim();
@@ -906,6 +932,9 @@
         '<div class="natal-home-actions natal-home-actions--primary"><button type="button" class="natal-main-action" data-profile-screen="explore"><span class="action-label"><strong>Comprendre mon thème</strong><small>Planètes, signes et maisons</small></span><span class="action-arrow" aria-hidden="true">→</span></button></div>'+
         viewTabs+overviewContent+contextSheet+glossary+
         '<div class="natal-home-actions natal-home-actions--secondary"><button type="button" class="natal-secondary-action" data-explore-transits="1"><span class="action-label"><strong>Comparer deux dates</strong><small>Le ciel d’un autre jour</small></span><span class="action-arrow" aria-hidden="true">→</span></button></div>'+
+        '<details class="natal-extras"><summary>Outils astrologiques avancés</summary>'+
+        '<button type="button" data-profile-screen="progressions">Progressions secondaires →</button>'+
+        '<button type="button" data-profile-screen="composite">Carte composite →</button></details>'+
         (h?.polarFallback?'<p class="notice">Maisons égales utilisées à cette latitude.</p>':'')+
         '</section>';
     }
@@ -920,6 +949,56 @@
         '<p class="natal-home-hint">Les exports SVG et PNG correspondent à cette carte.</p>'+focusLaunch+'</details>'+
         (transitError?'<p class="notice" role="alert">'+safe(transitError)+'</p>':'')+
         '</section>';
+    }
+    if(isProgressions){
+      let prog=null,err='';
+      try{
+        const target=E.localToUtc(progressionDay,'12:00',detectedZone);
+        prog=E.secondaryProgressions(state.profile,target,state.natalZodiac);
+      }catch(error){err=error?.message||'Calcul des progressions impossible';}
+      return '<section class="card natal-card natal-progressions" id="natalChart">'+
+        '<div class="natal-subpage-heading">'+pageBack+'<h2 class="card-title">Progressions secondaires</h2>'+
+        '<p class="natal-section-lead">Convention astrologique : un jour d’éphéméride après la naissance représente une année de vie. Ce n’est pas une prévision scientifique.</p></div>'+
+        '<div class="natal-progress-controls"><label for="progressionDay">Date à étudier</label>'+
+        '<input id="progressionDay" type="date" min="1900-01-01" max="2100-12-31" value="'+safe(progressionDay)+'">'+
+        '<div class="astra-day-pager"><button type="button" data-progression-step="-1">← Année précédente</button>'+
+        '<button type="button" data-progression-step="1">Année suivante →</button></div></div>'+
+        (err?'<p class="notice" role="alert">'+safe(err)+'</p>':prog?
+          '<p class="natal-section-lead">Instant d’éphéméride correspondant : '+safe(new Intl.DateTimeFormat('fr-FR',{dateStyle:'medium',timeZone:'UTC'}).format(new Date(prog.progressedAt)))+'.</p>'+
+          '<div class="natal-positions">'+Object.entries(prog.positions).map(([body,lng])=>
+            '<div class="natal-position natal-progression-row"><span class="position-planet">'+natalGlyphs[body]+' '+safe(planets[body])+'</span>'+
+            '<span class="position-value">'+safe(E.formatSignExact(lng))+'</span></div>').join('')+'</div>'+
+          (prog.moonUncertain?'<p class="natal-warning">Lune non présentée sans heure de naissance.</p>':''):'')+
+        '<p class="tiny">Sans maisons progressées, sans thèmes prédictifs automatiques. Les longitudes sont calculées au moyen de la convention jour-pour-an.</p></section>';
+    }
+    if(isComposite){
+      const d=compositeDraft;
+      const suggestions=compositeSearch.options.map((p,i)=>
+        '<button type="button" class="city-choice" data-composite-place="'+i+'"><strong>'+safe(p.name)+'</strong>'+
+        '<span>'+safe([p.admin1,p.country].filter(Boolean).join(' · '))+'</span></button>').join('');
+      return '<section class="card natal-card natal-composite" id="natalChart">'+
+        '<div class="natal-subpage-heading">'+pageBack+'<h2 class="card-title">Carte composite</h2>'+
+        '<p class="natal-section-lead">Milieux zodiacaux calculés entre deux thèmes de naissance. Les positions composites sont conventionnelles : ce n’est pas une carte du ciel à un instant réel.</p></div>'+
+        '<form id="compositeForm"><h3 class="natal-subtitle">Seconde personne</h3>'+
+        '<div class="field-grid"><div class="field"><label for="secondDate">Date de naissance</label>'+
+        '<input type="date" id="secondDate" required min="1900-01-01" max="2100-12-31" value="'+safe(d.date)+'"></div>'+
+        '<div class="field"><label for="secondTime">Heure de naissance</label>'+
+        '<input type="time" id="secondTime" '+(d.timeKnown?'required':'disabled')+' value="'+safe(d.time)+'"></div></div>'+
+        '<label class="unknown-time-toggle" for="secondUnknownTime"><input type="checkbox" id="secondUnknownTime" '+(!d.timeKnown?'checked':'')+'> Je ne connais pas l’heure</label>'+
+        '<div class="field"><label for="secondCity">Ville de naissance</label>'+
+        '<div class="city-search"><input type="text" id="secondCity" autocomplete="off" required value="'+safe(d.city)+'" placeholder="Rechercher une ville…">'+
+        '<button type="button" class="ghost" data-search-composite-place="1" '+(compositeSearch.loading?'disabled':'')+'>Rechercher</button></div></div>'+
+        (compositeSearch.error?'<p class="notice" role="alert">'+safe(compositeSearch.error)+'</p>':'')+
+        (suggestions?'<div class="city-results">'+suggestions+'</div>':'')+
+        (d.place?'<p class="city-confirmed">Ville confirmée · '+safe(d.place.label)+'</p>':'<p class="field-help">Sélectionne la ville trouvée dans les résultats.</p>')+
+        '<button type="submit" class="primary full">Calculer la carte composite</button></form>'+
+        (compositeResult?'<section class="natal-composite-result" aria-label="Positions composites">'+
+          '<h3>Positions composites</h3><div class="natal-positions">'+Object.entries(compositeResult.positions).map(([body,lng])=>
+            '<div class="natal-position natal-progression-row"><span class="position-planet">'+natalGlyphs[body]+' '+safe(planets[body])+'</span>'+
+            '<span class="position-value">'+safe(E.formatSignExact(lng))+'</span></div>').join('')+'</div>'+
+          (compositeResult.moonUncertain?'<p class="natal-warning">Lune exclue : au moins une heure de naissance est inconnue.</p>':'')+
+          '<p class="tiny">Maisons et angles non calculés : des milieux planétaires ne suffisent pas à les déterminer.</p></section>':'')+
+        '<p class="tiny">Les données de la seconde personne ne sont pas enregistrées dans le journal ni dans le profil ASTRA.</p></section>';
     }
     if(isCompare){
       const contacts=transitSnapshot?.contacts||[];
@@ -1006,8 +1085,14 @@
     return (showSettings
       ? header(chart?'Réglages':'Créer mon thème natal',
           chart?'Personnalise ta carte et retrouve tes informations.':'Entre ta date et ta ville de naissance pour commencer.')
-      : header(profileScreen==='explore'?'Comprendre mon thème':profileScreen==='compare'?'Comparer deux dates':'Mon ciel',
-          profileScreen==='explore'?'Planètes, maisons et liens entre les planètes.':profileScreen==='compare'?'Le ciel d’une autre date comparé à ta naissance.':'Ton thème de naissance, en clair.'))+
+      : header(profileScreen==='explore'?'Comprendre mon thème':
+          profileScreen==='compare'?'Comparer deux dates':
+          profileScreen==='progressions'?'Progressions secondaires':
+          profileScreen==='composite'?'Carte composite':'Mon ciel',
+          profileScreen==='explore'?'Planètes, maisons et liens entre les planètes.':
+          profileScreen==='compare'?'Le ciel d’une autre date comparé à ta naissance.':
+          profileScreen==='progressions'?'Une technique astrologique de progression jour-pour-an.':
+          profileScreen==='composite'?'Comparer les positions de deux cartes.':'Ton thème de naissance, en clair.'))+
       (chart?renderNatalChart(chart):'')+
       (showSettings?
       `<section class="card"><h2 class="card-title">Tes informations de naissance</h2><form id="birthForm"><div class="field-grid"><div class="field"><label for="birthDate">Date de naissance</label><input required type="date" id="birthDate" name="date" min="1900-01-01" max="2100-12-31" value="${safe(d.date)}"></div><div class="field"><label for="birthTime">Heure de naissance</label><input ${d.timeKnown?'required':''} type="time" id="birthTime" name="time" value="${safe(d.time)}" ${d.timeKnown?'':'disabled'}></div></div>`+
@@ -1181,7 +1266,7 @@
       return;
     }
     if(a.profileScreen){
-      if(!['overview','explore','compare','settings'].includes(a.profileScreen))return;
+      if(!['overview','explore','compare','settings','progressions','composite'].includes(a.profileScreen))return;
       captureBirthForm();
       profileScreen=state.profile?a.profileScreen:'settings';
       if(profileScreen==='explore'){exploreSection='planets';exploreWheelOpen=false;}
