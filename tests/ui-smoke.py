@@ -512,8 +512,13 @@ if __name__ == '__main__':
             page.locator('.astra-month-navigation [data-month="-1"]').click()
             page.wait_for_timeout(140)
             assert page.locator('.astra-month-navigation h2').inner_text()!=initial_month
-            page.locator('.astra-month-navigation [data-month="1"]').click()
-            page.wait_for_timeout(140)
+            # "Ce jour" is not allowed to inherit the browsed month.
+            page.locator('[data-tab="today"]').click()
+            assert page.locator('.astra-day-hero').count()==1
+            assert page.locator('.astra-week-day.is-selected').get_attribute('data-day')==page.evaluate(
+                "new Date().getFullYear()+'-'+String(new Date().getMonth()+1).padStart(2,'0')+'-'+String(new Date().getDate()).padStart(2,'0')"
+            )
+            page.locator('[data-tab="month"]').click()
             assert page.locator('.astra-month-navigation h2').inner_text()==initial_month
             chosen=page.locator('.astra-month-phase.new').get_attribute('data-month-open-day')
             page.locator('.astra-month-phase.new').click()
@@ -588,6 +593,14 @@ if __name__ == '__main__':
             assert page.locator('.calendar .day.moon-new').count()==1
             assert page.locator('.calendar .day.moon-full').count()==1
             page.locator('.calendar-options > summary').click()
+            page.locator('#eventFilter').select_option('moon')
+            # Calendar filters cannot erase the unfiltred daily summary.
+            page.locator('[data-tab="today"]').click()
+            day_key=page.locator('.astra-week-day.is-selected').get_attribute('data-day')
+            expected=2 if int(day_key[-2:]) in (5,20) else 1
+            assert page.locator('.astra-day-hero .astra-hero-stat strong').inner_text()==str(expected)
+            page.locator('[data-tab="calendar"]').click()
+            page.locator('.calendar-options > summary').click()
             page.locator('#eventFilter').select_option('all')
             capture('calendar-320')
             # Selecting a future phase stays in Dates, opening that exact day.
@@ -623,8 +636,10 @@ if __name__ == '__main__':
             page.locator('.astra-insight-tile[data-goto="journal"]').click()
             assert page.get_by_text('Comment tu te sens ?').count()==1
             capture('journal-320')
-            assert page.locator('#journalNote').input_value()=='Une belle journée de création.'
-            assert page.locator('[data-tag="creation"]').get_attribute('aria-pressed')=='true'
+            # Returning to the daily tab really goes to the present. The older
+            # journal entry is preserved in history, not copied onto today.
+            assert 'Une belle journée de création.' in page.locator('.history-item').first.inner_text()
+            assert page.locator('#journalNote').input_value()!='Une belle journée de création.'
             assert page.locator('#journalNote').is_visible()
             page.locator('#journalNote').focus()
             assert page.locator('.bottom-nav').evaluate(
