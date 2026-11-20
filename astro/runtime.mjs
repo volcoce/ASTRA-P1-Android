@@ -61,9 +61,16 @@ export function transitSnapshot(profile,instant,mode='tropical',houseSystem='pla
     const candidate=ASPECTS.map(a=>({...a,delta:Math.abs(separation-a.angle)}))
       .sort((a,b)=>a.delta-b.delta)[0];
     const orb=automaticTransitOrb(body,candidate.angle);
-    if(candidate.delta<=orb)
+    if(candidate.delta<=orb){
+      const before=angularDistance(longitude(body,new Date(date.getTime()-3600000),mode),chart.positions[natal]);
+      const after=angularDistance(longitude(body,new Date(date.getTime()+3600000),mode),chart.positions[natal]);
+      const deviation=x=>Math.abs(x-candidate.angle);
+      const progress=deviation(before)-deviation(after);
+      const trend=candidate.delta<0.02?'exact':Math.abs(progress)<0.0001?'stable':
+        progress>0?'applying':'separating';
       contacts.push({body,natal,aspect:candidate.name,glyph:candidate.glyph,angle:candidate.angle,
-        delta:+candidate.delta.toFixed(4),orb});
+        delta:+candidate.delta.toFixed(4),orb,trend});
+    }
   }
   contacts.sort((a,b)=>a.delta-b.delta);
   return {at:date.toISOString(),mode,houseSystem,chart,positions,contacts,
@@ -71,6 +78,87 @@ export function transitSnapshot(profile,instant,mode='tropical',houseSystem='pla
 }
 
 export function moonPhase(date) {return Astronomy.MoonPhase(date);}
+
+/** Four actual lunar-quarter instants following the chosen day.
+ * Events are local-calendar labelled, not inferred from the phase at noon.
+ */
+export function upcomingMoonPhases(start,zone='UTC',mode='tropical'){
+  const date=start instanceof Date?start:new Date(String(start));
+  if(!Number.isFinite(date.getTime()))throw new Error('Date lunaire invalide');
+  if(!['tropical','sidereal'].includes(mode))throw new Error('Zodiaque invalide');
+  const names=['Nouvelle Lune','Premier quartier','Pleine Lune','Dernier quartier'];
+  let current=Astronomy.SearchMoonQuarter(date);
+  const timeline=[];
+  for(let index=0;index<4;index++){
+    const at=current.time.date;
+    timeline.push({name:names[current.quarter],quarter:current.quarter,
+      at:at.toISOString(),day:isoDay(at,zone),
+      moonLongitude:longitude('Moon',at,mode)});
+    current=Astronomy.NextMoonQuarter(current);
+  }
+  return timeline;
+}
+
+/** Continuous automatic-orb window around a specific contact.
+ * The bisection refines the detected boundary to a few minutes; the
+ * reporting remains labelled approximate because orbital motion can reverse.
+ * Only call on explicit detail selection; never for every contact in a feed.
+ */
+export function transitContactWindow(profile,instant,body,natal,angle,mode='tropical'){
+  if(!BODIES.includes(body)||!BODIES.includes(natal)||![0,60,90,120,180].includes(angle))
+    throw new Error('Contact astrologique inconnu');
+  if(!['tropical','sidereal'].includes(mode))throw new Error('Zodiaque inconnu');
+  const date=instant instanceof Date?new Date(instant):new Date(String(instant));
+  if(!Number.isFinite(date.getTime()))throw new Error('Date de transit invalide');
+  const chart=natalChart(profile,mode);
+  if(!chart.timeKnown&&natal==='Moon')throw new Error('Position lunaire natale indisponible sans heure');
+  const natalLng=chart.positions[natal],orb=automaticTransitOrb(body,angle);
+  const measure=t=>Math.abs(angularDistance(longitude(body,new Date(t),mode),natalLng)-angle)-orb;
+  const time=date.getTime();
+  if(measure(time)>0)throw new Error('Contact hors orbe à cette date');
+  const stepHours={Moon:2,Sun:6,Mercury:4,Venus:6,Mars:8,Jupiter:24,Saturn:36,Uranus:48,Neptune:48,Pluto:48};
+  const step=stepHours[body]*3600000,maxSpan=730*DAY;
+  const findBoundary=direction=>{
+    let inside=time;
+    for(let n=0;n<Math.ceil(maxSpan/step);n++){
+      const outside=inside+direction*step;
+      if(Math.abs(outside-time)>maxSpan)break;
+      if(measure(outside)>0){
+        let lo=Math.min(inside,outside),hi=Math.max(inside,outside);
+        for(let i=0;i<30&&hi-lo>120000;i++){
+          const mid=(lo+hi)/2;
+          if((measure(mid)<=0)===(direction>0))lo=mid;
+          else hi=mid;
+        }
+        return Math.round(((lo+hi)/2)/60000)*60000;
+      }
+      inside=outside;
+    }
+    return null;
+  };
+  const begin=findBoundary(-1),end=findBoundary(1);
+  return {body,natal,angle,orb,at:date.toISOString(),
+    start:begin===null?null:new Date(begin).toISOString(),
+    end:end===null?null:new Date(end).toISOString(),
+    limited:begin===null||end===null};
+}
+
+/** Secondary progressions by the day-for-year convention. No progressed
+ * houses/angles are claimed; unknown birth time leaves Moon uncertain.
+ */
+export function secondaryProgressions(profile,target,mode='tropical'){
+  const birth=validateProfile(profile),date=target instanceof Date?new Date(target):new Date(String(target));
+  if(!Number.isFinite(date.getTime()))throw new Error('Date cible invalide');
+  if(date.getTime()<birth.getTime())throw new Error('La progression commence à la naissance');
+  if(!['tropical','sidereal'].includes(mode))throw new Error('Zodiaque invalide');
+  const progressed=new Date(birth.getTime()+(date.getTime()-birth.getTime())/365.2422);
+  const positions=Object.fromEntries(BODIES.filter(body=>profile.timeKnown!==false||body!=='Moon')
+    .map(body=>[body,longitude(body,progressed,mode)]));
+  return {target:date.toISOString(),progressedAt:progressed.toISOString(),
+    zodiac:mode,positions,moonUncertain:profile.timeKnown===false,
+    convention:'1 jour après la naissance pour 1 année de vie'};
+}
+
 export function calculateMonth(profile,year,month,mode='tropical',orb='auto',options={}) {
   if(!Number.isInteger(year)||year<1900||year>2100||!Number.isInteger(month)||month<1||month>12)throw Error('Mois invalide');
   if(!['tropical','sidereal'].includes(mode)||(orb!=='auto'&&(!Number.isFinite(orb)||orb<0.1||orb>10)))throw Error('Paramètres invalides');
@@ -143,4 +231,4 @@ export function calculateMonth(profile,year,month,mode='tropical',orb='auto',opt
   return {year,month,mode,orb,chart,days,exact:exact.length,stations:stations.length,phases:phases.length,
     approximateNatal:!chart.timeKnown,calculatedAt:new Date().toISOString()};
 }
-if(typeof window!=='undefined')window.ASTRA_ENGINE={BODIES,BODY_FR,natalChart,calculateMonth,moonPhase,formatSign,validateProfile,localToUtc,describeEvent,DISCLAIMER,searchCities,normalizePlace,houseOf,layoutPlanetLabels,MIN_LABEL_SPACING_DEGREES,formatSignExact,formatOrbExact,filterNatalAspects,describeNatalPlanet,describeNatalHouse,describeNatalAspect,NATAL_ASPECT_FILTERS,transitSnapshot,HOUSE_SYSTEMS};
+if(typeof window!=='undefined')window.ASTRA_ENGINE={BODIES,BODY_FR,natalChart,calculateMonth,moonPhase,upcomingMoonPhases,transitContactWindow,secondaryProgressions,formatSign,validateProfile,localToUtc,describeEvent,DISCLAIMER,searchCities,normalizePlace,houseOf,layoutPlanetLabels,MIN_LABEL_SPACING_DEGREES,formatSignExact,formatOrbExact,filterNatalAspects,describeNatalPlanet,describeNatalHouse,describeNatalAspect,NATAL_ASPECT_FILTERS,transitSnapshot,HOUSE_SYSTEMS};
