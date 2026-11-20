@@ -378,6 +378,8 @@ textarea:focus-visible,select:focus-visible{outline:3px solid #237b99;outline-of
   font-variant-numeric:tabular-nums}
 .astra-day-moon-moment.phase span{font-weight:750}
 .astra-day-moon-moment span{overflow-wrap:anywhere}
+.astra-day-moon-explanation{color:#d5e3ea;font:450 12px/1.45 system-ui,sans-serif;
+  border-top:1px solid #60798b;padding-top:10px;margin:11px 0 1px}
 .astra-hero-stat{display:flex;align-items:center;gap:9px;line-height:1.3;
   border-top:1px solid #496779;padding-top:11px;margin-top:12px}
 .astra-hero-stat strong{font:770 23px/1 system-ui,sans-serif;
