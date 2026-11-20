@@ -93,3 +93,25 @@ export function natalAspects(positions,maxOrb=5) {
   }
   return result.sort((a,b)=>a.orb-b.orb);
 }
+
+
+/** Alternative house divisions reuse the astronomically determined horizon and meridian.
+ * The ecliptic is divided into 12 equal sections for Equal, and complete
+ * 30-degree zodiac signs for Whole Sign. Angles remain geometrically real.
+ */
+export const HOUSE_SYSTEMS=Object.freeze({
+  placidus:'Placidus',
+  equal:'Maisons égales',
+  whole:'Signes entiers'
+});
+export function selectHouseSystem(tropical,system='placidus'){
+  if(!Object.hasOwn(HOUSE_SYSTEMS,system))throw Error('Système de maisons inconnu');
+  if(!tropical || !Number.isFinite(tropical.ascendant) || !Number.isFinite(tropical.midheaven))
+    throw Error('Angles de naissance invalides');
+  if(system==='placidus')return {...tropical,requestedSystem:system};
+  const asc=tropical.ascendant;
+  const start=system==='whole'?Math.floor(mod(asc)/30)*30:asc;
+  return {ascendant:asc,midheaven:tropical.midheaven,system:HOUSE_SYSTEMS[system],
+    requestedSystem:system,polarFallback:false,
+    cusps:Array.from({length:12},(_,i)=>mod(start+i*30))};
+}
