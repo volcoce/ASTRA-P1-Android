@@ -283,7 +283,14 @@
     const raw=result.days?.[selected];
     const day=raw?{active:raw.active||[],exact:raw.exact||[],sky:raw.sky||[]}:classify(null);
     const events=dayEvents(day),active=day.active.slice(0,8);
-    const moon=E?.moonPhase(new Date(selected+'T12:00:00Z'));
+    // Daily sky is measured at local noon, independently of the natal place.
+    // Never interpolate a lunar sign from the phase angle.
+    let sky=null;
+    try{sky=E.dailySky(selected,detectedZone,state.mode);}catch{/* Show honest missing data. */}
+    const zodiacSign=longitude=>sky?E.formatSign(longitude).replace(/^.*?°\s*/,''):'indisponible';
+    const moonSign=sky?zodiacSign(sky.moonLongitude):'indisponible';
+    const sunSign=sky?zodiacSign(sky.sunLongitude):'indisponible';
+    const moonStage=sky?lunarLabel(sky.moonPhase):'Phase indisponible';
     const entry=state.journal[selected];
     const todayKey=isoDay(new Date()),isCurrent=selected===todayKey;
     const count=events.length;
@@ -291,18 +298,21 @@
     return header(isCurrent?'Ce jour':'Le ciel du '+new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'long',timeZone:'UTC'}).format(new Date(selected+'T12:00:00Z')),
         'Choisis un jour, puis découvre ses événements et tes notes.')+
       weekStrip()+birthTimeWarning()+
-      '<section class="astra-day-hero" aria-label="Résumé du ciel pour cette date">'+
+      '<section class="astra-day-hero" aria-label="Lune et événements pour cette date">'+
         '<div class="astra-day-hero-copy"><p class="astra-hero-kicker">LE CIEL DU '+safe(new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'long',timeZone:'UTC'}).format(new Date(selected+'T12:00:00Z')).toLocaleUpperCase('fr-FR'))+'</p>'+
+        '<div class="astra-hero-moon"><span class="astra-hero-moon-icon" aria-hidden="true">☾</span>'+
+        '<div><h2 class="astra-moon-title">Lune en '+safe(moonSign)+'</h2>'+
+        '<p class="astra-moon-phase">'+safe(moonStage)+'</p></div></div>'+
+        '<p class="astra-sky-reference">Position à 12 h · '+safe(detectedZone)+' · '+(state.mode==='sidereal'?'sidéral':'tropical')+'</p>'+
         '<div class="astra-hero-stat"><strong>'+count+'</strong><span>'+(
-          count===1?'événement précis':'événements précis')+'</span></div>'+
-        '<p class="astra-hero-description">'+(count?'Retrouve les événements calculés pour cette date.':'Aucun événement exact calculé pour cette date.')+'</p></div>'+
+          count===1?'événement calculé':'événements calculés')+' pour cette date</span></div></div>'+
         '<div class="astra-hero-orbit" aria-hidden="true"><span>☾</span></div>'+
         '<button type="button" class="astra-hero-link" data-scroll-to="todayEvents">Voir les événements <span aria-hidden="true">↓</span></button>'+
       '</section>'+status()+
       '<section class="astra-today-insights" aria-labelledby="astraTodayInsightsTitle">'+
         '<div class="astra-section-head"><h2 id="astraTodayInsightsTitle">À découvrir</h2><span>Pour '+(isCurrent?'aujourd’hui':'cette date')+'</span></div>'+
         '<div class="astra-insight-track" role="region" tabindex="0" aria-label="Informations et raccourcis du jour">'+
-          '<div class="astra-insight-tile as-lunar"><span class="astra-tile-kicker">☾ LUNE</span><strong>'+safe(lunarLabel(moon))+'</strong><small>Phase approximative à midi UTC</small></div>'+
+          '<div class="astra-insight-tile as-sun"><span class="astra-tile-kicker">☉ SOLEIL</span><strong>Soleil en '+safe(sunSign)+'</strong><small>'+(sky?'À midi · '+safe(E.formatSign(sky.sunLongitude)):'Position indisponible')+'</small></div>'+
           '<button type="button" class="astra-insight-tile as-journal" data-goto="journal"><span class="astra-tile-kicker">✎ JOURNAL</span><strong>'+(entry?'Relire ma journée':'Noter ma journée')+'</strong><small>'+(entry?'Humeur '+entry.mood+'/5 enregistrée':'Émotions, humeur, souvenirs')+'</small><span class="astra-tile-arrow" aria-hidden="true">↗</span></button>'+
           '<button type="button" class="astra-insight-tile as-chart" data-goto="profile"><span class="astra-tile-kicker">✧ MON CIEL</span><strong>Ma carte de naissance</strong><small>Planètes, Soleil et Ascendant</small><span class="astra-tile-arrow" aria-hidden="true">↗</span></button>'+
         '</div></section>'+
