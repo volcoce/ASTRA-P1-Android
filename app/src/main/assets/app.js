@@ -312,6 +312,61 @@
       (!isCurrent?'<button type="button" class="astra-back-today" data-reset-today="1">Revenir à aujourd’hui</button>':'')+
       detailView();
   }
+  function monthOverview() {
+    if(!state.profile)return unconfigured();
+    const y=month.getFullYear(),m=month.getMonth()+1;
+    const monthKey=y+'-'+pad(m);
+    const monthLabel=new Intl.DateTimeFormat('fr-FR',{month:'long',year:'numeric'}).format(month);
+    const records=Object.entries(result?.days||{}).filter(([day])=>day.startsWith(monthKey+'-'))
+      .sort(([a],[b])=>a.localeCompare(b));
+    const exactEvents=records.flatMap(([day,data])=>[...(data.exact||[]),...(data.sky||[])].map(event=>({day,event})))
+      .sort((a,b)=>(a.event.at||a.day).localeCompare(b.event.at||b.day));
+    const daysWithEvents=records.filter(([,d])=>(d.exact?.length||0)+(d.sky?.length||0)>0).length;
+    const journalDays=Object.keys(state.journal).filter(day=>day.startsWith(monthKey+'-')).length;
+    const lunar=exactEvents.filter(({event})=>event.type==='moon'&&
+      (event.name==='Nouvelle Lune'||event.name==='Pleine Lune'));
+    const featured=exactEvents.slice(0,5);
+    const dayLabel=day=>new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'short',timeZone:'UTC'})
+      .format(new Date(day+'T12:00:00Z'));
+    return header('Ce mois','Les événements du ciel et les grandes phases lunaires de '+safe(monthLabel)+'.')+
+      '<div class="month-head astra-month-navigation" aria-label="Choisir un mois">'+
+        '<button type="button" class="arrow" data-month="-1" aria-label="Mois précédent">‹</button>'+
+        '<h2>'+safe(monthLabel)+'</h2>'+
+        '<button type="button" class="arrow" data-month="1" aria-label="Mois suivant">›</button></div>'+
+      birthTimeWarning()+
+      '<section class="astra-month-hero" aria-label="Résumé des événements du mois">'+
+        '<p class="astra-month-kicker">RÉSUMÉ DU MOIS</p>'+
+        '<div class="astra-month-headline"><strong>'+exactEvents.length+'</strong>'+
+        '<span>événement'+(exactEvents.length===1?'':'s')+' calculé'+(exactEvents.length===1?'':'s')+'</span></div>'+
+        '<p>Pour '+safe(monthLabel)+' · aspects exacts et événements du ciel</p>'+
+      '</section>'+status()+
+      '<section class="astra-month-metrics" aria-label="Indicateurs mensuels">'+
+        '<div><strong>'+daysWithEvents+'</strong><span>jours avec événements</span></div>'+
+        '<button type="button" data-goto="journal"><strong>'+journalDays+'</strong><span>jour'+(journalDays===1?'':'s')+' noté'+(journalDays===1?'':'s')+' · ouvrir le journal</span></button>'+
+      '</section>'+
+      '<section class="astra-month-section" aria-labelledby="monthMoonTitle">'+
+        '<div class="astra-section-head"><h2 id="monthMoonTitle">Phases majeures</h2><span>Ce mois uniquement</span></div>'+
+        '<div class="astra-month-phases">'+(lunar.map(({day,event})=>{
+          const isNew=event.name==='Nouvelle Lune';
+          return '<button type="button" class="astra-month-phase '+(isNew?'new':'full')+
+            '" data-month-open-day="'+day+'" aria-label="'+safe(event.name+', le '+displayDate(day))+'">'+
+            '<span class="astra-month-phase-icon" aria-hidden="true">'+(isNew?'●':'○')+'</span>'+
+            '<span class="astra-month-phase-copy"><strong>'+safe(event.name)+'</strong>'+
+            '<small>'+safe(dayLabel(day))+(event.at?' · '+safe(formatMoment(event.at,state.profile.timezone)):'')+
+            '</small></span><span aria-hidden="true">›</span></button>';
+        }).join('')||'<p class="astra-empty">Aucune Nouvelle ou Pleine Lune calculée pour ce mois.</p>')+'</div>'+
+        '<p class="astra-section-help">Les horaires sont ceux du fuseau de naissance enregistré. Choisis une phase pour voir sa date dans le calendrier.</p></section>'+
+      '<section class="astra-month-section" aria-labelledby="monthEventsTitle">'+
+        '<div class="astra-section-head"><h2 id="monthEventsTitle">Premiers événements du mois</h2><span>'+exactEvents.length+' au total</span></div>'+
+        '<div class="astra-month-events">'+(featured.map(({day,event})=>
+          '<button type="button" data-month-open-day="'+day+'" class="astra-month-event">'+
+            '<span class="astra-month-event-day">'+safe(dayLabel(day))+'</span>'+
+            '<span class="astra-month-event-text">'+safe(eventTitle(event))+'</span>'+
+            '<span aria-hidden="true">›</span></button>').join('')||
+          '<p class="astra-empty">Aucun événement exact calculé pour ce mois.</p>')+'</div>'+
+        (exactEvents.length>featured.length?'<p class="astra-section-help">Les cinq premiers sont affichés. Consulte le calendrier pour les autres dates.</p>':'')+
+        '<button type="button" class="astra-month-calendar-link" data-goto="calendar">Ouvrir le calendrier <span aria-hidden="true">→</span></button></section>';
+  }
   function calendar() {
     if(!state.profile)return unconfigured();
     const year=month.getFullYear(),m=month.getMonth(),weekday=(new Date(year,m,1).getDay()+6)%7,count=new Date(year,m+1,0).getDate();
@@ -358,7 +413,7 @@
     initDraft();
     const d=journalDraft;
     const history=Object.entries(state.journal).sort((a,b)=>b[0].localeCompare(a[0])).filter(([day,item])=>!searchTerm||`${day} ${item.note} ${(item.tags||[]).map(t=>themes[t]).join(' ')}`.toLocaleLowerCase('fr').includes(searchTerm.toLocaleLowerCase('fr'))).slice(0,30);
-    return header('Mon journal','Un espace pour noter ta journée et ton ressenti.')+
+    return '<button type="button" class="astra-journal-back" data-goto="today">← Retour à Ce jour</button>'+header('Mon journal','Un espace pour noter ta journée et ton ressenti.')+
       `<section class="card"><h2 class="card-title">${safe(displayDate(selected))}</h2><div class="actions"><button class="ghost" data-offset="-1">Jour précédent</button><button class="ghost" data-offset="1">Jour suivant</button></div>`+
       `<div class="field"><label>Comment tu te sens ?</label><div class="mood-row">${[1,2,3,4,5].map(n=>`<button type="button" data-mood="${n}" aria-pressed="${d.mood===n}" aria-label="Humeur ${n} sur 5" class="mood ${d.mood===n?'on':''}"><span class="mood-symbol" aria-hidden="true">${moodSymbols[n]}</span><span>${['','Très bas','Bas','Moyen','Bien','Très bien'][n]}</span></button>`).join('')}</div></div>`+
       `<div class="field"><label for="energyRange">Ton énergie · <output id="energyValue">${d.energy}/5</output></label><input id="energyRange" type="range" min="1" max="5" value="${d.energy}" step="1"></div>`+
@@ -1094,7 +1149,7 @@
   }
   function render() {
     renderedEvents=[];
-    $('app').innerHTML=({today,calendar,journal,profile})[activeTab]();
+    $('app').innerHTML=({today,month:monthOverview,calendar,journal,profile})[activeTab]();
     // Renders can detach a focused input without firing focusout.
     syncKeyboardVisibility();
     document.body.classList.toggle('astra-focus-open',activeTab==='profile'&&profileScreen==='focus');
@@ -1105,6 +1160,7 @@
     });
   }
   function go(tab) {
+    if(!['today','month','calendar','journal','profile'].includes(tab))return;
     activeTab=tab;
     if(tab==='profile')profileScreen=state.profile?'overview':'settings';
     openDetail=null;
@@ -1204,6 +1260,7 @@
     }
     if(a.weekShift){selectDay(shiftDay(selected,Number(a.weekShift)));return;}
     if(a.lunarDay){selectDay(a.lunarDay);go('calendar');return;}
+    if(a.monthOpenDay){selectDay(a.monthOpenDay);go('calendar');return;}
     if(a.resetToday){selectDay(isoDay(new Date()));return;}
     if(a.openFocus&&state.profile){
       captureBirthForm();focusReturnScreen=profileScreen;
