@@ -75,10 +75,10 @@ La navigation doit toujours afficher **icône + texte**. L'état actif se distin
 
 ### Navigation secondaire
 
-- **Ce jour** — semaine précédente/suivante, choix du jour, « Voir les événements », détails repliables.
+- **Ce jour** — semaine précédente/suivante, « Précédent / Suivant » pour le jour, choix du jour, « Voir les événements », navigation entre événements et quatre jalons lunaires ouvrant le calendrier.
 - **Dates** — mois précédent/suivant, jour sélectionné ; filtres dans « Options d'affichage ».
 - **Journal** — jour précédent/suivant, sauvegarde visible ; historique sous la saisie.
-- **Mon ciel** — deux parcours à intitulés compréhensibles : « Comprendre mon thème » et « Comparer deux dates ». Les rubriques Planètes/Maisons/Aspects sont des onglets secondaires ; « Réglages » est un lien tertiaire.
+- **Mon ciel** — trois vues de la même carte : « Roue / Planètes / Aspects ». Deux parcours à intitulés compréhensibles restent disponibles : « Comprendre mon thème » et « Comparer deux dates ». Le glossaire est contextuel ; les progressions et la carte composite sont repliées dans les outils avancés.
 - **Réglages** — paramètres essentiels en premier, « Options avancées » et exports repliables.
 
 **Retour Android :** fermer un panneau contextuel, puis la roue immersive, puis revenir de la sous-page à Mon ciel, puis à Ce jour. Ne jamais quitter l'app sur un simple retour depuis un détail.
