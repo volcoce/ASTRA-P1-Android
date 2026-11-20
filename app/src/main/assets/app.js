@@ -846,6 +846,27 @@
     if(isOverview){
       const homeSvg=svg.replace(/class="natal-wheel([^"]*)"/,(_,rest)=>
         'class="natal-wheel'+rest+'" style="width:100%;min-width:0;max-width:none"');
+      const viewTabs='<div class="natal-overview-tabs" role="group" aria-label="Choisir la vue du thème">'+
+        [['wheel','Roue'],['planets','Planètes'],['aspects','Aspects']].map(([id,name])=>
+          '<button type="button" data-overview-pane="'+id+'" aria-pressed="'+(overviewPane===id)+'" class="'+
+          (overviewPane===id?'selected':'')+'">'+name+'</button>').join('')+'</div>';
+      const overviewContent=overviewPane==='planets'
+        ?'<section class="natal-overview-panel" aria-label="Positions planétaires"><p class="natal-panel-lead">Appuie sur une planète pour voir sa position et sa signification.</p>'+
+          '<div class="natal-positions">'+bodyButtons+'</div></section>'
+        :overviewPane==='aspects'
+        ?'<section class="natal-overview-panel" aria-label="Aspects de naissance"><p class="natal-panel-lead">Les aspects sont les angles entre deux planètes au moment de ta naissance.</p>'+
+          '<div class="natal-aspects">'+(aspects||'<p class="astra-empty">Aucun aspect avec le filtre sélectionné.</p>')+'</div>'+
+          '<button type="button" class="natal-more-link" data-profile-screen="explore">Explorer les aspects en détail →</button></section>'
+        :'<div class="natal-wheel-viewport" role="region" tabindex="0" aria-label="Roue natale interactive">'+homeSvg+'</div>'+
+          shortCaption+focusLaunch;
+      const glossary='<details class="natal-glossary"><summary>Comprendre les mots astrologiques</summary>'+
+        '<dl><dt>Planète</dt><dd>Corps céleste représenté à sa position dans le zodiaque.</dd>'+
+        '<dt>Signe</dt><dd>L’un des douze secteurs de 30° du zodiaque utilisé.</dd>'+
+        '<dt>Maison</dt><dd>Division de la carte selon l’heure et le lieu de naissance.</dd>'+
+        '<dt>Aspect</dt><dd>Angle mesuré entre deux positions planétaires.</dd>'+
+        '<dt>Orbe</dt><dd>Écart entre un angle exact et l’angle mesuré.</dd>'+
+        '<dt>Transit</dt><dd>Position planétaire à une autre date, comparée à ta naissance.</dd>'+
+        '</dl><p class="tiny">Les interprétations astrologiques sont symboliques, non scientifiquement prédictives.</p></details>';
       return '<section class="card natal-card natal-home" id="natalChart">'+
         '<div class="natal-home-header"><div><h2 class="card-title">Ta carte de naissance</h2>'+
         '<p class="natal-home-subtitle">Positions à ta naissance · '+(isTropical?'Tropical':'Sidéral')+'</p></div>'+
@@ -853,9 +874,7 @@
         (uncertain?notice:'')+
         '<div class="natal-primary-cards'+(h?'':' natal-primary-cards--two')+'" role="group" aria-label="Soleil, Lune et Ascendant en signes astrologiques">'+quickCards+'</div>'+
         '<div class="natal-home-actions natal-home-actions--primary"><button type="button" class="natal-main-action" data-profile-screen="explore"><span class="action-label"><strong>Comprendre mon thème</strong><small>Planètes, signes et maisons</small></span><span class="action-arrow" aria-hidden="true">→</span></button></div>'+
-        '<div class="natal-wheel-viewport" role="region" tabindex="0" aria-label="Roue natale interactive">'+homeSvg+'</div>'+
-        shortCaption+focusLaunch+
-        contextSheet+
+        viewTabs+overviewContent+contextSheet+glossary+
         '<div class="natal-home-actions natal-home-actions--secondary"><button type="button" class="natal-secondary-action" data-explore-transits="1"><span class="action-label"><strong>Comparer deux dates</strong><small>Le ciel d’un autre jour</small></span><span class="action-arrow" aria-hidden="true">→</span></button></div>'+
         (h?.polarFallback?'<p class="notice">Maisons égales utilisées à cette latitude.</p>':'')+
         '</section>';
@@ -1091,6 +1110,12 @@
       profileScreen=focusReturnScreen;natalSelection=null;render();
       [...$('app').querySelectorAll('[data-open-focus]')]
         .find(node=>node.getClientRects().length>0)?.focus({preventScroll:true});
+      return;
+    }
+    if(a.overviewPane){
+      if(!['wheel','planets','aspects'].includes(a.overviewPane))return;
+      overviewPane=a.overviewPane;natalSelection=null;render();
+      if(event.detail===0)$('app').querySelector('[data-overview-pane="'+a.overviewPane+'"]')?.focus({preventScroll:true});
       return;
     }
     if(a.exploreSection){
