@@ -659,3 +659,7 @@ body.astra-input-active .app-shell{padding-bottom:20px}
   .natal-focus-header h2{font-size:18px}
   .natal-context-sheet{max-height:62dvh;bottom:65px}
 }
+
+/* P0 accessibility: native modal (top layer makes background inert). */
+dialog.natal-focus{margin:0;width:100%;max-width:none;max-height:none;border:0;color:var(--ink)}
+dialog.natal-focus::backdrop{background:rgba(18,31,44,.62)}
