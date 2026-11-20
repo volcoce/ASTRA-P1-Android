@@ -2,8 +2,9 @@ import * as Astronomy from 'astronomy-engine';
 import {describeEvent, DISCLAIMER} from './interpretations.mjs';
 import {searchCities, normalizePlace} from './places.mjs';
 import {tropicalHouses,houseOf,natalAspects} from './natal.mjs';
+import {layoutPlanetLabels,MIN_LABEL_SPACING_DEGREES} from './chart-layout.mjs';
 import {ASPECTS,TARGETS,mod,signed,angularDistance,zodiacLongitude,lahiriApprox,formatSign,localToUtc,isoDay,validateProfile} from './core.mjs';
-export {ASPECTS,formatSign,localToUtc,validateProfile,describeEvent,DISCLAIMER,searchCities,normalizePlace,houseOf};
+export {ASPECTS,formatSign,localToUtc,validateProfile,describeEvent,DISCLAIMER,searchCities,normalizePlace,houseOf,layoutPlanetLabels,MIN_LABEL_SPACING_DEGREES};
 export const BODIES=['Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto'];
 export const BODY_FR={Sun:'Soleil',Moon:'Lune',Mercury:'Mercure',Venus:'Vénus',Mars:'Mars',Jupiter:'Jupiter',Saturn:'Saturne',Uranus:'Uranus',Neptune:'Neptune',Pluto:'Pluton'};
 /* Automatic transit orbs: editorial astrological conventions, not astronomical constants. */
@@ -105,4 +106,4 @@ export function calculateMonth(profile,year,month,mode='tropical',orb='auto',opt
   const seen=new Set();for(const day of Object.values(days))day.exact=day.exact.filter(e=>{const k=`${e.body}:${e.natal}:${e.aspect}:${e.at.slice(0,16)}`;if(seen.has(k))return false;seen.add(k);return true;});
   return {year,month,mode,orb,chart,days,exact:exact.length,stations:stations.length,phases:phases.length,calculatedAt:new Date().toISOString()};
 }
-if(typeof window!=='undefined')window.ASTRA_ENGINE={BODIES,BODY_FR,natalChart,calculateMonth,moonPhase,formatSign,validateProfile,localToUtc,describeEvent,DISCLAIMER,searchCities,normalizePlace,houseOf};
+if(typeof window!=='undefined')window.ASTRA_ENGINE={BODIES,BODY_FR,natalChart,calculateMonth,moonPhase,formatSign,validateProfile,localToUtc,describeEvent,DISCLAIMER,searchCities,normalizePlace,houseOf,layoutPlanetLabels,MIN_LABEL_SPACING_DEGREES};
