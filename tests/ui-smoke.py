@@ -55,7 +55,10 @@ window.ASTRA_ENGINE = {
    const n=new Date(year,month,0).getDate(),days={};
    for(let d=1;d<=n;d++){
      const k=year+'-'+String(month).padStart(2,'0')+'-'+String(d).padStart(2,'0');
-     days[k]={active:[{type:'active',body:'Sun',natal:'Moon',aspect:'Trigone',angle:120,delta:.43,orb:1.7}], exact:[{type:'exact',body:'Sun',natal:'Moon',aspect:'Trigone',at:k+'T11:30:00Z'}], sky:d===5?[{type:'moon',name:'Nouvelle Lune',at:k+'T14:00:00Z',moonLongitude:11}]:d===20?[{type:'moon',name:'Pleine Lune',at:k+'T14:00:00Z',moonLongitude:61}]:[]};
+     days[k]={active:[{type:'active',body:'Sun',natal:'Moon',aspect:'Trigone',angle:120,delta:.43,orb:1.7}],
+       exact:[{type:'exact',body:[5,9,20,23].includes(d)?'Sun':'Mercury',natal:'Moon',aspect:'Trigone',at:k+'T11:30:00Z'}],
+       moonPhaseAtNoon:d===5?5:d===20?180:d<9?65:d<18?128:d<24?225:315,
+       sky:d===5?[{type:'moon',name:'Nouvelle Lune',at:k+'T14:00:00Z',moonLongitude:11}]:d===20?[{type:'moon',name:'Pleine Lune',at:k+'T14:00:00Z',moonLongitude:61}]:[]};
    }
    return {days,chart:this.natalChart(),mode};
  }
@@ -491,6 +494,8 @@ if __name__ == '__main__':
                     assert page.locator('.astra-week-day[aria-pressed="true"]').count()==1
                     assert page.locator('.astra-day-hero').count()==1
                     assert page.locator('.astra-moon-title').inner_text()=='Lune en Bélier'
+                    assert page.locator('.astra-hero-moon-icon .astra-phase-graphic').count()==1
+                    assert page.locator('.astra-hero-moon-icon .astra-phase-graphic.astra-phase-3').count()==1
                     assert page.locator('.astra-moon-phase').inner_text()=='Lune gibbeuse croissante'
                     assert page.locator('.astra-sky-reference').is_visible()
                     assert '12 h' in page.locator('.astra-sky-reference').inner_text()
@@ -618,8 +623,8 @@ if __name__ == '__main__':
             assert page.locator('.calendar-options').count()==1
             assert page.locator('.calendar-options').get_attribute('open') is None
             assert page.locator('h1.page-title').inner_text()=='Calendrier'
-            # True Moon-quarter markers: purple for the new Moon (day 5),
-            # amber for the full Moon (day 20), others unmarked.
+            # Calculated phase icon for every day; New/Full highlighted
+            # separately. Only the 4 mock solar exact contacts are underlined.
             new_moon=page.locator('.calendar .day.moon-new')
             full_moon=page.locator('.calendar .day.moon-full')
             assert new_moon.count()==1 and full_moon.count()==1
@@ -627,8 +632,18 @@ if __name__ == '__main__':
             assert full_moon.get_attribute('data-day').endswith('-20')
             assert 'Nouvelle Lune' in new_moon.get_attribute('aria-label')
             assert 'Pleine Lune' in full_moon.get_attribute('aria-label')
-            assert page.locator('.calendar .day .moon-phase-badge').count()==2
-            assert page.locator('.calendar-phase-legend .cal-legend-item').count()==2
+            month_days=page.locator('.calendar .day').count()
+            assert page.locator('.calendar .day .moon-phase-badge').count()==month_days
+            assert page.locator('.calendar .day .moon-phase-badge .astra-phase-graphic').count()==month_days
+            assert new_moon.locator('.astra-phase-graphic.astra-phase-0').count()==1
+            assert full_moon.locator('.astra-phase-graphic.astra-phase-4').count()==1
+            assert page.locator('.calendar .day.sun-exact').count()==4
+            assert page.locator('.calendar .day.sun-exact .sun-aspect-line').count()==4
+            assert page.locator('.calendar .day[data-day$="-09"].sun-exact').count()==1
+            assert page.locator('.calendar .day[data-day$="-12"].sun-exact').count()==0
+            assert 'aspect(s) exact(s) du Soleil' in page.locator('.calendar .day[data-day$="-09"]').get_attribute('aria-label')
+            assert page.locator('.calendar-phase-legend .cal-legend-item').count()==4
+            assert 'Trait doré' in page.locator('.calendar-phase-legend').inner_text()
             assert 'Nouvelle Lune' in page.locator('.calendar-phase-legend').inner_text()
             assert 'Pleine Lune' in page.locator('.calendar-phase-legend').inner_text()
             new_bg=new_moon.evaluate("e=>getComputedStyle(e).backgroundColor")
@@ -639,8 +654,12 @@ if __name__ == '__main__':
             page.locator('#eventFilter').select_option('exact')
             assert page.locator('.calendar .day.moon-new').count()==1
             assert page.locator('.calendar .day.moon-full').count()==1
+            assert page.locator('.calendar .day.sun-exact').count()==4
+            assert page.locator('.calendar .day .moon-phase-badge').count()==month_days
             page.locator('.calendar-options > summary').click()
             page.locator('#eventFilter').select_option('moon')
+            assert page.locator('.calendar .day.sun-exact').count()==4
+            assert page.locator('.calendar .day .moon-phase-badge').count()==month_days
             # Calendar filters cannot erase the unfiltred daily summary.
             page.locator('[data-tab="today"]').click()
             day_key=page.locator('.astra-week-day.is-selected').get_attribute('data-day')
