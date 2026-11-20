@@ -1,11 +1,11 @@
 import * as Astronomy from 'astronomy-engine';
 import {describeEvent, DISCLAIMER} from './interpretations.mjs';
 import {searchCities, normalizePlace} from './places.mjs';
-import {tropicalHouses,houseOf,natalAspects} from './natal.mjs';
+import {tropicalHouses,selectHouseSystem,HOUSE_SYSTEMS,houseOf,natalAspects} from './natal.mjs';
 import {layoutPlanetLabels,MIN_LABEL_SPACING_DEGREES} from './chart-layout.mjs';
 import {formatSignExact,formatOrbExact,filterNatalAspects,describeNatalPlanet,describeNatalHouse,describeNatalAspect,NATAL_ASPECT_FILTERS} from './natal-learning.mjs';
 import {ASPECTS,TARGETS,mod,signed,angularDistance,zodiacLongitude,lahiriApprox,formatSign,localToUtc,isoDay,validateProfile} from './core.mjs';
-export {ASPECTS,formatSign,localToUtc,validateProfile,describeEvent,DISCLAIMER,searchCities,normalizePlace,houseOf,layoutPlanetLabels,MIN_LABEL_SPACING_DEGREES,formatSignExact,formatOrbExact,filterNatalAspects,describeNatalPlanet,describeNatalHouse,describeNatalAspect,NATAL_ASPECT_FILTERS};
+export {ASPECTS,formatSign,localToUtc,validateProfile,describeEvent,DISCLAIMER,searchCities,normalizePlace,houseOf,layoutPlanetLabels,MIN_LABEL_SPACING_DEGREES,formatSignExact,formatOrbExact,filterNatalAspects,describeNatalPlanet,describeNatalHouse,describeNatalAspect,NATAL_ASPECT_FILTERS,selectHouseSystem,HOUSE_SYSTEMS};
 export const BODIES=['Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto'];
 export const BODY_FR={Sun:'Soleil',Moon:'Lune',Mercury:'Mercure',Venus:'Vénus',Mars:'Mars',Jupiter:'Jupiter',Saturn:'Saturne',Uranus:'Uranus',Neptune:'Neptune',Pluto:'Pluton'};
 /* Automatic transit orbs: editorial astrological conventions, not astronomical constants. */
@@ -23,7 +23,9 @@ export function tropicalLongitude(body,date) {
   return Astronomy.Ecliptic(Astronomy.GeoVector(body,date,true)).elon;
 }
 export function longitude(body,date,mode='tropical') {return zodiacLongitude(tropicalLongitude(body,date),date,mode);}
-export function natalChart(profile,mode='tropical') {
+export function natalChart(profile,mode='tropical',houseSystem='placidus') {
+  if(!['tropical','sidereal'].includes(mode))throw Error('Zodiaque inconnu');
+  if(!Object.hasOwn(HOUSE_SYSTEMS,houseSystem))throw Error('Système de maisons inconnu');
   const birth=validateProfile(profile);
   const positions=Object.fromEntries(BODIES.map(body=>[body,longitude(body,birth,mode)]));
   const timeKnown=profile.timeKnown!==false;
@@ -31,17 +33,43 @@ export function natalChart(profile,mode='tropical') {
   // Sidereal cusps use the same local horizon and Placidus geometry, with longitudes
   // shifted by the approximate Lahiri ayanamsa. No saved profile or lookup tables.
   const shift=mode==='sidereal'?lahiriApprox(birth):0;
-  const houses=!timeKnown?null:shift===0?tropical:{
+  const zodiacBase=!timeKnown?null:shift===0?tropical:{
     ...tropical,ascendant:mod(tropical.ascendant-shift),
     midheaven:mod(tropical.midheaven-shift),
     cusps:tropical.cusps.map(value=>mod(value-shift)),
     approximateSidereal:true
   };
+  // For whole-sign houses, partition at a zodiac sign boundary AFTER the
+  // sidereal conversion. Shifting tropical whole-sign cusps would be wrong.
+  const houses=zodiacBase?selectHouseSystem(zodiacBase,houseSystem):null;
   const preciseBodies=timeKnown?positions:Object.fromEntries(Object.entries(positions).filter(([body])=>body!=='Moon'));
   return {birth:birth.toISOString(),positions,houses,aspects:natalAspects(preciseBodies),
     timeKnown,approximateNoon:!timeKnown,uncertainBodies:timeKnown?[]:['Moon'],
-    zodiac:mode,engine:'astronomy-engine@2.1.19'};
+    zodiac:mode,houseSystem,engine:'astronomy-engine@2.1.19'};
 }
+
+/** A single physically timed transit snapshot (not a predicted event). */
+export function transitSnapshot(profile,instant,mode='tropical',houseSystem='placidus'){
+  const date=instant instanceof Date?new Date(instant):new Date(String(instant));
+  if(!Number.isFinite(date.getTime()))throw Error('Date ou heure de transit invalide');
+  const chart=natalChart(profile,mode,houseSystem);
+  const positions=Object.fromEntries(BODIES.map(body=>[body,longitude(body,date,mode)]));
+  const allowedNatal=BODIES.filter(body=>chart.timeKnown||body!=='Moon');
+  const contacts=[];
+  for(const body of BODIES)for(const natal of allowedNatal){
+    const separation=angularDistance(positions[body],chart.positions[natal]);
+    const candidate=ASPECTS.map(a=>({...a,delta:Math.abs(separation-a.angle)}))
+      .sort((a,b)=>a.delta-b.delta)[0];
+    const orb=automaticTransitOrb(body,candidate.angle);
+    if(candidate.delta<=orb)
+      contacts.push({body,natal,aspect:candidate.name,glyph:candidate.glyph,angle:candidate.angle,
+        delta:+candidate.delta.toFixed(4),orb});
+  }
+  contacts.sort((a,b)=>a.delta-b.delta);
+  return {at:date.toISOString(),mode,houseSystem,chart,positions,contacts,
+    approximateNatal:!chart.timeKnown};
+}
+
 export function moonPhase(date) {return Astronomy.MoonPhase(date);}
 export function calculateMonth(profile,year,month,mode='tropical',orb='auto',options={}) {
   if(!Number.isInteger(year)||year<1900||year>2100||!Number.isInteger(month)||month<1||month>12)throw Error('Mois invalide');
@@ -115,4 +143,4 @@ export function calculateMonth(profile,year,month,mode='tropical',orb='auto',opt
   return {year,month,mode,orb,chart,days,exact:exact.length,stations:stations.length,phases:phases.length,
     approximateNatal:!chart.timeKnown,calculatedAt:new Date().toISOString()};
 }
-if(typeof window!=='undefined')window.ASTRA_ENGINE={BODIES,BODY_FR,natalChart,calculateMonth,moonPhase,formatSign,validateProfile,localToUtc,describeEvent,DISCLAIMER,searchCities,normalizePlace,houseOf,layoutPlanetLabels,MIN_LABEL_SPACING_DEGREES,formatSignExact,formatOrbExact,filterNatalAspects,describeNatalPlanet,describeNatalHouse,describeNatalAspect,NATAL_ASPECT_FILTERS};
+if(typeof window!=='undefined')window.ASTRA_ENGINE={BODIES,BODY_FR,natalChart,calculateMonth,moonPhase,formatSign,validateProfile,localToUtc,describeEvent,DISCLAIMER,searchCities,normalizePlace,houseOf,layoutPlanetLabels,MIN_LABEL_SPACING_DEGREES,formatSignExact,formatOrbExact,filterNatalAspects,describeNatalPlanet,describeNatalHouse,describeNatalAspect,NATAL_ASPECT_FILTERS,transitSnapshot,HOUSE_SYSTEMS};
