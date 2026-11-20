@@ -264,7 +264,7 @@ if __name__ == '__main__':
             assert page.locator('#natalChart .wheel-house-sector').count()==0
             assert page.locator('#natalChart [data-natal-house]').count()==0
             assert 'Heure de naissance inconnue' in page.locator('#natalChart').inner_text()
-            assert 'Ascendant' not in page.locator('.natal-highlights').inner_text()
+            assert 'Ascendant' not in page.locator('.natal-primary-cards').inner_text()
             page.locator('.natal-wheel [data-natal-body="Moon"]').click()
             assert 'indicative' in page.locator('#natalSelectionInfo').inner_text()
             page.locator('[data-profile-screen="explore"]').click()
