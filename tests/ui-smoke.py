@@ -14,7 +14,9 @@ window._store = {};
 Object.defineProperty(window,'localStorage',{configurable:true,value:{getItem:k=>window._store[k]||null,setItem:(k,v)=>{window._store[k]=String(v)},removeItem:k=>{delete window._store[k]}}});
 window.ASTRA_ENGINE = {
  validateProfile(p){if(!p.date || (p.timeKnown!==false&&!p.time) || !p.timezone || !Number.isFinite(Number(p.latitude)))throw Error('Profil invalide');return true;},
- moonPhase(){return 128.1},formatSign(){return '7° Bélier'},
+ moonPhase(){return 128.1},formatSign(lon){return lon===250?'10° Sagittaire':'7° Bélier'},
+ dailySky(day,zone,mode){return {day,timezone:zone,mode,at:new Date(day+'T12:00:00Z').toISOString(),
+  sunLongitude:250,moonLongitude:7,moonPhase:128.1}},
  formatSignExact(){return '07°00′00″ Bélier'},formatOrbExact(orb){return orb.toFixed(2)+'°'},
  filterNatalAspects(list,filter){return filter==='all'?[...list]:list.filter(a=>a.aspect===filter)},
  describeNatalPlanet(body,lng,house,approx){return {title:body==='Moon'?'Lune':'Soleil',astronomy:approx?'Position indicative à midi local':'Longitude calculée',convention:'Lecture astrologique traditionnelle du signe et de la planète.',question:'Quel sens pour ce domaine ?',disclaimer:'Lecture symbolique non prédictive'}},
@@ -480,7 +482,15 @@ if __name__ == '__main__':
                     assert page.locator('.astra-week-day').count()==7
                     assert page.locator('.astra-week-day[aria-pressed="true"]').count()==1
                     assert page.locator('.astra-day-hero').count()==1
+                    assert page.locator('.astra-moon-title').inner_text()=='Lune en Bélier'
+                    assert page.locator('.astra-moon-phase').inner_text()=='Lune gibbeuse croissante'
+                    assert page.locator('.astra-sky-reference').is_visible()
+                    assert '12 h' in page.locator('.astra-sky-reference').inner_text()
+                    assert page.locator('.astra-moon-title').evaluate(
+                        "el=>parseFloat(getComputedStyle(el).fontSize)")>=22
                     assert page.locator('.astra-insight-tile').count()==3
+                    assert page.locator('.astra-insight-tile.as-lunar').count()==0
+                    assert 'Soleil en Sagittaire' in page.locator('.astra-insight-tile.as-sun').inner_text()
                     assert page.locator('.astra-lunar-milestone').count()==0
                     assert page.locator('[data-step-day]').count()==0
                     selected_date=page.locator('.astra-week-day.is-selected').get_attribute('data-day')
