@@ -1,3 +1,45 @@
 <!doctype html>
-<html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f8f5fc"><meta name="description" content="ASTRA — calendrier astrologique calculé pour chaque utilisateur."><meta name="color-scheme" content="light"><link rel="icon" type="image/svg+xml" href="icon.svg"><link rel="stylesheet" href="style.css"><title>ASTRA · Mon ciel au quotidien</title></head>
-<body><div class="app-shell"><header class="top"><div class="identity"><div class="emblem" aria-hidden="true">✦</div><div><div class="brand">ASTRA</div><div class="brand-sub">Mon ciel au quotidien</div></div></div><button class="top-today" id="homeButton">Aujourd’hui</button></header><main id="app" class="main"></main><nav class="bottom-nav" aria-label="Navigation principale"><button class="nav active" data-tab="today"><span class="nav-ico" aria-hidden="true">◉</span>Aujourd’hui</button><button class="nav" data-tab="calendar"><span class="nav-ico" aria-hidden="true">▦</span>Calendrier</button><button class="nav" data-tab="journal"><span class="nav-ico" aria-hidden="true">✎</span>Journal</button><button class="nav" data-tab="profile"><span class="nav-ico" aria-hidden="true">✧</span>Mon ciel</button></nav></div><div id="toast" class="toast" role="status" aria-live="polite" hidden></div><script src="runtime.bundle.js"></script><script src="app.js" defer></script></body></html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#172b3e">
+  <meta name="description" content="ASTRA — ton thème astral, expliqué simplement.">
+  <meta name="color-scheme" content="light">
+  <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="atlas-ui.css">
+  <title>ASTRA · Ton atlas céleste</title>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="top">
+      <div class="identity">
+        <div class="emblem" aria-hidden="true">✳</div>
+        <div><div class="brand">ASTRA</div><div class="brand-sub">Ton atlas céleste</div></div>
+      </div>
+    </header>
+    <main id="app" class="main"></main>
+    <nav class="bottom-nav" aria-label="Navigation principale">
+      <button type="button" class="nav active" data-tab="today">
+        <span class="nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg></span>
+        Aujourd’hui
+      </button>
+      <button type="button" class="nav" data-tab="calendar">
+        <span class="nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18"/></svg></span>
+        Calendrier
+      </button>
+      <button type="button" class="nav" data-tab="journal">
+        <span class="nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6m-6 4h4"/></svg></span>
+        Journal
+      </button>
+      <button type="button" class="nav" data-tab="profile">
+        <span class="nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 2 2.7 7.3L22 12l-7.3 2.7L12 22l-2.7-7.3L2 12l7.3-2.7L12 2Z"/></svg></span>
+        Mon ciel
+      </button>
+    </nav>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <script src="runtime.bundle.js"></script><script src="app.js" defer></script>
+</body>
+</html>
