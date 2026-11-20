@@ -665,7 +665,8 @@
       :'<p class="natal-home-hint">Touchez une planète de la roue pour la découvrir.</p>';
     const pageBack='<button type="button" class="natal-back" data-profile-screen="overview">← Mon ciel</button>';
     if(isOverview){
-      const homeSvg=svg.replace(/style="width:[^"]*"/,'style="width:100%;min-width:320px;max-width:none"');
+      const homeSvg=svg.replace(/class="natal-wheel([^"]*)"/,(_,rest)=>
+        'class="natal-wheel'+rest+'" style="width:100%;min-width:320px;max-width:none"');
       return '<section class="card natal-card natal-home" id="natalChart">'+
         '<div class="natal-home-header"><div><h2 class="card-title">Ma carte du ciel</h2>'+
         '<p class="natal-home-subtitle">Thème natal · '+(isTropical?'Tropical':'Sidéral')+'</p></div>'+
