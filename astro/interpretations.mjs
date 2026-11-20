@@ -47,7 +47,7 @@ export function describeEvent(event){
     kind:event.type==='active'?'Aspect dans l’orbe':'Contact exact',
     title:`${transit.name} ${event.aspect.toLowerCase()} ${natal.name} natal`,
     tone:aspect.tone,
-    astronomy:event.type==='active'?'Écart angulaire mesuré à midi local, dans l’orbe sélectionné.':'Instant calculé de l’aspect géocentrique exact.',
+    astronomy:event.type==='active'?'Écart angulaire mesuré à midi local, dans l’orbe automatique.'+(event.approximateNatal?' Heure de naissance inconnue : position natale indicative à midi ; ce relevé ne représente pas un contact exact.':''):'Instant calculé de l’aspect géocentrique exact.',
     interpretation:`${aspect.description} Ici, la tradition met en relation ${transit.theme} (planète en transit) et ${natal.theme} (planète natale).`,
     question:`${transit.question} Et comment cela s’articule-t-il avec ${natal.theme} ?`,
     disclaimer:DISCLAIMER
