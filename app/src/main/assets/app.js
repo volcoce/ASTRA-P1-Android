@@ -1480,7 +1480,7 @@
     if(a.natalHouse){natalChoose('house',Number(a.natalHouse),event.detail===0);return;}
     if(a.searchCompositePlace){searchCompositeCity();return;}
     if(a.compositePlace!==undefined){
-      captureCompositeForm();
+      captureCompositeForm();compositeValidation=null;
       const found=compositeSearch.options[Number(a.compositePlace)];
       if(found){
         compositeDraft.place=found;compositeDraft.city=found.label;
@@ -1490,7 +1490,7 @@
     }
     if(a.searchPlace){searchBirthCity();return;}
     if(a.place!==undefined){
-      captureBirthForm();const place=placeSearch.options[Number(a.place)];
+      captureBirthForm();birthValidation=null;const place=placeSearch.options[Number(a.place)];
       if(place){placeSearch.selected=place;placeSearch.options=[];placeSearch.error='';placeSearch.needFold=false;birthDraft.fold=null;birthDraft.city=place.label;render();}
       return;
     }
@@ -1550,6 +1550,7 @@
   $('app').addEventListener('input',event=>{
     if(event.target.id==='energyRange'){initDraft();journalDraft.energy=Number(event.target.value);$('energyValue').textContent=journalDraft.energy+'/5';}
     if(event.target.id==='secondCity'){
+      clearValidationError('secondCity');compositeSearch.error='';
       compositeDraft.city=event.target.value;
       if(compositeDraft.place&&compositeDraft.city!==compositeDraft.place.label){
         compositeDraft.place=null;compositeResult=null;compositeSearch.options=[];
@@ -1558,10 +1559,12 @@
       }
     }
     if(event.target.id==='secondDate'||event.target.id==='secondTime'){
+      clearValidationError(event.target.id);
       compositeDraft[event.target.id==='secondDate'?'date':'time']=event.target.value;
       compositeResult=null;
     }
     if(event.target.id==='birthCity'){
+      clearValidationError('birthCity');placeSearch.error='';
       const d=draft();d.city=event.target.value;
       if(placeSearch.selected && d.city!==placeSearch.selected.label){
         placeSearch.selected=null;placeSearch.options=[];placeSearch.error='';placeSearch.needFold=false;d.fold=null;
@@ -1570,6 +1573,7 @@
       }
     }
     if(event.target.id==='birthDate'||event.target.id==='birthTime'){
+      clearValidationError(event.target.id);
       const d=draft();d[event.target.id==='birthDate'?'date':'time']=event.target.value;
       d.fold=null;placeSearch.needFold=false;
       if(placeSearch.selected){const v=document.querySelector('.city-confirmed p');if(v)v.textContent=offsetDescription(d,placeSearch.selected);}
@@ -1585,7 +1589,7 @@
       return;
     }
     if(event.target.id==='secondUnknownTime'){
-      captureCompositeForm();compositeDraft.timeKnown=!event.target.checked;
+      clearValidationError('secondTime');captureCompositeForm();compositeDraft.timeKnown=!event.target.checked;
       compositeResult=null;render();return;
     }
     if(event.target.id==='transitDay'||event.target.id==='transitTime'){
@@ -1597,7 +1601,8 @@
       state.transitDay=date;state.transitTime=time;natalSelection=null;persist();render();
       $(changedId)?.focus({preventScroll:true});return;
     }
-    if(event.target.id==='unknownBirthTime'){captureBirthForm();birthDraft.timeKnown=!event.target.checked;birthDraft.fold=null;placeSearch.needFold=false;render();return;}
+    if(event.target.id==='unknownBirthTime'){clearValidationError('birthTime');clearValidationError('fold');captureBirthForm();birthDraft.timeKnown=!event.target.checked;birthDraft.fold=null;placeSearch.needFold=false;render();return;}
+    if(event.target.id==='fold'){clearValidationError('fold');captureBirthForm();return;}
     if(event.target.id==='eventFilter'){state.filter=event.target.value;persist();openDetail=null;render();return;}
     if(event.target.id==='journalSearch'){
       const wasFocused=document.activeElement===event.target,caret=event.target.selectionStart;
@@ -1623,15 +1628,28 @@
       event.preventDefault();captureCompositeForm();
       try{
         const d=compositeDraft;
-        if(!d.place||d.city!==d.place.label)throw Error('Sélectionne la ville de naissance dans les résultats.');
+        if(!/^\d{4}-\d{2}-\d{2}$/.test(d.date)){
+          showValidationError('composite','secondDate','Indique une date de naissance valide.');return;
+        }
+        if(d.timeKnown&&!/^\d{2}:\d{2}$/.test(d.time)){
+          showValidationError('composite','secondTime','Indique une heure de naissance valide.');return;
+        }
+        if(!d.place||d.city!==d.place.label){
+          showValidationError('composite','secondCity','Sélectionne la ville dans les résultats de recherche.');return;
+        }
         const second={date:d.date,time:d.timeKnown?d.time:null,timeKnown:d.timeKnown,
           timezone:d.place.timezone,latitude:d.place.latitude,longitude:d.place.longitude,
           place:d.place,fold:null};
         E.validateProfile(second);
         compositeResult=E.compositeMidpoints(state.profile,second,state.natalZodiac);
-        compositeSearch.error='';render();
+        compositeSearch.error='';compositeValidation=null;render();
         $('app').querySelector('.natal-composite-result')?.scrollIntoView({block:'nearest'});
-      }catch(error){compositeSearch.error=error?.message||'Calcul composite impossible';render();}
+      }catch(error){
+        const message=error?.message||'Calcul composite impossible';
+        const field=/date|période natale/i.test(message)?'secondDate':
+          /heure|occurrence/i.test(message)?'secondTime':'secondCity';
+        showValidationError('composite',field,message);
+      }
       return;
     }
     if(event.target.id!=='birthForm')return;
@@ -1639,6 +1657,12 @@
     captureBirthForm();
     const d=draft(),place=placeSearch.selected;
     try {
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(d.date)){
+        showValidationError('birth','birthDate','Indique une date de naissance valide.');return;
+      }
+      if(d.timeKnown&&!/^\d{2}:\d{2}$/.test(d.time)){
+        showValidationError('birth','birthTime','Indique une heure de naissance valide.');return;
+      }
       if(!place)throw Error('Recherche et sélection de la ville de naissance obligatoires');
       if(d.city!==place.label)throw Error('Sélectionne la ville dans les résultats de recherche');
       if(!E)throw Error('Moteur non chargé');
@@ -1646,13 +1670,18 @@
         longitude:place.longitude,place:{...place},fold:d.timeKnown?d.fold:null};
       try{E.validateProfile(profile);}catch(err){
         if(d.timeKnown!==false && /ambiguë/.test(err?.message||'') && d.fold===null){
-          placeSearch.needFold=true;render();show('Cette heure a eu lieu deux fois : choisis l’occurrence.');return;
+          placeSearch.needFold=true;showValidationError('birth','fold','Cette heure a eu lieu deux fois : choisis la première ou la deuxième occurrence.');return;
         }
         throw err;
       }
-      state.profile=profile;state.orb='auto';cache.clear();persist();birthDraft=null;placeSearch.needFold=false;
+      state.profile=profile;state.orb='auto';cache.clear();persist();birthDraft=null;birthValidation=null;placeSearch.needFold=false;
       profileScreen='overview';show('Thème natal enregistré');refresh();
-    } catch(err){show('Impossible : '+(err?.message||'Erreur'));}
+    } catch(err){
+      const message=err?.message||'Impossible de calculer le thème natal.';
+      const field=/date|période natale/i.test(message)?'birthDate':
+        /heure|occurrence/i.test(message)?'birthTime':'birthCity';
+      showValidationError('birth',field,message);
+    }
   });
   render();refresh();
 })();
