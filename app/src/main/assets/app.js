@@ -366,7 +366,7 @@
     return '<section class="card natal-card" id="natalChart">'+
       '<div class="section-row"><h2 class="card-title">Thème natal '+(isTropical?'tropical':'sidéral')+'</h2><span class="tag">'+(isFull?'Complet':'Essentiel')+'</span></div>'+
       '<p class="tiny">Positions calculées pour ta naissance · Maisons '+safe(h.system)+'.</p>'+controls+
-      wheelSvg(chart)+'<div class="wheel-ring-legend" aria-label="Légende de la roue"><span><i class="sign-swatch"></i>Signes · 30°</span><span><i class="house-swatch"></i>Maisons · tailles variables</span></div><p class="wheel-caption">Les points à l’extérieur des glyphes marquent les degrés exacts. Les symboles sont espacés pour rester lisibles.</p><p class="wheel-caption">Zodiaque '+(isTropical?'tropical':'sidéral (Lahiri approximatif)')+
+      '<div class="natal-wheel-viewport" role="region" tabindex="0" aria-label="Roue natale. Sur petit écran, la faire défiler horizontalement pour voir les éléments masqués.">'+wheelSvg(chart)+'</div><div class="wheel-ring-legend" aria-label="Légende de la roue"><span><i class="sign-swatch"></i>Signes · 30°</span><span><i class="house-swatch"></i>Maisons · tailles variables</span></div><p class="wheel-caption">Les points à l’extérieur des glyphes marquent les degrés exacts. Les symboles sont espacés pour rester lisibles.</p><p class="wheel-caption">Zodiaque '+(isTropical?'tropical':'sidéral (Lahiri approximatif)')+
       ' · Touchez une planète ou une maison pour explorer ses données.'+
       (isFull?' Les aspects sont visibles au repos.':' Les aspects apparaissent lors de la sélection.')+'</p>'+
       '<div class="natal-highlights">'+blocks+'</div>'+
@@ -440,8 +440,8 @@
   $('app').addEventListener('click',event=>{
     const button=event.target.closest('button, [role="button"][data-natal-body], [role="button"][data-natal-house]');if(!button)return;
     const a=button.dataset;
-    if(a.natalView){captureBirthForm();state.natalView=a.natalView==='complete'?'complete':'essential';persist();render();return;}
-    if(a.natalZodiac){captureBirthForm();state.natalZodiac=a.natalZodiac==='sidereal'?'sidereal':'tropical';natalSelection=null;persist();render();return;}
+    if(a.natalView){captureBirthForm();state.natalView=a.natalView==='complete'?'complete':'essential';persist();render();if(event.detail===0)$('app').querySelector('[data-natal-view="'+a.natalView+'"]')?.focus({preventScroll:true});return;}
+    if(a.natalZodiac){captureBirthForm();state.natalZodiac=a.natalZodiac==='sidereal'?'sidereal':'tropical';natalSelection=null;persist();render();if(event.detail===0)$('app').querySelector('[data-natal-zodiac="'+a.natalZodiac+'"]')?.focus({preventScroll:true});return;}
     if(a.natalBody){natalChoose('planet',a.natalBody,event.detail===0);return;}
     if(a.natalHouse){natalChoose('house',Number(a.natalHouse),event.detail===0);return;}
     if(a.searchPlace){searchBirthCity();return;}
