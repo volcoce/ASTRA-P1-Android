@@ -67,6 +67,8 @@
   let focusReturnScreen='overview';
   let selected = isoDay(new Date());
   let month = new Date(new Date().getFullYear(),new Date().getMonth(),1);
+  // The home feed is a glanceable overview, with detail revealed on request.
+  let todayExpanded = false;
   let result = null, error='', busy=false, calcToken=0, openDetail=null, journalDraft=null, journalDraftDate='', searchTerm='';
   // Non-persisted form state. Only a selected city can supply coordinates/timezone.
   let birthDraft=null;
@@ -127,6 +129,45 @@
   const show = msg => { const t=$('toast');t.textContent=msg;t.hidden=false;setTimeout(()=>t.hidden=true,3500); };
   const dateTime = iso => new Intl.DateTimeFormat('fr-FR',{dateStyle:'short',timeStyle:'short',timeZone:state.profile?.timezone || detectedZone}).format(new Date(iso));
   const displayDate = day => new Intl.DateTimeFormat('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(day+'T12:00:00Z'));
+  const shiftDay=(day,by)=>{
+    const date=new Date(day+'T12:00:00Z');
+    date.setUTCDate(date.getUTCDate()+by);
+    return date.toISOString().slice(0,10);
+  };
+  function weekStrip(){
+    const utc=new Date(selected+'T12:00:00Z');
+    const monday=shiftDay(selected,-((utc.getUTCDay()+6)%7));
+    const last=shiftDay(monday,6),todayKey=isoDay(new Date());
+    const caption=new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'short',timeZone:'UTC'});
+    const dayLabel=new Intl.DateTimeFormat('fr-FR',{weekday:'short',timeZone:'UTC'});
+    const startLabel=caption.format(new Date(monday+'T12:00:00Z'));
+    const endLabel=caption.format(new Date(last+'T12:00:00Z'));
+    return '<section class="astra-week" aria-label="Choisir un jour de la semaine">'+
+      '<div class="astra-week-title"><span class="astra-week-caption">Choisir une date</span>'+
+      '<div class="astra-week-controls"><button type="button" data-week-shift="-7" aria-label="Semaine précédente">‹</button>'+
+      '<span>'+safe(startLabel)+' – '+safe(endLabel)+'</span>'+
+      '<button type="button" data-week-shift="7" aria-label="Semaine suivante">›</button></div></div>'+
+      '<div class="astra-week-days">'+Array.from({length:7},(_,i)=>{
+        const day=shiftDay(monday,i);
+        const dt=new Date(day+'T12:00:00Z');
+        return '<button type="button" class="astra-week-day'+(day===selected?' is-selected':'')+
+          (day===todayKey?' is-today':'')+'" data-day="'+day+'" aria-pressed="'+(day===selected)+
+          '" aria-label="'+safe(displayDate(day))+(day===todayKey?', aujourd’hui':'')+'">'+
+          '<span>'+safe(dayLabel.format(dt).replace('.',''))+'</span><b>'+dt.getUTCDate()+'</b></button>';
+      }).join('')+'</div></section>';
+  }
+  function lunarLabel(angle){
+    if(!Number.isFinite(angle))return 'Phase non disponible';
+    const value=((angle%360)+360)%360;
+    if(value<22.5||value>=337.5)return 'Nouvelle lune';
+    if(value<67.5)return 'Premier croissant';
+    if(value<112.5)return 'Premier quartier';
+    if(value<157.5)return 'Lune gibbeuse croissante';
+    if(value<202.5)return 'Pleine lune';
+    if(value<247.5)return 'Lune gibbeuse décroissante';
+    if(value<292.5)return 'Dernier quartier';
+    return 'Dernier croissant';
+  }
   const header = (name,description) => `<header class="screen-intro"><h1 tabindex="-1" class="page-title">${name}</h1><p class="lead">${description}</p></header>`;
   const switcher = () => `<div class="switch" aria-label="Type de zodiaque"><button data-mode="tropical" class="${state.mode==='tropical'?'on':''}" aria-pressed="${state.mode==='tropical'}">Tropical</button><button data-mode="sidereal" class="${state.mode==='sidereal'?'on':''}" aria-pressed="${state.mode==='sidereal'}">Sidéral · Lahiri approx.</button></div>`;
   const status = () => busy ? '<p class="loading" role="status">Calcul astronomique à la demande…</p>' : error ? `<p class="notice" role="alert">${safe(error)}</p>` : '';
@@ -177,13 +218,43 @@
   }
   function today() {
     if(!state.profile)return unconfigured();
-    const day=currentDay(),events=dayEvents(day),active=day.active.slice(0,8),moon=E?.moonPhase(new Date(selected+'T12:00:00Z'));
+    const day=currentDay(),events=dayEvents(day),active=day.active.slice(0,8);
+    const moon=E?.moonPhase(new Date(selected+'T12:00:00Z'));
     const entry=state.journal[selected];
-    return header('Aujourd’hui','Les mouvements du ciel pour la date choisie.')+birthTimeWarning()+
-      `<section class="metric"><span class="moon-symbol" aria-hidden="true">☾</span><h2>${safe(displayDate(selected))}</h2><p>Élongation lunaire : ${typeof moon==='number'?moon.toFixed(1)+'°':'–'}</p></section>${status()}`+
-      `<section class="card"><div class="section-row"><h2 class="card-title">Événements exacts</h2><span class="tag">${events.length}</span></div>${events.map(row).join('')||'<p class="muted">Aucun contact exact aujourd’hui.</p>'}</section>`+
-      `<section class="card"><div class="section-row"><h2 class="card-title">Aspects actifs à midi</h2><span class="tag-outline">${day.active.length}</span></div>${active.map(e=>row({...e,type:'active'})).join('')||'<p class="muted">Aucun aspect dans les orbes automatiques.</p>'}${day.active.length>8?'<p class="tiny">Huit aspects affichés. Utilise le calendrier pour explorer davantage.</p>':''}</section>`+
-      `<section class="card"><h2 class="card-title">Mon ressenti</h2><p class="tiny">${entry?`Humeur ${entry.mood}/5${entry.energy?' · Énergie '+entry.energy+'/5':''}`:'Aucune note pour cette date.'}</p><button class="ghost" data-goto="journal">${entry?'Voir ma note':'Écrire dans le journal'}</button></section>`+
+    const todayKey=isoDay(new Date()),isCurrent=selected===todayKey;
+    const count=events.length;
+    const highlighted=events.slice(0,3),remaining=events.slice(3);
+    return header(isCurrent?'Aujourd’hui':'Le ciel du '+new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'long',timeZone:'UTC'}).format(new Date(selected+'T12:00:00Z')),
+        'Choisis un jour, puis découvre ses événements et tes notes.')+
+      weekStrip()+birthTimeWarning()+
+      '<section class="astra-day-hero" aria-label="Résumé du ciel pour cette date">'+
+        '<div class="astra-day-hero-copy"><p class="astra-hero-kicker">LE CIEL DU '+safe(new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'long',timeZone:'UTC'}).format(new Date(selected+'T12:00:00Z')).toLocaleUpperCase('fr-FR'))+'</p>'+
+        '<div class="astra-hero-stat"><strong>'+count+'</strong><span>'+(
+          count===1?'événement précis':'événements précis')+'</span></div>'+
+        '<p class="astra-hero-description">'+(count?'Retrouve les événements calculés pour cette date.':'Aucun événement exact calculé pour cette date.')+'</p></div>'+
+        '<div class="astra-hero-orbit" aria-hidden="true"><span>☾</span></div>'+
+        '<button type="button" class="astra-hero-link" data-scroll-to="todayEvents">Voir les événements <span aria-hidden="true">↓</span></button>'+
+      '</section>'+status()+
+      '<section class="astra-today-insights" aria-labelledby="astraTodayInsightsTitle">'+
+        '<div class="astra-section-head"><h2 id="astraTodayInsightsTitle">À découvrir</h2><span>Pour '+(isCurrent?'aujourd’hui':'cette date')+'</span></div>'+
+        '<div class="astra-insight-track" role="region" tabindex="0" aria-label="Informations et raccourcis du jour">'+
+          '<div class="astra-insight-tile as-lunar"><span class="astra-tile-kicker">☾ LUNE</span><strong>'+safe(lunarLabel(moon))+'</strong><small>Phase approximative à midi UTC</small></div>'+
+          '<button type="button" class="astra-insight-tile as-journal" data-goto="journal"><span class="astra-tile-kicker">✎ JOURNAL</span><strong>'+(entry?'Relire ma journée':'Noter ma journée')+'</strong><small>'+(entry?'Humeur '+entry.mood+'/5 enregistrée':'Émotions, humeur, souvenirs')+'</small><span class="astra-tile-arrow" aria-hidden="true">↗</span></button>'+
+          '<button type="button" class="astra-insight-tile as-chart" data-goto="profile"><span class="astra-tile-kicker">✧ MON CIEL</span><strong>Ma carte de naissance</strong><small>Planètes, Soleil et Ascendant</small><span class="astra-tile-arrow" aria-hidden="true">↗</span></button>'+
+        '</div></section>'+
+      '<section class="astra-feed" id="todayEvents" aria-labelledby="todayEventsTitle">'+
+        '<div class="astra-section-head"><h2 id="todayEventsTitle">Événements du jour</h2><span class="astra-count">'+count+'</span></div>'+
+        '<p class="astra-section-help">Positions et horaires calculés, sans prédiction de ton vécu.</p>'+
+        '<div class="astra-event-feed">'+(highlighted.map(row).join('')||'<p class="astra-empty">Aucun événement exact ce jour-là. Consulte une autre date ou explore les aspects en cours.</p>')+'</div>'+
+        (remaining.length?'<details class="astra-more-events"'+(todayExpanded?' open':'')+'><summary>Voir les '+remaining.length+' autres événements</summary>'+
+          '<div class="astra-event-feed">'+remaining.map(row).join('')+'</div></details>':'')+
+      '</section>'+
+      '<details class="astra-active-panel"><summary><span>Aspects en cours</span><span>'+day.active.length+' <span aria-hidden="true">⌄</span></span></summary>'+
+        '<p>Angles entre les planètes présents à midi, sans événement nécessairement exact.</p>'+
+        '<div class="astra-event-feed">'+(active.map(e=>row({...e,type:'active'})).join('')||'<p class="astra-empty">Aucun aspect calculé à midi.</p>')+'</div>'+
+        (day.active.length>8?'<p class="tiny">Huit aspects affichés sur '+day.active.length+'. Consulte le calendrier pour les autres.</p>':'')+
+      '</details>'+
+      (!isCurrent?'<button type="button" class="astra-back-today" data-reset-today="1">Revenir à aujourd’hui</button>':'')+
       detailView();
   }
   function calendar() {
@@ -878,7 +949,7 @@
     },30);
   }
   function selectDay(day){
-    selected=day;openDetail=null;journalDraft=null;
+    selected=day;openDetail=null;journalDraft=null;todayExpanded=false;
     const [year,mon]=day.split('-').map(Number);
     if(year!==month.getFullYear()||mon!==month.getMonth()+1){month=new Date(year,mon-1,1);refresh();}
     else render();
@@ -936,12 +1007,23 @@
     if(wheelSummary){exploreWheelOpen=!wheelSummary.parentElement.open;return;}
     const matrixSummary=event.target.closest('.natal-matrix-disclosure > summary');
     if(matrixSummary){aspectMatrixOpen=!matrixSummary.parentElement.open;return;}
+    const todaySummary=event.target.closest('.astra-more-events > summary');
+    if(todaySummary){todayExpanded=!todaySummary.parentElement.open;return;}
     const previewSummary=event.target.closest('.natal-preview-disclosure > summary');
     if(previewSummary){settingsPreviewOpen=!previewSummary.parentElement.open;return;}
     const advancedSummary=event.target.closest('.natal-more-options > summary');
     if(advancedSummary){settingsAdvancedOpen=!advancedSummary.parentElement.open;return;}
     const button=event.target.closest('button, [role="button"][data-natal-body], [role="button"][data-natal-house], [role="button"][data-transit-body]');if(!button)return;
     const a=button.dataset;
+    if(a.scrollTo){
+      const node=$(a.scrollTo);
+      node?.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth',block:'start'});
+      node?.querySelector('h2')?.setAttribute('tabindex','-1');
+      node?.querySelector('h2')?.focus({preventScroll:true});
+      return;
+    }
+    if(a.weekShift){selectDay(shiftDay(selected,Number(a.weekShift)));return;}
+    if(a.resetToday){selectDay(isoDay(new Date()));return;}
     if(a.openFocus&&state.profile){
       captureBirthForm();focusReturnScreen=profileScreen;
       profileScreen='focus';natalSelection=null;render();
