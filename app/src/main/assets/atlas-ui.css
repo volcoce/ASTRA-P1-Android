@@ -793,3 +793,6 @@ html,body{font-size:100%;min-width:0}
   .astra-insight-track,.natal-wheel-viewport,.natal-matrix-scroll{scroll-behavior:auto!important}
   .astra-insight-tile,.natal-context-sheet,.astra-week-day{animation:none!important;transition:none!important}
 }
+
+/* WCAG AA: secondary heading text must retain 4.5:1 contrast on paper. */
+.astra-section-head>span{color:#536879}
