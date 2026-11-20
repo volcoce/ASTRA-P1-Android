@@ -3,8 +3,9 @@ import {describeEvent, DISCLAIMER} from './interpretations.mjs';
 import {searchCities, normalizePlace} from './places.mjs';
 import {tropicalHouses,houseOf,natalAspects} from './natal.mjs';
 import {layoutPlanetLabels,MIN_LABEL_SPACING_DEGREES} from './chart-layout.mjs';
+import {formatSignExact,formatOrbExact,filterNatalAspects,describeNatalPlanet,describeNatalHouse,describeNatalAspect,NATAL_ASPECT_FILTERS} from './natal-learning.mjs';
 import {ASPECTS,TARGETS,mod,signed,angularDistance,zodiacLongitude,lahiriApprox,formatSign,localToUtc,isoDay,validateProfile} from './core.mjs';
-export {ASPECTS,formatSign,localToUtc,validateProfile,describeEvent,DISCLAIMER,searchCities,normalizePlace,houseOf,layoutPlanetLabels,MIN_LABEL_SPACING_DEGREES};
+export {ASPECTS,formatSign,localToUtc,validateProfile,describeEvent,DISCLAIMER,searchCities,normalizePlace,houseOf,layoutPlanetLabels,MIN_LABEL_SPACING_DEGREES,formatSignExact,formatOrbExact,filterNatalAspects,describeNatalPlanet,describeNatalHouse,describeNatalAspect,NATAL_ASPECT_FILTERS};
 export const BODIES=['Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto'];
 export const BODY_FR={Sun:'Soleil',Moon:'Lune',Mercury:'Mercure',Venus:'Vénus',Mars:'Mars',Jupiter:'Jupiter',Saturn:'Saturne',Uranus:'Uranus',Neptune:'Neptune',Pluto:'Pluton'};
 /* Automatic transit orbs: editorial astrological conventions, not astronomical constants. */
@@ -25,23 +26,30 @@ export function longitude(body,date,mode='tropical') {return zodiacLongitude(tro
 export function natalChart(profile,mode='tropical') {
   const birth=validateProfile(profile);
   const positions=Object.fromEntries(BODIES.map(body=>[body,longitude(body,birth,mode)]));
-  const tropical=tropicalHouses(birth,profile.latitude,profile.longitude,Astronomy.SiderealTime(birth));
+  const timeKnown=profile.timeKnown!==false;
+  const tropical=timeKnown?tropicalHouses(birth,profile.latitude,profile.longitude,Astronomy.SiderealTime(birth)):null;
   // Sidereal cusps use the same local horizon and Placidus geometry, with longitudes
   // shifted by the approximate Lahiri ayanamsa. No saved profile or lookup tables.
   const shift=mode==='sidereal'?lahiriApprox(birth):0;
-  const houses=shift===0?tropical:{
+  const houses=!timeKnown?null:shift===0?tropical:{
     ...tropical,ascendant:mod(tropical.ascendant-shift),
     midheaven:mod(tropical.midheaven-shift),
     cusps:tropical.cusps.map(value=>mod(value-shift)),
     approximateSidereal:true
   };
-  return {birth:birth.toISOString(),positions,houses,aspects:natalAspects(positions),zodiac:mode,engine:'astronomy-engine@2.1.19'};
+  const preciseBodies=timeKnown?positions:Object.fromEntries(Object.entries(positions).filter(([body])=>body!=='Moon'));
+  return {birth:birth.toISOString(),positions,houses,aspects:natalAspects(preciseBodies),
+    timeKnown,approximateNoon:!timeKnown,uncertainBodies:timeKnown?[]:['Moon'],
+    zodiac:mode,engine:'astronomy-engine@2.1.19'};
 }
 export function moonPhase(date) {return Astronomy.MoonPhase(date);}
 export function calculateMonth(profile,year,month,mode='tropical',orb='auto',options={}) {
   if(!Number.isInteger(year)||year<1900||year>2100||!Number.isInteger(month)||month<1||month>12)throw Error('Mois invalide');
   if(!['tropical','sidereal'].includes(mode)||(orb!=='auto'&&(!Number.isFinite(orb)||orb<0.1||orb>10)))throw Error('Paramètres invalides');
   const chart=natalChart(profile,mode), natal=chart.positions, zone=profile.timezone;
+  // Without a recorded birth time, natal Moon is too uncertain to assign
+  // contacts, and exact personalised instants would claim false precision.
+  const usableNatal=BODIES.filter(body=>chart.timeKnown||body!=='Moon');
   const start=Date.UTC(year,month-1,1)-2*DAY, end=Date.UTC(year,month,1)+2*DAY;
   const samples=[];
   // Sampling every six hours ensures crossings around fast lunar aspects.
@@ -57,10 +65,10 @@ export function calculateMonth(profile,year,month,mode='tropical',orb='auto',opt
     const active=[];
     for(const body of BODIES) {
       const lng=longitude(body,mid,mode);
-      for(const native of BODIES){const nLng=natal[native];const separation=angularDistance(lng,nLng);
+      for(const native of usableNatal){const nLng=natal[native];const separation=angularDistance(lng,nLng);
         const best=ASPECTS.map(a=>({...a,delta:Math.abs(separation-a.angle)})).sort((a,b)=>a.delta-b.delta)[0];
         const allowedOrb=orb==='auto'?automaticTransitOrb(body,best.angle):orb;
-        if(best.delta<=allowedOrb)active.push({body,natal:native,angle:best.angle,aspect:best.name,glyph:best.glyph,orb:allowedOrb,delta:+best.delta.toFixed(3)});
+        if(best.delta<=allowedOrb)active.push({body,natal:native,angle:best.angle,aspect:best.name,glyph:best.glyph,orb:allowedOrb,delta:+best.delta.toFixed(3),approximateNatal:!chart.timeKnown});
       }
     }
     active.sort((a,b)=>a.delta-b.delta);days[day]={date:day,active,exact:[],sky:[]};
@@ -79,7 +87,7 @@ export function calculateMonth(profile,year,month,mode='tropical',orb='auto',opt
     const a=samples[i-1],b=samples[i];
     for(const body of BODIES) {
       const x=a.positions[body],y=b.positions[body];
-      for(const native of BODIES) for(const target of TARGETS){
+      for(const native of (chart.timeKnown?usableNatal:[])) for(const target of TARGETS){
         const pa=signed(x-natal[native]-target.angle),pb=signed(y-natal[native]-target.angle);
         if(pa===0 || (pa*pb<0&&Math.abs(pb-pa)<45)) {
           const at=pa===0?new Date(a.t).toISOString():root(body,natal[native],target.angle,a.t,b.t);
@@ -104,6 +112,7 @@ export function calculateMonth(profile,year,month,mode='tropical',orb='auto',opt
   }
   // Exact events may have duplicates at shared sample boundaries; filter by key+minute.
   const seen=new Set();for(const day of Object.values(days))day.exact=day.exact.filter(e=>{const k=`${e.body}:${e.natal}:${e.aspect}:${e.at.slice(0,16)}`;if(seen.has(k))return false;seen.add(k);return true;});
-  return {year,month,mode,orb,chart,days,exact:exact.length,stations:stations.length,phases:phases.length,calculatedAt:new Date().toISOString()};
+  return {year,month,mode,orb,chart,days,exact:exact.length,stations:stations.length,phases:phases.length,
+    approximateNatal:!chart.timeKnown,calculatedAt:new Date().toISOString()};
 }
-if(typeof window!=='undefined')window.ASTRA_ENGINE={BODIES,BODY_FR,natalChart,calculateMonth,moonPhase,formatSign,validateProfile,localToUtc,describeEvent,DISCLAIMER,searchCities,normalizePlace,houseOf,layoutPlanetLabels,MIN_LABEL_SPACING_DEGREES};
+if(typeof window!=='undefined')window.ASTRA_ENGINE={BODIES,BODY_FR,natalChart,calculateMonth,moonPhase,formatSign,validateProfile,localToUtc,describeEvent,DISCLAIMER,searchCities,normalizePlace,houseOf,layoutPlanetLabels,MIN_LABEL_SPACING_DEGREES,formatSignExact,formatOrbExact,filterNatalAspects,describeNatalPlanet,describeNatalHouse,describeNatalAspect,NATAL_ASPECT_FILTERS};
