@@ -98,6 +98,19 @@ if __name__ == '__main__':
             assert page.locator('.natal-filter').count()==0
             assert page.locator('#birthForm').count()==0
             assert page.locator('.natal-home-actions button').count()==2
+            # P2.1: immersive reading keeps home uncluttered and restores focus.
+            page.locator('.natal-home [data-open-focus]').click()
+            assert page.locator('.natal-focus[aria-modal="true"]').count()==1
+            assert page.locator('.natal-focus .natal-wheel').count()==1
+            assert page.evaluate("document.body.classList.contains('astra-focus-open')")
+            assert page.evaluate("document.activeElement.hasAttribute('data-close-focus')")
+            page.locator('.natal-focus [data-natal-zoom="0.25"]').click()
+            assert '125 %' in page.locator('.natal-focus .natal-zoom').inner_text()
+            page.locator('.natal-focus [data-natal-zoom="reset"]').click()
+            page.keyboard.press('Escape')
+            assert page.locator('.natal-focus').count()==0
+            assert page.locator('.natal-home').count()==1
+            assert page.evaluate("document.activeElement.hasAttribute('data-open-focus')")
             head=page.locator('.natal-primary-cards').bounding_box()
             wheel=page.locator('.natal-wheel-viewport').bounding_box()
             assert head is not None and wheel is not None and head['y']<wheel['y']
@@ -187,6 +200,11 @@ if __name__ == '__main__':
             assert page.locator('.natal-compare').count()==1
             assert page.locator('.natal-double-wheel').count()==1
             assert page.locator('.natal-transit-hit').count()==10
+            page.locator('.natal-compare [data-open-focus]').click()
+            assert page.locator('.natal-focus .natal-double-wheel').count()==1
+            assert page.locator('.natal-focus .natal-transit-hit').count()==10
+            page.locator('.natal-focus [data-close-focus]').click()
+            assert page.locator('.natal-compare .natal-double-wheel').count()==1
             assert page.locator('.natal-contact-section').count()==1
             page.locator('.natal-transit-hit[data-transit-body="Sun"]').click()
             assert 'transit' in page.locator('#natalSelectionInfo').inner_text()

@@ -1,4 +1,16 @@
-# ASTRA Public — Preview 0.6.0
+# ASTRA Public — Preview 0.6.1
+
+## UX P2.1 — Lecture agrandie de la roue (Preview 0.6.1)
+
+La roue possède un **mode lecture agrandie**, accessible depuis Mon ciel, Explorer (roue déployée), Comparer et l'aperçu des Réglages. L'accueil n'expose aucun des réglages avancés avant demande explicite.
+
+- **Contexte préservé** : natal depuis l'accueil ou Explorer ; roue double depuis Comparer ; disposition active depuis les Réglages.
+- **Lecture sans distraction** : carte centrée, légende, zoom de 100 à 200 %, réinitialisation et export SVG/PNG. Les longitudes et cuspides sont calculées par le moteur actuel.
+- **Navigation** : bouton Fermer ou Échap, retour au contexte précédent et au bouton d'ouverture ; Tab et Maj+Tab restent dans la fenêtre de lecture. Les fiches de planète s'ouvrent toujours par sélection du symbole.
+- **Zoom contextualisé** : préservation du centre du défilement au changement de zoom. Le stockage `astra-public-v1` n'est pas modifié.
+- **Tests** : le contrôle navigateur simule la vue agrandie, le zoom, le retour clavier et la roue double. Validation complémentaire sur téléphone Android et TalkBack nécessaire.
+
+**Mise à jour locale** : `git pull origin main && npm install && npm run dev`.
 
 ## UX P1 — Explorer, comparer et lire sans encombrement (Preview 0.6.0)
 
