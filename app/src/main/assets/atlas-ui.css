@@ -323,3 +323,5 @@ textarea:focus-visible,select:focus-visible{outline:3px solid #237b99;outline-of
 }
 .event-sub{font-size:13px;line-height:1.5}
 .event-more{font-size:13px}
+/* Short visual tab labels preserve meaning and remain legible at 200% font size. */
+.bottom-nav .nav-label{font:inherit;line-height:1.2;max-width:100%;white-space:nowrap}
