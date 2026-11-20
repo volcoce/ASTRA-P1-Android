@@ -304,13 +304,17 @@
       ...day.sky.filter(event=>event.type==='moon').map(event=>({at:event.at,
         title:eventTitle(event),kind:'phase'}))
     ].sort((a,b)=>a.at.localeCompare(b.at));
+    const differentPhaseSign=sky&&day.sky.some(event=>event.type==='moon'&&
+      Number.isFinite(event.moonLongitude)&&zodiacSignAt(event.moonLongitude)!==moonSign);
     const dailyLunarMoments=timeline.length?
       '<section class="astra-day-moon-moments" aria-label="Événements lunaires de la journée">'+
       '<h3>Évolution de la Lune dans la journée</h3>'+
       '<div class="astra-day-moon-moment-list">'+timeline.map(event=>
         '<div class="astra-day-moon-moment '+event.kind+'"><time datetime="'+safe(event.at)+'">'+
         safe(atTime(event.at))+'</time><span>'+safe(event.title)+'</span></div>').join('')+
-      '</div></section>':'';
+      '</div>'+
+      (differentPhaseSign?'<p class="astra-day-moon-explanation">Le signe de midi et celui de cette phase lunaire diffèrent parce que la Lune a changé de signe entre les deux horaires.</p>':'')+
+      '</section>':'';
     const entry=state.journal[selected];
     const todayKey=isoDay(new Date()),isCurrent=selected===todayKey;
     const count=events.length;
