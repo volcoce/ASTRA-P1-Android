@@ -406,16 +406,41 @@ if __name__ == '__main__':
                 assert page.evaluate("document.documentElement.scrollWidth") <= 322, tab
                 if tab=='today':
                     assert px('.event-sub')>=13
+                    assert page.locator('.astra-week-day').count()==7
+                    assert page.locator('.astra-week-day[aria-pressed="true"]').count()==1
+                    assert page.locator('.astra-day-hero').count()==1
+                    assert page.locator('.astra-insight-tile').count()==3
+                    assert page.locator('.astra-day-hero .astra-hero-stat strong').inner_text()=='2'
+                    assert page.locator('.astra-event-feed').first.locator('[data-event]').count()==2
+                    capture('today-flo-layout-320')
                 elif tab=='calendar':
                     assert px('.weekday')>=12
                 elif tab=='journal':
                     assert px('.field label')>=13
                 elif tab=='profile':
                     assert px('.natal-home-subtitle')>=14
+            # Flo-inspired placement remains functional, not just a mockup.
+            page.locator('[data-tab="today"]').click()
+            before=page.locator('.astra-week-day.is-selected').get_attribute('data-day')
+            page.locator('[data-week-shift="7"]').click()
+            after=page.locator('.astra-week-day.is-selected').get_attribute('data-day')
+            assert after!=before
+            page.locator('[data-week-shift="-7"]').click()
+            assert page.locator('.astra-week-day.is-selected').get_attribute('data-day')==before
+            page.locator('.astra-hero-link').click()
+            assert page.evaluate('document.activeElement.id')=='todayEventsTitle'
+            page.locator('.astra-insight-tile[data-goto="journal"]').click()
+            assert page.locator('#journalNote').count()==1
+            page.locator('[data-tab="today"]').click()
+            assert page.evaluate("document.documentElement.scrollWidth")<=322
             # Samsung-sized widths and tablet/desktop should not overflow.
             for width in (360,375,393,412,768,1280):
                 page.set_viewport_size({'width':width,'height':844})
                 assert page.evaluate("document.documentElement.scrollWidth") <= width+2, width
+                if width in (360,393,412):
+                    assert page.locator('.astra-week-day').count()==7
+                    assert page.locator('.astra-day-hero').is_visible()
+                    capture('today-flo-layout-'+str(width))
             page.set_viewport_size({'width':320,'height':730})
             page.locator('[data-profile-screen="settings"]').click()
             assert page.locator('.calculation-details').first.get_attribute('open') is None
