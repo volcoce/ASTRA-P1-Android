@@ -220,3 +220,68 @@ html{background:radial-gradient(ellipse at 10% 12%,#f3e8ee 0%,transparent 56%),
 @media(prefers-reduced-motion:reduce){
   .natal-advanced *, .natal-matrix *, .natal-stage *{scroll-behavior:auto!important;transition:none!important}
 }
+
+
+/* UX P0 — sky-first information hierarchy.
+   On the landing view, the natal summary and wheel come before any controls.
+   Advanced functions live under named Explore / Settings destinations. */
+.natal-home{padding:19px 15px 20px}
+.natal-home-header{display:flex;align-items:flex-start;justify-content:space-between;gap:13px;margin:0 0 17px}
+.natal-home-header .card-title{font-size:23px;line-height:1.24;letter-spacing:-.025em;margin:0;color:#342743}
+.natal-home-subtitle{color:#61546c;font-size:14px;line-height:1.4;margin:5px 0 0}
+.natal-settings-link{min-width:95px;min-height:45px;white-space:nowrap;border:1px solid #bbaaCA;
+  background:#fff;color:#48335b;font:700 14px/1.3 inherit;border-radius:13px;padding:10px 12px;cursor:pointer}
+.natal-primary-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:0 0 18px}
+.natal-summary-item{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:6px;
+  min-width:0;min-height:126px;padding:14px 7px 11px;border:1px solid #e3d7e7;background:#faf7fc;
+  border-radius:15px;color:#3c2d4e;text-align:center;cursor:pointer}
+.natal-summary-item[aria-pressed="true"]{background:#eee3f6;border-color:#81629f}
+.natal-summary-icon{font:700 26px/1.15 Georgia,serif;color:#5c4277}
+.natal-summary-name{font-size:15px;line-height:1.25;font-weight:750;color:#3b2c50}
+.natal-summary-value{font-size:13.5px;line-height:1.35;font-weight:600;color:#594a69;overflow-wrap:anywhere}
+.natal-home .natal-wheel-viewport{border-radius:16px;padding:8px;margin:0;
+  background:radial-gradient(circle,#fff 30%,#fcf9fe 75%,#f6f0f7)}
+.natal-home .natal-wheel-viewport .natal-wheel{width:100%;max-width:none}
+.natal-home-hint{font-size:14px;line-height:1.55;color:#5b4d6b;text-align:center;margin:12px 0}
+.natal-home-selection{min-height:0;margin:12px 0 17px;padding:15px 14px}
+.natal-home-selection .natal-selected-empty{font-size:14px;line-height:1.6}
+.natal-home-actions{display:grid;grid-template-columns:minmax(0,1fr);gap:9px}
+.natal-home-actions button{min-height:51px;text-align:left;border-radius:13px;font:700 15px/1.4 inherit;
+  cursor:pointer;padding:13px 15px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.natal-home-actions button span{font-size:24px;line-height:1}
+.natal-main-action{background:#594171;color:white;border:1px solid #594171}
+.natal-secondary-action{background:white;color:#4c355f;border:1px solid #c6b1d3}
+.natal-subpage-heading{display:flex;flex-direction:column;align-items:flex-start;gap:9px;margin:0 0 15px}
+.natal-subpage-heading .card-title{margin:0;font-size:23px;color:#342743;line-height:1.25}
+.natal-section-lead{margin:0;font-size:15px;line-height:1.5;color:#5e516b}
+.natal-back{background:transparent;border:0;border-radius:9px;color:#5c4475;font:700 14px/1.2 inherit;
+  min-height:45px;cursor:pointer;padding:9px 5px}
+.natal-explore .natal-stage{margin-top:15px}
+.natal-explore .natal-filter{margin-top:24px}
+.natal-explore .natal-position,.natal-explore .natal-aspect{min-height:48px}
+.natal-settings .natal-control-stack{margin:15px 0 0}
+.natal-settings .natal-advanced{margin:15px 0}
+.natal-preview-disclosure{border:1px solid #e0d4e8;border-radius:14px;background:#fbf9fd;margin:17px 0 0;padding:7px}
+.natal-preview-disclosure>summary{cursor:pointer;font-size:15px;font-weight:750;color:#49335d;
+  list-style-position:inside;min-height:48px;padding:12px 9px}
+.natal-preview-disclosure .natal-wheel-viewport{margin:10px 5px 6px}
+.natal-settings-link:focus-visible,.natal-summary-item:focus-visible,
+.natal-home-actions button:focus-visible,.natal-back:focus-visible,
+.natal-preview-disclosure summary:focus-visible{outline:3px solid #886bb4;outline-offset:3px}
+@media(min-width:800px){
+  .natal-home{padding:25px 28px}
+  .natal-home-header .card-title{font-size:27px}
+  .natal-primary-cards{gap:14px;max-width:590px;margin-left:auto;margin-right:auto}
+  .natal-summary-item{min-height:132px}
+  .natal-home .natal-wheel-viewport{max-width:600px;margin:0 auto}
+  .natal-home .natal-home-selection{max-width:680px;margin:15px auto 20px}
+  .natal-home-actions{grid-template-columns:repeat(2,minmax(0,1fr));max-width:680px;margin:auto}
+}
+@media(max-width:360px){
+  .natal-home{padding:12px 10px 16px}
+  .natal-home-header .card-title{font-size:21px}
+  .natal-summary-item{padding:12px 4px 10px;min-height:116px}
+  .natal-summary-icon{font-size:24px}
+  .natal-summary-name{font-size:14px}
+  .natal-summary-value{font-size:12px}
+}
