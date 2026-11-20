@@ -398,6 +398,95 @@
       '<div class="natal-reflection"><b>Pour réfléchir</b><p>'+safe(text.question)+'</p></div>'+
       '<p class="natal-disclaimer">'+safe(text.disclaimer)+'</p></article>';
   }
+
+  function renderAspectMatrix(chart){
+    const bodies=Object.keys(chart.positions),filtered=E.filterNatalAspects(chart.aspects||[],state.natalAspectFilter);
+    const cells=Object.fromEntries(filtered.map(a=>[a.a+'-'+a.b,a]));
+    const head='<tr><th scope="col" class="matrix-corner" aria-label="Planètes">☉</th>'+
+      bodies.map(b=>'<th scope="col" title="'+safe(planets[b])+'" aria-label="'+safe(planets[b])+'">'+natalGlyphs[b]+'</th>').join('')+'</tr>';
+    const rows=bodies.map((row,i)=>{
+      const cols=bodies.map((column,j)=>{
+        if(i===j)return '<td class="matrix-diagonal" aria-label="Même planète">·</td>';
+        if(j<=i)return '<td class="matrix-empty" aria-label="Sans objet">—</td>';
+        const aspect=cells[row+'-'+column]||cells[column+'-'+row];
+        if(!aspect)return '<td class="matrix-empty" aria-label="Aucun aspect retenu">—</td>';
+        return '<td><button type="button" data-natal-aspect="'+aspect.a+'-'+aspect.b+'" aria-label="'+safe(planets[row])+' et '+safe(planets[column])+', '+safe(aspect.aspect)+', orbe '+safe(E.formatOrbExact(aspect.orb))+'" title="'+safe(aspect.aspect)+' · '+safe(E.formatOrbExact(aspect.orb))+'">'+
+          safe(aspect.glyph)+'</button></td>';
+      }).join('');
+      return '<tr><th scope="row" title="'+safe(planets[row])+'" aria-label="'+safe(planets[row])+'">'+natalGlyphs[row]+'</th>'+cols+'</tr>';
+    }).join('');
+    return '<section class="natal-matrix-section"><h3 class="natal-subtitle">Matrice des aspects</h3>'+
+      '<p class="tiny">Chaque case relie deux planètes ; sélectionner un symbole ouvre ses mesures. Le filtre d’aspects actif est respecté.</p>'+
+      '<div class="natal-matrix-scroll" role="region" tabindex="0" aria-label="Matrice des aspects natals, défilement horizontal">'+
+      '<table class="natal-matrix"><thead>'+head+'</thead><tbody>'+rows+'</tbody></table></div></section>';
+  }
+  function doubleWheelSvg(snapshot){
+    const chart=snapshot.chart,h=chart.houses,asc=h?h.ascendant:0;
+    const sel=natalSelection,full=state.natalView==='complete';
+    const p=(lng,r)=>{const a=(180-(lng-asc))*Math.PI/180;return [270+r*Math.cos(a),270+r*Math.sin(a)];};
+    const parts=[];
+    // Rappel zodiacal commun aux deux anneaux : les longitudes sont comparables.
+    for(let i=0;i<12;i++){
+      const a=p(i*30,221),b=p((i+1)*30,221),c=p((i+1)*30,196),d=p(i*30,196);
+      const t=p(i*30+15,208);
+      parts.push('<path d="M '+a.join(' ')+' A 221 221 0 0 0 '+b.join(' ')+
+        ' L '+c.join(' ')+' A 196 196 0 0 1 '+d.join(' ')+' Z" fill="'+(i%2?'#eae1f0':'#f8f4fa')+'" stroke="#9d8aaa" stroke-width="1"/>'+
+        '<text x="'+t[0]+'" y="'+t[1]+'" text-anchor="middle" dominant-baseline="central" class="zodiac-symbol">'+zodiacSymbols[i]+'</text>');
+    }
+    const houses=h?h.cusps.map((v,i)=>{
+      const a=p(v,132),b=p(v,98),mid=v+((h.cusps[(i+1)%12]-v+360)%360)/2,t=p(mid,113);
+      return '<line x1="'+a[0]+'" y1="'+a[1]+'" x2="'+b[0]+'" y2="'+b[1]+'" stroke="#a58eb4" stroke-width="1.2"/>'+
+        '<g class="natal-hit" data-natal-house="'+(i+1)+'" tabindex="0" role="button" focusable="true" aria-label="Voir maison '+(i+1)+'"><circle cx="'+t[0]+'" cy="'+t[1]+'" r="13" fill="transparent"/><text x="'+t[0]+'" y="'+t[1]+'" text-anchor="middle" pointer-events="none" dominant-baseline="central" class="house-number">'+(i+1)+'</text></g>';
+    }).join(''):'';
+    const active=snapshot.contacts.filter(c=>sel?.kind==='transit'?c.body===sel.id:
+      sel?.kind==='planet'?c.natal===sel.id:full).slice(0,full||sel?40:0);
+    const links=active.map(c=>{
+      const a=p(snapshot.positions[c.body],232),b=p(chart.positions[c.natal],172);
+      return '<line x1="'+a[0]+'" y1="'+a[1]+'" x2="'+b[0]+'" y2="'+b[1]+
+        '" stroke="#7386a9" stroke-width="'+(sel?2:1.1)+'" stroke-opacity="'+(sel?'.72':'.34')+'"/>';
+    }).join('');
+    const glyphRing=(positions,radius,markerRadius,className,attr)=>{
+      const arrangement=E.layoutPlanetLabels(positions);
+      return Object.entries(positions).map(([body,lng])=>{
+        const point=arrangement[body],glyph=p(point.labelLongitude,radius),anchor=p(lng,markerRadius);
+        const active=sel?.kind===(attr==='data-transit-body'?'transit':'planet')&&sel.id===body;
+        const ink=attr==='data-transit-body'?'#396a83':'#62477e';
+        return '<line x1="'+anchor[0]+'" y1="'+anchor[1]+'" x2="'+glyph[0]+'" y2="'+glyph[1]+'" stroke="'+ink+'" stroke-width="1.1"/>'+
+          '<circle cx="'+anchor[0]+'" cy="'+anchor[1]+'" r="2.8" fill="'+ink+'"/>'+
+          '<g class="natal-hit '+className+(active?' is-active':'')+'" '+attr+'="'+body+'" role="button" tabindex="0" focusable="true" aria-pressed="'+active+'" aria-label="'+safe(planets[body])+(attr==='data-transit-body'?' en transit':' natal')+', '+safe(E.formatSign(lng))+'">'+
+          '<circle cx="'+glyph[0]+'" cy="'+glyph[1]+'" r="14" fill="'+(active?'#d8e8ef':'transparent')+'"/>'+
+          '<text x="'+glyph[0]+'" y="'+glyph[1]+'" text-anchor="middle" dominant-baseline="central" pointer-events="none" class="natal-planet" fill="'+ink+'">'+natalGlyphs[body]+'</text></g>';
+      }).join('');
+    };
+    return '<svg class="natal-wheel natal-double-wheel" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 540" role="group" aria-label="Roue double : planètes natales en violet à l’intérieur, transits en bleu à l’extérieur">'+
+      '<title>ASTRA — Roue double natal/transits</title>'+
+      '<circle cx="270" cy="270" r="264" fill="#fff" stroke="#bca8c9"/>'+
+      '<circle cx="270" cy="270" r="232" fill="#f1f8fc" stroke="#a1becd" stroke-width="1.6"/>'+
+      parts.join('')+'<circle cx="270" cy="270" r="193" fill="#fff" stroke="#a48db5"/>'+
+      '<circle cx="270" cy="270" r="133" fill="#faf7fc" stroke="#bba7c9"/>'+
+      '<circle cx="270" cy="270" r="98" fill="#fff" stroke="#baa8c8"/>'+
+      links+houses+
+      '<text x="270" y="266" text-anchor="middle" class="wheel-core-title">ASTRA</text>'+
+      '<text x="270" y="280" text-anchor="middle" class="wheel-core-sub">NATAL / TRANSITS</text>'+
+      glyphRing(chart.positions,169,189,'natal-planet-hit','data-natal-body')+
+      glyphRing(snapshot.positions,247,234,'natal-transit-hit','data-transit-body')+
+      '</svg>';
+  }
+  function transitDetail(snapshot){
+    const selected=natalSelection;
+    if(selected?.kind!=='transit')return natalDetail(snapshot.chart);
+    const lng=snapshot.positions[selected.id];
+    if(!Number.isFinite(lng))return '';
+    const contacts=snapshot.contacts.filter(c=>c.body===selected.id);
+    return '<article class="natal-detail-body"><h3>'+safe(planets[selected.id])+' — transit</h3>'+
+      '<div class="natal-fact"><b>Position à l’instant choisi</b><p>'+safe(E.formatSignExact(lng))+
+      ' · '+safe(snapshot.at.replace('T',' ').replace('.000Z',' UTC'))+'</p></div>'+
+      '<div class="natal-symbolic"><b>Aspects actifs aux positions natales</b>'+
+      (contacts.length?'<div class="natal-related">'+contacts.map(c=>
+        '<p>'+safe(planets[c.body])+' '+safe(c.glyph)+' '+safe(planets[c.natal])+
+        ' · '+safe(E.formatOrbExact(c.delta))+' d’écart (orbe '+safe(E.formatOrbExact(c.orb))+')</p>').join('')+'</div>':'<p>Aucun contact dans les orbes automatiques.</p>')+
+      '</div><p class="natal-disclaimer">Positions astronomiques instantanées et conventions astrologiques ; aucune prédiction scientifique d’événement.</p></article>';
+  }
   function renderNatalChart(chart){
     const h=chart.houses,isFull=state.natalView==='complete',isTropical=state.natalZodiac==='tropical';
     const uncertain=chart.approximateNoon===true;
