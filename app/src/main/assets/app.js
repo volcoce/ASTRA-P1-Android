@@ -153,15 +153,15 @@
     if(event.type==='moon')return event.name;
     if(event.type==='station')return `${planets[event.body]} · changement de direction apparente`;
     const angle={Conjonction:0,Sextile:60,Carré:90,Trigone:120,Opposition:180}[event.aspect];
-    return `${planets[event.body]} et ${planets[event.natal]} · ${event.aspect.toLowerCase()}${angle===undefined?'':` (${angle}°)`}`;
+    return `${planets[event.body]} et ${planets[event.natal]} · ${angle===undefined?event.aspect.toLowerCase():'angle de '+angle+'°'}`;
   }
   function row(event) {
     const id=renderedEvents.push(event)-1;
     const isSky=event.type==='moon'||event.type==='station';
     const glyph=event.type==='moon'?'☾':event.type==='station'?'℞':aspects[event.aspect]||'✧';
     const isActive=event.type==='active';
-    const label=isActive?`Écart ${Number(event.delta).toFixed(2)}° / orbe auto ${Number(event.orb).toFixed(2)}° · relevé à midi${event.approximateNatal?' · natal indicatif':''}`:`${event.type==='moon'?'Phase lunaire':event.type==='station'?'Station apparente':'Aspect exact'} · ${dateTime(event.at)}`;
-    return `<button class="event event-button ${isSky?'sky-event':''}" data-event="${id}" aria-label="Détails : ${safe(eventTitle(event))}"><span class="event-glyph" aria-hidden="true">${glyph}</span><span class="event-body"><b>${safe(eventTitle(event))}</b><span class="event-sub">${safe(label)}</span><span class="event-more">Lire l’interprétation</span></span><span class="event-arrow" aria-hidden="true">›</span></button>`;
+    const label=isActive?`À ${Number(event.delta).toFixed(2)}° de l’angle exact · observé à midi${event.approximateNatal?' · natal indicatif':''}`:`${event.type==='moon'?'Phase lunaire':event.type==='station'?'Station apparente':'Aspect exact'} · ${dateTime(event.at)}`;
+    return `<button class="event event-button ${isSky?'sky-event':''}" data-event="${id}" aria-label="Détails : ${safe(eventTitle(event))}"><span class="event-glyph" aria-hidden="true">${glyph}</span><span class="event-body"><b>${safe(eventTitle(event))}</b><span class="event-sub">${safe(label)}</span><span class="event-more">Voir l’explication</span></span><span class="event-arrow" aria-hidden="true">›</span></button>`;
   }
   function detailView() {
     if(!openDetail)return '';
