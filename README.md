@@ -1,6 +1,19 @@
-# ASTRA Public — Preview 0.7.0
+# ASTRA Public — Preview 0.7.1
 
 **Référence UI/UX du projet :** [DESIGN.md](DESIGN.md). Les règles pour assistants de code sont dans [AGENTS.md](AGENTS.md). Ces documents formalisent le travail de design sans remplacer les fonctionnalités P0–P2.
+
+## Accueil en widgets — Inspiration Flo (Preview 0.7.1)
+
+Cette version s'inspire de **l'organisation** des vues quotidiennes de [Flo](https://flo.health/fr), sans utiliser ses graphismes, couleurs ni contenus. La recherche publiée par l'équipe design de Flo privilégie un **écran quotidien défilable**, donnant les informations importantes en résumé avant les détails.
+
+- **Sélecteur de semaine en haut** : sept jours de lundi à dimanche, semaine précédente/suivante, date sélectionnée clairement marquée. Les changements de mois continuent d'utiliser le moteur astronomique existant.
+- **Un widget central unique** : nombre réel d'événements calculés pour la date et accès à la liste, sans prédire l'état émotionnel ou affirmer un événement non calculé.
+- **Trois widgets secondaires sous le résumé** : phase de Lune approximative calculée à midi UTC, raccourci vers la note du jour (ou nouvelle note), accès à la carte de naissance. Défilement horizontal limité à cette seule rangée.
+- **Contenu approfondi plus bas** : trois premiers événements détaillés et accès aux suivants par une ouverture explicite ; angles « en cours » dans une section secondaire.
+- **Aucune perte de données** : le stockage `astra-public-v1`, la roue natal/transit, les outils techniques, l'export, les événements astronomiques et le journal restent présents.
+- **Mobile** : tests de la semaine, des raccourcis, du résumé, de l'absence de débordement et captures aux largeurs 320, 360, 393 et 412 px.
+
+Source de référence de la hiérarchie : [Flo Health — « How we evolved and enriched the main screen… Part 2 »](https://medium.com/flo-health/how-we-evolved-and-enriched-the-main-screen-of-the-flo-app-part-2-cycle-widgets-b73d5ccb948d).
 
 ## Nouvelle interface — Atlas clair (Preview 0.7.0)
 

@@ -6,6 +6,19 @@ ASTRA is a **readable personal sky atlas**, not a trading terminal, a decorative
 
 Design for **read → explore → inspect → configure**, not for exposing every option immediately.
 
+### Daily widget hierarchy — Flo-inspired, ASTRA-specific
+
+Do not reproduce Flo's visual branding. The reusable information architecture is a seven-day context strip, one dominant status widget, a concise row of accessible secondary information, and a vertically scannable details feed. Flo's published design study found a scrollable main screen more discoverable than hidden short-lived stories.
+
+**Aujourd'hui** must present:
+1. Select a day from a week strip (Monday–Sunday) with previous/next week accessible.
+2. One hero showing a real count of computed exact events for the chosen date; never invent a prediction or a sentiment.
+3. A compact horizontally scrollable set of **secondary** widgets: Moon phase (labelled approximate), journal entry, natal chart.
+4. A vertically scrolling feed of first events with explicit expansion for the remainder.
+5. Secondary in-orb aspects under an accessible disclosure. Ensure no user loses the underlying astronomical data.
+
+Keep the **bottom navigation persistent** while the viewport is not occupied by the keyboard. Use text labels, not just planet symbols. At 320 CSS pixels, only the secondary widget rail scrolls horizontally; the page must never scroll sideways.
+
 This document complements `README.md` and protects P0–P2 usability improvements. It is not permission to replace the existing palette, calculations, personal data storage, navigation, or technologies wholesale.
 
 ## Art direction — *Atlas céleste*
