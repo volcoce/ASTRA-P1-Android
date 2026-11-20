@@ -1260,7 +1260,7 @@
     if(focusDialog?.showModal)focusDialog.showModal();
     if(pendingDayFocus){
       const dayButton=$('app').querySelector('[data-day="'+pendingDayFocus+'"]');
-      if(dayButton){dayButton.focus({preventScroll:true});pendingDayFocus=null;}
+      if(dayButton){dayButton.focus({preventScroll:true});if(!busy)pendingDayFocus=null;}
     }
     // Renders can detach a focused input without firing focusout.
     syncKeyboardVisibility();
@@ -1485,13 +1485,14 @@
       if(found){
         compositeDraft.place=found;compositeDraft.city=found.label;
         compositeSearch.options=[];compositeSearch.error='';compositeResult=null;render();
+        $('secondCity')?.focus({preventScroll:true});
       }
       return;
     }
     if(a.searchPlace){searchBirthCity();return;}
     if(a.place!==undefined){
       captureBirthForm();birthValidation=null;const place=placeSearch.options[Number(a.place)];
-      if(place){placeSearch.selected=place;placeSearch.options=[];placeSearch.error='';placeSearch.needFold=false;birthDraft.fold=null;birthDraft.city=place.label;render();}
+      if(place){placeSearch.selected=place;placeSearch.options=[];placeSearch.error='';placeSearch.needFold=false;birthDraft.fold=null;birthDraft.city=place.label;render();$('birthCity')?.focus({preventScroll:true});}
       return;
     }
     if(a.goto){go(a.goto);return;}
