@@ -88,6 +88,8 @@ if __name__ == '__main__':
             html=html.replace('<script src="runtime.bundle.js"></script><script src="app.js" defer></script>','')
             html=html.replace('<link rel="stylesheet" href="style.css">','')
             html=html.replace('<link rel="stylesheet" href="atlas-ui.css">','')
+            html=html.replace('<link rel="stylesheet" href="theme.css">','')
+            html=html.replace('<script src="theme-bootstrap.js"></script>','')
             page.goto('about:blank')
             page.add_script_tag(content=JS)
             # Use the REAL layout solver with the mock astronomy engine.
@@ -96,8 +98,10 @@ if __name__ == '__main__':
             layout=layout.replace('export const ', 'const ').replace('export function ', 'function ')
             page.add_script_tag(content=layout + "\nwindow.ASTRA_ENGINE.layoutPlanetLabels=layoutPlanetLabels;")
             page.set_content(html)
+            page.add_script_tag(content=(ROOT/'theme-bootstrap.js').read_text(encoding='utf-8'))
             page.add_style_tag(content=(ROOT/'style.css').read_text(encoding='utf-8'))
             page.add_style_tag(content=(ROOT/'atlas-ui.css').read_text(encoding='utf-8'))
+            page.add_style_tag(content=(ROOT/'theme.css').read_text(encoding='utf-8'))
             page.add_script_tag(content=(ROOT/'app.js').read_text(encoding='utf-8'))
             # P0 design regression: verify computed font sizes and flat surfaces.
             px=lambda selector: page.locator(selector).first.evaluate(
@@ -245,7 +249,8 @@ if __name__ == '__main__':
               height:el.getBoundingClientRect().height,
               line:parseFloat(getComputedStyle(el).lineHeight)
             })""")
-            assert calendar_label['height']<=calendar_label['line']*1.2,calendar_label
+            # P1 intentionally lets long labels use up to two lines at large text sizes.
+            assert calendar_label['height']<=calendar_label['line']*2.2,calendar_label
             capture('galaxy-a15-large-text-360')
             text_style.evaluate('node=>node.remove()')
             page.set_viewport_size({'width':393,'height':844})
@@ -254,7 +259,8 @@ if __name__ == '__main__':
             )=='#226987'
             # P2.1: immersive reading keeps home uncluttered and restores focus.
             page.locator('.natal-home [data-open-focus]').click()
-            assert page.locator('.natal-focus[aria-modal="true"]').count()==1
+            # P0 uses a native HTML dialog opened with showModal().
+            assert page.locator('dialog.natal-focus[open][aria-modal="true"]').count()==1
             assert page.locator('.bottom-nav').evaluate("e => getComputedStyle(e).visibility")=='hidden'
             capture('focus-natal-393')
             assert page.locator('.natal-focus .natal-wheel').count()==1
