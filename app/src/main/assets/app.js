@@ -279,7 +279,7 @@
     const todayKey=isoDay(new Date()),isCurrent=selected===todayKey;
     const count=events.length;
     const highlighted=events.slice(0,3),remaining=events.slice(3);
-    return header(isCurrent?'Aujourd’hui':'Le ciel du '+new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'long',timeZone:'UTC'}).format(new Date(selected+'T12:00:00Z')),
+    return header(isCurrent?'Ce jour':'Le ciel du '+new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'long',timeZone:'UTC'}).format(new Date(selected+'T12:00:00Z')),
         'Choisis un jour, puis découvre ses événements et tes notes.')+
       weekStrip()+birthTimeWarning()+
       '<section class="astra-day-hero" aria-label="Résumé du ciel pour cette date">'+
@@ -317,7 +317,15 @@
     const y=month.getFullYear(),m=month.getMonth()+1;
     const monthKey=y+'-'+pad(m);
     const monthLabel=new Intl.DateTimeFormat('fr-FR',{month:'long',year:'numeric'}).format(month);
-    const records=Object.entries(result?.days||{}).filter(([day])=>day.startsWith(monthKey+'-'))
+    if(!result){
+      return header('Ce mois','Le ciel de '+safe(monthLabel)+'.')+
+        '<div class="month-head astra-month-navigation" aria-label="Choisir un mois">'+
+          '<button type="button" class="arrow" data-month="-1" aria-label="Mois précédent">‹</button>'+
+          '<h2>'+safe(monthLabel)+'</h2>'+
+          '<button type="button" class="arrow" data-month="1" aria-label="Mois suivant">›</button></div>'+
+        status()+(busy?'':'<p class="astra-empty">Aucune donnée mensuelle disponible pour le moment.</p>');
+    }
+    const records=Object.entries(result.days).filter(([day])=>day.startsWith(monthKey+'-'))
       .sort(([a],[b])=>a.localeCompare(b));
     const exactEvents=records.flatMap(([day,data])=>[...(data.exact||[]),...(data.sky||[])].map(event=>({day,event})))
       .sort((a,b)=>(a.event.at||a.day).localeCompare(b.event.at||b.day));
@@ -352,7 +360,7 @@
             '" data-month-open-day="'+day+'" aria-label="'+safe(event.name+', le '+displayDate(day))+'">'+
             '<span class="astra-month-phase-icon" aria-hidden="true">'+(isNew?'●':'○')+'</span>'+
             '<span class="astra-month-phase-copy"><strong>'+safe(event.name)+'</strong>'+
-            '<small>'+safe(dayLabel(day))+(event.at?' · '+safe(formatMoment(event.at,state.profile.timezone)):'')+
+            '<small>'+safe(dayLabel(day))+(event.at?' · '+safe(new Intl.DateTimeFormat('fr-FR',{hour:'2-digit',minute:'2-digit',timeZone:state.profile.timezone}).format(new Date(event.at))):'')+
             '</small></span><span aria-hidden="true">›</span></button>';
         }).join('')||'<p class="astra-empty">Aucune Nouvelle ou Pleine Lune calculée pour ce mois.</p>')+'</div>'+
         '<p class="astra-section-help">Les horaires sont ceux du fuseau de naissance enregistré. Choisis une phase pour voir sa date dans le calendrier.</p></section>'+

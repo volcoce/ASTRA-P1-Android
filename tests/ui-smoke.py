@@ -96,7 +96,7 @@ if __name__ == '__main__':
                 "el => parseFloat(getComputedStyle(el).fontSize)"
             )
             assert px('.nav')>=12
-            assert page.locator('[data-tab="today"]').get_attribute('aria-label')=='Aujourd’hui'
+            assert page.locator('[data-tab="today"]').get_attribute('aria-label')=='Ce jour'
             assert page.locator('[data-tab="today"] .nav-label').inner_text()=='Ce jour'
             assert page.locator('.bottom-nav [data-tab]').count()==4
             assert page.locator('.bottom-nav .nav-label').all_text_contents()==[
