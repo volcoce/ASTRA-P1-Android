@@ -162,7 +162,6 @@
   const dateTime = iso => new Intl.DateTimeFormat('fr-FR',{dateStyle:'short',timeStyle:'short',timeZone:state.profile?.timezone || detectedZone}).format(new Date(iso));
   const formatMoment=(iso,zone=detectedZone)=>new Intl.DateTimeFormat('fr-FR',
     {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',timeZone:zone}).format(new Date(iso));
-  const eventKey=e=>[e?.type,e?.body,e?.natal,e?.at,e?.aspect,e?.name].join('|');
   const displayDate = day => new Intl.DateTimeFormat('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(day+'T12:00:00Z'));
   const shiftDay=(day,by)=>{
     const date=new Date(day+'T12:00:00Z');
@@ -265,12 +264,8 @@
     let d;
     try { d=E.describeEvent(openDetail); } catch { return ''; }
     const raw=openDetail;
-    const index=renderedEvents.findIndex(e=>eventKey(e)===eventKey(raw));
-    const nav=index<0?'':'<div class="astra-detail-pager" role="group" aria-label="Parcourir les événements">'+
-      '<button type="button" data-detail-step="-1" '+(index===0?'disabled':'')+'>← Précédent</button>'+
-      '<button type="button" data-detail-step="1" '+(index>=renderedEvents.length-1?'disabled':'')+'>Suivant →</button></div>';
     const measure=raw.type==='active'?`Écart à l’angle exact : ${Number(raw.delta).toFixed(3)}° (orbe automatique ${Number(raw.orb).toFixed(2)}°)`:raw.at?`Horaire local : ${dateTime(raw.at)}`:'';
-    return `<section class="card detail" id="detailPanel" tabindex="-1" aria-label="Détails du transit"><div class="detail-head"><span class="tag">${safe(d.kind)}</span><button class="ghost close-detail" data-close="1" aria-label="Fermer les détails">Fermer ×</button></div><h2 class="card-title">${safe(d.title)}</h2><p class="detail-tone">${safe(d.tone)}</p><div class="detail-group"><h3>Calcul astronomique</h3><p>${safe(d.astronomy)} ${safe(measure)}</p></div><div class="detail-group"><h3>Lecture astrologique</h3><p>${safe(d.interpretation)}</p></div><div class="detail-group"><h3>Question de journal</h3><p>${safe(d.question)}</p><button class="ghost" data-prompt="${safe(d.question)}">Répondre dans mon journal</button></div><p class="tiny">${safe(d.disclaimer)}</p>${nav}</section>`;
+    return `<section class="card detail" id="detailPanel" tabindex="-1" aria-label="Détails du transit"><div class="detail-head"><span class="tag">${safe(d.kind)}</span><button class="ghost close-detail" data-close="1" aria-label="Fermer les détails">Fermer ×</button></div><h2 class="card-title">${safe(d.title)}</h2><p class="detail-tone">${safe(d.tone)}</p><div class="detail-group"><h3>Calcul astronomique</h3><p>${safe(d.astronomy)} ${safe(measure)}</p></div><div class="detail-group"><h3>Lecture astrologique</h3><p>${safe(d.interpretation)}</p></div><div class="detail-group"><h3>Question de journal</h3><p>${safe(d.question)}</p><button class="ghost" data-prompt="${safe(d.question)}">Répondre dans mon journal</button></div><p class="tiny">${safe(d.disclaimer)}</p></section>`;
   }
   function birthTimeWarning(){
     return state.profile?.timeKnown===false?
@@ -286,11 +281,7 @@
     const highlighted=events.slice(0,3),remaining=events.slice(3);
     return header(isCurrent?'Aujourd’hui':'Le ciel du '+new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'long',timeZone:'UTC'}).format(new Date(selected+'T12:00:00Z')),
         'Choisis un jour, puis découvre ses événements et tes notes.')+
-      weekStrip()+
-      '<div class="astra-day-pager" role="group" aria-label="Changer de journée">'+
-      '<button type="button" data-step-day="-1">← Précédent</button>'+
-      '<button type="button" data-step-day="1">Suivant →</button></div>'+
-      birthTimeWarning()+
+      weekStrip()+birthTimeWarning()+
       '<section class="astra-day-hero" aria-label="Résumé du ciel pour cette date">'+
         '<div class="astra-day-hero-copy"><p class="astra-hero-kicker">LE CIEL DU '+safe(new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'long',timeZone:'UTC'}).format(new Date(selected+'T12:00:00Z')).toLocaleUpperCase('fr-FR'))+'</p>'+
         '<div class="astra-hero-stat"><strong>'+count+'</strong><span>'+(
@@ -342,7 +333,7 @@
     return header('Calendrier','Choisis une date pour découvrir les événements du ciel.')+birthTimeWarning()+
       `<div class="month-head"><button class="arrow" data-month="-1" aria-label="Mois précédent">‹</button><h2>${safe(new Intl.DateTimeFormat('fr-FR',{month:'long',year:'numeric'}).format(month))}</h2><button class="arrow" data-month="1" aria-label="Mois suivant">›</button></div>`+'<details class="calendar-options"><summary>Options d’affichage</summary>'+switcher()+filters()+'</details>'+
       `<div class="calendar"><div class="cal-grid">${['L','M','M','J','V','S','D'].map(x=>`<span class="weekday">${x}</span>`).join('')}${cells.join('')}</div><div class="calendar-phase-legend" aria-label="Légende des phases lunaires"><span class="cal-legend-item"><span class="moon-phase-legend-dot new" aria-hidden="true">●</span> Nouvelle Lune</span><span class="cal-legend-item"><span class="moon-phase-legend-dot full" aria-hidden="true">○</span> Pleine Lune</span></div><p class="tiny">✦ contact exact · ~ aspect à midi · point rose : journal</p></div>${status()}`+
-      `<section class="card"><div class="section-row"><h2 class="card-title">${safe(displayDate(selected))}</h2></div><div class="astra-day-pager" role="group" aria-label="Jour du calendrier"><button type="button" data-step-day="-1">← Précédent</button><button type="button" data-step-day="1">Suivant →</button></div><div class="pill-row"><span class="tag">${events.length} événement(s)</span><span class="tag-outline">${day.active.length} actif(s)</span></div>${events.map(row).join('')||'<p class="tiny">Aucun événement exact ce jour.</p>'}${day.active.slice(0,30).map(e=>row({...e,type:'active'})).join('')}</section>`+detailView();
+      `<section class="card"><div class="section-row"><h2 class="card-title">${safe(displayDate(selected))}</h2></div><div class="pill-row"><span class="tag">${events.length} événement(s)</span><span class="tag-outline">${day.active.length} actif(s)</span></div>${events.map(row).join('')||'<p class="tiny">Aucun événement exact ce jour.</p>'}${day.active.slice(0,30).map(e=>row({...e,type:'active'})).join('')}</section>`+detailView();
   }
   function initDraft() {
     if(journalDraftDate!==selected||!journalDraft){
@@ -960,9 +951,7 @@
         '<div class="natal-subpage-heading">'+pageBack+'<h2 class="card-title">Progressions secondaires</h2>'+
         '<p class="natal-section-lead">Convention astrologique : un jour d’éphéméride après la naissance représente une année de vie. Ce n’est pas une prévision scientifique.</p></div>'+
         '<div class="natal-progress-controls"><label for="progressionDay">Date à étudier</label>'+
-        '<input id="progressionDay" type="date" min="1900-01-01" max="2100-12-31" value="'+safe(progressionDay)+'">'+
-        '<div class="astra-day-pager"><button type="button" data-progression-step="-1">← Année précédente</button>'+
-        '<button type="button" data-progression-step="1">Année suivante →</button></div></div>'+
+        '<input id="progressionDay" type="date" min="1900-01-01" max="2100-12-31" value="'+safe(progressionDay)+'"></div>'+
         (err?'<p class="notice" role="alert">'+safe(err)+'</p>':prog?
           '<p class="natal-section-lead">Instant d’éphéméride correspondant : '+safe(new Intl.DateTimeFormat('fr-FR',{dateStyle:'medium',timeZone:'UTC'}).format(new Date(prog.progressedAt)))+'.</p>'+
           '<div class="natal-positions">'+Object.entries(prog.positions).map(([body,lng])=>
@@ -1002,10 +991,7 @@
     }
     if(isCompare){
       const contacts=transitSnapshot?.contacts||[];
-      const comparing='<div class="natal-transit-pager" role="group" aria-label="Navigation entre dates de transit">'+
-        '<button type="button" data-transit-step="-1">← Précédent</button>'+
-        '<button type="button" data-transit-step="1" class="natal-transit-next">Suivant →</button></div>'+
-        '<div class="natal-transit-time">'+
+      const comparing='<div class="natal-transit-time">'+
         '<label for="transitDay">Date à comparer<input id="transitDay" type="date" min="1900-01-01" max="2100-12-31" value="'+safe(state.transitDay)+'"></label>'+
         '<label for="transitTime">Heure<input id="transitTime" type="time" value="'+safe(state.transitTime)+'"></label>'+
         '</div><p class="natal-compare-zone">Fuseau utilisé : '+safe(detectedZone)+'</p>';
@@ -1217,17 +1203,7 @@
       return;
     }
     if(a.weekShift){selectDay(shiftDay(selected,Number(a.weekShift)));return;}
-    if(a.stepDay){selectDay(shiftDay(selected,Number(a.stepDay)));return;}
     if(a.lunarDay){selectDay(a.lunarDay);go('calendar');return;}
-    if(a.detailStep){
-      const index=renderedEvents.findIndex(e=>eventKey(e)===eventKey(openDetail));
-      const next=index+Number(a.detailStep);
-      if(index<0||next<0||next>=renderedEvents.length)return;
-      openDetail=renderedEvents[next];render();
-      $('detailPanel')?.scrollIntoView({block:'start'});
-      $('detailPanel')?.querySelector('[data-detail-step="'+a.detailStep+'"]')?.focus({preventScroll:true});
-      return;
-    }
     if(a.resetToday){selectDay(isoDay(new Date()));return;}
     if(a.openFocus&&state.profile){
       captureBirthForm();focusReturnScreen=profileScreen;
@@ -1311,13 +1287,6 @@
       return;
     }
     if(a.exportChart){exportNatalGraphic(a.exportChart);return;}
-    if(a.transitStep){
-      const next=shiftDay(state.transitDay,Number(a.transitStep));
-      if(next<'1900-01-01'||next>'2100-12-31')return;
-      state.transitDay=next;natalSelection=null;persist();render();
-      $('app').querySelector('[data-transit-step="'+a.transitStep+'"]')?.focus({preventScroll:true});
-      return;
-    }
     if(a.transitRange){
       if(!['all','fast','slow'].includes(a.transitRange))return;
       transitRange=a.transitRange;natalSelection=null;render();
@@ -1329,14 +1298,6 @@
     if(a.natalAspect){natalChoose('aspect',a.natalAspect,event.detail===0);return;}
     if(a.natalBody){natalChoose('planet',a.natalBody,event.detail===0);return;}
     if(a.natalHouse){natalChoose('house',Number(a.natalHouse),event.detail===0);return;}
-    if(a.progStep||a.progressionStep){
-      const step=Number(a.progStep||a.progressionStep);
-      if(![-1,1].includes(step))return;
-      const d=new Date(progressionDay+'T12:00:00Z');d.setUTCFullYear(d.getUTCFullYear()+step);
-      progressionDay=d.toISOString().slice(0,10);render();
-      $('app').querySelector('[data-progression-step="'+step+'"]')?.focus({preventScroll:true});
-      return;
-    }
     if(a.searchCompositePlace){searchCompositeCity();return;}
     if(a.compositePlace!==undefined){
       captureCompositeForm();
