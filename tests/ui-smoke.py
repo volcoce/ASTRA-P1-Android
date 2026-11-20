@@ -12,12 +12,18 @@ JS = r"""
 window._store = {};
 Object.defineProperty(window,'localStorage',{configurable:true,value:{getItem:k=>window._store[k]||null,setItem:(k,v)=>{window._store[k]=String(v)},removeItem:k=>{delete window._store[k]}}});
 window.ASTRA_ENGINE = {
- validateProfile(p){if(!p.date || !p.time || !p.timezone || !Number.isFinite(Number(p.latitude)))throw Error('Profil invalide');return true;},
+ validateProfile(p){if(!p.date || (p.timeKnown!==false&&!p.time) || !p.timezone || !Number.isFinite(Number(p.latitude)))throw Error('Profil invalide');return true;},
  moonPhase(){return 128.1},formatSign(){return '7° Bélier'},
+ formatSignExact(){return '07°00′00″ Bélier'},formatOrbExact(orb){return orb.toFixed(2)+'°'},
+ filterNatalAspects(list,filter){return filter==='all'?[...list]:list.filter(a=>a.aspect===filter)},
+ describeNatalPlanet(body,lng,house,approx){return {title:body==='Moon'?'Lune':'Soleil',astronomy:approx?'Position indicative à midi local':'Longitude calculée',convention:'Lecture astrologique traditionnelle du signe et de la planète.',question:'Quel sens pour ce domaine ?',disclaimer:'Lecture symbolique non prédictive'}},
+ describeNatalHouse(n){return {title:'Maison '+n,astronomy:'Cuspide calculée',convention:'Domaine traditionnel de la maison.',question:'Comment cette maison est-elle vécue ?',disclaimer:'Lecture symbolique'}},
+ describeNatalAspect(a){return {title:'Aspect natal '+a.aspect,astronomy:'Écart calculé',convention:'Symbolisme conventionnel de l’aspect.',question:'Comment ces thèmes interagissent-ils ?',disclaimer:'Lecture symbolique'}},
+
  normalizePlace(p){return {...p,label:p.label||'Paris · Île-de-France · France'}},
  searchCities:async q=>[{name:'Paris',label:'Paris · Île-de-France · France',latitude:48.8534,longitude:2.3488,timezone:'Europe/Paris',admin1:'Île-de-France',country:'France'}],
  localToUtc(date,time,zone,fold=null){if(date==='2026-10-25' && time==='02:30' && fold===null)throw Error('Heure ambiguë');return new Date('1994-05-12T16:40:00.000Z')},
- natalChart(){return {positions:{Sun:7,Moon:23,Mercury:32,Venus:55,Mars:91,Jupiter:123,Saturn:141,Uranus:175,Neptune:203,Pluto:270},houses:{ascendant:151.5,midheaven:53.1,system:'Placidus',cusps:[151.5,172,199,233,270,304,331.5,352,19,53.1,90,124],polarFallback:false},aspects:[{a:'Sun',b:'Mars',aspect:'Carré',glyph:'□',orb:1}]}},
+ natalChart(profile){const known=profile?.timeKnown!==false;return {timeKnown:known,approximateNoon:!known,positions:{Sun:7,Moon:23,Mercury:32,Venus:55,Mars:91,Jupiter:123,Saturn:141,Uranus:175,Neptune:203,Pluto:270},houses:known?{ascendant:151.5,midheaven:53.1,system:'Placidus',cusps:[151.5,172,199,233,270,304,331.5,352,19,53.1,90,124],polarFallback:false}:null,aspects:[{a:'Sun',b:'Mars',aspect:'Carré',glyph:'□',orb:1}]}},
  houseOf(lon,cusps){for(let i=0;i<12;i++){let d=(lon-cusps[i]+360)%360,w=(cusps[(i+1)%12]-cusps[i]+360)%360;if(d<w)return i+1;}return null;},
  describeEvent(e){return {kind:'Interprétation',title:e.name||'Soleil trigone Lune natal',tone:'Lecture symbolique',astronomy:'Mesure astronomique calculée.',interpretation:'Lecture astrologique sans causalité.',question:'Quelle observation personnelle noter ?',disclaimer:'Pas de prédiction scientifique.'}},
  calculateMonth(profile,year,month,mode){
@@ -97,9 +103,18 @@ if __name__ == '__main__':
             page.keyboard.press('Enter')
             assert page.evaluate("document.activeElement.dataset.natalBody")=='Moon'
             assert 'Lune' in page.locator('#natalSelectionInfo').inner_text()
-            assert 'Aspects natals' in page.locator('#natalSelectionInfo').inner_text()
+            assert 'Donnée calculée' in page.locator('#natalSelectionInfo').inner_text()
             page.locator('[data-natal-view="complete"]').click()
             assert page.locator('#natalChart .natal-position').count()==10
+            assert page.locator('#natalChart .natal-aspect').count()==1
+            assert '07°00′00″' in page.locator('#natalChart .natal-positions').inner_text()
+            page.locator('[data-natal-aspect-filter="Carré"]').click()
+            assert page.locator('#natalChart .natal-aspect').count()==1
+            page.locator('#natalChart .natal-aspect').first.click()
+            assert 'Lecture astrologique traditionnelle' in page.locator('#natalSelectionInfo').inner_text()
+            page.locator('[data-natal-aspect-filter="Sextile"]').click()
+            assert page.locator('#natalChart .natal-aspect').count()==0
+            page.locator('[data-natal-aspect-filter="all"]').click()
             assert page.locator('#natalChart .natal-aspect').count()==1
             assert page.locator('#natalChart [data-natal-house]').count()>=12
             page.locator('.natal-wheel [data-natal-house="1"]').click()
@@ -153,6 +168,28 @@ if __name__ == '__main__':
             page.locator('[data-tab="journal"]').click()
             assert page.locator('#journalNote').input_value()=='Une belle journée de création.'
             assert page.locator('[data-tag="creation"]').get_attribute('aria-pressed')=='true'
+            # P1: unknown birth hour should not invent an Ascendant or houses.
+            page.locator('[data-tab="profile"]').click()
+            page.locator('#unknownBirthTime').check()
+            assert page.locator('#birthTime').is_disabled()
+            page.get_by_role('button',name='Calculer mon thème natal').click()
+            page.wait_for_timeout(250)
+            saved=page.evaluate("JSON.parse(localStorage.getItem('astra-public-v1'))")
+            assert saved['profile']['timeKnown'] is False
+            assert saved['profile']['time'] is None
+            assert saved['journal'], 'Existing journal must survive updating birth time'
+            page.locator('[data-tab="profile"]').click()
+            assert page.locator('#natalChart .natal-wheel').count()==1
+            assert page.locator('#natalChart .wheel-house-sector').count()==0
+            assert page.locator('#natalChart [data-natal-house]').count()==0
+            assert 'Heure de naissance inconnue' in page.locator('#natalChart').inner_text()
+            assert 'Ascendant' not in page.locator('.natal-highlights').inner_text()
+            page.locator('.natal-wheel [data-natal-body="Moon"]').click()
+            assert 'indicative' in page.locator('#natalSelectionInfo').inner_text()
+            page.locator('[data-natal-view="complete"]').click()
+            assert page.locator('#natalChart .natal-position').count()==10
+            assert page.locator('#natalChart .natal-house-chip').count()==0
+            assert page.locator('#natalChart .natal-aspect').count()==1
             assert not errors, errors
             print('UI P2: profil, détails, prompt, humeurs, énergie, tags, enregistrement, recherche, rafraîchissement et journal : OK')
             browser.close()
