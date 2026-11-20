@@ -710,22 +710,64 @@
         (transitError?'<p class="notice" role="alert">'+safe(transitError)+'</p>':'')+
         '</section>';
     }
+    if(isCompare){
+      const contacts=transitSnapshot?.contacts||[];
+      const comparing='<div class="natal-transit-time">'+
+        '<label for="transitDay">Date des transits<input id="transitDay" type="date" min="1900-01-01" max="2100-12-31" value="'+safe(state.transitDay)+'"></label>'+
+        '<label for="transitTime">Heure locale<input id="transitTime" type="time" value="'+safe(state.transitTime)+'"></label>'+
+        '</div><p class="natal-compare-zone">Fuseau utilisé : '+safe(detectedZone)+'</p>';
+      const contactList=transitSnapshot?
+        '<section class="natal-contact-section"><h3>Contacts à cet instant <span>'+contacts.length+'</span></h3>'+
+        '<p>Écarts angulaires calculés dans les orbes automatiques. Sélectionne une planète pour les détails.</p>'+
+        (contacts.length?'<div class="natal-contact-list">'+contacts.slice(0,16).map(c=>
+          '<button type="button" data-transit-body="'+c.body+'"><span>'+safe(planets[c.body])+
+          ' '+safe(c.glyph)+' '+safe(planets[c.natal])+'</span><small>Écart '+safe(E.formatOrbExact(c.delta))+
+          '</small></button>').join('')+'</div>':'<p class="natal-contact-empty">Aucun contact dans les orbes retenus à cet instant.</p>')+
+        (contacts.length>16?'<p class="tiny">Les seize écarts les plus proches sont affichés. Sélectionne une planète sur la roue pour consulter tous ses contacts.</p>':'')+
+        '</section>':'';
+      return '<section class="card natal-card natal-compare" id="natalChart">'+
+        '<div class="natal-subpage-heading">'+pageBack+
+        '<h2 class="card-title">Comparer avec les transits</h2>'+
+        '<p class="natal-section-lead">La roue intérieure est ton ciel de naissance. La roue extérieure montre les positions à la date choisie.</p></div>'+
+        comparing+notice+(transitError?'<p class="notice" role="alert">'+safe(transitError)+'</p>':'')+
+        '<div class="natal-wheel-viewport" role="region" tabindex="0" aria-label="Roue double, natal et transits">'+resized+'</div>'+
+        '<div class="wheel-ring-legend"><span><i class="natal-swatch"></i>Planètes natales</span>'+
+        '<span><i class="transit-swatch"></i>Planètes en transit</span></div>'+
+        contactList+contextSheet+
+        '<p class="tiny">Les contacts relèvent d’une lecture astrologique symbolique, pas de prédictions scientifiques.</p></section>';
+    }
+    const sections=[['planets','Planètes'],['houses','Maisons'],['aspects','Aspects']]
+      .filter(([id])=>id!=='houses'||h);
+    const choice=h?exploreSection:(exploreSection==='houses'?'planets':exploreSection);
+    const selector='<div class="natal-explore-tabs" role="group" aria-label="Choisir les informations à explorer">'+
+      sections.map(([id,label])=>
+        '<button type="button" data-explore-section="'+id+'" aria-pressed="'+(choice===id)+'" class="'+(choice===id?'selected':'')+'">'+label+'</button>').join('')+
+      '</div>';
+    const matrixDetails='<details class="natal-matrix-disclosure"'+(aspectMatrixOpen?' open':'')+'>'+
+      '<summary>Afficher la matrice des aspects</summary>'+renderAspectMatrix(chart)+'</details>';
+    const aspectsList='<section class="natal-explore-list"><h3>Aspects natals</h3>'+
+      '<p>Les aspects indiquent des écarts angulaires entre planètes. Filtre ceux que tu souhaites étudier.</p>'+
+      filterBar+'<div class="natal-aspects">'+(aspects||'<p class="natal-contact-empty">Aucun aspect avec ce filtre.</p>')+'</div>'+
+      matrixDetails+'</section>';
+    const planetList='<section class="natal-explore-list"><h3>Mes planètes</h3>'+
+      '<p>Touche une planète pour lire sa position, sa maison et ses interprétations.</p>'+
+      '<div class="natal-positions">'+bodyButtons+'</div></section>';
+    const housesList='<section class="natal-explore-list"><h3>Mes maisons</h3>'+
+      '<p>Les maisons représentent les domaines de vie dans la tradition astrologique.</p>'+
+      '<div class="natal-houses">'+houseButtons+'</div></section>';
+    const contents=choice==='aspects'?aspectsList:choice==='houses'?housesList:planetList;
     return '<section class="card natal-card natal-explore" id="natalChart">'+
       '<div class="natal-subpage-heading">'+pageBack+'<h2 class="card-title">Explorer mon thème</h2>'+
-      '<p class="natal-section-lead">Sélectionne une planète ou une maison, puis consulte ses positions et ses aspects.</p>'+
-      '<button type="button" class="natal-settings-link" data-profile-screen="settings">Options de la carte</button></div>'+
-      '<div class="section-row"><h2 class="card-title">Thème natal '+(isTropical?'tropical':'sidéral')+'</h2><span class="tag">'+(isFull?'Complet':'Essentiel')+'</span></div>'+
-      '<p class="tiny">'+(uncertain?'Date et ville connues, heure inconnue.': 'Positions calculées pour la date, l’heure et la ville de naissance · Maisons '+safe(h.system)+'.')+'</p>'+
-      notice+(transitError?'<p class="notice" role="alert">'+safe(transitError)+'</p>':'')+'<div class="natal-stage"><div class="natal-stage-wheel">'+
-      '<div class="natal-wheel-viewport" role="region" tabindex="0" aria-label="Roue du thème natal, défilement horizontal en cas de zoom">'+resized+'</div>'+
-      (transitSnapshot?'<div class="wheel-ring-legend"><span><i class="natal-swatch"></i>Natal (violet)</span><span><i class="transit-swatch"></i>Transits (bleu)</span></div><p class="wheel-caption">'+transitSnapshot.contacts.length+' aspect(s) transit–natal actif(s) à l’instant choisi. Touchez une planète extérieure pour les examiner.</p>':h?'<div class="wheel-ring-legend" aria-label="Légende de la roue"><span><i class="sign-swatch"></i>Signes · 30°</span><span><i class="house-swatch"></i>Maisons · tailles variables</span></div>':'<p class="wheel-caption">Zodiaque seul : orientation fixe, aucun Ascendant ni aucune maison supposés.</p>')+
-      '<p class="wheel-caption">Les repères marquent les longitudes calculées ; les glyphes sont espacés pour rester lisibles. '+(uncertain?'Les positions sont indicatives.':'Les valeurs en degrés, minutes et secondes d’arc sont une précision d’affichage, non une garantie d’exactitude des éphémérides.')+'</p>'+
-      '</div><aside class="natal-stage-side"><div class="natal-highlights">'+blocks+'</div>'+
-      '<section id="natalSelectionInfo" class="natal-selection" aria-live="polite" aria-label="Fiche de lecture de l’élément sélectionné">'+selectedDetail+'</section></aside></div>'+
-      filterBar+full+
+      '<p class="natal-section-lead">Choisis ce que tu veux comprendre, une rubrique à la fois.</p></div>'+
+      notice+selector+'<div id="natalExplorerPanel" class="natal-explorer-panel">'+contents+'</div>'+
+      '<details class="natal-explore-wheel"'+(exploreWheelOpen?' open':'')+'>'+
+      '<summary>Voir la roue interactive</summary>'+
+      '<div class="natal-wheel-viewport" role="region" tabindex="0" aria-label="Roue natale interactive">'+resized+'</div>'+
+      '<p class="natal-home-hint">Les points marquent les degrés réels. Les glyphes sont espacés pour être lisibles.</p>'+
+      '</details>'+contextSheet+
       (h?.polarFallback?'<p class="notice">À cette latitude, les maisons égales remplacent Placidus.</p>':'')+
-      (h?.approximateSidereal?'<p class="tiny">Maisons sidérales et ayanamsa Lahiri approximatifs : validation approfondie requise.</p>':'')+
-      '<p class="tiny">La lecture symbolique relève de conventions astrologiques, non de prédictions scientifiquement établies.</p></section>';
+      (h?.approximateSidereal?'<p class="tiny">Le zodiaque sidéral utilise ici un ayanamsa Lahiri approximatif.</p>':'')+
+      '<p class="tiny">Les interprétations astrologiques sont des conventions symboliques, non des prédictions scientifiques.</p></section>';
   }
 
   function profile() {
