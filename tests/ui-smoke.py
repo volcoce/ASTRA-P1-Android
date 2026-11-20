@@ -365,12 +365,8 @@ if __name__ == '__main__':
             page.locator('.natal-focus [data-close-focus]').click()
             assert page.locator('.natal-compare .natal-double-wheel').count()==1
             assert page.locator('.natal-contact-section').count()==1
-            assert page.locator('[data-transit-step="1"]').inner_text()=='Suivant →'
-            old_day=page.locator('#transitDay').input_value()
-            page.locator('[data-transit-step="1"]').click()
-            assert page.locator('#transitDay').input_value()!=old_day
-            page.locator('[data-transit-step="-1"]').click()
-            assert page.locator('#transitDay').input_value()==old_day
+            assert page.locator('[data-transit-step]').count()==0
+            assert page.locator('#transitDay').count()==1
             page.locator('[data-transit-range="slow"]').click()
             assert page.locator('.natal-contact-list button').count()==0
             page.locator('[data-transit-range="fast"]').click()
@@ -395,9 +391,8 @@ if __name__ == '__main__':
             page.locator('[data-profile-screen="progressions"]').click()
             assert page.locator('.natal-progressions').count()==1
             assert page.locator('.natal-progression-row').count()==10
-            old_year=page.locator('#progressionDay').input_value()
-            page.locator('[data-progression-step="1"]').click()
-            assert page.locator('#progressionDay').input_value()!=old_year
+            assert page.locator('[data-progression-step]').count()==0
+            assert page.locator('#progressionDay').count()==1
             page.locator('[data-profile-screen="overview"]').click()
             page.locator('.natal-extras summary').click()
             page.locator('[data-profile-screen="composite"]').click()
@@ -475,7 +470,7 @@ if __name__ == '__main__':
                     assert page.locator('.astra-day-hero').count()==1
                     assert page.locator('.astra-insight-tile').count()==3
                     assert page.locator('.astra-lunar-milestone').count()==4
-                    assert page.locator('[data-step-day="1"]').is_visible()
+                    assert page.locator('[data-step-day]').count()==0
                     selected_date=page.locator('.astra-week-day.is-selected').get_attribute('data-day')
                     expected_count=2 if int(selected_date[-2:]) in (5,20) else 1
                     assert page.locator('.astra-day-hero .astra-hero-stat strong').inner_text()==str(expected_count)
@@ -495,11 +490,6 @@ if __name__ == '__main__':
             assert after!=before
             page.locator('[data-week-shift="-7"]').click()
             assert page.locator('.astra-week-day.is-selected').get_attribute('data-day')==before
-            day_before=page.locator('.astra-week-day.is-selected').get_attribute('data-day')
-            page.locator('[data-step-day="1"]').click()
-            day_after=page.locator('.astra-week-day.is-selected').get_attribute('data-day')
-            assert day_after!=day_before
-            page.locator('[data-step-day="-1"]').click()
             page.locator('.astra-hero-link').click()
             assert page.evaluate('document.activeElement.id')=='todayEventsTitle'
             page.locator('.astra-insight-tile[data-goto="journal"]').click()
@@ -552,9 +542,7 @@ if __name__ == '__main__':
             page.locator('[data-event]').first.click(timeout=2000)
             assert page.locator('#detailPanel').count()==1
             assert 'Lecture astrologique' in page.locator('#detailPanel').inner_text()
-            assert page.locator('[data-detail-step="1"]').count()==1
-            page.locator('[data-detail-step="1"]').click()
-            assert page.locator('#detailPanel').count()==1
+            assert page.locator('[data-detail-step]').count()==0
             page.get_by_role('button',name='Répondre dans mon journal').click()
             assert page.locator('#journalNote').count()==1
             assert 'Quelle observation' in page.locator('#journalNote').input_value()
