@@ -213,7 +213,9 @@
   }
   // Simple monochrome Moon icons with actual phase geometry; no color emoji
   // variance between Android WebView and desktop rendering.
-  function moonPhaseIcon(angle,variant='calendar'){
+  // Variant classes are namespaced: "calendar" alone would inherit the
+  // entire calendar-panel CSS (padding, border, background) on each SVG.
+  function moonPhaseIcon(angle,variant='cell'){
     if(!Number.isFinite(angle))return '';
     const index=Math.floor(((((angle%360)+360)%360)+22.5)/45)%8;
     const shapes=[
@@ -226,7 +228,7 @@
       'M12 3 A9 9 0 0 0 12 21 L12 3 Z',
       'M12 3 A9 9 0 0 0 12 21 C8 18.8 8 5.2 12 3 Z'
     ];
-    return '<svg class="astra-phase-graphic astra-phase-'+index+' '+variant+
+    return '<svg class="astra-phase-graphic astra-phase-'+index+' astra-phase-variant-'+variant+
       '" viewBox="0 0 24 24" focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">'+
       '<circle class="phase-night" cx="12" cy="12" r="9"/>'+
       (index===4?'<circle class="phase-light" cx="12" cy="12" r="9"/>':
