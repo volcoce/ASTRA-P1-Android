@@ -842,6 +842,8 @@
   function render() {
     renderedEvents=[];
     $('app').innerHTML=({today,calendar,journal,profile})[activeTab]();
+    // Renders can detach a focused input without firing focusout.
+    syncKeyboardVisibility();
     document.body.classList.toggle('astra-focus-open',activeTab==='profile'&&profileScreen==='focus');
     document.querySelectorAll('[data-tab]').forEach(button=>{
       const active=button.dataset.tab===activeTab;
@@ -902,14 +904,29 @@
   const isTypingField=element=>element?.matches?.(
     'textarea,input:not([type="checkbox"]):not([type="range"]):not([type="file"]),select'
   )||false;
-  document.addEventListener('focusin',event=>{
-    if(isTypingField(event.target))document.body.classList.add('astra-input-active');
-  });
-  document.addEventListener('focusout',()=>{
-    requestAnimationFrame(()=>{
-      document.body.classList.toggle('astra-input-active',isTypingField(document.activeElement));
-    });
-  });
+  // Hide navigation ONLY when an on-screen keyboard actually reduces the
+  // visual viewport. Focus alone also occurs with hardware keyboards or
+  // while browsing the journal; in that case navigation must stay available.
+  const visibleHeight=()=>Math.min(window.innerHeight,window.visualViewport?.height||window.innerHeight);
+  const keyboardGeometry={baseline:visibleHeight(),width:window.innerWidth,
+    landscape:window.innerWidth>window.innerHeight};
+  function syncKeyboardVisibility(){
+    const height=visibleHeight(),width=window.innerWidth;
+    const landscape=width>window.innerHeight;
+    if(landscape!==keyboardGeometry.landscape||Math.abs(width-keyboardGeometry.width)>80){
+      keyboardGeometry.baseline=height;
+    }
+    keyboardGeometry.width=width;keyboardGeometry.landscape=landscape;
+    const focused=isTypingField(document.activeElement);
+    if(focused)keyboardGeometry.baseline=Math.max(keyboardGeometry.baseline,height);
+    else keyboardGeometry.baseline=height;
+    document.body.classList.toggle('astra-input-active',
+      focused&&keyboardGeometry.baseline-height>110);
+  }
+  document.addEventListener('focusin',syncKeyboardVisibility);
+  document.addEventListener('focusout',()=>requestAnimationFrame(syncKeyboardVisibility));
+  window.visualViewport?.addEventListener('resize',syncKeyboardVisibility);
+  window.addEventListener('resize',syncKeyboardVisibility);
   $('homeButton').addEventListener('click',()=>{selectDay(isoDay(new Date()));go('today');});
   document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.tab)));
   $('app').addEventListener('click',event=>{

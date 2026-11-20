@@ -92,15 +92,20 @@ if __name__ == '__main__':
             capture('galaxy-a15-form-360')
             assert page.evaluate("document.documentElement.scrollWidth")<=362
             page.locator('#birthCity').focus()
+            # Hardware keyboard / mere focus must not hide navigation.
+            assert not page.evaluate("document.body.classList.contains('astra-input-active')")
+            page.set_viewport_size({'width':360,'height':460})  # virtual IME
+            page.wait_for_timeout(75)
             assert page.evaluate("document.body.classList.contains('astra-input-active')")
             assert page.locator('.bottom-nav').evaluate(
                 "el => getComputedStyle(el).visibility"
             )=='hidden'
-            page.locator('#birthCity').evaluate("el => el.blur()")
-            page.wait_for_timeout(50)
+            page.set_viewport_size({'width':360,'height':720})
+            page.wait_for_timeout(75)
             assert page.locator('.bottom-nav').evaluate(
                 "el => getComputedStyle(el).visibility"
             )=='visible'
+            page.locator('#birthCity').evaluate("el => el.blur()")
             page.set_viewport_size({'width':393,'height':844})
             page.locator('#birthDate').fill('1994-05-12')
             page.locator('#birthTime').fill('18:40')
@@ -414,12 +419,18 @@ if __name__ == '__main__':
             page.locator('#journalNote').focus()
             assert page.locator('.bottom-nav').evaluate(
                 "e => getComputedStyle(e).visibility"
+            )=='visible'
+            page.set_viewport_size({'width':320,'height':480})
+            page.wait_for_timeout(75)
+            assert page.locator('.bottom-nav').evaluate(
+                "e => getComputedStyle(e).visibility"
             )=='hidden'
-            page.locator('#journalNote').evaluate('e => e.blur()')
-            page.wait_for_timeout(50)
+            page.set_viewport_size({'width':320,'height':730})
+            page.wait_for_timeout(75)
             assert page.locator('.bottom-nav').evaluate(
                 "e => getComputedStyle(e).visibility"
             )=='visible'
+            page.locator('#journalNote').evaluate('e => e.blur()')
             # P1: unknown birth hour should not invent an Ascendant or houses.
             page.locator('[data-tab="profile"]').click()
             assert page.locator('#birthForm').count()==0
