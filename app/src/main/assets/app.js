@@ -1136,7 +1136,7 @@
         '<p class="natal-focus-legend">Symboles sur leurs degrés réels ; les glyphes voisins sont espacés pour rester lisibles.</p>';
       const moment=comparison?
         '<p class="natal-focus-moment">Transits du '+safe(state.transitDay)+' à '+safe(state.transitTime)+' · '+safe(detectedZone)+'</p>':'';
-      return '<dialog class="natal-focus" id="natalChart" aria-labelledby="natalFocusTitle">'+
+      return '<dialog class="natal-focus" id="natalChart" aria-modal="true" aria-labelledby="natalFocusTitle">'+
         '<div class="natal-focus-header"><div><p class="natal-focus-kicker">ASTRA · Lecture de la carte</p>'+
         '<h2 id="natalFocusTitle">'+label+'</h2>'+moment+'</div>'+
         '<button type="button" class="natal-focus-close" data-close-focus="1" aria-label="Fermer la roue agrandie">Fermer <span aria-hidden="true">×</span></button></div>'+
