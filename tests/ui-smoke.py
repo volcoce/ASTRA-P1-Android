@@ -47,6 +47,11 @@ if __name__ == '__main__':
             html=html.replace('<link rel="stylesheet" href="style.css">','')
             page.goto('about:blank')
             page.add_script_tag(content=JS)
+            # Use the REAL layout solver with the mock astronomy engine.
+            layout=(ROOT.parents[3] / 'astro/chart-layout.mjs').read_text(encoding='utf-8')
+            layout=layout.replace("import {mod} from './core.mjs';", "const mod=(x,n=360)=>((x%n)+n)%n;")
+            layout=layout.replace('export const ', 'const ').replace('export function ', 'function ')
+            page.add_script_tag(content=layout + "\nwindow.ASTRA_ENGINE.layoutPlanetLabels=layoutPlanetLabels;")
             page.set_content(html)
             page.add_style_tag(content=(ROOT/'style.css').read_text(encoding='utf-8'))
             page.add_script_tag(content=(ROOT/'app.js').read_text(encoding='utf-8'))
@@ -65,12 +70,33 @@ if __name__ == '__main__':
             assert page.evaluate("JSON.parse(localStorage.getItem('astra-public-v1')).profile.latitude")==48.8534
             page.locator('[data-tab="profile"]').click()
             assert page.locator('#natalChart .natal-wheel').count()==1
+            assert page.locator('.wheel-ring-legend').count()==1
+            assert page.locator('.wheel-zodiac-sector').count()==12
+            assert page.locator('.wheel-house-sector').count()==12
+            # The true degree markers never move; labels use the actual solver.
+            labels=page.locator('.natal-planet-hit').evaluate_all("""items => items.map(e => ({
+              body:e.dataset.natalBody, actual:Number(e.dataset.trueLongitude),
+              label:Number(e.dataset.labelLongitude)
+            }))""")
+            assert len(labels)==10
+            expected={'Sun':7,'Moon':23,'Mercury':32,'Venus':55,'Mars':91,
+                      'Jupiter':123,'Saturn':141,'Uranus':175,'Neptune':203,'Pluto':270}
+            for item in labels:
+                assert abs(item['actual']-expected[item['body']])<1e-5
+            vals=sorted(x['label'] for x in labels)
+            gaps=[(vals[(i+1)%len(vals)]-vals[i]+360)%360 for i in range(len(vals))]
+            assert min(gaps)>=13.99, gaps
             assert page.locator('#natalChart .natal-position').count()==0  # essential hides detailed tables
             assert page.locator('[data-natal-view="essential"]').get_attribute('aria-pressed')=='true'
             assert page.locator('[data-natal-zodiac="tropical"]').get_attribute('aria-pressed')=='true'
             # Interactive planet wheel in both modes
             page.locator('.natal-wheel [data-natal-body="Sun"]').click()
             assert 'Soleil' in page.locator('#natalSelectionInfo').inner_text()
+            # After SVG rerender, the focused keyboard control stays focused.
+            page.locator('.natal-wheel [data-natal-body="Moon"]').focus()
+            page.keyboard.press('Enter')
+            assert page.evaluate("document.activeElement.dataset.natalBody")=='Moon'
+            assert 'Lune' in page.locator('#natalSelectionInfo').inner_text()
             assert 'Aspects natals' in page.locator('#natalSelectionInfo').inner_text()
             page.locator('[data-natal-view="complete"]').click()
             assert page.locator('#natalChart .natal-position').count()==10
@@ -78,6 +104,10 @@ if __name__ == '__main__':
             assert page.locator('#natalChart [data-natal-house]').count()>=12
             page.locator('.natal-wheel [data-natal-house="1"]').click()
             assert 'Maison 1' in page.locator('#natalSelectionInfo').inner_text()
+            page.locator('.natal-wheel [data-natal-house="2"]').focus()
+            page.keyboard.press('Space')
+            assert page.evaluate("document.activeElement.dataset.natalHouse")=='2'
+            assert 'Maison 2' in page.locator('#natalSelectionInfo').inner_text()
             page.locator('[data-natal-zodiac="sidereal"]').click()
             assert page.locator('[data-natal-zodiac="sidereal"]').get_attribute('aria-pressed')=='true'
             assert 'sidéral' in page.locator('#natalChart').inner_text()
@@ -86,6 +116,16 @@ if __name__ == '__main__':
             settings=page.evaluate("JSON.parse(localStorage.getItem('astra-public-v1'))")
             assert settings['natalView']=='essential' and settings['natalZodiac']=='tropical'
             assert page.locator('#orb').count()==0
+            # Ensure the wheel remains legible with a narrow 320 px viewport,
+            # without creating page-wide horizontal overflow.
+            page.set_viewport_size({'width':320,'height':730})
+            assert page.locator('.natal-wheel-viewport').count()==1
+            widths=page.locator('.natal-wheel-viewport').evaluate("""e => ({
+              client:e.clientWidth,scroll:e.scrollWidth,width:e.querySelector('svg').getBoundingClientRect().width
+            })""")
+            assert widths['scroll']>widths['client'],widths
+            assert widths['width']>=319,widths
+            assert page.evaluate("document.documentElement.scrollWidth")<=322
             assert 'Orbes automatiques' in page.locator('#birthForm').inner_text()
             page.locator('[data-tab="calendar"]').click()
             page.locator('[data-event]').first.click(timeout=2000)
