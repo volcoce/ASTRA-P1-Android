@@ -205,8 +205,10 @@ test('Moon ingress uses actual civil-day bounds in timezone and handles DST',()=
     const changes=moonSignChanges(day,'Europe/Paris');
     assert.ok(changes.length<=2);
     for(const change of changes){
-      assert.equal(new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Paris',
-        year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(change.at)),day);
+      const parts=Object.fromEntries(new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Paris',
+        year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date(change.at))
+        .map(x=>[x.type,x.value]));
+      assert.equal([parts.year,parts.month,parts.day].join('-'),day);
       assert.ok(change.fromSign!==change.toSign);
     }
   }
