@@ -214,7 +214,7 @@ if __name__ == '__main__':
             assert page.locator('.natal-double-wheel').count()==0
             page.locator('[data-profile-screen="explore"]').click()
             page.locator('[data-explore-section="houses"]').click()
-            assert page.locator('#natalChart [data-natal-house]').count()==12
+            assert page.locator('#natalChart .natal-house-chip').count()==12
             page.locator('.natal-explore-wheel summary').click()
             assert page.locator('#natalChart .natal-wheel').count()==1
             page.locator('.natal-wheel [data-natal-house="1"]').click()
