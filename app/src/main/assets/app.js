@@ -56,6 +56,7 @@
   function loadState() { try { return cleanState(JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}')); } catch { return defaultState(); } }
   let state = loadState();
   let activeTab = 'today';
+  let pendingDayFocus = null;
   // UX: viewing one's sky is the default. Editing and technical tools are separate destinations.
   let profileScreen = 'overview';
   let exploreSection = 'planets';
@@ -447,6 +448,7 @@
     if(!state.profile)return unconfigured();
     const year=month.getFullYear(),m=month.getMonth(),weekday=(new Date(year,m,1).getDay()+6)%7,count=new Date(year,m+1,0).getDate();
     const cells=Array.from({length:weekday},()=>'<span></span>');
+    const todayKey=isoDay(new Date());
     for(let d=1;d<=count;d++){
       const day=`${year}-${pad(m+1)}-${pad(d)}`,entry=classify(result?.days?.[day]);
       const total=entry.exact.length+entry.sky.length;
@@ -463,7 +465,7 @@
       const phaseName=lunarLabel(phaseAngle);
       const moonIndicator=Number.isFinite(phaseAngle)?
         '<span class="moon-phase-badge" aria-hidden="true">'+moonPhaseIcon(phaseAngle)+'</span>':'';
-      cells.push(`<button class="day ${day===selected?'selected':''} ${day===isoDay(new Date())?'today':''} ${phase?'moon-'+phase:''} ${sunCount?'sun-exact':''}" data-day="${day}" aria-label="${day}, ${total} événement(s) exact(s), ${entry.active.length} aspect(s) actif(s)${Number.isFinite(phaseAngle)?', '+phaseName+' à midi':''}${phase?', '+phaseLabel:''}${sunCount?', '+sunCount+' aspect(s) exact(s) du Soleil':''}">${d}<span class="count">${total?total+' ✦':entry.active.length?entry.active.length+' ~':''}</span>${moonIndicator}${sunCount?'<span class="sun-aspect-line" aria-hidden="true"></span>':''}${state.journal[day]?'<span class="pinhole"></span>':''}</button>`);
+      cells.push(`<button type="button" class="day ${day===selected?'selected':''} ${day===isoDay(new Date())?'today':''} ${phase?'moon-'+phase:''} ${sunCount?'sun-exact':''}" data-day="${day}" aria-pressed="${day===selected}" ${day===todayKey?'aria-current="date"':''} aria-label="${safe(displayDate(day))}, ${total} événement(s) exact(s), ${entry.active.length} aspect(s) actif(s)${Number.isFinite(phaseAngle)?', '+phaseName+' à midi':''}${phase?', '+phaseLabel:''}${sunCount?', '+sunCount+' aspect(s) exact(s) du Soleil':''}">${d}<span class="count">${total?total+' ✦':entry.active.length?entry.active.length+' ~':''}</span>${moonIndicator}${sunCount?'<span class="sun-aspect-line" aria-hidden="true"></span>':''}${state.journal[day]?'<span class="pinhole"></span>':''}</button>`);
     }
     const day=currentDay(),events=dayEvents(day);
     return header('Calendrier','Choisis une date pour découvrir les événements du ciel.')+birthTimeWarning()+
@@ -1008,7 +1010,7 @@
         '<p class="natal-focus-legend">Symboles sur leurs degrés réels ; les glyphes voisins sont espacés pour rester lisibles.</p>';
       const moment=comparison?
         '<p class="natal-focus-moment">Transits du '+safe(state.transitDay)+' à '+safe(state.transitTime)+' · '+safe(detectedZone)+'</p>':'';
-      return '<section class="natal-focus" id="natalChart" role="dialog" aria-modal="true" aria-labelledby="natalFocusTitle">'+
+      return '<dialog class="natal-focus" id="natalChart" aria-labelledby="natalFocusTitle">'+
         '<div class="natal-focus-header"><div><p class="natal-focus-kicker">ASTRA · Lecture de la carte</p>'+
         '<h2 id="natalFocusTitle">'+label+'</h2>'+moment+'</div>'+
         '<button type="button" class="natal-focus-close" data-close-focus="1" aria-label="Fermer la roue agrandie">Fermer <span aria-hidden="true">×</span></button></div>'+
@@ -1024,7 +1026,7 @@
         '<button type="button" data-export-chart="svg">SVG</button>'+
         '<button type="button" data-export-chart="png">PNG</button></div></div>'+
         (uncertain?'<p class="natal-focus-warning">Heure inconnue : positions indicatives, sans Ascendant ni maisons.</p>':'')+
-        '</div>'+contextSheet+'</section>';
+        '</div>'+contextSheet+'</dialog>';
     }
     if(isOverview){
       const homeSvg=svg.replace(/class="natal-wheel([^"]*)"/,(_,rest)=>
@@ -1231,6 +1233,12 @@
   function render() {
     renderedEvents=[];
     $('app').innerHTML=({today,month:monthOverview,calendar,journal,profile})[activeTab]();
+    const focusDialog=activeTab==='profile'&&profileScreen==='focus' ? $('natalChart') : null;
+    if(focusDialog?.showModal)focusDialog.showModal();
+    if(pendingDayFocus){
+      const dayButton=$('app').querySelector('[data-day="'+pendingDayFocus+'"]');
+      if(dayButton){dayButton.focus({preventScroll:true});pendingDayFocus=null;}
+    }
     // Renders can detach a focused input without firing focusout.
     syncKeyboardVisibility();
     document.body.classList.toggle('astra-focus-open',activeTab==='profile'&&profileScreen==='focus');
@@ -1466,7 +1474,7 @@
     if(a.goto){go(a.goto);return;}
     if(a.mode){state.mode=a.mode;openDetail=null;persist();refresh();return;}
     if(a.month){month=new Date(month.getFullYear(),month.getMonth()+Number(a.month),1);selected=isoDay(month);openDetail=null;refresh();return;}
-    if(a.day){selectDay(a.day);return;}
+    if(a.day){pendingDayFocus=a.day;selectDay(a.day);return;}
     if(a.offset){const [year,mon,day]=selected.split('-').map(Number);selectDay(isoDay(new Date(year,mon-1,day+Number(a.offset))));return;}
     if(a.event!==undefined){openDetail=renderedEvents[Number(a.event)]||null;render();$('detailPanel')?.scrollIntoView({behavior:'smooth',block:'start'});return;}
     if(a.close){openDetail=null;render();return;}
@@ -1479,6 +1487,12 @@
     if(a.import){$('importFile')?.click();return;}
     if(a.clear&&confirm('Effacer le thème natal et toutes les notes locales ?')){localStorage.removeItem(STORAGE_KEY);state=defaultState();cache.clear();journalDraft=null;birthDraft=null;placeSearch={options:[],selected:null,loading:false,error:'',needFold:false,requestId:placeSearch.requestId+1};openDetail=null;refresh();show('Données supprimées');}
   });
+  $('app').addEventListener('cancel',event=>{
+    if(event.target.matches('dialog.natal-focus')){
+      event.preventDefault();
+      $('app').querySelector('[data-close-focus]')?.click();
+    }
+  },true);
   $('app').addEventListener('keydown',event=>{
     if(activeTab==='profile'&&profileScreen==='focus'&&event.key==='Tab'){
       const dialog=$('natalChart');
