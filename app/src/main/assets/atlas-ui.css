@@ -721,3 +721,75 @@ button.astra-insight-tile:hover{border-color:#7597aa}
   bottom:1px;left:50%;right:auto;transform:translateX(-50%);
   width:22px;height:3px;box-shadow:none
 }
+
+/* ASTRA P1: fluid layouts, text zoom and resilient navigation. */
+/* 1rem responds to the user's configured text size; overflow stays local. */
+html,body{font-size:100%;min-width:0}
+.app-shell{min-width:0;padding-bottom:max(var(--astra-nav-clearance),calc(6.75rem + var(--astra-safe-bottom)))}
+.main{min-width:0}
+.main>*{min-width:0}
+.screen-intro .lead,.astra-section-help,.natal-panel-lead,
+.natal-home-hint,.natal-home-subtitle,.natal-disclaimer,.natal-glossary dd,
+.field-help,.tiny,.natal-card .tiny,.event-sub,.event-more,
+.astra-empty,.astra-active-panel>p{font-size:.875rem;line-height:1.55}
+.field label,.filter-wrap label,.natal-settings .natal-control>span,
+.astra-section-head>span,.astra-moon-phase,.astra-sky-reference,
+.astra-day-moon-moment,.astra-day-moon-moment time,
+.astra-day-moon-explanation,.astra-hero-stat span,
+.astra-insight-tile small,.astra-tile-kicker,
+.astra-lunar-milestone small,.astra-lunar-milestone strong,
+.astra-month-event-day,.astra-month-event-text{font-size:.8125rem;line-height:1.45}
+.field input,.field select,.field textarea,.natal-transit-time input{font-size:1rem;min-height:2.75rem}
+.astra-day-moon-moment{grid-template-columns:max-content minmax(0,1fr)}
+.natal-position,.natal-aspect,.astra-month-event,.astra-month-phase,
+.astra-insight-tile,.astra-month-metrics>div,.astra-month-metrics>button{min-width:0}
+.bottom-nav .nav{min-width:0;min-height:3.5rem;font-size:.8125rem}
+.bottom-nav .nav-label{white-space:normal;overflow-wrap:anywhere;hyphens:auto}
+.astra-week-day span{font-size:.8125rem}
+.astra-week-controls{font-size:.8125rem}
+.astra-week-controls button{min-width:2.75rem;min-height:2.75rem;width:2.75rem;height:2.75rem;flex:none}
+.astra-week-day{min-height:3.75rem}
+.astra-week-title,.astra-section-head,.natal-home-header{min-width:0}
+.astra-section-head{flex-wrap:wrap}
+.astra-lunar-milestone{min-height:6.5rem}
+.astra-lunar-milestone strong{min-height:0}
+.astra-lunar-track{grid-template-columns:repeat(2,minmax(0,1fr))}
+.astra-week-days{grid-template-columns:repeat(7,minmax(0,1fr))}
+.natal-matrix-scroll,.natal-wheel-viewport,.astra-insight-track{max-width:100%;scrollbar-gutter:stable}
+.natal-overview-panel,.natal-home,.natal-explore,.natal-compare{min-width:0}
+
+@media(min-width:700px){
+  .app-shell{max-width:min(720px,calc(100% - 32px))}
+  .bottom-nav{max-width:min(650px,calc(100% - 32px));border-radius:15px 15px 0 0;
+    box-shadow:0 -3px 20px #172b3e19}
+  .main{padding-left:clamp(22px,4vw,35px);padding-right:clamp(22px,4vw,35px)}
+  .astra-lunar-track{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media(min-width:1100px){
+  .app-shell{max-width:min(1000px,calc(100% - 48px))}
+  .main{max-width:940px;margin-inline:auto;padding:0 32px}
+  .top{padding-inline:40px}
+  .natal-home .natal-wheel-viewport{max-width:720px}
+  .natal-home .natal-primary-cards,.natal-home .natal-home-actions{max-width:720px}
+  .astra-day-hero,.astra-week,.astra-today-insights,.astra-feed,
+  .astra-active-panel,.astra-lunar-timeline{max-width:820px;margin-inline:auto}
+  .astra-day-hero-copy{max-width:65ch}
+}
+@media(max-width:380px){
+  .astra-week-title{flex-wrap:wrap;row-gap:6px}
+  .astra-week-controls{width:100%;justify-content:space-between}
+  .astra-week-days{gap:2px}
+  .astra-week-day{border-radius:9px;padding-inline:0}
+  .astra-day-hero{padding:17px 14px}
+  .astra-hero-moon{gap:8px}
+  .astra-hero-moon-icon{width:35px;height:35px}
+  .astra-lunar-track{gap:7px}
+  .calendar .cal-grid{column-gap:1px}
+  .calendar .day{min-height:53px;height:53px}
+  .bottom-nav{padding-inline:3px;gap:0}
+}
+@media(prefers-reduced-motion:reduce){
+  html:focus-within{scroll-behavior:auto}
+  .astra-insight-track,.natal-wheel-viewport,.natal-matrix-scroll{scroll-behavior:auto!important}
+  .astra-insight-tile,.natal-context-sheet,.astra-week-day{animation:none!important;transition:none!important}
+}
