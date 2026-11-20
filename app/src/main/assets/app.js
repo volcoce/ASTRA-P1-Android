@@ -728,7 +728,8 @@
       return '<section class="card natal-card natal-compare" id="natalChart">'+
         '<div class="natal-subpage-heading">'+pageBack+
         '<h2 class="card-title">Comparer avec les transits</h2>'+
-        '<p class="natal-section-lead">La roue intérieure est ton ciel de naissance. La roue extérieure montre les positions à la date choisie.</p></div>'+
+        '<p class="natal-section-lead">La roue intérieure est ton ciel de naissance. La roue extérieure montre les positions à la date choisie.</p>'+
+        '<button type="button" class="natal-settings-link" data-profile-screen="settings">Réglages</button></div>'+
         comparing+notice+(transitError?'<p class="notice" role="alert">'+safe(transitError)+'</p>':'')+
         '<div class="natal-wheel-viewport" role="region" tabindex="0" aria-label="Roue double, natal et transits">'+resized+'</div>'+
         '<div class="wheel-ring-legend"><span><i class="natal-swatch"></i>Planètes natales</span>'+
@@ -758,7 +759,8 @@
     const contents=choice==='aspects'?aspectsList:choice==='houses'?housesList:planetList;
     return '<section class="card natal-card natal-explore" id="natalChart">'+
       '<div class="natal-subpage-heading">'+pageBack+'<h2 class="card-title">Explorer mon thème</h2>'+
-      '<p class="natal-section-lead">Choisis ce que tu veux comprendre, une rubrique à la fois.</p></div>'+
+      '<p class="natal-section-lead">Choisis ce que tu veux comprendre, une rubrique à la fois.</p>'+
+      '<button type="button" class="natal-settings-link" data-profile-screen="settings">Réglages</button></div>'+
       notice+selector+'<div id="natalExplorerPanel" class="natal-explorer-panel">'+contents+'</div>'+
       '<details class="natal-explore-wheel"'+(exploreWheelOpen?' open':'')+'>'+
       '<summary>Voir la roue interactive</summary>'+
