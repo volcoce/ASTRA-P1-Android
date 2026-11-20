@@ -783,11 +783,14 @@
         '<text x="'+x+'" y="'+y+'" text-anchor="middle" dominant-baseline="central" class="zodiac-symbol">'+zodiacSymbols[i]+'</text>');
     }
     const aligned=E.layoutPlanetLabels(chart.positions),sel=natalSelection,complete=!quiet&&state.natalView==='complete';
-    const connections=E.filterNatalAspects(chart.aspects||[],state.natalAspectFilter)
-      .filter(a=>sel?.kind==='aspect'?sel.id===a.a+'-'+a.b:sel?.kind==='planet'?(sel.id===a.a||sel.id===a.b):complete);
+    const dateAspects=E.filterNatalAspects(chart.aspects||[],state.natalAspectFilter);
+    const visibleAspects=quiet&&!sel?[...dateAspects]
+      .sort((a,b)=>Math.abs(a.orb??99)-Math.abs(b.orb??99)).slice(0,3):dateAspects;
+    const connections=visibleAspects
+      .filter(a=>sel?.kind==='aspect'?sel.id===a.a+'-'+a.b:sel?.kind==='planet'?(sel.id===a.a||sel.id===a.b):complete||quiet);
     const lines=connections.map(a=>{
       const p=polar(chart.positions[a.a],85,asc),q=polar(chart.positions[a.b],85,asc);
-      return '<line x1="'+p[0]+'" y1="'+p[1]+'" x2="'+q[0]+'" y2="'+q[1]+'" stroke="'+(aspectColors[a.aspect]||'#84639d')+'" stroke-width="1.6"/>';
+      return '<line class="wheel-aspect-line" x1="'+p[0]+'" y1="'+p[1]+'" x2="'+q[0]+'" y2="'+q[1]+'" stroke="'+(aspectColors[a.aspect]||'#84639d')+'" stroke-width="1.5" stroke-opacity="'+(quiet&&!sel?'.62':'.85')+'"/>';
     });
     const bodies=Object.entries(chart.positions).map(([body,lng])=>{
       const p=aligned[body],locp=polar(p.labelLongitude,142,asc),root=polar(lng,164,asc);
@@ -889,14 +892,14 @@
     }
     const houses=h?h.cusps.map((v,i)=>{
       const a=p(v,132),b=p(v,98),mid=v+((h.cusps[(i+1)%12]-v+360)%360)/2,t=p(mid,113);
-      return '<line x1="'+a[0]+'" y1="'+a[1]+'" x2="'+b[0]+'" y2="'+b[1]+'" stroke="#a58eb4" stroke-width="1.2"/>'+
+      return '<line class="wheel-house-divider" x1="'+a[0]+'" y1="'+a[1]+'" x2="'+b[0]+'" y2="'+b[1]+'" stroke="#a58eb4" stroke-width="1.2"/>'+
         '<g class="natal-hit" data-natal-house="'+(i+1)+'" tabindex="0" role="button" focusable="true" aria-label="Voir maison '+(i+1)+'"><circle cx="'+t[0]+'" cy="'+t[1]+'" r="13" fill="transparent"/><text x="'+t[0]+'" y="'+t[1]+'" text-anchor="middle" pointer-events="none" dominant-baseline="central" class="house-number">'+(i+1)+'</text></g>';
     }).join(''):'';
     const active=snapshot.contacts.filter(c=>sel?.kind==='transit'?c.body===sel.id:
       sel?.kind==='planet'?c.natal===sel.id:full).slice(0,full||sel?40:0);
     const links=active.map(c=>{
       const a=p(snapshot.positions[c.body],232),b=p(chart.positions[c.natal],172);
-      return '<line x1="'+a[0]+'" y1="'+a[1]+'" x2="'+b[0]+'" y2="'+b[1]+
+      return '<line class="wheel-transit-contact" x1="'+a[0]+'" y1="'+a[1]+'" x2="'+b[0]+'" y2="'+b[1]+
         '" stroke="#7386a9" stroke-width="'+(sel?2:1.1)+'" stroke-opacity="'+(sel?'.72':'.34')+'"/>';
     }).join('');
     const glyphRing=(positions,radius,markerRadius,className,attr)=>{
@@ -1194,8 +1197,8 @@
       '<button type="button" data-close-natal-detail="1" aria-label="Fermer la fiche">Fermer <span aria-hidden="true">×</span></button></div>'+
       '<div class="natal-context-content">'+selectedDetail+'</div></section>':'';
     const shortCaption=uncertain
-      ?'<p class="natal-home-hint">Heure inconnue : la Lune est indicative. Ascendant et maisons non calculés.</p>'
-      :'<p class="natal-home-hint">Appuie sur une planète pour savoir ce qu’elle représente.</p>';
+      ?'<p class="natal-home-hint">Heure inconnue : Lune indicative, sans maisons. Les points montrent les degrés calculés à midi.</p>'
+      :'<p class="natal-home-hint">Les points marquent les degrés réels ; les glyphes sont espacés si nécessaire. Touche une planète pour lire sa fiche.</p>';
     const pageBack='<button type="button" class="natal-back" data-profile-screen="overview">← Mon ciel</button>';
     const focusLaunch='<div class="natal-focus-launch"><button type="button" data-open-focus="1" aria-label="Agrandir la roue du ciel">Agrandir la roue <span aria-hidden="true">⤢</span></button></div>';
     if(isFocus){
@@ -1203,7 +1206,7 @@
       const label=comparison?'Roue natal et transits':'Roue du thème natal';
       const legend=comparison?
         '<div class="wheel-ring-legend"><span><i class="natal-swatch"></i>Natal en violet</span><span><i class="transit-swatch"></i>Transits en bleu</span></div>':
-        '<p class="natal-focus-legend">Symboles sur leurs degrés réels ; les glyphes voisins sont espacés pour rester lisibles.</p>';
+        '<p class="natal-focus-legend">Les petits points indiquent les degrés réels ; les symboles peuvent être décalés pour rester lisibles.</p>';
       const moment=comparison?
         '<p class="natal-focus-moment">Transits du '+safe(state.transitDay)+' à '+safe(state.transitTime)+' · '+safe(detectedZone)+'</p>':'';
       return '<dialog class="natal-focus" id="natalChart" aria-modal="true" aria-labelledby="natalFocusTitle">'+
