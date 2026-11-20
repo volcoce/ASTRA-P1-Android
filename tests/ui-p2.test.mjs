@@ -62,7 +62,7 @@ test('P2: local measurements are opt-in and retain only the last 60 timings',()=
 
 test('P2: diagnostics cover cold/cache monthly work, natal calculation and rendering',()=>{
   assert.match(app,/recordPerformance\(cached\?'Mois · cache':'Mois · calcul'/);
-  assert.match(app,/recordPerformance\('Calcul natal'/);
+  assert.match(app,/recordPerformance\(natalCached\?'Natal · cache':'Natal · calcul'/);
   assert.match(app,/recordPerformance\('Rendu JS · '\+activeTab/);
   assert.match(app,/recordPerformance\('Interaction · prochaine frame'/);
   assert.match(app,/diagnosticsEnabled=!diagnosticsEnabled/);
@@ -102,4 +102,32 @@ test('P2: user-facing theme controls and diagnostic results are keyboard-accessi
   assert.match(app,/aria-pressed="\'\+\(mode===id\)/);
   assert.match(app,/role="region" tabindex="0" aria-label="Mesures de performance"/);
   assert.match(css,/\.astra-performance-scroll:focus-visible/);
+});
+
+test('P2: natal chart calculation is memoized without changing its inputs',()=>{
+  const from=app.indexOf('    let chart=null;\n    const natalStart=');
+  const to=app.indexOf('    const suggestions=',from);
+  assert.ok(from>0&&to>from,'profile natal calculation section');
+  const section=app.slice(from,to);
+  const compute=new Function('state','E','natalCache','diagnosticsEnabled','perfClock','recordPerformance',
+    section+'\nreturn chart;');
+  const cache=new Map();
+  const state={profile:{date:'2000-01-01',time:'12:00'},natalZodiac:'tropical',houseSystem:'placidus'};
+  let count=0;
+  const E={natalChart(){count++;return {sample:count};}};
+  const args=[state,E,cache,false,()=>0,()=>{}];
+  const first=compute(...args);
+  assert.equal(count,1);
+  assert.equal(compute(...args),first);
+  assert.equal(count,1);
+  state.houseSystem='equal';
+  assert.equal(compute(...args).sample,2);
+  assert.equal(count,2);
+  assert.match(app,/natalCache\.size>4/);
+  assert.match(app,/natalCache\.clear\(\)/);
+  assert.match(app,/state\.profile=profile;state\.orb='auto';cache\.clear\(\);natalCache\.clear\(\)/);
+});
+
+test('P2: initial startup no longer renders twice before calculating',()=>{
+  assert.match(app,/else\{\s*refresh\(\);\s*writeBrowserRoute\('replace'\);\s*\}/);
 });
