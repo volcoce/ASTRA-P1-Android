@@ -143,6 +143,21 @@ export function transitContactWindow(profile,instant,body,natal,angle,mode='trop
     limited:begin===null||end===null};
 }
 
+/** Composite longitude midpoints by the short arc between two natal positions.
+ * These are astrological constructed positions, not a sky at a physical instant.
+ * Do not manufacture composite houses/angles from planetary midpoints.
+ */
+export function compositeMidpoints(profileA,profileB,mode='tropical'){
+  if(!['tropical','sidereal'].includes(mode))throw new Error('Zodiaque inconnu');
+  const first=natalChart(profileA,mode),second=natalChart(profileB,mode);
+  const hasMoon=first.timeKnown&&second.timeKnown;
+  const bodies=BODIES.filter(body=>hasMoon||body!=='Moon');
+  const positions=Object.fromEntries(bodies.map(body=>
+    [body,mod(first.positions[body]+signed(second.positions[body]-first.positions[body])/2)]));
+  return {positions,mode,moonUncertain:!hasMoon,houses:null,
+    convention:'Milieux zodiacaux sur l’arc le plus court; positions construites et non éphémérides réelles'};
+}
+
 /** Secondary progressions by the day-for-year convention. No progressed
  * houses/angles are claimed; unknown birth time leaves Moon uncertain.
  */
@@ -231,4 +246,4 @@ export function calculateMonth(profile,year,month,mode='tropical',orb='auto',opt
   return {year,month,mode,orb,chart,days,exact:exact.length,stations:stations.length,phases:phases.length,
     approximateNatal:!chart.timeKnown,calculatedAt:new Date().toISOString()};
 }
-if(typeof window!=='undefined')window.ASTRA_ENGINE={BODIES,BODY_FR,natalChart,calculateMonth,moonPhase,upcomingMoonPhases,transitContactWindow,secondaryProgressions,formatSign,validateProfile,localToUtc,describeEvent,DISCLAIMER,searchCities,normalizePlace,houseOf,layoutPlanetLabels,MIN_LABEL_SPACING_DEGREES,formatSignExact,formatOrbExact,filterNatalAspects,describeNatalPlanet,describeNatalHouse,describeNatalAspect,NATAL_ASPECT_FILTERS,transitSnapshot,HOUSE_SYSTEMS};
+if(typeof window!=='undefined')window.ASTRA_ENGINE={BODIES,BODY_FR,natalChart,calculateMonth,moonPhase,upcomingMoonPhases,transitContactWindow,secondaryProgressions,compositeMidpoints,formatSign,validateProfile,localToUtc,describeEvent,DISCLAIMER,searchCities,normalizePlace,houseOf,layoutPlanetLabels,MIN_LABEL_SPACING_DEGREES,formatSignExact,formatOrbExact,filterNatalAspects,describeNatalPlanet,describeNatalHouse,describeNatalAspect,NATAL_ASPECT_FILTERS,transitSnapshot,HOUSE_SYSTEMS};
