@@ -37,3 +37,27 @@ test('sidereal natal houses use shifted cusps and keep their geometry',()=>{
     assert.ok(Math.abs(norm(tropical.houses.cusps[i]-sidereal.houses.cusps[i])-delta)<1e-6);
   }
 });
+
+
+test('date-only birth uses local noon without inventing houses or lunar aspects',()=>{
+  const pUnknown={...p,time:null,timeKnown:false,fold:null};
+  const c=natalChart(pUnknown,'tropical');
+  assert.equal(c.timeKnown,false);
+  assert.equal(c.approximateNoon,true);
+  assert.equal(c.houses,null);
+  assert.ok(c.uncertainBodies.includes('Moon'));
+  assert.equal(Object.keys(c.positions).length,10);
+  assert.ok(c.aspects.every(a=>a.a!=='Moon'&&a.b!=='Moon'));
+  assert.equal(c.birth,'1994-05-12T10:00:00.000Z');
+  const s=natalChart(pUnknown,'sidereal');
+  assert.equal(s.houses,null);
+});
+test('unknown birth time never creates fake exact personal transits',()=>{
+  const pUnknown={...p,time:null,timeKnown:false};
+  const m=calculateMonth(pUnknown,2026,11,'tropical','auto');
+  assert.equal(m.approximateNatal,true);
+  assert.equal(m.exact,0);
+  assert.ok(m.phases>=4);
+  assert.ok(Object.values(m.days).every(d=>d.active.every(a=>a.natal!=='Moon'&&a.approximateNatal)));
+  assert.ok(Object.values(m.days).every(d=>d.exact.length===0));
+});
