@@ -142,7 +142,7 @@
     const isSky=event.type==='moon'||event.type==='station';
     const glyph=event.type==='moon'?'☾':event.type==='station'?'℞':aspects[event.aspect]||'✧';
     const isActive=event.type==='active';
-    const label=isActive?`Écart ${Number(event.delta).toFixed(2)}° / orbe auto ${Number(event.orb).toFixed(2)}° · relevé à midi`:`${event.type==='moon'?'Phase lunaire':event.type==='station'?'Station apparente':'Aspect exact'} · ${dateTime(event.at)}`;
+    const label=isActive?`Écart ${Number(event.delta).toFixed(2)}° / orbe auto ${Number(event.orb).toFixed(2)}° · relevé à midi${event.approximateNatal?' · natal indicatif':''}`:`${event.type==='moon'?'Phase lunaire':event.type==='station'?'Station apparente':'Aspect exact'} · ${dateTime(event.at)}`;
     return `<button class="event event-button ${isSky?'sky-event':''}" data-event="${id}" aria-label="Détails : ${safe(eventTitle(event))}"><span class="event-glyph" aria-hidden="true">${glyph}</span><span class="event-body"><b>${safe(eventTitle(event))}</b><span class="event-sub">${safe(label)}</span><span class="event-more">Lire l’interprétation</span></span><span class="event-arrow" aria-hidden="true">›</span></button>`;
   }
   function detailView() {
@@ -153,11 +153,15 @@
     const measure=raw.type==='active'?`Écart à l’angle exact : ${Number(raw.delta).toFixed(3)}° (orbe automatique ${Number(raw.orb).toFixed(2)}°)`:raw.at?`Horaire local : ${dateTime(raw.at)}`:'';
     return `<section class="card detail" id="detailPanel" tabindex="-1" aria-label="Détails du transit"><div class="detail-head"><span class="tag">${safe(d.kind)}</span><button class="ghost close-detail" data-close="1" aria-label="Fermer les détails">Fermer ×</button></div><h2 class="card-title">${safe(d.title)}</h2><p class="detail-tone">${safe(d.tone)}</p><div class="detail-group"><h3>Calcul astronomique</h3><p>${safe(d.astronomy)} ${safe(measure)}</p></div><div class="detail-group"><h3>Lecture astrologique</h3><p>${safe(d.interpretation)}</p></div><div class="detail-group"><h3>Question de journal</h3><p>${safe(d.question)}</p><button class="ghost" data-prompt="${safe(d.question)}">Répondre dans mon journal</button></div><p class="tiny">${safe(d.disclaimer)}</p></section>`;
   }
+  function birthTimeWarning(){
+    return state.profile?.timeKnown===false?
+      '<div class="natal-warning" role="status"><b>Heure de naissance inconnue</b><p>Transits personnels indicatifs à partir des positions calculées à midi local. Les aspects à la Lune natale et les instants exacts des contacts personnels sont masqués. Les stations planétaires et phases lunaires restent calculées indépendamment.</p></div>':'';
+  }
   function today() {
     if(!state.profile)return unconfigured();
     const day=currentDay(),events=dayEvents(day),active=day.active.slice(0,8),moon=E?.moonPhase(new Date(selected+'T12:00:00Z'));
     const entry=state.journal[selected];
-    return header('Aujourd’hui','Les événements sont calculés pour ton thème, puis accompagnés d’une lecture symbolique à explorer.')+switcher()+
+    return header('Aujourd’hui','Les événements sont calculés pour ton thème, puis accompagnés d’une lecture symbolique à explorer.')+switcher()+birthTimeWarning()+
       `<section class="metric"><span class="moon-symbol" aria-hidden="true">☾</span><h2>${safe(displayDate(selected))}</h2><p>Élongation lunaire : ${typeof moon==='number'?moon.toFixed(1)+'°':'–'}</p></section>${status()}`+
       `<section class="card"><div class="section-row"><h2 class="card-title">Événements exacts</h2><span class="tag">${events.length}</span></div>${events.map(row).join('')||'<p class="muted">Aucun contact exact aujourd’hui.</p>'}</section>`+
       `<section class="card"><div class="section-row"><h2 class="card-title">Aspects actifs à midi</h2><span class="tag-outline">${day.active.length}</span></div>${active.map(e=>row({...e,type:'active'})).join('')||'<p class="muted">Aucun aspect dans les orbes automatiques.</p>'}${day.active.length>8?'<p class="tiny">Huit aspects affichés. Utilise le calendrier pour explorer davantage.</p>':''}</section>`+
@@ -174,7 +178,7 @@
       cells.push(`<button class="day ${day===selected?'selected':''} ${day===isoDay(new Date())?'today':''}" data-day="${day}" aria-label="${day}, ${total} événement(s) exact(s), ${entry.active.length} aspect(s) actif(s)">${d}<span class="count">${total?total+' ✦':entry.active.length?entry.active.length+' ~':''}</span>${state.journal[day]?'<span class="pinhole"></span>':''}</button>`);
     }
     const day=currentDay(),events=dayEvents(day);
-    return header('Calendrier','Choisis une journée, puis ouvre un événement pour distinguer le calcul de son interprétation.')+switcher()+
+    return header('Calendrier','Choisis une journée, puis ouvre un événement pour distinguer le calcul de son interprétation.')+switcher()+birthTimeWarning()+
       `<div class="month-head"><button class="arrow" data-month="-1" aria-label="Mois précédent">‹</button><h2>${safe(new Intl.DateTimeFormat('fr-FR',{month:'long',year:'numeric'}).format(month))}</h2><button class="arrow" data-month="1" aria-label="Mois suivant">›</button></div>`+filters()+
       `<div class="calendar"><div class="cal-grid">${['L','M','M','J','V','S','D'].map(x=>`<span class="weekday">${x}</span>`).join('')}${cells.join('')}</div><p class="tiny">✦ contact exact · ~ aspect à midi · point rose : journal</p></div>${status()}`+
       `<section class="card"><div class="section-row"><h2 class="card-title">${safe(displayDate(selected))}</h2></div><div class="pill-row"><span class="tag">${events.length} événement(s)</span><span class="tag-outline">${day.active.length} actif(s)</span></div>${events.map(row).join('')||'<p class="tiny">Aucun événement exact ce jour.</p>'}${day.active.slice(0,30).map(e=>row({...e,type:'active'})).join('')}</section>`+detailView();
