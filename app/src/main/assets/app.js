@@ -645,12 +645,12 @@
     return '<section class="card natal-card" id="natalChart">'+
       '<div class="section-row"><h2 class="card-title">Thème natal '+(isTropical?'tropical':'sidéral')+'</h2><span class="tag">'+(isFull?'Complet':'Essentiel')+'</span></div>'+
       '<p class="tiny">'+(uncertain?'Date et ville connues, heure inconnue.': 'Positions calculées pour la date, l’heure et la ville de naissance · Maisons '+safe(h.system)+'.')+'</p>'+
-      controls+advancedControls+notice+(transitError?'<p class="notice" role="alert">'+safe(transitError)+'</p>':'')+filterBar+
+      controls+advancedControls+notice+(transitError?'<p class="notice" role="alert">'+safe(transitError)+'</p>':'')+filterBar+'<div class="natal-stage"><div class="natal-stage-wheel">'+
       '<div class="natal-wheel-viewport" role="region" tabindex="0" aria-label="Roue du thème natal, défilement horizontal en cas de zoom">'+resized+'</div>'+
       (transitSnapshot?'<div class="wheel-ring-legend"><span><i class="natal-swatch"></i>Natal (violet)</span><span><i class="transit-swatch"></i>Transits (bleu)</span></div><p class="wheel-caption">'+transitSnapshot.contacts.length+' aspect(s) transit–natal actif(s) à l’instant choisi. Touchez une planète extérieure pour les examiner.</p>':h?'<div class="wheel-ring-legend" aria-label="Légende de la roue"><span><i class="sign-swatch"></i>Signes · 30°</span><span><i class="house-swatch"></i>Maisons · tailles variables</span></div>':'<p class="wheel-caption">Zodiaque seul : orientation fixe, aucun Ascendant ni aucune maison supposés.</p>')+
       '<p class="wheel-caption">Les repères marquent les longitudes calculées ; les glyphes sont espacés pour rester lisibles. '+(uncertain?'Les positions sont indicatives.':'Les valeurs en degrés, minutes et secondes d’arc sont une précision d’affichage, non une garantie d’exactitude des éphémérides.')+'</p>'+
-      '<div class="natal-highlights">'+blocks+'</div>'+
-      '<section id="natalSelectionInfo" class="natal-selection" aria-live="polite" aria-label="Fiche de lecture de l’élément sélectionné">'+selectedDetail+'</section>'+
+      '</div><aside class="natal-stage-side"><div class="natal-highlights">'+blocks+'</div>'+
+      '<section id="natalSelectionInfo" class="natal-selection" aria-live="polite" aria-label="Fiche de lecture de l’élément sélectionné">'+selectedDetail+'</section></aside></div>'+
       full+
       (h?.polarFallback?'<p class="notice">À cette latitude, les maisons égales remplacent Placidus.</p>':'')+
       (h?.approximateSidereal?'<p class="tiny">Maisons sidérales et ayanamsa Lahiri approximatifs : validation approfondie requise.</p>':'')+
