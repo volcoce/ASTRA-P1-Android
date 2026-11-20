@@ -68,6 +68,19 @@ if __name__ == '__main__':
             page.set_content(html)
             page.add_style_tag(content=(ROOT/'style.css').read_text(encoding='utf-8'))
             page.add_script_tag(content=(ROOT/'app.js').read_text(encoding='utf-8'))
+            # P0 design regression: verify computed font sizes and flat surfaces.
+            px=lambda selector: page.locator(selector).first.evaluate(
+                "el => parseFloat(getComputedStyle(el).fontSize)"
+            )
+            assert px('.nav')>=12
+            assert px('.lead')>=14
+            assert px('.tiny')>=13
+            assert page.locator('.card').first.evaluate(
+                "el => getComputedStyle(el).boxShadow"
+            ) == 'none'
+            assert page.locator('.app-shell').evaluate(
+                "el => getComputedStyle(el).backgroundImage"
+            ) == 'none'
             page.get_by_text('Configurer mon thème natal').click()
             page.locator('#birthDate').fill('1994-05-12')
             page.locator('#birthTime').fill('18:40')
@@ -85,6 +98,12 @@ if __name__ == '__main__':
             assert page.locator('#natalChart .natal-wheel').count()==1
             # UX P0: sky-first landing. No advanced toolbars or form on home.
             assert page.locator('.natal-home').count()==1
+            assert page.locator('.natal-home .natal-wheel-viewport').evaluate(
+                "el => getComputedStyle(el).backgroundImage"
+            ) == 'none'
+            assert page.locator('.natal-home .natal-primary-cards').evaluate(
+                "el => getComputedStyle(el).borderTopWidth"
+            ) == '0px'
             assert page.locator('.natal-summary-item').count()==3
             assert [x.strip() for x in page.locator('.natal-summary-name').all_text_contents()]==['Soleil','Lune','Ascendant']
             assert page.locator('.natal-summary-icon').all_text_contents()==['☼','☽','↑']
@@ -267,6 +286,23 @@ if __name__ == '__main__':
             assert widths['width']>=319,widths
             assert page.evaluate("document.documentElement.scrollWidth")<=322
             assert page.locator('#birthForm').count()==0
+            # P0 visual guardrails at 320px across all four destinations.
+            for tab in ('today','calendar','journal','profile'):
+                page.locator(f'[data-tab="{tab}"]').click()
+                assert page.evaluate("document.documentElement.scrollWidth") <= 322, tab
+                if tab=='today':
+                    assert px('.event-sub')>=13
+                elif tab=='calendar':
+                    assert px('.weekday')>=12
+                elif tab=='journal':
+                    assert px('.field label')>=13
+                elif tab=='profile':
+                    assert px('.natal-home-subtitle')>=14
+            # Medium/desktop widths should also avoid page-wide overflow.
+            for width in (393,768,1280):
+                page.set_viewport_size({'width':width,'height':844})
+                assert page.evaluate("document.documentElement.scrollWidth") <= width+2, width
+            page.set_viewport_size({'width':320,'height':730})
             page.locator('[data-profile-screen="settings"]').click()
             assert 'Orbes automatiques' in page.locator('#birthForm').inner_text()
             page.locator('[data-tab="calendar"]').click()
