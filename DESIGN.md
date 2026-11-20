@@ -10,8 +10,8 @@ This document complements `README.md` and protects P0–P2 usability improvement
 
 ## Art direction — *Atlas céleste*
 
-- Visual character: a precise, calm astronomical plate with discreet editorial typography. The **chart is the primary visual object**.
-- Retain the recognizable ivory/amethyst family but use restrained, purposeful accents. A surface is not better because it has a gradient, border, shadow and rounded corners simultaneously.
+- Visual character: a precise, calm astronomical plate with contemporary sans-serif interface typography. The **chart and its clearly named signs are the primary visual objects**.
+- Current implementation (Preview 0.7.0): ink-blue masthead, cool paper, accessible deep-blue actions and warm brass accent. The chart remains on neutral white. A surface is not better because it has a gradient, border, shadow and rounded corners simultaneously.
 - Geometry and data must be the strongest visual contrast. Decorative texture must never compete with a degree, planet, house, legend, or selection state.
 - Identity should come from the zodiac geometry, not from stock cosmic illustrations, meaningless sparkles, multiple competing gradients, or animated backgrounds.
 - The sky wheel is interactive data visualization: **physical longitude markers never move**; visual glyph spacing may move with visible leader lines.
@@ -20,22 +20,22 @@ This document complements `README.md` and protects P0–P2 usability improvement
 
 | Role | Color | Intended use |
 | --- | --- | --- |
-| Ink | `#252036` | Primary text |
-| Muted ink | `#5e536a` | Secondary readable text |
-| Amethyst | `#644c80` | Natal emphasis and primary action |
-| Deep amethyst | `#48345f` | Strong headings and selected detail |
-| Paper | `#fcfaf7` | Page canvas |
-| Border | `#e4dae6` | Section boundaries |
-| Transit blue | `#396a83` | **Transit** positions/legend only |
-| Antique gold | `#9b8254` | Rare symbolic reflection accents |
+| Ink | `#172637` | Primary text |
+| Muted ink | `#526273` | Secondary readable text |
+| Night | `#172b3e` | Masthead, high-priority actions |
+| Deep sea | `#315e79` | Navigation and natal emphasis |
+| Paper | `#f6f7f7` | Page canvas |
+| Border | `#d8e1e6` | Section boundaries |
+| Transit copper | `#be714e` | **Transit** positions/legend only |
+| Warm brass | `#e9bb71` | Rare chart and masthead accents |
 
 Create semantic CSS custom properties before changing shared colors. Do not multiply hard-coded near-duplicate purples.
 
 ### Typography, scale and spacing
 
-- Body/interface: platform sans-serif already in the app; use Georgia only for select editorial headings and chart titles, not for tiny interface controls.
+- Body/interface: platform sans-serif across the app. Reserve Georgia for existing SVG zodiac glyphs where needed; do not use serif for headings or interface controls.
 - The chart, selected reading, and primary action have clear visual priority. No repeated all-caps section kickers on every screen.
-- Aim for body text at least 14px and **critical controls/labels at least 12–14px**, with 1.4–1.6 line-height. Raise existing 10–11px explanatory copy when layout permits; never rely on tiny type to fit more information.
+- Aim for body text at least 15px and **critical controls/labels at least 12–14px**, with 1.4–1.6 line-height. Raise existing 10–11px explanatory copy when layout permits; never rely on tiny type to fit more information.
 - Use a consistent spacing rhythm (4/8/12/16/24/32px). Avoid one-off padding to compensate for poor hierarchy.
 - Interactive hit targets: at least 44×44 CSS px where feasible. Distinguish focus, active, selected and disabled without relying on color alone.
 - Keep numerical columns aligned with `font-variant-numeric: tabular-nums`.
@@ -123,5 +123,7 @@ Reject a change when it introduces any of the following without a specific ASTRA
 **Inspiration only, not application UI specifications:** [Land-book](https://land-book.com/), [Recent Design](https://recent.design/), [Landdding](https://landdding.com/), [Godly](https://godly.website/), [Font In Logo](https://www.fontinlogo.com/). [MotionSites](https://motionsites.ai/) focuses heavily on animated websites and prompt-driven landing pages; [Studio MotionSites](https://studio.motionsites.ai/) is a separate builder service. [Stageshow](https://github.com/benjitaylor/skills/tree/main/stageshow) is for staged product presentations, not ASTRA's real chart UX.
 
 **Decision principle:** use one coherent visual design brief, Vercel-style functional QA, and a single polish reference. Stacking all ten competing skills will not reliably produce better product design.
+
+**Current layered implementation:** `style.css` remains as legacy functionality/layout, with `atlas-ui.css` loaded last as the active visual system. Future changes should modify the active system and gradually migrate obsolete legacy declarations rather than adding more competing files.
 
 Last updated: 2026-11-20.

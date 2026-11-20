@@ -1,6 +1,19 @@
-# ASTRA Public — Preview 0.6.4
+# ASTRA Public — Preview 0.7.0
 
 **Référence UI/UX du projet :** [DESIGN.md](DESIGN.md). Les règles pour assistants de code sont dans [AGENTS.md](AGENTS.md). Ces documents formalisent le travail de design sans remplacer les fonctionnalités P0–P2.
+
+## Nouvelle interface — Atlas clair (Preview 0.7.0)
+
+Refonte de l'expérience de lecture, pas seulement une retouche des couleurs. Cette version remplace les titres et icônes répétitifs par une navigation explicite, des signes nommés et deux parcours clairs sur Mon ciel.
+
+- **Identité** : en-tête bleu nuit avec repère solaire, fond papier froid, typographie sans empattement, contraste renforcé sur les boutons et l'information. Quatre icônes de navigation cohérentes remplacent les pictogrammes disparates. Le bouton Aujourd'hui du haut, redondant avec l'onglet bas, est supprimé.
+- **Mon ciel** : Soleil, Lune et Ascendant affichent désormais leur **nom, symbole zodiacal et signe en toutes lettres**. La roue reste interactive et prend le premier plan. Deux actions expliquent leur utilité : **Comprendre mon thème** (planètes, signes, maisons) et **Comparer deux dates** (ciel d'un autre jour).
+- **Compréhension** : un seul titre principal par page, suppression des doublons sur Explorer/Comparer, textes raccourcis et langage plus concret. La matrice est présentée comme un tableau de comparaison. Les événements indiquent les deux planètes et l'angle. La terminologie reste disponible dans les détails.
+- **Calendrier** : mode tropical/sidéral et filtres regroupés sous « Options d’affichage », au lieu d'occuper l'écran avant le calendrier.
+- **Journal** : demande « Comment tu te sens ? », indications sur les cinq choix d'humeur, énergie et notes plus explicites.
+- **Technique conservée** : moteurs de calcul, heures incertaines, systèmes de maisons, export, sauvegarde locale `astra-public-v1`, zoom et comparaisons restent fonctionnels.
+
+**Contrôles** : le test Chromium vérifie la lisibilité des signes en clair, les titres, les destinations et le responsive Android ; CI produit des captures. Les tests de compréhension réelle et la revue sur Galaxy A15 physique restent à effectuer. Les visuels ont été refaits de manière empirique, pas validés par des tests utilisateurs.
 
 ## Android — Mise en page adaptative (Preview 0.6.4)
 
