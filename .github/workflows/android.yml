@@ -41,6 +41,15 @@ jobs:
             echo 'Le produit public ne doit pas inclure les données précalculées historiques.'
             exit 1
           fi
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Installer Chromium pour les tests de prévisualisation PC
+        run: |
+          python -m pip install playwright==1.56.0
+          python -m playwright install --with-deps chromium
+      - name: Tester Mon ciel, les modes et le journal dans Chromium
+        run: python tests/ui-smoke.py
       - name: Préparer la signature stable (DEBUG / Preview uniquement)
         run: |
           base64 --decode ci/astra-preview-test-signing.p12.b64 > ci/astra-preview-test-signing.p12
