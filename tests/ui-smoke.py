@@ -175,15 +175,25 @@ if __name__ == '__main__':
                 if (width,height) in ((320,700),(360,780),(360,620),(393,844),(412,915),(768,1024),(1280,800)):
                     capture('overview-'+str(width)+'x'+str(height))
             page.set_viewport_size({'width':360,'height':780})
+            # The primary purpose must be visible without having to scroll,
+            # above the fixed bottom navigation on a Galaxy A15-like screen.
+            first=page.locator('.natal-main-action').bounding_box()
+            navtop=page.locator('.bottom-nav').bounding_box()
+            assert first and navtop and first['y']+first['height']<navtop['y'],(first,navtop)
             text_style=page.add_style_tag(content=
                 '.nav{font-size:18px!important}.natal-home-header .card-title{font-size:27px!important}')
             assert page.evaluate('document.documentElement.scrollWidth')<=362
+            # System text enlargement cannot make adjacent tab labels collide.
+            tabwidths=page.locator('.bottom-nav .nav').evaluate_all("""els=>els.map(e=>({
+              w:e.clientWidth,scroll:e.scrollWidth
+            }))""")
+            assert all(x['scroll']<=x['w']+2 for x in tabwidths),tabwidths
             capture('galaxy-a15-large-text-360')
             text_style.evaluate('node=>node.remove()')
             page.set_viewport_size({'width':393,'height':844})
             assert page.evaluate(
                 "getComputedStyle(document.documentElement).getPropertyValue('--astra-focus-ring').trim()"
-            )=='#70519a'
+            )=='#226987'
             # P2.1: immersive reading keeps home uncluttered and restores focus.
             page.locator('.natal-home [data-open-focus]').click()
             assert page.locator('.natal-focus[aria-modal="true"]').count()==1
