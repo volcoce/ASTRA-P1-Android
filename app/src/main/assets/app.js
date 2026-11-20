@@ -666,7 +666,7 @@
       const approx=uncertain&&key==='Moon';
       return (index?'<span class="natal-glyph-separator" aria-hidden="true">|</span>':'')+
         '<button type="button" class="natal-summary-item" '+attr+' aria-pressed="'+chosen+'"'+
-        ' aria-label="'+safe(label+' en '+signLabels[signIndex]+(approx+', position indicative':''))+'">'+
+        ' aria-label="'+safe(label+' en '+signLabels[signIndex]+(approx?', position indicative':''))+'">'+
         '<span class="natal-summary-icon" aria-hidden="true">'+glyph+'</span>'+
         '<span class="natal-summary-sign" aria-hidden="true">'+sign+'</span>'+
         (approx?'<span class="natal-summary-approx" aria-label="Position indicative">≈</span>':'')+
