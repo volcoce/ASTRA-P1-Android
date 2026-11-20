@@ -2,6 +2,7 @@
 """P2 browser smoke tests using a synthetic astronomical engine.
 Astronomical truth is tested by runtime.test.mjs in CI, not this mock.
 """
+import os
 from pathlib import Path
 from shutil import which
 from playwright.sync_api import sync_playwright
@@ -54,6 +55,10 @@ if __name__ == '__main__':
             context=browser.new_context(viewport={'width':393,'height':844},accept_downloads=True)
             context.add_init_script(JS)
             page=context.new_page();errors=[]
+            shots=Path(os.environ['ASTRA_SCREENSHOT_DIR']) if os.environ.get('ASTRA_SCREENSHOT_DIR') else None
+            if shots: shots.mkdir(parents=True,exist_ok=True)
+            def capture(name):
+                if shots: page.screenshot(path=str(shots / (name+'.png')),full_page=True,animations='disabled')
             page.on('pageerror',lambda e: errors.append(str(e)))
             html=(ROOT/'index.html').read_text(encoding='utf-8')
             html=html.replace('<script src="runtime.bundle.js"></script><script src="app.js" defer></script>','')
@@ -117,9 +122,20 @@ if __name__ == '__main__':
             assert page.locator('.natal-filter').count()==0
             assert page.locator('#birthForm').count()==0
             assert page.locator('.natal-home-actions button').count()==2
+            # P1: actual browser screenshots, with synthetic chart data only.
+            for width in (320,393,768,1280):
+                page.set_viewport_size({'width':width,'height':844})
+                assert page.evaluate('document.documentElement.scrollWidth')<=width+2
+                capture('overview-'+str(width))
+            page.set_viewport_size({'width':393,'height':844})
+            assert page.evaluate(
+                "getComputedStyle(document.documentElement).getPropertyValue('--astra-focus-ring').trim()"
+            )=='#70519a'
             # P2.1: immersive reading keeps home uncluttered and restores focus.
             page.locator('.natal-home [data-open-focus]').click()
             assert page.locator('.natal-focus[aria-modal="true"]').count()==1
+            assert page.locator('.bottom-nav').evaluate("e => getComputedStyle(e).visibility")=='hidden'
+            capture('focus-natal-393')
             assert page.locator('.natal-focus .natal-wheel').count()==1
             assert page.evaluate("document.body.classList.contains('astra-focus-open')")
             assert page.evaluate("document.activeElement.hasAttribute('data-close-focus')")
@@ -168,6 +184,7 @@ if __name__ == '__main__':
             assert page.locator('#natalSelectionInfo').count()==0
             page.locator('[data-profile-screen="explore"]').click()
             assert page.locator('.natal-explore').count()==1
+            capture('explore-393')
             assert page.locator('.natal-control-stack').count()==0
             assert page.locator('#birthForm').count()==0
             assert page.locator('.natal-explore-tabs button').count()==3
@@ -197,13 +214,17 @@ if __name__ == '__main__':
             assert page.locator('#natalChart .natal-matrix button').count()==1
             page.locator('.natal-matrix button').click()
             assert 'Aspect natal' in page.locator('#natalSelectionInfo').inner_text()
+            assert page.locator('.natal-matrix button').first.get_attribute('aria-pressed')=='true'
             page.locator('[data-close-natal-detail]').click()
             page.locator('[data-profile-screen="settings"]').click()
             assert page.locator('.natal-settings').count()==1
+            capture('settings-393')
             assert page.locator('#birthForm').count()==1
             assert page.locator('.natal-primary-cards').count()==0
-            page.locator('[data-house-system="whole"]').click()
+            page.locator('[data-house-system="whole"]').focus()
+            page.keyboard.press('Enter')
             assert page.locator('[data-house-system="whole"]').get_attribute('aria-pressed')=='true'
+            assert page.evaluate("document.activeElement.dataset.houseSystem")=='whole'
             assert 'Signes entiers' in page.locator('#natalChart').inner_text()
             page.locator('[data-house-system="equal"]').click()
             assert page.locator('[data-house-system="equal"]').get_attribute('aria-pressed')=='true'
@@ -217,6 +238,7 @@ if __name__ == '__main__':
             assert page.locator('.natal-home').count()==1
             page.locator('[data-explore-transits]').click()
             assert page.locator('.natal-compare').count()==1
+            capture('compare-393')
             assert page.locator('.natal-double-wheel').count()==1
             assert page.locator('.natal-transit-hit').count()==10
             page.locator('.natal-compare [data-open-focus]').click()
@@ -227,10 +249,12 @@ if __name__ == '__main__':
             assert page.locator('.natal-contact-section').count()==1
             page.locator('.natal-transit-hit[data-transit-body="Sun"]').click()
             assert 'transit' in page.locator('#natalSelectionInfo').inner_text()
+            assert page.locator('.natal-contact-list button').first.get_attribute('aria-pressed')=='true'
             assert '12:00' in page.locator('#natalSelectionInfo').inner_text() or 'UTC' in page.locator('#natalSelectionInfo').inner_text()
             page.locator('[data-close-natal-detail]').click()
             page.locator('#transitTime').fill('13:30')
             page.locator('#transitTime').dispatch_event('change')
+            assert page.evaluate("document.activeElement.id")=='transitTime'
             saved=page.evaluate("JSON.parse(localStorage.getItem('astra-public-v1'))")
             assert saved['transitTime']=='13:30'
             page.locator('[data-profile-screen="settings"]').click()
@@ -306,6 +330,7 @@ if __name__ == '__main__':
             page.locator('[data-profile-screen="settings"]').click()
             assert 'Orbes automatiques' in page.locator('#birthForm').inner_text()
             page.locator('[data-tab="calendar"]').click()
+            capture('calendar-320')
             page.locator('[data-event]').first.click(timeout=2000)
             assert page.locator('#detailPanel').count()==1
             assert 'Lecture astrologique' in page.locator('#detailPanel').inner_text()
@@ -329,6 +354,7 @@ if __name__ == '__main__':
             # verify that the serialized entry survives an in-app view change.
             page.locator('[data-tab="today"]').click()
             page.locator('[data-tab="journal"]').click()
+            capture('journal-320')
             assert page.locator('#journalNote').input_value()=='Une belle journée de création.'
             assert page.locator('[data-tag="creation"]').get_attribute('aria-pressed')=='true'
             # P1: unknown birth hour should not invent an Ascendant or houses.
