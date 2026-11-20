@@ -58,7 +58,11 @@ if __name__ == '__main__':
             shots=Path(os.environ['ASTRA_SCREENSHOT_DIR']) if os.environ.get('ASTRA_SCREENSHOT_DIR') else None
             if shots: shots.mkdir(parents=True,exist_ok=True)
             def capture(name):
-                if shots: page.screenshot(path=str(shots / (name+'.png')),full_page=True,animations='disabled')
+                if shots:
+                    # Toasts from earlier test actions are not part of the
+                    # resting screen; they obscure widget hierarchy.
+                    page.evaluate("document.getElementById('toast').hidden=true")
+                    page.screenshot(path=str(shots / (name+'.png')),full_page=True,animations='disabled')
             page.on('pageerror',lambda e: errors.append(str(e)))
             html=(ROOT/'index.html').read_text(encoding='utf-8')
             html=html.replace('<script src="runtime.bundle.js"></script><script src="app.js" defer></script>','')
