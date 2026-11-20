@@ -120,7 +120,7 @@ Ne jamais afficher une barre latérale **et** une barre basse concurrentes ; il 
 | `ExpandSection` | détails longs et réglages | `summary` explicite, état ouvert lisible et préservé si pertinent |
 | `NatalSignTile` | Soleil, Lune, Ascendant | symbole + **nom en toutes lettres** + signe, option incertitude |
 | `ChartViewport` | SVG natal / transits, zoom et export | lisible à 100% sans défilement latéral de page |
-| `DateMonthPicker` | calendrier mensuel et jours à aspects solaires exacts | Icônes SVG correspondant aux huit phases à midi, Nouvelle Lune violette, Pleine Lune dorée, ligne dorée distincte pour aspect exact du Soleil, légende, `aria-label` et notes distinctes |
+| `DateMonthPicker` | calendrier mensuel et jours à aspects solaires exacts | 7 colonnes fixes, cases de 55 px, numéro en haut, icône lunaire SVG centrée, point d'événement en coin, trait doré sous l'icône pour aspect exact du Soleil ; Nouvelle Lune violette, Pleine Lune dorée. Préfixer les classes SVG pour éviter la collision avec `.calendar`. Légende, `aria-label` et notes distinctes |
 | `MoodPicker` / `JournalEditor` | humeur, énergie, note, sauvegarde | labels explicites, persistance de brouillon lors d'une navigation |
 | `BirthForm` / `CityPicker` | saisie date/heure/ville | erreurs au champ, aucune ville non confirmée, heure inconnue possible |
 | `FeedbackState` | vide, chargement, erreur, confirmation | action suivante visible, ton neutre, pas de faux résultat |

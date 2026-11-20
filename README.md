@@ -1,6 +1,16 @@
-# ASTRA Public — Preview 0.8.6
+# ASTRA Public — Preview 0.8.7
 
 **Référence UI/UX du projet :** [UI_ARCHITECTURE.md](UI_ARCHITECTURE.md) pour la hiérarchie, la navigation, les composants et l'accessibilité ; [DESIGN.md](DESIGN.md) pour l'identité visuelle. Les règles pour assistants de code sont dans [AGENTS.md](AGENTS.md).
+
+## Calendrier compact — Correction visuelle (Preview 0.8.7)
+
+Le problème visible sur mobile en 0.8.6 était un **conflit CSS**, pas un problème de calcul astronomique. L'icône SVG portait la classe `calendar` et héritait à tort du rembourrage, de la bordure et des dimensions du panneau calendrier, produisant des formes parasites et des chevauchements.
+
+- Les classes des icônes SVG sont maintenant préfixées (`astra-phase-variant-cell`, `astra-phase-variant-hero`, etc.) pour empêcher toute collision avec les conteneurs.
+- La grille garde sept colonnes de largeur égale. Chaque date dispose d'une case de 55 px de haut, avec numéro en haut, petite phase lunaire centrée, point d'événement discret en haut à droite et trait d'aspect solaire en dessous.
+- La Nouvelle Lune violette et la Pleine Lune dorée conservent leurs fonds et leur signification, sans déborder sur les cases voisines.
+- Vérification dans Chromium à 320 px sur la **vraie application 0.8.6 reproduite** : le correctif réduit les SVG de leur taille accidentelle (et supprime la bordure parasite) ; aucun débordement horizontal.
+- Régression automatisée : vérifie que les SVG et les traits solaires restent contenus dans leurs cases, que l'icône n'a ni padding ni bordure de panneau, que les classes sont préfixées et que la grille ne dépasse pas 320 px.
 
 ## Repères solaires et icônes de phase lunaire — Preview 0.8.6
 
