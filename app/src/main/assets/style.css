@@ -285,3 +285,18 @@ html{background:radial-gradient(ellipse at 10% 12%,#f3e8ee 0%,transparent 56%),
   .natal-summary-name{font-size:14px}
   .natal-summary-value{font-size:12px}
 }
+
+
+/* Larger, readable controls remain available after opening advanced settings. */
+.natal-settings .natal-control>span{font-size:14px;line-height:1.4}
+.natal-settings .natal-segments>button{font-size:14px;min-height:46px}
+.natal-settings .natal-advanced-buttons>button,
+.natal-settings .natal-downloads>button{font-size:14px;min-height:46px;font-family:inherit}
+.natal-settings .natal-zoom>button{font-size:15px;min-height:44px}
+.natal-settings .tiny{font-size:13px;line-height:1.55}
+.natal-explore .natal-filter-items button{font-size:14px;min-height:46px}
+.natal-explore .natal-position,.natal-explore .natal-aspect{font-size:14px;min-height:48px}
+.natal-explore .natal-subtitle{font-size:19px}
+.natal-home .natal-detail-body p,.natal-explore .natal-detail-body p{font-size:14px}
+.natal-home .natal-fact>b,.natal-home .natal-symbolic>b,.natal-home .natal-reflection>b,
+.natal-explore .natal-fact>b,.natal-explore .natal-symbolic>b,.natal-explore .natal-reflection>b{font-size:14px}
