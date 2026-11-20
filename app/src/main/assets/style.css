@@ -87,3 +87,46 @@ button[data-goto="profile"]{margin-top:16px}.field input[type="date"],.field inp
 @media(prefers-reduced-motion:reduce){
   .natal-card *, .natal-wheel *{scroll-behavior:auto!important;transition:none!important;animation:none!important}
 }
+
+
+/* P1 — readable facts, clearly labelled symbolic interpretation, aspect filters */
+.natal-filter{margin:12px 2px 16px}
+.natal-filter .natal-subtitle{margin:0 0 8px;font-size:17px}
+.natal-filter-items{display:flex;flex-wrap:wrap;gap:6px}
+.natal-filter-items button{border:1px solid #bfaad0;border-radius:11px;background:#faf8fd;
+  color:#443551;padding:9px 10px;min-height:40px;font-size:11.5px;font-weight:700;cursor:pointer}
+.natal-filter-items button span{display:inline-block;margin-left:3px;color:#4c3b66}
+.natal-filter-items button.selected{background:#604476;border-color:#604476;color:white}
+.natal-filter-items button.selected span{color:white}
+.natal-filter-items button:focus-visible,.natal-related button:focus-visible,.natal-aspects button:focus-visible{
+  outline:3px solid #8260ae;outline-offset:2px}
+.natal-warning{border:1px solid #c6a467;background:#fff8ec;border-radius:14px;padding:13px 14px;
+  margin:12px 2px;color:#58462d;font-size:12px;line-height:1.65}
+.natal-warning b{display:block;font-size:13px}
+.natal-warning p{margin:4px 0 0}
+.natal-detail-body .natal-value{font-size:12px;font-weight:700;line-height:1.6;color:#382e46}
+.natal-fact,.natal-symbolic,.natal-reflection{border-left:3px solid #8b70a5;padding:9px 11px;
+  background:#fff;border-radius:0 9px 9px 0;margin:12px 0}
+.natal-fact{border-color:#537b9c}
+.natal-symbolic{border-color:#8b70a5}
+.natal-reflection{border-color:#9b8254}
+.natal-fact>b,.natal-symbolic>b,.natal-reflection>b{font-size:12px;color:#3a2c49}
+.natal-fact p,.natal-symbolic p,.natal-reflection p{margin:5px 0 0;line-height:1.6}
+.natal-disclaimer{font-size:10.5px!important;color:#60546b!important}
+.natal-related{display:flex;flex-wrap:wrap;gap:6px;margin:9px 0}
+.natal-related button{border:1px solid #c9b7dc;border-radius:9px;background:white;
+  color:#3c2e4f;padding:8px 10px;min-height:38px;font-size:11px}
+.natal-aspects{padding:0 8px}
+.natal-aspects .natal-aspect{width:100%;background:#fff;border:0;border-bottom:1px solid #e5dcea;
+  border-radius:0;padding:10px 3px;cursor:pointer;text-align:left;color:#3c304c;font-size:11.5px;
+  min-height:43px;font-family:inherit}
+.natal-aspects .natal-aspect[aria-pressed=true]{background:#eee5f7}
+.natal-aspects .natal-aspect>span:last-child{color:#55436b;white-space:normal}
+.unknown-time-toggle{display:flex;align-items:center;gap:10px;padding:11px 0;font-size:12px;
+  color:#3d2d4f;font-weight:750;cursor:pointer}
+.unknown-time-toggle input{width:21px;height:21px;flex:none;accent-color:#604476}
+.unknown-time-toggle input:focus-visible{outline:3px solid #705394;outline-offset:3px}
+@media(max-width:380px){
+  .natal-filter-items button{min-height:42px;padding:9px 8px}
+  .natal-aspects .natal-aspect{gap:4px;flex-wrap:wrap}
+}
