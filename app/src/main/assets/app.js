@@ -57,6 +57,7 @@
   let state = loadState();
   let activeTab = 'today';
   let pendingDayFocus = null;
+  let pendingPageFocus = false;
   // UX: viewing one's sky is the default. Editing and technical tools are separate destinations.
   let profileScreen = 'overview';
   let exploreSection = 'planets';
@@ -69,17 +70,18 @@
   let selected = isoDay(new Date());
   let month = new Date(new Date().getFullYear(),new Date().getMonth(),1);
   // Browser-only deep links. The Android shell keeps its native back handler.
-  const webRouting = !window.ASTRA_CHART_EXPORT && window.location.protocol !== 'file:' &&
+  const webRouting = !window.ASTRA_CHART_EXPORT &&
+    ['http:','https:'].includes(window.location.protocol) &&
     typeof window.history?.pushState === 'function';
   const routeTabs = new Set(['today','month','calendar','journal','profile']);
   const routeScreens = new Set(['overview','explore','compare','settings','progressions','composite','focus']);
   function validRouteDay(value){
-    if(!/^\d{4}-\d{2}-\d{2}$/.test(value||''))return false;
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(value||'')||+value.slice(0,4)<1900||+value.slice(0,4)>2100)return false;
     const date=new Date(value+'T12:00:00Z');
     return Number.isFinite(date.getTime())&&date.toISOString().slice(0,10)===value;
   }
   function validRouteMonth(value){
-    return /^\d{4}-(0[1-9]|1[0-2])$/.test(value||'');
+    return /^\d{4}-(0[1-9]|1[0-2])$/.test(value||'') && +value.slice(0,4)>=1900 && +value.slice(0,4)<=2100;
   }
   function readBrowserRoute(){
     if(!webRouting||!window.location.hash.startsWith('#/'))return null;
@@ -132,12 +134,12 @@
       profileScreen=state.profile?route.screen:'settings';
       focusReturnScreen='overview';
     }
-    natalSelection=null;openDetail=null;pendingDayFocus=null;
+    natalSelection=null;openDetail=null;pendingDayFocus=null;pendingPageFocus=focus;
     const afterMonth=month.getFullYear()+'-'+month.getMonth();
     if(!result||afterMonth!==beforeMonth)refresh();
     else render();
     window.scrollTo({top:0,behavior:'instant'});
-    if(focus)$('app').querySelector('h1.page-title')?.focus({preventScroll:true});
+    writeBrowserRoute('replace');
   }
   // The home feed is a glanceable overview, with detail revealed on request.
   let todayExpanded = false;
@@ -1333,6 +1335,10 @@
       const dayButton=$('app').querySelector('[data-day="'+pendingDayFocus+'"]');
       if(dayButton){dayButton.focus({preventScroll:true});if(!busy)pendingDayFocus=null;}
     }
+    if(pendingPageFocus){
+      const pageHeading=$('app').querySelector('h1.page-title');
+      if(pageHeading){pageHeading.focus({preventScroll:true});if(!busy)pendingPageFocus=false;}
+    }
     // Renders can detach a focused input without firing focusout.
     syncKeyboardVisibility();
     document.body.classList.toggle('astra-focus-open',activeTab==='profile'&&profileScreen==='focus');
@@ -1358,6 +1364,7 @@
       todayExpanded=false;
     }
     activeTab=tab;
+    pendingPageFocus=true;
     if(tab==='profile')profileScreen=state.profile?'overview':'settings';
     openDetail=null;
     if(needsRefresh)refresh();else render();
