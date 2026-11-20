@@ -8,7 +8,7 @@
   const pad = n => String(n).padStart(2, '0');
   const isoDay = date => `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
   const detectedZone = (() => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'; } catch { return 'UTC'; } })();
-  const defaultState = () => ({profile:null, mode:'tropical', natalView:'essential', natalZodiac:'tropical', natalAspectFilter:'all', orb:'auto', filter:'all', journal:{}});
+  const defaultState = () => ({profile:null, mode:'tropical', natalView:'essential', natalZodiac:'tropical', natalAspectFilter:'all', houseSystem:'placidus',wheelLayout:'natal',natalZoom:1,transitDay:isoDay(new Date()),transitTime:'12:00', orb:'auto', filter:'all', journal:{}});
   const moodSymbols = ['','☹','◔','◯','◕','☺'];
   const themes = {relations:'Relations',travail:'Travail',sante:'Bien-être',creation:'Créativité',repos:'Repos',autre:'Autre'};
   const planets = {Sun:'Soleil',Moon:'Lune',Mercury:'Mercure',Venus:'Vénus',Mars:'Mars',Jupiter:'Jupiter',Saturn:'Saturne',Uranus:'Uranus',Neptune:'Neptune',Pluto:'Pluton'};
@@ -42,7 +42,12 @@
     if (raw.profile && E) {
       try { E.validateProfile(raw.profile); profile = raw.profile; } catch { /* Les dates invalides ne doivent pas bloquer l'appli. */ }
     }
-    return {profile,mode,natalView:['essential','complete'].includes(raw.natalView)?raw.natalView:'essential',natalZodiac:['tropical','sidereal'].includes(raw.natalZodiac)?raw.natalZodiac:'tropical',natalAspectFilter:['all','Conjonction','Sextile','Carré','Trigone','Opposition'].includes(raw.natalAspectFilter)?raw.natalAspectFilter:'all',orb:'auto',
+    return {profile,mode,natalView:['essential','complete'].includes(raw.natalView)?raw.natalView:'essential',natalZodiac:['tropical','sidereal'].includes(raw.natalZodiac)?raw.natalZodiac:'tropical',natalAspectFilter:['all','Conjonction','Sextile','Carré','Trigone','Opposition'].includes(raw.natalAspectFilter)?raw.natalAspectFilter:'all',
+      houseSystem:['placidus','equal','whole'].includes(raw.houseSystem)?raw.houseSystem:'placidus',
+      wheelLayout:['natal','double'].includes(raw.wheelLayout)?raw.wheelLayout:'natal',
+      natalZoom:[1,1.25,1.5,1.75,2].includes(raw.natalZoom)?raw.natalZoom:1,
+      transitDay:typeof raw.transitDay==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(raw.transitDay)?raw.transitDay:isoDay(new Date()),
+      transitTime:typeof raw.transitTime==='string'&&/^([01]\d|2[0-3]):[0-5]\d$/.test(raw.transitTime)?raw.transitTime:'12:00',orb:'auto',
       filter:Object.hasOwn(filtersMap,raw.filter)?raw.filter:'all',journal:sanitizeJournal(raw.journal)};
   }
   function loadState() { try { return cleanState(JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}')); } catch { return defaultState(); } }
@@ -235,7 +240,7 @@
     // The natal wheel is re-rendered: return keyboard focus to the equivalent
     // SVG control instead of leaving the screen reader at the page root.
     if(restoreFocus){
-      const attr=kind==='planet'?'data-natal-body':kind==='house'?'data-natal-house':'data-natal-aspect';
+      const attr=kind==='planet'?'data-natal-body':kind==='house'?'data-natal-house':kind==='transit'?'data-transit-body':'data-natal-aspect';
       const focus=$('natalChart')?.querySelector('['+attr+'="'+String(id)+'"]');
       focus?.focus({preventScroll:true});
     }
@@ -549,7 +554,7 @@
 
   function profile() {
     const d=draft(),place=placeSearch.selected;
-    let chart=null;try { if(state.profile&&E)chart=E.natalChart(state.profile,state.natalZodiac); }catch(err){ /* Les anciennes sauvegardes peuvent être incomplètes. */ }
+    let chart=null;try { if(state.profile&&E)chart=E.natalChart(state.profile,state.natalZodiac,state.houseSystem); }catch(err){ /* Les anciennes sauvegardes peuvent être incomplètes. */ }
     const suggestions=placeSearch.options.map((p,i)=>`<button type="button" class="city-choice" data-place="${i}" aria-label="Choisir ${safe(p.label)}"><strong>${safe(p.name)}</strong><span>${safe([p.admin1,p.country].filter(Boolean).join(' · '))}</span></button>`).join('');
     const foldPicker=placeSearch.needFold&&d.timeKnown?`<div class="field"><label for="fold">Cette heure locale a existé deux fois</label><select id="fold" name="fold" required><option value="">Choisir l’occurrence</option><option value="0" ${d.fold===0?'selected':''}>Première occurrence (avant le retour à l’heure d’hiver)</option><option value="1" ${d.fold===1?'selected':''}>Deuxième occurrence (après le retour à l’heure d’hiver)</option></select><p class="field-help">Ce cas rare ne peut pas être déduit de la ville et de l’heure seules. Consulte l’heure indiquée sur l’acte de naissance.</p></div>`:'';
     return header('Mon ciel','Ton thème natal interactif, avec ou sans heure de naissance connue.')+
@@ -606,11 +611,26 @@
   $('homeButton').addEventListener('click',()=>{selectDay(isoDay(new Date()));go('today');});
   document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.tab)));
   $('app').addEventListener('click',event=>{
-    const button=event.target.closest('button, [role="button"][data-natal-body], [role="button"][data-natal-house]');if(!button)return;
+    const button=event.target.closest('button, [role="button"][data-natal-body], [role="button"][data-natal-house], [role="button"][data-transit-body]');if(!button)return;
     const a=button.dataset;
     if(a.natalView){captureBirthForm();state.natalView=a.natalView==='complete'?'complete':'essential';persist();render();if(event.detail===0)$('app').querySelector('[data-natal-view="'+a.natalView+'"]')?.focus({preventScroll:true});return;}
     if(a.natalZodiac){captureBirthForm();state.natalZodiac=a.natalZodiac==='sidereal'?'sidereal':'tropical';natalSelection=null;persist();render();if(event.detail===0)$('app').querySelector('[data-natal-zodiac="'+a.natalZodiac+'"]')?.focus({preventScroll:true});return;}
     if(a.natalAspectFilter){captureBirthForm();state.natalAspectFilter=a.natalAspectFilter;persist();render();if(event.detail===0)$('app').querySelector('[data-natal-aspect-filter="'+a.natalAspectFilter+'"]')?.focus({preventScroll:true});return;}
+    if(a.houseSystem){
+      if(!['placidus','equal','whole'].includes(a.houseSystem))return;
+      captureBirthForm();state.houseSystem=a.houseSystem;natalSelection=null;persist();render();return;
+    }
+    if(a.wheelLayout){
+      if(!['natal','double'].includes(a.wheelLayout))return;
+      captureBirthForm();state.wheelLayout=a.wheelLayout;natalSelection=null;persist();render();return;
+    }
+    if(a.natalZoom){
+      const adjustment=a.natalZoom==='reset'?1:Math.max(1,Math.min(2,Math.round((state.natalZoom+Number(a.natalZoom))*4)/4));
+      if(!Number.isFinite(adjustment))return;
+      captureBirthForm();state.natalZoom=adjustment;persist();render();return;
+    }
+    if(a.exportChart){exportNatalGraphic(a.exportChart);return;}
+    if(a.transitBody){natalChoose('transit',a.transitBody,event.detail===0);return;}
     if(a.natalAspect){natalChoose('aspect',a.natalAspect,event.detail===0);return;}
     if(a.natalBody){natalChoose('planet',a.natalBody,event.detail===0);return;}
     if(a.natalHouse){natalChoose('house',Number(a.natalHouse),event.detail===0);return;}
@@ -638,10 +658,11 @@
   });
   $('app').addEventListener('keydown',event=>{
     if(!['Enter',' '].includes(event.key))return;
-    const item=event.target.closest('[role="button"][data-natal-body], [role="button"][data-natal-house]');
+    const item=event.target.closest('[role="button"][data-natal-body], [role="button"][data-natal-house], [role="button"][data-transit-body]');
     if(!item)return;
     event.preventDefault();
-    if(item.dataset.natalBody)natalChoose('planet',item.dataset.natalBody,true);
+    if(item.dataset.transitBody)natalChoose('transit',item.dataset.transitBody,true);
+    else if(item.dataset.natalBody)natalChoose('planet',item.dataset.natalBody,true);
     else natalChoose('house',Number(item.dataset.natalHouse),true);
   });
   $('app').addEventListener('input',event=>{
@@ -662,6 +683,13 @@
 
   });
   $('app').addEventListener('change',async event=>{
+    if(event.target.id==='transitDay'||event.target.id==='transitTime'){
+      captureBirthForm();
+      const date=$('transitDay')?.value||state.transitDay;
+      const time=$('transitTime')?.value||state.transitTime;
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!/^([01]\d|2[0-3]):[0-5]\d$/.test(time))return;
+      state.transitDay=date;state.transitTime=time;natalSelection=null;persist();render();return;
+    }
     if(event.target.id==='unknownBirthTime'){captureBirthForm();birthDraft.timeKnown=!event.target.checked;birthDraft.fold=null;placeSearch.needFold=false;render();return;}
     if(event.target.id==='eventFilter'){state.filter=event.target.value;persist();openDetail=null;render();return;}
     if(event.target.id==='journalSearch'){searchTerm=event.target.value.trim().slice(0,100);render();return;}
