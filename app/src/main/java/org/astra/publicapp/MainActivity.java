@@ -16,6 +16,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowInsets;
+import android.view.WindowManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
@@ -142,12 +143,18 @@ public final class MainActivity extends Activity {
         FrameLayout root = new FrameLayout(this);
         root.setBackgroundColor(Color.rgb(248, 245, 252));
         // Android 15+ impose l'edge-to-edge : réserver les zones des barres système.
+        // Android 15+ draws behind the status/navigation bars. The keyboard is
+        // another inset: without it the journal and date fields can be covered
+        // by Samsung One UI's IME even though the system bars look correct.
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         root.setOnApplyWindowInsetsListener((view, insets) -> {
             if (Build.VERSION.SDK_INT >= 30) {
                 android.graphics.Insets bars = insets.getInsets(
                         WindowInsets.Type.systemBars() | WindowInsets.Type.displayCutout()
                 );
-                root.setPadding(bars.left, bars.top, bars.right, bars.bottom);
+                android.graphics.Insets ime = insets.getInsets(WindowInsets.Type.ime());
+                int bottom = Math.max(bars.bottom, ime.bottom);
+                root.setPadding(bars.left, bars.top, bars.right, bottom);
             } else {
                 root.setPadding(insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(),
                         insets.getSystemWindowInsetRight(), insets.getSystemWindowInsetBottom());
@@ -164,6 +171,9 @@ public final class MainActivity extends Activity {
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true); // requis pour l'interface ASTRA
         settings.setDomStorageEnabled(true); // journal local
+        // Honor viewport width=device-width rather than a legacy desktop viewport.
+        settings.setUseWideViewPort(true);
+        settings.setLoadWithOverviewMode(false);
         settings.setAllowFileAccess(false);
         settings.setAllowContentAccess(false);
         settings.setAllowFileAccessFromFileURLs(false);
@@ -214,8 +224,21 @@ public final class MainActivity extends Activity {
     }
 
     private void navigateBackOrFinish() {
-        if (webView != null && webView.canGoBack()) {
-            webView.goBack();
+        final WebView page = webView;
+        if (page == null) { finish(); return; }
+        // ASTRA is a single-page UI. WebView history alone cannot close a
+        // sheet, exit zoom, or return from Explorer: ask that UI first.
+        if ((BASE + "index.html").equals(page.getUrl())) {
+            page.evaluateJavascript(
+                    "(function(){try{return Boolean(window.ASTRA_HANDLE_BACK && window.ASTRA_HANDLE_BACK())}catch(e){return false}})()",
+                    handled -> {
+                        if ("true".equals(handled) || isFinishing()) return;
+                        if (webView != null && webView.canGoBack()) webView.goBack();
+                        else finish();
+                    }
+            );
+        } else if (page.canGoBack()) {
+            page.goBack();
         } else {
             finish();
         }

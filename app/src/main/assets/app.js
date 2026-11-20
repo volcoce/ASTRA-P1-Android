@@ -4,6 +4,9 @@
   const E = window.ASTRA_ENGINE;
   const STORAGE_KEY = 'astra-public-v1'; // Garder la clé pour migrer les journaux de la v0.4.
   const $ = id => document.getElementById(id);
+  // The native Activity already reserves system-bar insets for the WebView.
+  // Browsers continue using CSS safe areas, without double-padding Android.
+  if(window.ASTRA_CHART_EXPORT)document.documentElement.classList.add('astra-native-webview');
   const safe = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const pad = n => String(n).padStart(2, '0');
   const isoDay = date => `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
@@ -631,8 +634,9 @@
     }
     const svg=isOverview?(h?wheelSvg(chart,true):wheelSvgDateOnly(chart,true)):
       (isCompare||isSettings||focusDouble)&&transitSnapshot?doubleWheelSvg(transitSnapshot):h?wheelSvg(chart):wheelSvgDateOnly(chart);
+    // The default wheel fits phone width; explicit zoom creates internal scroll.
     const resized=svg.replace(/class="natal-wheel([^"]*)"/,
-      (_,rest)=>'class="natal-wheel'+rest+'" style="width:calc(100% * '+state.natalZoom+');min-width:'+(320*state.natalZoom)+'px;max-width:none"');
+      (_,rest)=>'class="natal-wheel'+rest+'" style="width:calc(100% * '+state.natalZoom+');min-width:0;max-width:none"');
     const selectedDetail=transitSnapshot&&natalSelection?.kind==='transit'?transitDetail(transitSnapshot):natalDetail(chart);
     const filtered=E.filterNatalAspects(chart.aspects||[],state.natalAspectFilter);
     const highlights=[['Soleil',chart.positions.Sun,'Sun'],['Lune',chart.positions.Moon,'Moon']];
@@ -723,7 +727,7 @@
     }
     if(isOverview){
       const homeSvg=svg.replace(/class="natal-wheel([^"]*)"/,(_,rest)=>
-        'class="natal-wheel'+rest+'" style="width:100%;min-width:320px;max-width:none"');
+        'class="natal-wheel'+rest+'" style="width:100%;min-width:0;max-width:none"');
       return '<section class="card natal-card natal-home" id="natalChart">'+
         '<div class="natal-home-header"><div><h2 class="card-title">Ma carte du ciel</h2>'+
         '<p class="natal-home-subtitle">Thème natal · '+(isTropical?'Tropical':'Sidéral')+'</p></div>'+
@@ -875,6 +879,37 @@
     if(year!==month.getFullYear()||mon!==month.getMonth()+1){month=new Date(year,mon-1,1);refresh();}
     else render();
   }
+  // Samsung system back / Android gesture back should navigate ASTRA, not
+  // close the app while a sheet or subpage is still open.
+  window.ASTRA_HANDLE_BACK=()=>{
+    if(activeTab==='profile'&&natalSelection){
+      $('app').querySelector('[data-close-natal-detail]')?.click();
+      return true;
+    }
+    if(activeTab==='profile'&&profileScreen==='focus'){
+      $('app').querySelector('[data-close-focus]')?.click();
+      return true;
+    }
+    if(openDetail){openDetail=null;render();return true;}
+    if(activeTab==='profile'&&profileScreen!=='overview'&&state.profile){
+      captureBirthForm();profileScreen='overview';natalSelection=null;
+      render();$('app').querySelector('h1.page-title')?.focus({preventScroll:true});
+      return true;
+    }
+    if(activeTab!=='today'){go('today');return true;}
+    return false;
+  };
+  const isTypingField=element=>element?.matches?.(
+    'textarea,input:not([type="checkbox"]):not([type="range"]):not([type="file"]),select'
+  )||false;
+  document.addEventListener('focusin',event=>{
+    if(isTypingField(event.target))document.body.classList.add('astra-input-active');
+  });
+  document.addEventListener('focusout',()=>{
+    requestAnimationFrame(()=>{
+      document.body.classList.toggle('astra-input-active',isTypingField(document.activeElement));
+    });
+  });
   $('homeButton').addEventListener('click',()=>{selectDay(isoDay(new Date()));go('today');});
   document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.tab)));
   $('app').addEventListener('click',event=>{
