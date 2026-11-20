@@ -442,6 +442,8 @@ if __name__ == '__main__':
                     assert page.locator('.astra-day-hero').is_visible()
                     capture('today-flo-layout-'+str(width))
             page.set_viewport_size({'width':320,'height':730})
+            # Return to Mon ciel after exercising the daily home widgets.
+            page.locator('[data-tab="profile"]').click()
             page.locator('[data-profile-screen="settings"]').click()
             assert page.locator('.calculation-details').first.get_attribute('open') is None
             page.locator('.calculation-details summary').first.click()
