@@ -264,12 +264,20 @@
     for(let d=1;d<=count;d++){
       const day=`${year}-${pad(m+1)}-${pad(d)}`,entry=classify(result?.days?.[day]);
       const total=entry.exact.length+entry.sky.length;
-      cells.push(`<button class="day ${day===selected?'selected':''} ${day===isoDay(new Date())?'today':''}" data-day="${day}" aria-label="${day}, ${total} événement(s) exact(s), ${entry.active.length} aspect(s) actif(s)">${d}<span class="count">${total?total+' ✦':entry.active.length?entry.active.length+' ~':''}</span>${state.journal[day]?'<span class="pinhole"></span>':''}</button>`);
+      // Highlight the actual moon-quarter event of the local calendar day,
+      // independently from filters that may hide events in the list below.
+      const sky=result?.days?.[day]?.sky||[];
+      const isNew=sky.some(e=>e.type==='moon'&&e.name==='Nouvelle Lune');
+      const isFull=sky.some(e=>e.type==='moon'&&e.name==='Pleine Lune');
+      const phase=isNew?'new':isFull?'full':null;
+      const phaseLabel=phase==='new'?'Nouvelle Lune':phase==='full'?'Pleine Lune':'';
+      const phaseGlyph=phase==='new'?'●':'○';
+      cells.push(`<button class="day ${day===selected?'selected':''} ${day===isoDay(new Date())?'today':''} ${phase?'moon-'+phase:''}" data-day="${day}" aria-label="${day}, ${total} événement(s) exact(s), ${entry.active.length} aspect(s) actif(s)${phase?', '+phaseLabel:''}">${d}<span class="count">${total?total+' ✦':entry.active.length?entry.active.length+' ~':''}</span>${phase?'<span class="moon-phase-badge" aria-hidden="true">'+phaseGlyph+'</span>':''}${state.journal[day]?'<span class="pinhole"></span>':''}</button>`);
     }
     const day=currentDay(),events=dayEvents(day);
     return header('Calendrier','Choisis une date pour découvrir les événements du ciel.')+birthTimeWarning()+
       `<div class="month-head"><button class="arrow" data-month="-1" aria-label="Mois précédent">‹</button><h2>${safe(new Intl.DateTimeFormat('fr-FR',{month:'long',year:'numeric'}).format(month))}</h2><button class="arrow" data-month="1" aria-label="Mois suivant">›</button></div>`+'<details class="calendar-options"><summary>Options d’affichage</summary>'+switcher()+filters()+'</details>'+
-      `<div class="calendar"><div class="cal-grid">${['L','M','M','J','V','S','D'].map(x=>`<span class="weekday">${x}</span>`).join('')}${cells.join('')}</div><p class="tiny">✦ contact exact · ~ aspect à midi · point rose : journal</p></div>${status()}`+
+      `<div class="calendar"><div class="cal-grid">${['L','M','M','J','V','S','D'].map(x=>`<span class="weekday">${x}</span>`).join('')}${cells.join('')}</div><div class="calendar-phase-legend" aria-label="Légende des phases lunaires"><span class="cal-legend-item"><span class="moon-phase-legend-dot new" aria-hidden="true">●</span> Nouvelle Lune</span><span class="cal-legend-item"><span class="moon-phase-legend-dot full" aria-hidden="true">○</span> Pleine Lune</span></div><p class="tiny">✦ contact exact · ~ aspect à midi · point rose : journal</p></div>${status()}`+
       `<section class="card"><div class="section-row"><h2 class="card-title">${safe(displayDate(selected))}</h2></div><div class="pill-row"><span class="tag">${events.length} événement(s)</span><span class="tag-outline">${day.active.length} actif(s)</span></div>${events.map(row).join('')||'<p class="tiny">Aucun événement exact ce jour.</p>'}${day.active.slice(0,30).map(e=>row({...e,type:'active'})).join('')}</section>`+detailView();
   }
   function initDraft() {
