@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {natalChart,transitSnapshot,calculateMonth,moonPhase,automaticTransitOrb} from '../astro/runtime.mjs';
+import {natalChart,transitSnapshot,calculateMonth,moonPhase,automaticTransitOrb,upcomingMoonPhases,transitContactWindow,secondaryProgressions,compositeMidpoints} from '../astro/runtime.mjs';
 const p={date:'1994-05-12',time:'18:40',timezone:'Europe/Paris',latitude:48.85,longitude:2.35,fold:null};
 test('dynamic natal uses input rather than static ephemeris',()=>{const a=natalChart(p,'tropical');const b=natalChart({...p,date:'1985-05-12'},'tropical');assert.notEqual(a.positions.Moon,b.positions.Moon);assert.equal(Object.keys(a.positions).length,10);assert.equal(a.houses.system,'Placidus');assert.equal(a.houses.cusps.length,12);});
 test('lunar phase is calculated at runtime',()=>assert.ok(moonPhase(new Date('2026-11-19T12:00:00Z'))>=0));
@@ -87,4 +87,67 @@ test('unknown birth hour removes uncertain natal Moon contacts from double wheel
   assert.equal(t.chart.houses,null);
   assert.ok(t.contacts.every(c=>c.natal!=='Moon'));
   assert.equal(t.approximateNatal,true);
+});
+
+test('four exact upcoming lunar quarters have ordered instants and correct local dates',()=>{
+  const a=upcomingMoonPhases(new Date('2026-11-20T00:00:00Z'),'Europe/Paris');
+  assert.equal(a.length,4);
+  for(let i=0;i<a.length;i++){
+    assert.ok(Number.isFinite(a[i].moonLongitude));
+    assert.match(a[i].day,/^\d{4}-\d{2}-\d{2}$/);
+    if(i)assert.ok(new Date(a[i].at)>new Date(a[i-1].at));
+  }
+  assert.deepEqual(a.map(x=>x.quarter).sort(),[0,1,2,3]);
+  assert.throws(()=>upcomingMoonPhases('invalid'));
+});
+
+test('transit applying/separating labels follow local angular change',()=>{
+  const snap=transitSnapshot(p,'2026-11-20T12:00:00Z');
+  for(const contact of snap.contacts){
+    assert.ok(['applying','separating','exact','stable'].includes(contact.trend));
+    assert.ok(contact.delta<=contact.orb);
+  }
+});
+
+test('automatic-orb boundaries include the selected contact instant',()=>{
+  const snap=transitSnapshot(p,'2026-11-20T12:00:00Z');
+  const candidate=snap.contacts.find(c=>c.body==='Moon')||snap.contacts.find(c=>c.body==='Sun');
+  assert.ok(candidate);
+  const w=transitContactWindow(p,snap.at,candidate.body,candidate.natal,candidate.angle);
+  assert.ok(w.start&&w.end,'Fast-planet contact has finite entry/exit');
+  assert.ok(new Date(w.start).getTime()<=new Date(snap.at).getTime());
+  assert.ok(new Date(w.end).getTime()>=new Date(snap.at).getTime());
+  assert.ok(new Date(w.start)<new Date(w.end));
+  assert.throws(()=>transitContactWindow(p,snap.at,'Invalid',candidate.natal,candidate.angle));
+});
+
+test('progressed positions follow day-for-year without inventing houses',()=>{
+  const target='2026-11-20T12:00:00Z';
+  const p1=secondaryProgressions(p,target);
+  assert.equal(Object.keys(p1.positions).length,10);
+  assert.equal(p1.moonUncertain,false);
+  const progressed=new Date(p1.progressedAt);
+  const birth=new Date(natalChart(p).birth);
+  const ageDays=(new Date(target).getTime()-birth.getTime())/86400000;
+  assert.ok(Math.abs((progressed.getTime()-birth.getTime())/86400000-ageDays/365.2422)<1e-8);
+  const p2=secondaryProgressions({...p,timeKnown:false,time:null},target);
+  assert.equal(p2.positions.Moon,undefined);
+  assert.equal(p2.moonUncertain,true);
+  assert.throws(()=>secondaryProgressions(p,'1980-01-01T12:00:00Z'));
+});
+
+test('composite midpoints use shortest zodiacal arc and exclude uncertain Moon',()=>{
+  const other={...p,date:'1996-07-19',time:'06:30'};
+  const composite=compositeMidpoints(p,other,'tropical');
+  const first=natalChart(p),second=natalChart(other);
+  const angular=x=>((x%360)+360)%360;
+  const signed=x=>angular(x+180)-180;
+  const expected=angular(first.positions.Sun+signed(second.positions.Sun-first.positions.Sun)/2);
+  assert.ok(Math.abs(composite.positions.Sun-expected)<1e-9);
+  assert.equal(composite.houses,null);
+  assert.equal(Object.keys(composite.positions).length,10);
+  const unknown=compositeMidpoints(p,{...other,timeKnown:false,time:null});
+  assert.equal(unknown.positions.Moon,undefined);
+  assert.equal(unknown.moonUncertain,true);
+  assert.throws(()=>compositeMidpoints(p,other,'invalid'));
 });
