@@ -663,3 +663,8 @@ body.astra-input-active .app-shell{padding-bottom:20px}
 /* P0 accessibility: native modal (top layer makes background inert). */
 dialog.natal-focus{margin:0;width:100%;max-width:none;max-height:none;border:0;color:var(--ink)}
 dialog.natal-focus::backdrop{background:rgba(18,31,44,.62)}
+
+/* P0: accessible field validation (not colour-only). */
+.form-field-error{margin:7px 0 0;color:#983f42;font-size:13px;line-height:1.5;font-weight:650}
+.field input[aria-invalid="true"],.field select[aria-invalid="true"]{border:2px solid #a43d42;background:#fff9f8}
+.field input[aria-invalid="true"]:focus-visible,.field select[aria-invalid="true"]:focus-visible{outline:3px solid var(--astra-focus-ring);outline-offset:2px}
