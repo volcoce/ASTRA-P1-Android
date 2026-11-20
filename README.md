@@ -1,4 +1,17 @@
-# ASTRA Public — Preview 0.8.7
+# ASTRA Public — Preview 0.8.9
+
+## Refonte graphique de la roue astrologique — Preview 0.8.9
+
+- Trois vues harmonisées : thème natal avec maisons, naissance sans heure, et roue double natal/transits.
+- Anneau zodiacal bleu-gris, alternance discrète des signes et maisons, séparateurs de maisons différenciés, graduations tous les 5° (accent tous les 30°).
+- Les planètes ont désormais des pastilles contrastées, avec Soleil doré, Lune bleue et mise en évidence claire de la sélection ; la roue double conserve natal violet / transits bleu.
+- L'accueil montre jusqu'à trois aspects natals parmi les plus serrés pour donner un repère visuel sans saturer la carte. Les vues détaillées continuent d'exposer les aspects filtrés.
+- **Précision préservée** : les petits points restent sur les longitudes astronomiques réelles ; les symboles peuvent être déplacés pour éviter les collisions. Les maisons conservent leur géométrie calculée, sans inventer un Ascendant si l'heure manque.
+- Palette SVG identique dans la roue interactive et les exports SVG/PNG ; aucune connexion réseau ou police externe ajoutée.
+- Nouveaux tests de régression pour les trois SVG, les 72 graduations, les marqueurs de degré exact, les zones cliquables et les ressources de styles chargées en CI.
+- Vérification visuelle et tactile réelle requise avant distribution ; les tests de source ne la remplacent pas.
+
+
 
 **Référence UI/UX du projet :** [UI_ARCHITECTURE.md](UI_ARCHITECTURE.md) pour la hiérarchie, la navigation, les composants et l'accessibilité ; [DESIGN.md](DESIGN.md) pour l'identité visuelle. Les règles pour assistants de code sont dans [AGENTS.md](AGENTS.md).
 
