@@ -479,6 +479,7 @@ if __name__ == '__main__':
             page.locator('#eventFilter').select_option('exact')
             assert page.locator('.calendar .day.moon-new').count()==1
             assert page.locator('.calendar .day.moon-full').count()==1
+            page.locator('.calendar-options > summary').click()
             page.locator('#eventFilter').select_option('all')
             capture('calendar-320')
             page.locator('[data-event]').first.click(timeout=2000)
