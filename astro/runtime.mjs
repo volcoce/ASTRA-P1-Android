@@ -4,7 +4,7 @@ import {searchCities, normalizePlace} from './places.mjs';
 import {tropicalHouses,selectHouseSystem,HOUSE_SYSTEMS,houseOf,natalAspects} from './natal.mjs';
 import {layoutPlanetLabels,MIN_LABEL_SPACING_DEGREES} from './chart-layout.mjs';
 import {formatSignExact,formatOrbExact,filterNatalAspects,describeNatalPlanet,describeNatalHouse,describeNatalAspect,NATAL_ASPECT_FILTERS} from './natal-learning.mjs';
-import {ASPECTS,TARGETS,mod,signed,angularDistance,zodiacLongitude,lahiriApprox,formatSign,localToUtc,isoDay,validateProfile} from './core.mjs';
+import {ASPECTS,TARGETS,mod,signed,angularDistance,zodiacLongitude,lahiriApprox,formatSign,signNames,localToUtc,isoDay,validateProfile} from './core.mjs';
 export {ASPECTS,formatSign,localToUtc,validateProfile,describeEvent,DISCLAIMER,searchCities,normalizePlace,houseOf,layoutPlanetLabels,MIN_LABEL_SPACING_DEGREES,formatSignExact,formatOrbExact,filterNatalAspects,describeNatalPlanet,describeNatalHouse,describeNatalAspect,NATAL_ASPECT_FILTERS,selectHouseSystem,HOUSE_SYSTEMS};
 export const BODIES=['Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto'];
 export const BODY_FR={Sun:'Soleil',Moon:'Lune',Mercury:'Mercure',Venus:'Vénus',Mars:'Mars',Jupiter:'Jupiter',Saturn:'Saturne',Uranus:'Uranus',Neptune:'Neptune',Pluto:'Pluton'};
@@ -92,6 +92,43 @@ export function dailySky(day,zone='UTC',mode='tropical'){
     sunLongitude:longitude('Sun',instant,mode),
     moonLongitude:longitude('Moon',instant,mode),
     moonPhase:moonPhase(instant)};
+}
+
+/** Determine each lunar zodiac-sign ingress within one civil day.
+ * Bracket sign boundaries in 2-hour samples, then bisect until < 10 sec.
+ * Day bounds use midnight in the supplied IANA timezone, including DST.
+ * A daily noon snapshot may therefore have another sign than the Full Moon
+ * occurring later the same day.
+ */
+export function moonSignChanges(day,zone='UTC',mode='tropical'){
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(day))throw new Error('Date du jour invalide');
+  if(!['tropical','sidereal'].includes(mode))throw new Error('Zodiaque invalide');
+  const next=new Date(day+'T12:00:00Z');
+  if(!Number.isFinite(next.getTime())||next.toISOString().slice(0,10)!==day)
+    throw new Error('Date du jour invalide');
+  next.setUTCDate(next.getUTCDate()+1);
+  const start=localToUtc(day,'00:00',zone).getTime();
+  const end=localToUtc(next.toISOString().slice(0,10),'00:00',zone).getTime();
+  const index=t=>Math.floor(mod(longitude('Moon',new Date(t),mode))/30);
+  const result=[];
+  let left=start,from=index(left);
+  const step=2*3600000;
+  while(left<end){
+    const right=Math.min(left+step,end);
+    const to=index(right);
+    if(to!==from){
+      let lo=left,hi=right;
+      for(let k=0;k<40&&hi-lo>10000;k++){
+        const mid=(lo+hi)/2;
+        if(index(mid)===from)lo=mid;else hi=mid;
+      }
+      const at=new Date(Math.round(((lo+hi)/2)/60000)*60000);
+      result.push({at:at.toISOString(),fromSign:signNames[from],toSign:signNames[to],
+        fromIndex:from,toIndex:to,mode});
+    }
+    left=right;from=to;
+  }
+  return result;
 }
 
 /** Four actual lunar-quarter instants following the chosen day.
@@ -253,7 +290,8 @@ export function calculateMonth(profile,year,month,mode='tropical',orb='auto',opt
   let phase=Astronomy.SearchMoonQuarter(new Date(start));
   for(let i=0;i<18&&phase.time.date.getTime()<end;i++){
     const labels=['Nouvelle Lune','Premier quartier','Pleine Lune','Dernier quartier'];
-    addMoment(phases,{type:'moon',name:labels[phase.quarter],at:phase.time.date.toISOString()});
+    addMoment(phases,{type:'moon',name:labels[phase.quarter],at:phase.time.date.toISOString(),
+      moonLongitude:longitude('Moon',phase.time.date,mode)});
     phase=Astronomy.NextMoonQuarter(phase);
   }
   // Exact events may have duplicates at shared sample boundaries; filter by key+minute.
@@ -261,4 +299,4 @@ export function calculateMonth(profile,year,month,mode='tropical',orb='auto',opt
   return {year,month,mode,orb,chart,days,exact:exact.length,stations:stations.length,phases:phases.length,
     approximateNatal:!chart.timeKnown,calculatedAt:new Date().toISOString()};
 }
-if(typeof window!=='undefined')window.ASTRA_ENGINE={BODIES,BODY_FR,natalChart,calculateMonth,moonPhase,dailySky,upcomingMoonPhases,transitContactWindow,secondaryProgressions,compositeMidpoints,formatSign,validateProfile,localToUtc,describeEvent,DISCLAIMER,searchCities,normalizePlace,houseOf,layoutPlanetLabels,MIN_LABEL_SPACING_DEGREES,formatSignExact,formatOrbExact,filterNatalAspects,describeNatalPlanet,describeNatalHouse,describeNatalAspect,NATAL_ASPECT_FILTERS,transitSnapshot,HOUSE_SYSTEMS};
+if(typeof window!=='undefined')window.ASTRA_ENGINE={BODIES,BODY_FR,natalChart,calculateMonth,moonPhase,dailySky,moonSignChanges,upcomingMoonPhases,transitContactWindow,secondaryProgressions,compositeMidpoints,formatSign,validateProfile,localToUtc,describeEvent,DISCLAIMER,searchCities,normalizePlace,houseOf,layoutPlanetLabels,MIN_LABEL_SPACING_DEGREES,formatSignExact,formatOrbExact,filterNatalAspects,describeNatalPlanet,describeNatalHouse,describeNatalAspect,NATAL_ASPECT_FILTERS,transitSnapshot,HOUSE_SYSTEMS};
