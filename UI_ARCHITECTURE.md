@@ -116,7 +116,7 @@ Ne jamais afficher une barre latérale **et** une barre basse concurrentes ; il 
 | `ExpandSection` | détails longs et réglages | `summary` explicite, état ouvert lisible et préservé si pertinent |
 | `NatalSignTile` | Soleil, Lune, Ascendant | symbole + **nom en toutes lettres** + signe, option incertitude |
 | `ChartViewport` | SVG natal / transits, zoom et export | lisible à 100% sans défilement latéral de page |
-| `DateMonthPicker` | calendrier mensuel, nombre d'événements | événements et notes distinguables sans codage couleur seul |
+| `DateMonthPicker` | calendrier mensuel, nombre d'événements | Nouvelle Lune violette (●), Pleine Lune dorée (○), légende, `aria-label` et indicateur des notes distinct |
 | `MoodPicker` / `JournalEditor` | humeur, énergie, note, sauvegarde | labels explicites, persistance de brouillon lors d'une navigation |
 | `BirthForm` / `CityPicker` | saisie date/heure/ville | erreurs au champ, aucune ville non confirmée, heure inconnue possible |
 | `FeedbackState` | vide, chargement, erreur, confirmation | action suivante visible, ton neutre, pas de faux résultat |

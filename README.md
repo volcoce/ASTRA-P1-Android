@@ -1,6 +1,15 @@
-# ASTRA Public — Preview 0.7.1
+# ASTRA Public — Preview 0.7.2
 
 **Référence UI/UX du projet :** [UI_ARCHITECTURE.md](UI_ARCHITECTURE.md) pour la hiérarchie, la navigation, les composants et l'accessibilité ; [DESIGN.md](DESIGN.md) pour l'identité visuelle. Les règles pour assistants de code sont dans [AGENTS.md](AGENTS.md).
+
+## Calendrier — Nouvelle Lune et Pleine Lune (Preview 0.7.2)
+
+- **Nouvelle Lune** : jour teinté de violet, symbole plein **●**.
+- **Pleine Lune** : jour teinté de doré, symbole creux **○**.
+- Une légende visible sous le calendrier et des noms explicites dans les descriptions accessibles des dates.
+- Les couleurs proviennent des événements réels de `SearchMoonQuarter` dans le moteur astronomique, localisés à la date du calendrier. Aucune déduction approximative à partir d'une phase observée à midi.
+- Les repères de phases lunaires restent visibles indépendamment du filtre d'événements ; la date sélectionnée, les notes de journal et les points d'événements conservent leurs propres indicateurs.
+- Tests Chrome avec dates de Nouvelle Lune, Pleine Lune et jours sans repère ; vérification des deux couleurs et de l'accessibilité.
 
 ## Accueil en widgets — Inspiration Flo (Preview 0.7.1)
 
