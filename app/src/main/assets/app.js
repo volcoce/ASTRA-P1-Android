@@ -126,10 +126,10 @@
   const show = msg => { const t=$('toast');t.textContent=msg;t.hidden=false;setTimeout(()=>t.hidden=true,3500); };
   const dateTime = iso => new Intl.DateTimeFormat('fr-FR',{dateStyle:'short',timeStyle:'short',timeZone:state.profile?.timezone || detectedZone}).format(new Date(iso));
   const displayDate = day => new Intl.DateTimeFormat('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(day+'T12:00:00Z'));
-  const header = (name,description) => `<div class="eyebrow">ASTRA · Suivi quotidien</div><h1 tabindex="-1" class="page-title">${name}</h1><p class="lead">${description}</p>`;
+  const header = (name,description) => `<header class="screen-intro"><h1 tabindex="-1" class="page-title">${name}</h1><p class="lead">${description}</p></header>`;
   const switcher = () => `<div class="switch" aria-label="Type de zodiaque"><button data-mode="tropical" class="${state.mode==='tropical'?'on':''}" aria-pressed="${state.mode==='tropical'}">Tropical</button><button data-mode="sidereal" class="${state.mode==='sidereal'?'on':''}" aria-pressed="${state.mode==='sidereal'}">Sidéral · Lahiri approx.</button></div>`;
   const status = () => busy ? '<p class="loading" role="status">Calcul astronomique à la demande…</p>' : error ? `<p class="notice" role="alert">${safe(error)}</p>` : '';
-  const unconfigured = () => header('Ton ciel à découvrir','Crée ton thème natal pour obtenir un calendrier calculé sur ton appareil.') + '<section class="card"><h2 class="card-title">Commencer</h2><p class="tiny">Aucun profil ni événement personnel n’est préchargé. Aucun compte nécessaire.</p><button class="primary full" data-goto="profile">Configurer mon thème natal</button></section>';
+  const unconfigured = () => header('Bienvenue dans ASTRA','Explore le ciel à partir de ta date de naissance.') + '<section class="card welcome-card"><div class="welcome-illustration" aria-hidden="true">☉ <span>☾</span></div><h2 class="card-title">Ton thème commence ici</h2><p>Indique ta date, ton heure et ta ville de naissance pour obtenir ta carte et ton calendrier.</p><button class="primary full" data-goto="profile">Configurer mon thème natal</button><p class="tiny">Pas de compte à créer. Tes données restent sur cet appareil.</p></section>';
 
   function matchesFilter(body,type) {
     const filter=state.filter;
@@ -177,7 +177,7 @@
     if(!state.profile)return unconfigured();
     const day=currentDay(),events=dayEvents(day),active=day.active.slice(0,8),moon=E?.moonPhase(new Date(selected+'T12:00:00Z'));
     const entry=state.journal[selected];
-    return header('Aujourd’hui','Les événements sont calculés pour ton thème, puis accompagnés d’une lecture symbolique à explorer.')+switcher()+birthTimeWarning()+
+    return header('Aujourd’hui','Les mouvements du ciel pour la date choisie.')+birthTimeWarning()+
       `<section class="metric"><span class="moon-symbol" aria-hidden="true">☾</span><h2>${safe(displayDate(selected))}</h2><p>Élongation lunaire : ${typeof moon==='number'?moon.toFixed(1)+'°':'–'}</p></section>${status()}`+
       `<section class="card"><div class="section-row"><h2 class="card-title">Événements exacts</h2><span class="tag">${events.length}</span></div>${events.map(row).join('')||'<p class="muted">Aucun contact exact aujourd’hui.</p>'}</section>`+
       `<section class="card"><div class="section-row"><h2 class="card-title">Aspects actifs à midi</h2><span class="tag-outline">${day.active.length}</span></div>${active.map(e=>row({...e,type:'active'})).join('')||'<p class="muted">Aucun aspect dans les orbes automatiques.</p>'}${day.active.length>8?'<p class="tiny">Huit aspects affichés. Utilise le calendrier pour explorer davantage.</p>':''}</section>`+
@@ -194,8 +194,8 @@
       cells.push(`<button class="day ${day===selected?'selected':''} ${day===isoDay(new Date())?'today':''}" data-day="${day}" aria-label="${day}, ${total} événement(s) exact(s), ${entry.active.length} aspect(s) actif(s)">${d}<span class="count">${total?total+' ✦':entry.active.length?entry.active.length+' ~':''}</span>${state.journal[day]?'<span class="pinhole"></span>':''}</button>`);
     }
     const day=currentDay(),events=dayEvents(day);
-    return header('Calendrier','Choisis une journée, puis ouvre un événement pour distinguer le calcul de son interprétation.')+switcher()+birthTimeWarning()+
-      `<div class="month-head"><button class="arrow" data-month="-1" aria-label="Mois précédent">‹</button><h2>${safe(new Intl.DateTimeFormat('fr-FR',{month:'long',year:'numeric'}).format(month))}</h2><button class="arrow" data-month="1" aria-label="Mois suivant">›</button></div>`+filters()+
+    return header('Calendrier','Choisis une date pour découvrir les événements du ciel.')+birthTimeWarning()+
+      `<div class="month-head"><button class="arrow" data-month="-1" aria-label="Mois précédent">‹</button><h2>${safe(new Intl.DateTimeFormat('fr-FR',{month:'long',year:'numeric'}).format(month))}</h2><button class="arrow" data-month="1" aria-label="Mois suivant">›</button></div>`+'<details class="calendar-options"><summary>Options d’affichage</summary>'+switcher()+filters()+'</details>'+
       `<div class="calendar"><div class="cal-grid">${['L','M','M','J','V','S','D'].map(x=>`<span class="weekday">${x}</span>`).join('')}${cells.join('')}</div><p class="tiny">✦ contact exact · ~ aspect à midi · point rose : journal</p></div>${status()}`+
       `<section class="card"><div class="section-row"><h2 class="card-title">${safe(displayDate(selected))}</h2></div><div class="pill-row"><span class="tag">${events.length} événement(s)</span><span class="tag-outline">${day.active.length} actif(s)</span></div>${events.map(row).join('')||'<p class="tiny">Aucun événement exact ce jour.</p>'}${day.active.slice(0,30).map(e=>row({...e,type:'active'})).join('')}</section>`+detailView();
   }
@@ -222,13 +222,13 @@
     initDraft();
     const d=journalDraft;
     const history=Object.entries(state.journal).sort((a,b)=>b[0].localeCompare(a[0])).filter(([day,item])=>!searchTerm||`${day} ${item.note} ${(item.tags||[]).map(t=>themes[t]).join(' ')}`.toLocaleLowerCase('fr').includes(searchTerm.toLocaleLowerCase('fr'))).slice(0,30);
-    return header('Mon journal','Observe ton vécu sans lui attribuer automatiquement une cause astrologique.')+
+    return header('Mon journal','Un espace pour noter ta journée et ton ressenti.')+
       `<section class="card"><h2 class="card-title">${safe(displayDate(selected))}</h2><div class="actions"><button class="ghost" data-offset="-1">Jour précédent</button><button class="ghost" data-offset="1">Jour suivant</button></div>`+
-      `<div class="field"><label>Humeur</label><div class="mood-row">${[1,2,3,4,5].map(n=>`<button type="button" data-mood="${n}" aria-pressed="${d.mood===n}" class="mood ${d.mood===n?'on':''}">${moodSymbols[n]}<span>${n}/5</span></button>`).join('')}</div></div>`+
-      `<div class="field"><label for="energyRange">Énergie · <output id="energyValue">${d.energy}/5</output></label><input id="energyRange" type="range" min="1" max="5" value="${d.energy}" step="1"></div>`+
+      `<div class="field"><label>Comment tu te sens ?</label><div class="mood-row">${[1,2,3,4,5].map(n=>`<button type="button" data-mood="${n}" aria-pressed="${d.mood===n}" aria-label="Humeur ${n} sur 5" class="mood ${d.mood===n?'on':''}"><span class="mood-symbol" aria-hidden="true">${moodSymbols[n]}</span><span>${['','Très bas','Bas','Moyen','Bien','Très bien'][n]}</span></button>`).join('')}</div></div>`+
+      `<div class="field"><label for="energyRange">Ton énergie · <output id="energyValue">${d.energy}/5</output></label><input id="energyRange" type="range" min="1" max="5" value="${d.energy}" step="1"></div>`+
       `<fieldset class="tags-field"><legend>Thèmes de la journée (facultatif)</legend><div class="tag-buttons">${Object.entries(themes).map(([code,label])=>`<button type="button" data-tag="${code}" aria-pressed="${d.tags.includes(code)}" class="tag-button ${d.tags.includes(code)?'on':''}">${label}</button>`).join('')}</div></fieldset>`+
-      `<div class="field"><label for="journalNote">Observations</label><textarea id="journalNote" maxlength="10000" spellcheck="true" placeholder="Faits, émotions, contexte…">${safe(d.note)}</textarea></div><button class="primary full" data-save="1">Enregistrer ma journée</button>${state.journal[selected]?'<button class="subnav danger" data-delete-note="1">Supprimer cette note</button>':''}</section>`+
-      `<section class="card"><h2 class="card-title">Mes tendances · 30 jours</h2>${summary()}</section>`+
+      `<div class="field"><label for="journalNote">Quelques mots sur ta journée</label><textarea id="journalNote" maxlength="10000" spellcheck="true" placeholder="Qu’as-tu vécu ou ressenti aujourd’hui ?">${safe(d.note)}</textarea></div><button class="primary full" data-save="1">Enregistrer ma journée</button>${state.journal[selected]?'<button class="subnav danger" data-delete-note="1">Supprimer cette note</button>':''}</section>`+
+      `<section class="card"><h2 class="card-title">Ton mois en chiffres</h2>${summary()}</section>`+
       `<section class="card"><h2 class="card-title">Historique</h2><div class="field"><label for="journalSearch">Rechercher dans mes notes</label><input id="journalSearch" type="search" value="${safe(searchTerm)}" placeholder="Mot-clé, date ou thème"></div>${history.map(([day,item])=>`<div class="history-item"><b>${safe(day)} · humeur ${item.mood}/5</b>${item.energy?` <small>· énergie ${item.energy}/5</small>`:''}<p>${safe(item.note)}</p>${(item.tags||[]).map(t=>`<span class="tag-outline small-tag">${safe(themes[t]||t)}</span>`).join('')}<button data-day="${day}">Consulter</button></div>`).join('')||'<p class="muted">Aucune note correspondante.</p>'}</section>`;
   }
   const zodiacSymbols=['♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓'];
