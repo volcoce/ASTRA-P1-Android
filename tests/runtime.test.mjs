@@ -23,3 +23,17 @@ test('the dynamically evaluated active contacts carry their automatic thresholds
   }
   assert.ok(month.exact>0,'exact transit timings remain independently computed');
 });
+
+test('sidereal natal houses use shifted cusps and keep their geometry',()=>{
+  const tropical=natalChart(p,'tropical');
+  const sidereal=natalChart(p,'sidereal');
+  assert.equal(sidereal.houses.cusps.length,12);
+  assert.equal(sidereal.houses.system,tropical.houses.system);
+  assert.equal(sidereal.houses.approximateSidereal,true);
+  const norm=x=>(x+360)%360;
+  const delta=norm(tropical.houses.cusps[0]-sidereal.houses.cusps[0]);
+  assert.ok(delta>20 && delta<27);
+  for(let i=1;i<12;i++){
+    assert.ok(Math.abs(norm(tropical.houses.cusps[i]-sidereal.houses.cusps[i])-delta)<1e-6);
+  }
+});
