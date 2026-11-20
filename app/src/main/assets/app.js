@@ -62,6 +62,7 @@
   let exploreWheelOpen = false;
   let aspectMatrixOpen = false;
   let settingsPreviewOpen = false;
+  let settingsAdvancedOpen = false;
   // Temporary view state; never saved with birth information.
   let focusReturnScreen='overview';
   let selected = isoDay(new Date());
@@ -746,7 +747,8 @@
       return '<section class="card natal-card natal-settings" id="natalChart">'+
         '<div class="natal-subpage-heading">'+pageBack+'<h2 class="card-title">Personnaliser la carte</h2>'+
         '<p class="natal-section-lead">Choisis ton affichage. Tes informations de naissance sont plus bas.</p></div>'+
-        '<div class="natal-settings-controls">'+controls+advancedControls+'</div>'+
+        '<div class="natal-settings-controls">'+controls+
+        '<details class="natal-more-options"'+(settingsAdvancedOpen?' open':'')+'><summary>Options avancées</summary>'+advancedControls+'</details></div>'+
         '<details class="natal-preview-disclosure"'+(settingsPreviewOpen?' open':'')+'><summary>Aperçu de la carte et export graphique</summary>'+
         '<div class="natal-wheel-viewport" role="region" tabindex="0" aria-label="Aperçu de la carte astrologique">'+resized+'</div>'+
         '<p class="natal-home-hint">Les exports SVG et PNG correspondent à cette carte.</p>'+focusLaunch+'</details>'+
@@ -833,11 +835,11 @@
       `<div class="field"><label for="birthCity">Ville de naissance</label><div class="city-search"><input required autocomplete="off" id="birthCity" name="city" placeholder="Ex. Paris, Montréal, Tokyo…" value="${safe(d.city)}"><button type="button" class="ghost" data-search-place="1" ${placeSearch.loading?'disabled':''}>${placeSearch.loading?'Recherche…':'Rechercher'}</button></div><p class="field-help">Recherche avec Internet, puis sélectionne le bon résultat. La position et le fuseau sont déduits de la ville, pas du téléphone.</p></div>`+
       `${placeSearch.error?`<p class="notice" role="alert">${safe(placeSearch.error)}</p>`:''}`+
       `${suggestions?`<div class="city-results" aria-label="Villes trouvées">${suggestions}</div>`:''}`+
-      `${place?`<div class="city-confirmed" role="status"><b>Ville sélectionnée : ${safe(place.label)}</b><p>${safe(offsetDescription(d,place))}</p><small>Coordonnées déterminées automatiquement · ${place.latitude.toFixed(4)}°, ${place.longitude.toFixed(4)}°</small></div>`:'<p class="city-unselected">Aucune ville sélectionnée. Les coordonnées et le fuseau ne sont pas à saisir.</p>'}`+
-      `${foldPicker}<div class="field"><p class="field-help"><strong>Orbes automatiques.</strong> ASTRA adapte la marge à la planète et à l’aspect. Les instants exacts sont calculés séparément et accessibles avec le filtre « Aspects exacts » du calendrier.</p></div><button class="primary full" type="submit">Calculer mon thème natal</button></form>`+
+      `${place?`<div class="city-confirmed" role="status"><b>Ville confirmée · ${safe(place.label)}</b><details class="city-technical"><summary>Voir le fuseau et les coordonnées</summary><p>${safe(offsetDescription(d,place))}</p><small>Coordonnées calculées · ${place.latitude.toFixed(4)}°, ${place.longitude.toFixed(4)}°</small></details></div>`:'<p class="city-unselected">Sélectionne une ville pour continuer.</p>'}`+
+      `${foldPicker}<details class="calculation-details"><summary>Comment les calculs fonctionnent-ils ?</summary><p class="field-help"><strong>Orbes automatiques.</strong> ASTRA adapte la marge à la planète et à l’aspect. Les instants exacts sont calculés séparément dans le calendrier.</p></details><button class="primary full" type="submit">Calculer mon thème natal</button></form>`+
       `<p class="tiny">Recherche de villes fournie par <a href="https://open-meteo.com/" rel="noopener noreferrer">Open-Meteo / GeoNames</a>. Seul le nom de ville recherché est transmis. Ensuite, les calculs restent sur ton appareil, même hors connexion. Les règles historiques sont celles de la base de fuseaux disponible sur l’appareil.</p></section>`+
       `<section class="card"><h2 class="card-title">Confidentialité et sauvegarde</h2><p class="tiny">Les dates et heures de naissance, coordonnées et notes sont stockées uniquement sur l’appareil. Une désinstallation peut les supprimer. Protège le fichier JSON exporté.</p><div class="actions"><button class="ghost" data-export="1">Exporter JSON</button><button class="ghost" data-import="1">Importer JSON</button></div><input id="importFile" type="file" accept="application/json" hidden><button class="subnav danger" data-clear="1">Effacer les données locales</button></section>`+
-      `<section class="notice"><b>Limites</b> · Vérifie les villes homonymes et les frontières historiques. Les dates très anciennes dépendent de la qualité des archives IANA du téléphone. Lahiri sidéral reste approximatif. Le thème tropical calcule l’Ascendant et les maisons Placidus ; près des pôles, des maisons égales les remplacent.</section>`:'');
+      `<details class="calculation-details"><summary>Limites et précision des calculs</summary><p>Vérifie les villes homonymes et les frontières historiques. Les dates très anciennes dépendent de la qualité des archives IANA du téléphone. Lahiri sidéral reste approximatif. Le thème tropical calcule l’Ascendant et les maisons Placidus ; près des pôles, des maisons égales les remplacent.</p></details>`:'');
   }
   function render() {
     renderedEvents=[];
@@ -936,6 +938,8 @@
     if(matrixSummary){aspectMatrixOpen=!matrixSummary.parentElement.open;return;}
     const previewSummary=event.target.closest('.natal-preview-disclosure > summary');
     if(previewSummary){settingsPreviewOpen=!previewSummary.parentElement.open;return;}
+    const advancedSummary=event.target.closest('.natal-more-options > summary');
+    if(advancedSummary){settingsAdvancedOpen=!advancedSummary.parentElement.open;return;}
     const button=event.target.closest('button, [role="button"][data-natal-body], [role="button"][data-natal-house], [role="button"][data-transit-body]');if(!button)return;
     const a=button.dataset;
     if(a.openFocus&&state.profile){
