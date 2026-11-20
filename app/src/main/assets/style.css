@@ -452,3 +452,57 @@ body.astra-focus-open{overflow:hidden}
 @media(prefers-reduced-motion:reduce){
   .natal-focus *, .natal-focus-launch *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 }
+
+/* P0.2 — reading hierarchy and surface simplification */
+/* One deliberately scoped visual-quality layer; no changed chart geometry. */
+:root{
+  --astra-paper:#fcfaf7;
+  --astra-surface:#fff;
+  --astra-secondary-surface:#f7f4f8;
+  --astra-rule:#e4dae6;
+}
+html{background:#f5f1ee}
+.app-shell{background:var(--astra-paper);box-shadow:none}
+.card{background:var(--astra-surface);border:1px solid var(--astra-rule);
+  border-radius:18px;box-shadow:none}
+.natal-card{border-top:1px solid var(--astra-rule)}
+.metric{background:var(--astra-secondary-surface);border:1px solid var(--astra-rule);border-radius:16px}
+.natal-advanced{background:transparent;border:0;border-top:1px solid var(--astra-rule);border-radius:0}
+.natal-wheel-viewport,
+.natal-home .natal-wheel-viewport,
+.natal-focus .natal-wheel-viewport{background:var(--astra-surface);border-color:var(--astra-rule)}
+.natal-home .natal-primary-cards{
+  background:transparent;border:0;border-bottom:1px solid var(--astra-rule);border-radius:0
+}
+.natal-preview-disclosure{background:var(--astra-surface)}
+.natal-focus{background:var(--astra-paper)}
+.bottom-nav{background:rgba(255,255,255,.97);backdrop-filter:none}
+.nav{font-size:12px;line-height:1.3;color:#60546d}
+.nav.active{color:var(--deep)}
+.brand-sub,.eyebrow{font-size:12px}
+.top-today{font-size:13px;min-height:44px}
+.lead{font-size:15px;line-height:1.55}
+.tag,.tag-outline{font-size:12px}
+.event-body>b,.event-body b{font-size:14px}
+.event-body p,.event-sub,.period-meta,.period-line{font-size:13px;line-height:1.55}
+.event-body small,.event-more{font-size:12px}
+.weekday,.cal-legend,.day .count{font-size:12px}
+.weekday{color:#6c6078}
+.day .count{color:#674d83}
+.field label,.filter-wrap label{font-size:13px}
+.field-help{font-size:13px;line-height:1.55}
+.filter-wrap select{font-size:14px}
+.period-title{font-size:14px}
+.period-detail,.period-detail b{font-size:13px}
+.period-detail{line-height:1.6;background:var(--astra-secondary-surface)}
+.mood span,.insights span{font-size:12px}
+.history-item p{font-size:14px;line-height:1.55}
+.history-item button{font-size:13px}
+.tiny,.natal-card .tiny{font-size:13px;line-height:1.55}
+.natal-highlight span{font-size:13px}
+.natal-disclaimer{font-size:12.5px!important}
+.detail-group h3,.detail-group p{font-size:14px;line-height:1.55}
+.natal-matrix .matrix-empty{color:#766b83;font-size:13px}
+.natal-contact-list button small{font-size:13px}
+.natal-focus-kicker{font-size:12px}
+.natal-focus-moment,.natal-focus-legend,.natal-focus-warning{font-size:13px;line-height:1.45}
