@@ -514,11 +514,12 @@ if __name__ == '__main__':
             assert page.locator('.astra-month-navigation h2').inner_text()!=initial_month
             # "Ce jour" is not allowed to inherit the browsed month.
             page.locator('[data-tab="today"]').click()
-            assert page.locator('.astra-day-hero').count()==1
+            page.locator('.astra-day-hero').wait_for(timeout=2500)
             assert page.locator('.astra-week-day.is-selected').get_attribute('data-day')==page.evaluate(
                 "new Date().getFullYear()+'-'+String(new Date().getMonth()+1).padStart(2,'0')+'-'+String(new Date().getDate()).padStart(2,'0')"
             )
             page.locator('[data-tab="month"]').click()
+            page.locator('.astra-month-hero').wait_for(timeout=2500)
             assert page.locator('.astra-month-navigation h2').inner_text()==initial_month
             chosen=page.locator('.astra-month-phase.new').get_attribute('data-month-open-day')
             page.locator('.astra-month-phase.new').click()
