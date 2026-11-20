@@ -12,7 +12,7 @@ Do not reproduce Flo's visual branding. The reusable information architecture is
 
 **Aujourd'hui** must present:
 1. Select a day from a week strip (Monday–Sunday) with previous/next week accessible.
-2. One hero showing **Moon zodiac sign and lunar phase calculated at local noon**, with timezone and zodiac system stated; the count of exact events is secondary. Never invent a prediction or sentiment.
+2. One hero showing **Moon zodiac sign and lunar phase calculated at local noon**, with timezone and zodiac system stated; when the Moon changes sign or a lunar quarter occurs that civil day, display the precise chronological events and explain any sign difference. Do not imply a noon Moon sign applies all day. The count of exact events is secondary; never invent a prediction or sentiment.
 3. A compact horizontally scrollable set of **secondary** widgets: Sun sign at that same local noon, journal entry, natal chart. Do not duplicate the Moon phase in a second card.
 4. A vertically scrolling feed of first events with explicit expansion for the remainder.
 5. Secondary in-orb aspects under an accessible disclosure. Ensure no user loses the underlying astronomical data.

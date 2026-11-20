@@ -1,6 +1,18 @@
-# ASTRA Public — Preview 0.8.4
+# ASTRA Public — Preview 0.8.5
 
 **Référence UI/UX du projet :** [UI_ARCHITECTURE.md](UI_ARCHITECTURE.md) pour la hiérarchie, la navigation, les composants et l'accessibilité ; [DESIGN.md](DESIGN.md) pour l'identité visuelle. Les règles pour assistants de code sont dans [AGENTS.md](AGENTS.md).
+
+## Une même journée, plusieurs positions lunaires — Preview 0.8.5
+
+Dans « Ce jour », ASTRA distingue désormais clairement **la position de la Lune à midi** et **les événements à leur heure exacte**.
+
+- **Entrée dans un signe** : le moteur calcule les limites de chaque journée civile dans le fuseau du profil, échantillonne la longitude lunaire puis affine les passages de signe par dichotomie. La chronologie indique l'heure et le nouveau signe. Elle ne prétend pas que la Lune conserve son signe de midi pendant 24 heures.
+- **Pleine Lune / Nouvelle Lune** : les événements `calculateMonth` stockent maintenant la longitude lunaire **à l'instant réel de la phase** ; le signe affiché est celui de cet instant, dans le mode tropical ou sidéral choisi.
+- **Ordre chronologique** : lors d'un changement de signe et d'une phase le même jour, ASTRA affiche les deux horaires successifs dans une section compacte sous la position de midi. Quand les signes diffèrent, un texte explique pourquoi.
+- **Exemple de vérification** : le 24 novembre 2026 en zodiaque tropical, la Lune est en Taureau à 12 h, entre en Gémeaux ensuite, puis la Pleine Lune se produit dans ce dernier signe. Les horaires sont recalculés, non figés dans l'interface.
+- **Ce mois et Calendrier** : les phases y comportent également leur signe **au moment exact**, sans confondre celui-ci avec la position de midi.
+- **Fuseau cohérent** : les horaires de « Ce jour » utilisent le fuseau du profil de naissance, comme les événements du calendrier (affiché explicitement). Les données du journal et les réglages existants ne sont pas modifiés.
+- **Tests** : calcul précis des transitions, passage Taureau → Gémeaux, Pleine Lune en Gémeaux le 24 novembre 2026, changement d'heure été/hiver, zodiaques, scénario UI à deux signes le même jour.
 
 ## La Lune du jour, avant les chiffres — Preview 0.8.4
 
@@ -8,7 +20,7 @@
 
 - **Carte principale** : « Lune en [signe] », phase lunaire du jour, puis nombre réel d'événements exacts en information secondaire.
 - **Trois cartes secondaires** : Soleil du jour (signe et longitude calculés), Journal, Mon ciel. La phase de Lune n'est plus dupliquée sur deux cartes.
-- **Calcul à midi local** : nouvelle fonction `dailySky(jour, fuseau, mode)` utilisant les éphémérides astronomiques. Fuseau pris sur l'appareil et affiché sur la carte. Le zodiaque tropical/sidéral suit le mode choisi.
+- **Calcul à midi local** : nouvelle fonction `dailySky(jour, fuseau, mode)` utilisant les éphémérides astronomiques. Fuseau du profil pour rester cohérent avec le calendrier (et affiché sur la carte). Le zodiaque tropical/sidéral suit le mode choisi.
 - **Précision** : il s'agit de la position **à midi**, pas nécessairement de la position à chaque instant de la journée. Les textes précisent cette limite ; ASTRA n'invente pas de prédiction.
 - **Robustesse** : échec de calcul signalé explicitement ; compte d'événements indépendant des filtres du calendrier ; calcul toujours en local.
 - **Validation** : tests unitaires des longitudes à midi, fuseaux et modes zodiacaux ; tests UI sur 320–1280 px et vérification de la nouvelle hiérarchie.

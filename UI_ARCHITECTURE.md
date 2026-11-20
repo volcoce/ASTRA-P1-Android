@@ -17,7 +17,7 @@
 
 | Écran | Question utilisateur | Visible d'emblée (P0) | Secondaire (P1) | À la demande (P2) |
 | --- | --- | --- | --- | --- |
-| **Ce jour** | Où sont le Soleil et la Lune à la date sélectionnée ? | Sélection de semaine, **Lune en [signe]** et phase à midi local, accès aux événements | Cartes Soleil / Journal / Mon ciel, trois premiers événements | Autres événements, aspects en cours, calcul détaillé |
+| **Ce jour** | Où se trouve la Lune à midi et quand change-t-elle de signe ? | Sélection de semaine, **Lune en [signe] à midi** dans le fuseau du profil, changements de signe/phase du jour par ordre chronologique | Cartes Soleil / Journal / Mon ciel, trois premiers événements | Autres événements, aspects en cours, calcul détaillé |
 | **Ce mois** | Que se passe-t-il pendant le mois affiché ? | Mois, nombre d'événements calculés, Nouvelles Lunes et Pleines Lunes | Premiers événements du mois et jours consignés | Dates détaillées, accès au journal |
 | **Calendrier** | À quelle date est cet événement ? | Grille mensuelle, jour choisi, marqueurs lunaires | Événements de la date, prochaines phases | Filtres, tropical/sidéral, autres détails |
 | **Mon ciel** | Quel est mon thème et comment le comprendre ? | Soleil/Lune/Ascendant en clair, « Comprendre mon thème », carte de naissance | « Comparer deux dates », lecture d'une planète | Matrice d'aspects, systèmes de maisons, détails techniques et exports |
@@ -78,7 +78,7 @@ La navigation doit toujours afficher **icône + texte**. L'état actif se distin
 
 ### Navigation secondaire
 
-- **Ce jour** — à chaque ouverture de l’onglet, revenir à la date actuelle ; le sélecteur de semaine peut temporairement afficher une autre journée. Résumé sans filtres du calendrier, « Voir les événements » et phase lunaire de cette journée seulement. Ne pas afficher de chronologie lunaire future ni de bouton de progression conversationnelle.
+- **Ce jour** — à chaque ouverture de l’onglet, revenir à la date actuelle ; le sélecteur de semaine peut temporairement afficher une autre journée. La position à midi est datée, chaque changement de signe et phase exacte du même jour possède sa propre heure. En cas de signes distincts, le texte explique la différence. Ne pas afficher de chronologie lunaire future ni de bouton de progression conversationnelle.
 - **Ce mois** — à chaque ouverture de l’onglet, revenir au mois actuel ; les flèches permettent d'explorer d’autres mois temporairement. Nombre réel d'événements, phases majeures du mois, cinq premiers événements et accès au calendrier. Les filtres du calendrier n'y changent rien.
 - **Calendrier** — mois précédent/suivant, jour sélectionné, Nouvelle Lune et Pleine Lune colorées, quatre prochaines phases lunaires interactives ; filtres dans « Options d'affichage ».
 - **Journal (secondaire)** — accès depuis une carte ou une fiche, retour à Ce jour, jour précédent/suivant, sauvegarde et historique sous la saisie.
