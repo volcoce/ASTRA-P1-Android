@@ -55,6 +55,9 @@
   let activeTab = 'today';
   // UX: viewing one's sky is the default. Editing and technical tools are separate destinations.
   let profileScreen = 'overview';
+  let exploreSection = 'planets';
+  let exploreWheelOpen = false;
+  let aspectMatrixOpen = false;
   let settingsPreviewOpen = false;
   let selected = isoDay(new Date());
   let month = new Date(new Date().getFullYear(),new Date().getMonth(),1);
@@ -240,12 +243,10 @@
     const same=natalSelection?.kind===kind&&String(natalSelection.id)===String(id);
     natalSelection=same?null:{kind,id};
     render();
-    // The natal wheel is re-rendered: return keyboard focus to the equivalent
-    // SVG control instead of leaving the screen reader at the page root.
+    // A non-modal contextual sheet becomes the reading destination for keyboard users.
     if(restoreFocus){
-      const attr=kind==='planet'?'data-natal-body':kind==='house'?'data-natal-house':kind==='transit'?'data-transit-body':'data-natal-aspect';
-      const focus=$('natalChart')?.querySelector('['+attr+'="'+String(id)+'"]');
-      focus?.focus({preventScroll:true});
+      const close=$('natalChart')?.querySelector('[data-close-natal-detail]');
+      close?.focus({preventScroll:true});
     }
   }
   function wheelSvg(chart,quiet=false) {
@@ -572,7 +573,7 @@
   }
 
   function renderNatalChart(chart){
-    const isOverview=profileScreen==='overview',isSettings=profileScreen==='settings';
+    const isOverview=profileScreen==='overview',isSettings=profileScreen==='settings',isCompare=profileScreen==='compare';
     const h=chart.houses,isFull=state.natalView==='complete'||profileScreen==='explore',isTropical=state.natalZodiac==='tropical';
     const uncertain=chart.approximateNoon===true;
     const fmt=lng=>safe(uncertain?'≈ '+E.formatSign(lng):isFull?E.formatSignExact(lng):E.formatSign(lng));
@@ -610,14 +611,14 @@
       '<button type="button" data-export-chart="svg">Exporter SVG</button>'+
       '<button type="button" data-export-chart="png">Exporter PNG</button></div></div></section>';
     let transitSnapshot=null,transitError='';
-    if(state.wheelLayout==='double'&&!isOverview){
+    if(isCompare||(isSettings&&state.wheelLayout==='double')){
       try{
         const instant=E.localToUtc(state.transitDay,state.transitTime,detectedZone);
         transitSnapshot=E.transitSnapshot(state.profile,instant,state.natalZodiac,state.houseSystem);
       }catch(err){transitError=err?.message||'Date de transit invalide';}
     }
     const svg=isOverview?(h?wheelSvg(chart,true):wheelSvgDateOnly(chart,true)):
-      transitSnapshot?doubleWheelSvg(transitSnapshot):h?wheelSvg(chart):wheelSvgDateOnly(chart);
+      (isCompare||isSettings)&&transitSnapshot?doubleWheelSvg(transitSnapshot):h?wheelSvg(chart):wheelSvgDateOnly(chart);
     const resized=svg.replace(/class="natal-wheel([^"]*)"/,
       (_,rest)=>'class="natal-wheel'+rest+'" style="width:calc(100% * '+state.natalZoom+');min-width:'+(320*state.natalZoom)+'px;max-width:none"');
     const selectedDetail=transitSnapshot&&natalSelection?.kind==='transit'?transitDetail(transitSnapshot):natalDetail(chart);
@@ -650,17 +651,33 @@
     // Prioritise understanding: three native anchors and the wheel, with no
     // advanced configuration above the fold. All complex tools remain available
     // on a separate, explicitly named screen.
+    // One compact, accessible line: ☼♌︎ | ☽♓︎ | ↑♋︎ (actual signs
+    // always come from the astronomical natal chart, never hardcoded).
+    const signLabels=['Bélier','Taureau','Gémeaux','Cancer','Lion','Vierge',
+      'Balance','Scorpion','Sagittaire','Capricorne','Verseau','Poissons'];
     const summaryItems=highlights.filter(([,,key])=>key!=='H10');
-    const quickCards=summaryItems.map(([label,lng,key])=>{
-      const isAngle=key==='H1',glyph=isAngle?'ASC':natalGlyphs[key];
+    const quickCards=summaryItems.map(([label,lng,key],index)=>{
+      const isAngle=key==='H1';
+      const signIndex=Math.floor(((lng%360)+360)%360/30);
+      const glyph=isAngle?'↑':key==='Sun'?'☼':'☽';
+      const sign=zodiacSymbols[signIndex]+'\uFE0E';
       const attr=isAngle?'data-natal-house="1"':'data-natal-body="'+key+'"';
       const chosen=natalSelection?.kind===(isAngle?'house':'planet')&&String(natalSelection.id)===(isAngle?'1':key);
-      return '<button type="button" class="natal-summary-item" '+attr+' aria-pressed="'+chosen+'">'+
+      const approx=uncertain&&key==='Moon';
+      return (index?'<span class="natal-glyph-separator" aria-hidden="true">|</span>':'')+
+        '<button type="button" class="natal-summary-item" '+attr+' aria-pressed="'+chosen+'"'+
+        ' aria-label="'+safe(label+' en '+signLabels[signIndex]+(approx+', position indicative':''))+'">'+
         '<span class="natal-summary-icon" aria-hidden="true">'+glyph+'</span>'+
-        '<span class="natal-summary-name">'+safe(label)+'</span>'+
-        '<span class="natal-summary-value">'+safe(uncertain?'≈ '+E.formatSign(lng):E.formatSign(lng))+'</span>'+
+        '<span class="natal-summary-sign" aria-hidden="true">'+sign+'</span>'+
+        (approx?'<span class="natal-summary-approx" aria-label="Position indicative">≈</span>':'')+
+        '<span class="natal-summary-name sr-only">'+safe(label)+'</span>'+
         '</button>';
     }).join('');
+    const contextSheet=natalSelection?
+      '<section id="natalSelectionInfo" class="natal-selection natal-context-sheet" role="dialog" aria-modal="false" aria-labelledby="natalContextTitle">'+
+      '<div class="natal-context-bar"><h2 id="natalContextTitle">Fiche de lecture</h2>'+
+      '<button type="button" data-close-natal-detail="1" aria-label="Fermer la fiche">Fermer <span aria-hidden="true">×</span></button></div>'+
+      '<div class="natal-context-content">'+selectedDetail+'</div></section>':'';
     const shortCaption=uncertain
       ?'<p class="natal-home-hint">Heure inconnue : la Lune est indicative. Ascendant et maisons non calculés.</p>'
       :'<p class="natal-home-hint">Touchez une planète de la roue pour la découvrir.</p>';
@@ -673,10 +690,10 @@
         '<p class="natal-home-subtitle">Thème natal · '+(isTropical?'Tropical':'Sidéral')+'</p></div>'+
         '<button type="button" class="natal-settings-link" data-profile-screen="settings">Réglages</button></div>'+
         (uncertain?notice:'')+
-        '<div class="natal-primary-cards'+(h?'':' natal-primary-cards--two')+'" aria-label="Mes repères astrologiques">'+quickCards+'</div>'+
+        '<div class="natal-primary-cards'+(h?'':' natal-primary-cards--two')+'" role="group" aria-label="Soleil, Lune et Ascendant en signes astrologiques">'+quickCards+'</div>'+
         '<div class="natal-wheel-viewport" role="region" tabindex="0" aria-label="Roue natale interactive">'+homeSvg+'</div>'+
         shortCaption+
-        '<section id="natalSelectionInfo" class="natal-selection natal-home-selection" aria-live="polite" aria-label="Planète ou maison sélectionnée">'+selectedDetail+'</section>'+
+        contextSheet+
         '<div class="natal-home-actions"><button type="button" class="natal-main-action" data-profile-screen="explore">Explorer mon thème <span aria-hidden="true">›</span></button>'+
         '<button type="button" class="natal-secondary-action" data-explore-transits="1">Comparer avec les transits <span aria-hidden="true">›</span></button></div>'+
         (h?.polarFallback?'<p class="notice">Maisons égales utilisées à cette latitude.</p>':'')+
@@ -720,8 +737,8 @@
     return (showSettings
       ? header(chart?'Paramètres du thème':'Créer mon thème natal',
           chart?'Modifie tes préférences et tes données de naissance.':'Renseigne ta date et ton lieu de naissance pour découvrir ton ciel.')
-      : header(profileScreen==='explore'?'Explorer mon thème':'Mon ciel',
-          profileScreen==='explore'?'Planètes, maisons et aspects de ta carte.':'Ton thème natal, en un regard.'))+
+      : header(profileScreen==='explore'?'Explorer mon thème':profileScreen==='compare'?'Comparer les transits':'Mon ciel',
+          profileScreen==='explore'?'Planètes, maisons et aspects de ta carte.':profileScreen==='compare'?'Ton ciel natal et les planètes à la date choisie.':'Ton thème natal, en un regard.'))+
       (chart?renderNatalChart(chart):'')+
       (showSettings?
       `<section class="card"><h2 class="card-title">Données de naissance</h2><form id="birthForm"><div class="field-grid"><div class="field"><label for="birthDate">Date</label><input required type="date" id="birthDate" name="date" min="1900-01-01" max="2100-12-31" value="${safe(d.date)}"></div><div class="field"><label for="birthTime">Heure locale</label><input ${d.timeKnown?'required':''} type="time" id="birthTime" name="time" value="${safe(d.time)}" ${d.timeKnown?'':'disabled'}></div></div>`+
@@ -777,23 +794,45 @@
   $('homeButton').addEventListener('click',()=>{selectDay(isoDay(new Date()));go('today');});
   document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.tab)));
   $('app').addEventListener('click',event=>{
+    const wheelSummary=event.target.closest('.natal-explore-wheel > summary');
+    if(wheelSummary){exploreWheelOpen=!wheelSummary.parentElement.open;return;}
+    const matrixSummary=event.target.closest('.natal-matrix-disclosure > summary');
+    if(matrixSummary){aspectMatrixOpen=!matrixSummary.parentElement.open;return;}
     const previewSummary=event.target.closest('.natal-preview-disclosure > summary');
     if(previewSummary){settingsPreviewOpen=!previewSummary.parentElement.open;return;}
     const button=event.target.closest('button, [role="button"][data-natal-body], [role="button"][data-natal-house], [role="button"][data-transit-body]');if(!button)return;
     const a=button.dataset;
+    if(a.exploreSection){
+      if(!['planets','houses','aspects'].includes(a.exploreSection))return;
+      if(a.exploreSection==='houses'&&state.profile?.timeKnown===false)return;
+      exploreSection=a.exploreSection;natalSelection=null;render();
+      if(event.detail===0)$('app').querySelector('[data-explore-section="'+exploreSection+'"]')?.focus({preventScroll:true});
+      return;
+    }
+    if(a.closeNatalDetail){
+      const previous=natalSelection;
+      natalSelection=null;render();
+      if(previous){
+        const attr=previous.kind==='planet'?'data-natal-body':previous.kind==='house'?'data-natal-house':
+          previous.kind==='transit'?'data-transit-body':'data-natal-aspect';
+        const targets=$('natalChart')?.querySelectorAll('['+attr+'="'+previous.id+'"]')||[];
+        for(const item of targets){if(item.getClientRects().length){item.focus({preventScroll:true});break;}}
+      }
+      return;
+    }
     if(a.profileScreen){
-      if(!['overview','explore','settings'].includes(a.profileScreen))return;
+      if(!['overview','explore','compare','settings'].includes(a.profileScreen))return;
       captureBirthForm();
       profileScreen=state.profile?a.profileScreen:'settings';
-      if(profileScreen==='explore'){state.wheelLayout='natal';persist();}
+      if(profileScreen==='explore'){exploreSection='planets';exploreWheelOpen=false;}
       natalSelection=null;render();
       window.scrollTo({top:0,behavior:'instant'});
       $('app').querySelector('h1.page-title')?.focus({preventScroll:true});
       return;
     }
     if(a.exploreTransits){
-      captureBirthForm();profileScreen='explore';state.wheelLayout='double';
-      natalSelection=null;persist();render();window.scrollTo({top:0,behavior:'instant'});
+      captureBirthForm();profileScreen='compare';
+      natalSelection=null;render();window.scrollTo({top:0,behavior:'instant'});
       $('app').querySelector('h1.page-title')?.focus({preventScroll:true});return;
     }
     if(a.natalView){captureBirthForm();state.natalView=a.natalView==='complete'?'complete':'essential';persist();render();if(event.detail===0)$('app').querySelector('[data-natal-view="'+a.natalView+'"]')?.focus({preventScroll:true});return;}
@@ -840,6 +879,11 @@
     if(a.clear&&confirm('Effacer le thème natal et toutes les notes locales ?')){localStorage.removeItem(STORAGE_KEY);state=defaultState();cache.clear();journalDraft=null;birthDraft=null;placeSearch={options:[],selected:null,loading:false,error:'',needFold:false,requestId:placeSearch.requestId+1};openDetail=null;refresh();show('Données supprimées');}
   });
   $('app').addEventListener('keydown',event=>{
+    if(event.key==='Escape'&&natalSelection){
+      event.preventDefault();
+      $('app').querySelector('[data-close-natal-detail]')?.click();
+      return;
+    }
     if(!['Enter',' '].includes(event.key))return;
     const item=event.target.closest('[role="button"][data-natal-body], [role="button"][data-natal-house], [role="button"][data-transit-body]');
     if(!item)return;
