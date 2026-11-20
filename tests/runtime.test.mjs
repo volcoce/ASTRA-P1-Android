@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {natalChart,calculateMonth,moonPhase,automaticTransitOrb} from '../astro/runtime.mjs';
+import {natalChart,transitSnapshot,calculateMonth,moonPhase,automaticTransitOrb} from '../astro/runtime.mjs';
 const p={date:'1994-05-12',time:'18:40',timezone:'Europe/Paris',latitude:48.85,longitude:2.35,fold:null};
 test('dynamic natal uses input rather than static ephemeris',()=>{const a=natalChart(p,'tropical');const b=natalChart({...p,date:'1985-05-12'},'tropical');assert.notEqual(a.positions.Moon,b.positions.Moon);assert.equal(Object.keys(a.positions).length,10);assert.equal(a.houses.system,'Placidus');assert.equal(a.houses.cusps.length,12);});
 test('lunar phase is calculated at runtime',()=>assert.ok(moonPhase(new Date('2026-11-19T12:00:00Z'))>=0));
@@ -60,4 +60,31 @@ test('unknown birth time never creates fake exact personal transits',()=>{
   assert.ok(m.phases>=4);
   assert.ok(Object.values(m.days).every(d=>d.active.every(a=>a.natal!=='Moon'&&a.approximateNatal)));
   assert.ok(Object.values(m.days).every(d=>d.exact.length===0));
+});
+
+test('a real transit instant changes positions; view settings never change ecliptic longitudes',()=>{
+  const date='2026-11-20T12:00:00.000Z';
+  const first=transitSnapshot(p,date,'tropical','placidus');
+  const second=transitSnapshot(p,'2026-11-21T12:00:00.000Z','tropical','whole');
+  assert.equal(first.at,date);
+  assert.equal(first.mode,'tropical');
+  assert.equal(Object.keys(first.positions).length,10);
+  assert.notEqual(first.positions.Moon,second.positions.Moon);
+  assert.equal(first.positions.Sun,transitSnapshot(p,date,'tropical','equal').positions.Sun);
+  assert.equal(first.chart.positions.Sun,transitSnapshot(p,date,'tropical','whole').chart.positions.Sun);
+  assert.equal(second.chart.houses.system,'Signes entiers');
+  assert.ok(first.contacts.every(c=>c.delta<=c.orb && c.delta>=0));
+  assert.throws(()=>transitSnapshot(p,'invalid'));
+});
+test('sidereal Whole Sign houses start at a sign boundary after ayanamsa shift',()=>{
+  const t=natalChart(p,'tropical','whole'),s=natalChart(p,'sidereal','whole');
+  assert.equal(s.houses.cusps[0]%30,0);
+  assert.equal(t.houses.cusps[0]%30,0);
+  assert.ok(s.houses.approximateSidereal);
+});
+test('unknown birth hour removes uncertain natal Moon contacts from double wheel',()=>{
+  const t=transitSnapshot({...p,time:null,timeKnown:false},'2026-11-20T12:00:00Z');
+  assert.equal(t.chart.houses,null);
+  assert.ok(t.contacts.every(c=>c.natal!=='Moon'));
+  assert.equal(t.approximateNatal,true);
 });
