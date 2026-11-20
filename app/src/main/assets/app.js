@@ -273,7 +273,16 @@
   }
   function today() {
     if(!state.profile)return unconfigured();
-    const day=currentDay(),events=dayEvents(day),active=day.active.slice(0,8);
+    // The daily summary is never affected by filters from the Calendar.
+    // A missing month is loading/failed data, not a legitimate zero-event day.
+    if(!result){
+      return header('Ce jour','Les informations du '+safe(displayDate(selected))+'.')+
+        weekStrip()+birthTimeWarning()+status()+
+        (!busy?'<p class="astra-empty">Aucune donnée calculée pour cette journée. Reviens au calendrier ou vérifie ta carte de naissance.</p>':'');
+    }
+    const raw=result.days?.[selected];
+    const day=raw?{active:raw.active||[],exact:raw.exact||[],sky:raw.sky||[]}:classify(null);
+    const events=dayEvents(day),active=day.active.slice(0,8);
     const moon=E?.moonPhase(new Date(selected+'T12:00:00Z'));
     const entry=state.journal[selected];
     const todayKey=isoDay(new Date()),isCurrent=selected===todayKey;
@@ -1169,10 +1178,21 @@
   }
   function go(tab) {
     if(!['today','month','calendar','journal','profile'].includes(tab))return;
+    // "Ce jour" and "Ce mois" are anchored to the present each time one
+    // enters the tab. Calendar remains the free date-browsing destination.
+    let needsRefresh=false;
+    if(tab==='today'||tab==='month'){
+      const now=isoDay(new Date());
+      const [yy,mm]=now.split('-').map(Number);
+      needsRefresh=month.getFullYear()!==yy||month.getMonth()!==mm-1||!result;
+      selected=now;
+      month=new Date(yy,mm-1,1);
+      todayExpanded=false;
+    }
     activeTab=tab;
     if(tab==='profile')profileScreen=state.profile?'overview':'settings';
     openDetail=null;
-    render();
+    if(needsRefresh)refresh();else render();
     window.scrollTo({top:0,behavior:'instant'});
   }
   function refresh() {
