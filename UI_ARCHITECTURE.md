@@ -75,8 +75,8 @@ La navigation doit toujours afficher **icône + texte**. L'état actif se distin
 
 ### Navigation secondaire
 
-- **Ce jour** — semaine précédente/suivante, choix du jour, « Voir les événements » et quatre jalons lunaires ouvrant le calendrier. Ne pas ajouter de bouton de progression conversationnelle dans l’application.
-- **Dates** — mois précédent/suivant, jour sélectionné ; filtres dans « Options d'affichage ».
+- **Ce jour** — semaine précédente/suivante, choix du jour, « Voir les événements » et phase lunaire de la journée seulement. Ne pas afficher de chronologie lunaire future ni ajouter de bouton de progression conversationnelle dans l’application.
+- **Dates** — mois précédent/suivant, jour sélectionné, Nouvelle Lune et Pleine Lune colorées, quatre prochaines phases lunaires interactives ; filtres dans « Options d'affichage ».
 - **Journal** — jour précédent/suivant, sauvegarde visible ; historique sous la saisie.
 - **Mon ciel** — trois vues de la même carte : « Roue / Planètes / Aspects ». Deux parcours à intitulés compréhensibles restent disponibles : « Comprendre mon thème » et « Comparer deux dates ». Le glossaire est contextuel ; les progressions et la carte composite sont repliées dans les outils avancés.
 - **Réglages** — paramètres essentiels en premier, « Options avancées » et exports repliables.

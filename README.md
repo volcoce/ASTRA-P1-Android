@@ -1,13 +1,20 @@
-# ASTRA Public — Preview 0.8.0
+# ASTRA Public — Preview 0.8.1
 
 **Référence UI/UX du projet :** [UI_ARCHITECTURE.md](UI_ARCHITECTURE.md) pour la hiérarchie, la navigation, les composants et l'accessibilité ; [DESIGN.md](DESIGN.md) pour l'identité visuelle. Les règles pour assistants de code sont dans [AGENTS.md](AGENTS.md).
+
+## Phases lunaires au bon endroit (Preview 0.8.1)
+
+- **Ce jour** se limite à la date choisie : la carte « Lune » affiche sa phase indicative, sans chronologie des phases futures.
+- **Dates** présente le calendrier et les événements du jour, puis les quatre phases lunaires suivantes. Les jalons, calculés astronomiquement, ouvrent la date correspondante dans le calendrier.
+- Les repères violet/doré de Nouvelle Lune et Pleine Lune restent dans les cases du mois.
+- Un test navigateur empêche le retour des phases futures dans « Ce jour » et vérifie leur emplacement ainsi que le lien depuis le calendrier.
 
 ## Explorateur astrologique (Preview 0.8.0)
 
 ASTRA reprend de TimePassages une **exploration à plusieurs niveaux**, sans reproduire son identité visuelle et sans ajouter de nouvelles sections à la navigation principale. L'accueil reste inspiré de l'organisation en widgets de Flo.
 
 - **Mon ciel** : sélecteur `Roue / Planètes / Aspects` dans le même écran. Les signes et positions viennent du thème calculé ; chaque planète/aspect ouvre sa fiche de lecture. Glossaire de six notions accessible à la demande.
-- **Cycle lunaire** : les quatre prochaines phases majeures sont calculées avec `Astronomy.SearchMoonQuarter` / `NextMoonQuarter`, présentées en jalons tactiles ; toucher un jalon ouvre sa date dans le calendrier.
+- **Cycle lunaire dans Dates** : les quatre prochaines phases majeures sont calculées avec `Astronomy.SearchMoonQuarter` / `NextMoonQuarter`, présentées sous le calendrier en jalons tactiles ; toucher un jalon ouvre sa date dans le calendrier.
 - **Navigation temporelle inchangée** : le sélecteur de semaine de « Ce jour », le calendrier mensuel et les champs de date de comparaison/progressions restent disponibles. Aucun bouton « Suivant » supplémentaire n'est ajouté à l'application : la progression entre étapes se fait dans la conversation ChatGPT.
 - **Transits** : filtre `Tous / Rapides / Lents` sur les contacts exacts du moment, avec sens `appliquant / séparant` estimé par comparaison d'écarts à une heure d'intervalle. Une fiche de contact montre la période approximative d'activité dans l'orbe automatique, calculée à la demande par balayage et dichotomie ; les retours rétrogrades ne doivent pas être interprétés comme une période unique parfaitement définie.
 - **Outils avancés (repliés)** : progressions secondaires par convention `un jour d'éphéméride = une année écoulée` (longitudes planétaires uniquement) ; carte composite à partir d'une seconde date/heure/ville de naissance (milieux zodiacaux sur l'arc court). Les maisons, angles et interprétations prédictives non établies ne sont pas inventés.
