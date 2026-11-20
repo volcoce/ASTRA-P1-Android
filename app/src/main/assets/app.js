@@ -55,6 +55,7 @@
   let activeTab = 'today';
   // UX: viewing one's sky is the default. Editing and technical tools are separate destinations.
   let profileScreen = 'overview';
+  let settingsPreviewOpen = false;
   let selected = isoDay(new Date());
   let month = new Date(new Date().getFullYear(),new Date().getMonth(),1);
   let result = null, error='', busy=false, calcToken=0, openDetail=null, journalDraft=null, journalDraftDate='', searchTerm='';
@@ -686,7 +687,7 @@
         '<div class="natal-subpage-heading">'+pageBack+'<h2 class="card-title">Réglages du thème</h2>'+
         '<p class="natal-section-lead">Personnalise les calculs et les outils de la carte. Les données de naissance se modifient plus bas.</p></div>'+
         '<div class="natal-settings-controls">'+controls+advancedControls+'</div>'+
-        '<details class="natal-preview-disclosure"><summary>Aperçu de la carte et export graphique</summary>'+
+        '<details class="natal-preview-disclosure"'+(settingsPreviewOpen?' open':'')+'><summary>Aperçu de la carte et export graphique</summary>'+
         '<div class="natal-wheel-viewport" role="region" tabindex="0" aria-label="Aperçu de la carte astrologique">'+resized+'</div>'+
         '<p class="natal-home-hint">Les exports SVG et PNG correspondent à cette carte.</p></details>'+
         (transitError?'<p class="notice" role="alert">'+safe(transitError)+'</p>':'')+
@@ -776,12 +777,15 @@
   $('homeButton').addEventListener('click',()=>{selectDay(isoDay(new Date()));go('today');});
   document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.tab)));
   $('app').addEventListener('click',event=>{
+    const previewSummary=event.target.closest('.natal-preview-disclosure > summary');
+    if(previewSummary){settingsPreviewOpen=!previewSummary.parentElement.open;return;}
     const button=event.target.closest('button, [role="button"][data-natal-body], [role="button"][data-natal-house], [role="button"][data-transit-body]');if(!button)return;
     const a=button.dataset;
     if(a.profileScreen){
       if(!['overview','explore','settings'].includes(a.profileScreen))return;
       captureBirthForm();
       profileScreen=state.profile?a.profileScreen:'settings';
+      if(profileScreen==='explore'){state.wheelLayout='natal';persist();}
       natalSelection=null;render();
       window.scrollTo({top:0,behavior:'instant'});
       $('app').querySelector('h1.page-title')?.focus({preventScroll:true});
