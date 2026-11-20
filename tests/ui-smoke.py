@@ -635,6 +635,34 @@ if __name__ == '__main__':
             month_days=page.locator('.calendar .day').count()
             assert page.locator('.calendar .day .moon-phase-badge').count()==month_days
             assert page.locator('.calendar .day .moon-phase-badge .astra-phase-graphic').count()==month_days
+            # Regression for the 0.8.6 screenshot: SVG icons accidentally had
+            # class="calendar" and inherited the panel padding and border,
+            # causing doubled outlines, misplaced Moon disks and overlaps.
+            assert page.locator('.calendar svg.calendar').count()==0
+            assert page.locator('.calendar .day .astra-phase-variant-cell').count()==month_days
+            assert page.evaluate("""() => {
+              const within=(a,b)=>a.left>=b.left-1&&a.right<=b.right+1&&
+                a.top>=b.top-1&&a.bottom<=b.bottom+1;
+              const cells=[...document.querySelectorAll('.cal-grid .day')];
+              const icons=[...document.querySelectorAll('.calendar-phase-legend .astra-phase-graphic')];
+              return cells.every(cell=>{
+                const svg=cell.querySelector('.moon-phase-badge svg');
+                const moon=svg?.querySelector('circle.phase-night');
+                if(!svg||!moon)return false;
+                const rect=svg.getBoundingClientRect(),container=cell.getBoundingClientRect();
+                const css=getComputedStyle(svg);
+                const bar=cell.querySelector('.sun-aspect-line');
+                return css.paddingLeft==='0px'&&css.borderLeftWidth==='0px'&&
+                  rect.width<=23&&rect.height<=23&&
+                  within(rect,container)&&within(moon.getBoundingClientRect(),rect)&&
+                  (!bar||within(bar.getBoundingClientRect(),container));
+              })&&icons.every(svg=>{
+                const css=getComputedStyle(svg);
+                return css.paddingLeft==='0px'&&css.borderLeftWidth==='0px'&&
+                  svg.getBoundingClientRect().height<=23;
+              });
+            }"""),'Moon icons and Sun bars must fit their own cells'
+            assert page.evaluate('document.documentElement.scrollWidth')<=322
             assert new_moon.locator('.astra-phase-graphic.astra-phase-0').count()==1
             assert full_moon.locator('.astra-phase-graphic.astra-phase-4').count()==1
             assert page.locator('.calendar .day.sun-exact').count()==4
