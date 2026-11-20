@@ -1,4 +1,22 @@
-# ASTRA Public — Preview 0.5.7
+# ASTRA Public — Preview 0.5.8
+
+## P2 — Expérience avancée (Preview 0.5.8)
+
+La page **Mon ciel** ajoute les outils avancés aux modes Essentiel et Complet, sans altérer les valeurs astronomiques.
+
+- **Direction artistique** : fond ivoire, détails améthyste et or ancien, typographie éditoriale, contrastes renforcés et mise en page à deux colonnes dès 800 px. La roue et les fiches restent empilées sur mobile.
+- **Export SVG/PNG** : boutons dédiés, SVG autonome avec glyphes et styles intégrés ; PNG haute résolution (1600 × 1600 px). Sur PC, téléchargement navigateur. Sur Android, un pont natif **limité à l'écriture d'une nouvelle image SVG/PNG** ouvre le sélecteur de documents système et n'offre aucune lecture de fichiers ni connexion réseau. Ne stocke aucun thème sur un serveur.
+- **Zoom** : commandes −/+, de 100 à 200 % par pas de 25 %, mémorisées sur l'appareil ; défilement horizontal à fort grossissement.
+- **Matrice des aspects** : tableau interactif des dix corps, qui respecte les filtres P1 et ouvre la fiche de l'aspect choisi en mode Complet.
+- **Systèmes de maisons** : Placidus, **maisons égales depuis l'Ascendant** et **signes entiers** (maison I commence au degré 0 du signe de l'Ascendant). ASC et MC restent des angles astronomiques indépendants des cuspides. Le réglage est propre à la roue de Mon ciel ; le calendrier continue à calculer ses positions natales avec son réglage interne. Les latitudes où Placidus est impossible affichent toujours la solution de repli.
+- **Roue double natal/transits** : roue interne violette pour les positions natales, anneau externe bleu pour les positions des dix corps au jour et à l'heure locale sélectionnés. Conversion de fuseau IANA, puis calcul à l'instant UTC exact ; sélection des planètes extérieures pour consulter les contacts dans les orbes automatiques. Les contacts sont des instantanés d'écarts angulaires, **pas** des prédictions d'événements ni des fenêtres d'orbes complètes.
+- **Données partielles** : une date sans heure n'invente toujours pas de maisons ni d'Ascendant. Dans la roue double, les contacts à la Lune natale restent exclus et les positions natales sont indiquées comme indicatives.
+- **Sauvegarde** : les préférences `houseSystem`, `wheelLayout`, `natalZoom`, `transitDay` et `transitTime` utilisent l'ancienne clé `astra-public-v1`, sans suppression des données préexistantes.
+
+**Vérification** : `npm test` contrôle la géométrie des maisons Equal/Whole et les instantanés astronomiques ; `tests/ui-smoke.py` passe dans Chrome et télécharge réellement un SVG et un PNG, en plus d'essayer les contrôles P2. L'ouverture du sélecteur Android nécessite une validation sur un téléphone physique.
+
+**Limites** : ayanamsa Lahiri sidéral toujours approximatif, conventions astrologiques symboliques, qualité des glyphes SVG liée aux polices disponibles lors de l'export et règles de fuseau à vérifier pour les heures historiques ambiguës.
+
 
 ## P1 — Compréhension et analyse (Preview 0.5.7)
 
