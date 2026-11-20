@@ -282,6 +282,7 @@
     }catch(err){return err?.message||'Heure locale à vérifier';}
   }
   const cache = new Map();
+  const natalCache = new Map(); // Four immutable natal charts at most.
   let renderedEvents = [];
   const persist = () => localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
   const show = msg => { const t=$('toast');t.textContent=msg;t.hidden=false;setTimeout(()=>t.hidden=true,3500); };
@@ -1368,9 +1369,20 @@
       placeSearch.error?{field:'birthCity',message:placeSearch.error}:null;
     let chart=null;
     const natalStart=diagnosticsEnabled&&state.profile?perfClock():0;
-    try { if(state.profile&&E)chart=E.natalChart(state.profile,state.natalZodiac,state.houseSystem); }
-    catch(err){ /* Les anciennes sauvegardes peuvent être incomplètes. */ }
-    if(natalStart)recordPerformance('Calcul natal',perfClock()-natalStart);
+    let natalCached=false;
+    try {
+      if(state.profile&&E){
+        const key=JSON.stringify([state.profile,state.natalZodiac,state.houseSystem]);
+        natalCached=natalCache.has(key);
+        chart=natalCache.get(key);
+        if(!chart){
+          chart=E.natalChart(state.profile,state.natalZodiac,state.houseSystem);
+          natalCache.set(key,chart);
+          if(natalCache.size>4)natalCache.delete(natalCache.keys().next().value);
+        }
+      }
+    }catch(err){ /* Les anciennes sauvegardes peuvent être incomplètes. */ }
+    if(natalStart)recordPerformance(natalCached?'Natal · cache':'Natal · calcul',perfClock()-natalStart);
     const suggestions=placeSearch.options.map((p,i)=>`<button type="button" class="city-choice" data-place="${i}" aria-label="Choisir ${safe(p.label)}"><strong>${safe(p.name)}</strong><span>${safe([p.admin1,p.country].filter(Boolean).join(' · '))}</span></button>`).join('');
     const foldPicker=placeSearch.needFold&&d.timeKnown?`<div class="field"><label for="fold">Cette heure locale a existé deux fois</label><select id="fold" name="fold" required${validationAttrs('fold',birthValidation)}><option value="">Choisir l’occurrence</option><option value="0" ${d.fold===0?'selected':''}>Première occurrence (avant le retour à l’heure d’hiver)</option><option value="1" ${d.fold===1?'selected':''}>Deuxième occurrence (après le retour à l’heure d’hiver)</option></select>${validationMessage('fold',birthValidation)}<p class="field-help">Ce cas rare ne peut pas être déduit de la ville et de l’heure seules. Consulte l’heure indiquée sur l’acte de naissance.</p></div>`:'';
     const showSettings=!chart||profileScreen==='settings';
@@ -1715,7 +1727,7 @@
     if(a['deleteNote'] && confirm('Supprimer cette journée du journal ?')){delete state.journal[selected];persist();journalDraft=null;render();show('Note supprimée');return;}
     if(a.export){const data={format:'astra-public-v1',exportedAt:new Date().toISOString(),...state};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='ASTRA-sauvegarde.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1500);return;}
     if(a.import){$('importFile')?.click();return;}
-    if(a.clear&&confirm('Effacer le thème natal et toutes les notes locales ?')){localStorage.removeItem(STORAGE_KEY);state=defaultState();applyAppearance();diagnosticsEnabled=false;performanceSamples.clear();cache.clear();journalDraft=null;birthDraft=null;placeSearch={options:[],selected:null,loading:false,error:'',needFold:false,requestId:placeSearch.requestId+1};openDetail=null;refresh();show('Données supprimées');}
+    if(a.clear&&confirm('Effacer le thème natal et toutes les notes locales ?')){localStorage.removeItem(STORAGE_KEY);state=defaultState();applyAppearance();diagnosticsEnabled=false;performanceSamples.clear();cache.clear();natalCache.clear();journalDraft=null;birthDraft=null;placeSearch={options:[],selected:null,loading:false,error:'',needFold:false,requestId:placeSearch.requestId+1};openDetail=null;refresh();show('Données supprimées');}
   });
   $('app').addEventListener('cancel',event=>{
     if(event.target.matches('dialog.natal-focus')){
@@ -1826,7 +1838,7 @@
         const backup=JSON.parse(await file.text());if(backup.format!=='astra-public-v1')throw Error('Format non reconnu');
         if(backup.profile)E.validateProfile(backup.profile);
         if(!confirm('Remplacer les données locales par la sauvegarde ?'))return;
-        state=cleanState(backup);applyAppearance();diagnosticsEnabled=false;performanceSamples.clear();journalDraft=null;birthDraft=null;placeSearch={options:[],selected:null,loading:false,error:'',needFold:false,requestId:placeSearch.requestId+1};openDetail=null;cache.clear();persist();refresh();show('Sauvegarde importée');
+        state=cleanState(backup);applyAppearance();diagnosticsEnabled=false;performanceSamples.clear();journalDraft=null;birthDraft=null;placeSearch={options:[],selected:null,loading:false,error:'',needFold:false,requestId:placeSearch.requestId+1};openDetail=null;cache.clear();natalCache.clear();persist();refresh();show('Sauvegarde importée');
       } catch(err){show('Import impossible : '+(err?.message||'Erreur'));}
     }
   });
@@ -1881,7 +1893,7 @@
         }
         throw err;
       }
-      state.profile=profile;state.orb='auto';cache.clear();persist();birthDraft=null;birthValidation=null;placeSearch.needFold=false;
+      state.profile=profile;state.orb='auto';cache.clear();natalCache.clear();persist();birthDraft=null;birthValidation=null;placeSearch.needFold=false;
       profileScreen='overview';show('Thème natal enregistré');refresh();
     } catch(err){
       const message=err?.message||'Impossible de calculer le thème natal.';
@@ -1904,7 +1916,7 @@
   const initialBrowserRoute=readBrowserRoute();
   if(initialBrowserRoute)applyBrowserRoute(initialBrowserRoute,{focus:false});
   else{
-    render();refresh();
+    refresh();
     writeBrowserRoute('replace');
   }
 })();
