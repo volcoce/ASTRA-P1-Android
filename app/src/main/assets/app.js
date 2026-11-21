@@ -859,7 +859,7 @@
       '<button type="button" class="astra-personal-create" data-personal-new="1">+ Événement</button>'+
       (state.profile?'<details class="calendar-options"><summary>Options d’affichage</summary>'+switcher()+filters()+'</details>':'')+
       '<div class="calendar astra-calendar-board"><div class="cal-grid">'+['L','M','M','J','V','S','D'].map((x,i)=>
-      '<span class="weekday" aria-label="'+['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'][i]+'">'+x+'</span>').join('')+weeks.join('')+'</div>'+
+      '<span class="weekday"><span aria-hidden="true">'+x+'</span><span class="astra-sr-only">'+['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'][i]+'</span></span>').join('')+weeks.join('')+'</div>'+
       (periods?solarMonthSummary(periods):'')+
       (state.profile?'<div class="calendar-phase-legend" aria-label="Légende des marqueurs du calendrier">'+
       '<span class="cal-legend-item"><span class="moon-phase-legend-dot new" aria-hidden="true">'+moonPhaseIcon(0)+'</span> Nouvelle Lune</span>'+
