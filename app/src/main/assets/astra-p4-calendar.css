@@ -6,8 +6,8 @@
   display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
   padding:7px 0 0;gap:2px;
   border:0;border-radius:0;background:transparent;
-  color:#74888A;font-size:14px;font-weight:500;
-  opacity:.74;cursor:pointer;
+  color:var(--astra-muted);font-size:14px;font-weight:500;
+  opacity:1;cursor:pointer;
 }
 .calendar.astra-calendar-board .astra-calendar-date-week .astra-adjacent-day:hover{
   color:var(--astra-ink);background:var(--astra-secondary-surface);
@@ -18,7 +18,7 @@
   border-radius:var(--astra-radius-sm);opacity:1
 }
 :root[data-astra-theme="dark"] .calendar.astra-calendar-board .astra-calendar-date-week .astra-adjacent-day{
-  color:#B7C6CB;opacity:.78
+  color:var(--astra-muted);opacity:1
 }
 @media(min-width:700px){
   .calendar.astra-calendar-board .astra-calendar-date-week .astra-adjacent-day{
