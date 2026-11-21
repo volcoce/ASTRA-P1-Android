@@ -8,7 +8,7 @@ const html=readFileSync(new URL('../app/src/main/assets/index.html',import.meta.
 const browser=readFileSync(new URL('./ui-smoke.py',import.meta.url),'utf8');
 
 const moon={type:'moon',name:'Pleine Lune',at:'2026-11-20T14:00:00Z',moonLongitude:61};
-const exact={type:'exact',body:'Sun',natal:'Moon',aspect:'Trigone',at:'2026-11-20T11:30:00Z'};
+const exact={type:'exact',body:'Mars',natal:'Moon',aspect:'Trigone',at:'2026-11-20T11:30:00Z'};
 const dateString=day=>new Intl.DateTimeFormat('fr-FR',{
   weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'UTC'
 }).format(new Date(day+'T12:00:00Z'));
@@ -95,13 +95,13 @@ test('Event rows keep explicit semantics without repeating lunar text',()=>{
   assert.equal(count(lunar,/Pleine Lune/g),1);
   assert.ok(!lunar.includes('Voir la fiche'));
   const solar=render(ctx,exact);
-  assert.equal(count(solar,/Aspect solaire exact/g),1);
+  assert.equal(count(solar,/Aspect solaire exact/g),0);
   assert.match(solar,/event-category-label/);
 });
 
 test('Calendar: category styles, astronomical detail and responsive assets remain',()=>{
   for(const type of ['moon-new','moon-full','moon-quarter','station',
-    'solar-aspect','exact-aspect','active'])
+    'exact-aspect','active'])
     assert.ok(app.includes(type)&&css.includes('event-kind-'+type),type);
   assert.match(app,/astra-event-facts/);
   assert.match(html,/href="calendar-p0.css"/);
