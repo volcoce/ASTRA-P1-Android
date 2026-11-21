@@ -717,6 +717,26 @@ if __name__ == '__main__':
             page.locator('.calendar-options > summary').click()
             page.locator('#eventFilter').select_option('all')
             capture('calendar-320')
+            # P0 day/month views: real controls, distinct layouts, daily sky.
+            assert page.locator('[data-calendar-view="month"]').get_attribute('aria-pressed')=='true'
+            page.locator('[data-calendar-view="day"]').first.click()
+            assert page.locator('[data-calendar-view="day"]').get_attribute('aria-pressed')=='true'
+            assert page.locator('.astra-calendar-day-heading').count()==1
+            assert page.locator('.astra-calendar-day-sky').count()==1
+            assert page.locator('.astra-calendar-day-sky .astra-solar-daily-band').count()==1
+            assert page.locator('.calendar .cal-grid').count()==0
+            assert page.locator('.astra-calendar-day-summary').count()==1
+            assert page.locator('.astra-calendar-day-events .event-button').count()>=1
+            start_day=page.locator('.astra-calendar-day-summary h2').inner_text()
+            page.locator('[data-calendar-day-offset="1"]').click()
+            assert page.locator('.astra-calendar-day-summary h2').inner_text()!=start_day
+            page.locator('[data-calendar-day-offset="-1"]').click()
+            assert page.locator('.astra-calendar-day-summary h2').inner_text()==start_day
+            assert page.evaluate('document.documentElement.scrollWidth')<=322
+            capture('calendar-day-320')
+            page.locator('[data-calendar-view="month"]').first.click()
+            assert page.locator('.calendar .cal-grid .day').count()==month_days
+            assert page.locator('[data-calendar-view="month"]').get_attribute('aria-pressed')=='true'
             # Selecting a future phase stays in Dates, opening that exact day.
             next_phase=page.locator('[data-lunar-day]').first
             chosen=next_phase.get_attribute('data-lunar-day')
@@ -727,6 +747,9 @@ if __name__ == '__main__':
             page.locator('[data-event]').first.click(timeout=2000)
             assert page.locator('#detailPanel').count()==1
             assert 'Lecture astrologique' in page.locator('#detailPanel').inner_text()
+            assert page.locator('#detailPanel .astra-event-facts').count()==1
+            assert 'Référence horaire' in page.locator('#detailPanel').inner_text()
+            assert page.evaluate('document.activeElement.id')=='detailPanel'
             assert page.locator('[data-detail-step]').count()==0
             page.get_by_role('button',name='Répondre dans mon journal').click()
             assert page.locator('#journalNote').count()==1
