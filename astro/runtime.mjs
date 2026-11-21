@@ -282,6 +282,10 @@ export function calculateMonth(profile,year,month,mode='tropical',orb='auto',opt
         if(best.delta<=allowedOrb)active.push({body,natal:native,angle:best.angle,aspect:best.name,glyph:best.glyph,orb:allowedOrb,delta:+best.delta.toFixed(3),approximateNatal:!chart.timeKnown});
       }
     }
+    // Midnight is occasionally skipped by local clock changes. A missing
+    // boundary must not make the entire monthly calendar unavailable.
+    let sunIngress=null;
+    try{sunIngress=sunSignIngress(day,zone,mode);}catch{/* Unknown civil-day boundary: keep the noon sign only. */}
     // Moon's eight-stage icon uses the physical Sun/Moon phase angle
     // at local noon, not a guessed icon from a calendar date.
     const moonPhaseAtNoon=moonPhase(mid);
@@ -289,7 +293,7 @@ export function calculateMonth(profile,year,month,mode='tropical',orb='auto',opt
     days[day]={date:day,active,exact:[],sky:[],
       sunLongitudeAtNoon:Number.isFinite(sunLongitudeAtNoon)?+sunLongitudeAtNoon.toFixed(6):null,
       // Actual day and local instant of ingress, independent of the noon sign.
-      sunIngress:sunSignIngress(day,zone,mode),
+      sunIngress,
       moonPhaseAtNoon:+moonPhaseAtNoon.toFixed(5)};
   }
   function addMoment(array,object){const day=isoDay(new Date(object.at),zone);if(day.slice(0,7)===`${year}-${String(month).padStart(2,'0')}`){array.push(object);days[day]?.[array===exact?'exact':'sky'].push(object);}}
