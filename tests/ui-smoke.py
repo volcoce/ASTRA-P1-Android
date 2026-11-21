@@ -514,9 +514,10 @@ if __name__ == '__main__':
                     assert '12 h' in page.locator('.astra-sky-reference').inner_text()
                     assert page.locator('.astra-moon-title').evaluate(
                         "el=>parseFloat(getComputedStyle(el).fontSize)")>=22
-                    assert page.locator('.astra-insight-tile').count()==3
-                    assert page.locator('.astra-insight-tile.as-lunar').count()==0
-                    assert 'Soleil en Sagittaire' in page.locator('.astra-insight-tile.as-sun').inner_text()
+                    assert page.locator('.astra-insight-tile').count()==0
+                    assert page.locator('.astra-day-journal-link').count()==1
+                    assert page.locator('.astra-hero-orbit').count()==0
+                    assert 'Soleil en' in page.locator('.astra-solar-daily-band').inner_text()
                     assert page.locator('.astra-lunar-milestone').count()==0
                     assert page.locator('[data-step-day]').count()==0
                     selected_date=page.locator('.astra-week-day.is-selected').get_attribute('data-day')
@@ -539,8 +540,10 @@ if __name__ == '__main__':
                 elif tab=='calendar':
                     assert px('.weekday')>=12
                     assert page.locator('.astra-month-hero').count()==0
-                    assert page.locator('.astra-lunar-milestone').count()==4
-                    assert page.locator('#lunarTimelineTitle').inner_text()=='Prochaines phases lunaires'
+                    assert page.locator('.astra-lunar-milestone').count()==0
+                    assert page.locator('.astra-calendar-day-summary').count()==1
+                    assert page.locator('.astra-calendar-day-sky').count()==0
+                    assert page.locator('[data-calendar-view]').count()==0
                 elif tab=='profile':
                     assert px('.natal-home-subtitle')>=14
             # Monthly overview and detailed calendar must be separate but linked.
@@ -608,7 +611,7 @@ if __name__ == '__main__':
             assert page.locator('.astra-week-day.is-selected').get_attribute('data-day')==before
             page.locator('.astra-hero-link').click()
             assert page.evaluate('document.activeElement.id')=='todayEventsTitle'
-            page.locator('.astra-insight-tile[data-goto="journal"]').click()
+            page.locator('.astra-day-journal-link[data-goto="journal"]').click()
             assert page.locator('#journalNote').count()==1
             page.locator('[data-tab="today"]').click()
             assert page.evaluate("document.documentElement.scrollWidth")<=322
@@ -690,8 +693,8 @@ if __name__ == '__main__':
             assert page.locator('.calendar .day[data-day$="-09"].sun-exact').count()==1
             assert page.locator('.calendar .day[data-day$="-12"].sun-exact').count()==0
             assert 'aspect(s) exact(s) du Soleil' in page.locator('.calendar .day[data-day$="-09"]').get_attribute('aria-label')
-            assert page.locator('.calendar-phase-legend .cal-legend-item').count()==4
-            assert 'Point bleu' in page.locator('.calendar-phase-legend').inner_text()
+            assert page.locator('.calendar-phase-legend .cal-legend-item').count()==3
+            assert 'Aspect solaire exact' in page.locator('.calendar-phase-legend').inner_text()
             assert 'Nouvelle Lune' in page.locator('.calendar-phase-legend').inner_text()
             assert 'Pleine Lune' in page.locator('.calendar-phase-legend').inner_text()
             new_bg=new_moon.evaluate("e=>getComputedStyle(e).backgroundColor")
@@ -717,33 +720,29 @@ if __name__ == '__main__':
             page.locator('.calendar-options > summary').click()
             page.locator('#eventFilter').select_option('all')
             capture('calendar-320')
-            # P0 day/month views: real controls, distinct layouts, daily sky.
-            assert page.locator('[data-calendar-view="month"]').get_attribute('aria-pressed')=='true'
-            page.locator('[data-calendar-view="day"]').first.click()
-            assert page.locator('[data-calendar-view="day"]').get_attribute('aria-pressed')=='true'
-            assert page.locator('.astra-calendar-day-heading').count()==1
-            assert page.locator('.astra-calendar-day-sky').count()==1
-            assert page.locator('.astra-calendar-day-sky .astra-solar-daily-band').count()==1
-            assert page.locator('.calendar .cal-grid').count()==0
+            # Calendar offers a concise monthly preview, not a second full day view.
             assert page.locator('.astra-calendar-day-summary').count()==1
-            assert page.locator('.astra-calendar-day-events .event-button').count()>=1
-            start_day=page.locator('.astra-calendar-day-summary h2').inner_text()
-            page.locator('[data-calendar-day-offset="1"]').click()
-            assert page.locator('.astra-calendar-day-summary h2').inner_text()!=start_day
-            page.locator('[data-calendar-day-offset="-1"]').click()
-            assert page.locator('.astra-calendar-day-summary h2').inner_text()==start_day
-            assert page.evaluate('document.documentElement.scrollWidth')<=322
-            capture('calendar-day-320')
-            page.locator('[data-calendar-view="month"]').first.click()
-            assert page.locator('.calendar .cal-grid .day').count()==month_days
-            assert page.locator('[data-calendar-view="month"]').get_attribute('aria-pressed')=='true'
-            # Selecting a future phase stays in Dates, opening that exact day.
-            next_phase=page.locator('[data-lunar-day]').first
-            chosen=next_phase.get_attribute('data-lunar-day')
-            next_phase.click()
-            assert page.locator('[data-tab="calendar"]').get_attribute('aria-current')=='page'
+            assert page.locator('[data-calendar-view]').count()==0
+            assert page.locator('.astra-calendar-day-sky').count()==0
+            assert page.locator('.astra-lunar-milestone').count()==0
+            assert page.locator('.astra-calendar-day-events .event-button').count()<=3
+            assert page.locator('[data-calendar-open-day]').count()==1
+            # Open a Full Moon date, then verify the one detailed daily screen
+            # preserves the selected day without incorrectly jumping to today.
+            chosen=page.locator('.calendar .day.moon-full').get_attribute('data-day')
+            page.locator('.calendar .day.moon-full').click()
             assert page.locator('.calendar .day.selected').get_attribute('data-day')==chosen
-            assert page.locator('.astra-lunar-milestone').count()==4
+            assert 'Pleine Lune' in page.locator('.astra-calendar-day-summary').inner_text()
+            assert page.evaluate('document.documentElement.scrollWidth')<=322
+            capture('calendar-compact-320')
+            page.locator('[data-calendar-open-day]').click()
+            assert page.locator('[data-tab="today"]').get_attribute('aria-current')=='page'
+            assert page.locator('.astra-week-day.is-selected').get_attribute('data-day')==chosen
+            assert page.locator('.astra-day-hero').count()==1
+            assert page.locator('.astra-day-journal-link').count()==1
+            # Event details still work directly from the compact calendar.
+            page.locator('[data-tab="calendar"]').click()
+            assert page.locator('.calendar .day.selected').get_attribute('data-day')==chosen
             page.locator('[data-event]').first.click(timeout=2000)
             assert page.locator('#detailPanel').count()==1
             assert 'Lecture astrologique' in page.locator('#detailPanel').inner_text()
@@ -770,7 +769,7 @@ if __name__ == '__main__':
             # A new page on the same origin is unavailable without HTTP navigation;
             # verify that the serialized entry survives an in-app view change.
             page.locator('[data-tab="today"]').click()
-            page.locator('.astra-insight-tile[data-goto="journal"]').click()
+            page.locator('.astra-day-journal-link[data-goto="journal"]').click()
             assert page.get_by_text('Comment tu te sens ?').count()==1
             capture('journal-320')
             # Returning to the daily tab really goes to the present. The older
