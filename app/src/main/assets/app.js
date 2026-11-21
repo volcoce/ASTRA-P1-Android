@@ -449,8 +449,11 @@
     const category=eventCategory(event),isActive=event.type==='active';
     const glyph=event.type==='moon'?'☾':event.type==='station'?'℞':aspects[event.aspect]||'✧';
     const label=isActive?`Observé à midi · écart ${Number(event.delta).toFixed(2)}°${event.approximateNatal?' · natal indicatif':''}`:
-      `${dateTime(event.at)} · ${eventCategoryLabel(category)}`;
-    return `<button type="button" class="event event-button event-kind-${category}${event.type==='moon'||event.type==='station'?' sky-event':''}" data-event="${id}" aria-label="Détails : ${safe(eventTitle(event))}, ${safe(label)}"><span class="event-glyph" aria-hidden="true">${glyph}</span><span class="event-body"><small class="event-category-label">${eventCategoryLabel(category)}</small><b>${safe(eventTitle(event))}</b><span class="event-sub">${safe(label)}</span><span class="event-more">Voir la fiche de l’événement</span></span><span class="event-arrow" aria-hidden="true">›</span></button>`;
+      dateTime(event.at);
+    // The title already says "Pleine Lune" / "Nouvelle Lune".
+    // Don't repeat that same category above and below the title.
+    const kicker=event.type==='moon'?'':`<small class="event-category-label">${eventCategoryLabel(category)}</small>`;
+    return `<button type="button" class="event event-button event-kind-${category}${event.type==='moon'||event.type==='station'?' sky-event':''}" data-event="${id}" aria-label="Détails : ${safe(eventTitle(event))}, ${safe(label)}"><span class="event-glyph" aria-hidden="true">${glyph}</span><span class="event-body">${kicker}<b>${safe(eventTitle(event))}</b><span class="event-sub">${safe(label)}</span></span><span class="event-arrow" aria-hidden="true">›</span></button>`;
   }
   function detailView() {
     if(!openDetail)return '';
