@@ -52,8 +52,8 @@
       const allDay=value.allDay!==false;
       const startTime=typeof value.startTime==='string'?value.startTime:'09:00';
       const endTime=typeof value.endTime==='string'?value.endTime:'10:00';
-      if(!allDay&&(!/^([01]\\d|2[0-3]):[0-5]\\d$/.test(startTime)||
-        !/^([01]\\d|2[0-3]):[0-5]\\d$/.test(endTime)||
+      if(!allDay&&(!/^([01]\d|2[0-3]):[0-5]\d$/.test(startTime)||
+        !/^([01]\d|2[0-3]):[0-5]\d$/.test(endTime)||
         (start===end&&endTime<=startTime)))continue;
       seen.add(id);
       items.push({id,title,start,end,allDay,
@@ -196,6 +196,7 @@
       focusReturnScreen='overview';
     }
     natalSelection=null;openDetail=null;pendingDayFocus=null;
+    calendarSheet=false;personalEditor=null;
     pendingPageFocus=focus&&profileScreen!=='focus';
     const afterMonth=month.getFullYear()+'-'+month.getMonth();
     if(!result||afterMonth!==beforeMonth)refresh();
@@ -1723,6 +1724,10 @@
     const renderStart=diagnosticsEnabled?perfClock():0;
     renderedEvents=[];
     $('app').innerHTML=({today,month:monthOverview,calendar,journal,profile})[activeTab]();
+    if(activeTab==='calendar'){
+      const dlg=personalEditor!==null?$('personalEventDialog'):$('calendarDayDialog');
+      if(dlg?.showModal&&!dlg.open)dlg.showModal();
+    }
     const focusDialog=activeTab==='profile'&&profileScreen==='focus' ? $('natalChart') : null;
     if(focusDialog?.showModal)focusDialog.showModal();
     if(pendingDayFocus){
@@ -1759,6 +1764,7 @@
       todayExpanded=false;
     }
     activeTab=tab;
+    calendarSheet=false;personalEditor=null;
     pendingPageFocus=true;
     if(tab==='profile')profileScreen=state.profile?'overview':'settings';
     openDetail=null;
@@ -1805,6 +1811,8 @@
       $('app').querySelector('[data-close-focus]')?.click();
       return true;
     }
+    if(personalEditor!==null){personalEditor=null;render();return true;}
+    if(calendarSheet){calendarSheet=false;calendarInterval=null;render();return true;}
     if(openDetail){openDetail=null;render();return true;}
     if(activeTab==='profile'&&profileScreen!=='overview'&&state.profile){
       captureBirthForm();profileScreen='overview';natalSelection=null;
