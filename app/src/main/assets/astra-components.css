@@ -1,0 +1,112 @@
+/* ASTRA P0 — Common component contract, layered after legacy CSS.
+   Avoid altering astronomical SVG geometry or functional calendar ribbons. */
+html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--astra-font-body);line-height:var(--astra-line-height)}
+.app-shell{background:var(--astra-bg);box-shadow:none}
+.top{background:var(--color-deep-ocean);color:var(--color-cream)}
+.top .emblem{background:var(--color-dandelion);color:var(--color-deep-ocean);border:2px solid var(--color-cream);border-radius:var(--astra-radius-md)}
+.top .brand{color:var(--color-cream);font-family:var(--astra-font-display);font-weight:800;letter-spacing:.08em}
+.top .brand-sub{color:#E9DDD0}
+:root[data-astra-theme="dark"] .top{background:#101F2A}
+.page-title{font-family:var(--astra-font-display);font-size:var(--astra-font-size-title);font-weight:700;letter-spacing:-.025em;color:var(--astra-ink)}
+.card-title,.section-title,.month-head h2{font-family:var(--astra-font-display);color:var(--astra-ink);font-weight:700}
+.lead,.muted,.tiny,.field-help{color:var(--astra-muted)}
+.eyebrow,.mini-cap{color:var(--astra-brand);font-family:var(--astra-font-body)}
+
+/* Shared surfaces; keep feature-specific pastel heroes and natal wheel intact. */
+:is(.card,.calendar,.natal-settings,.natal-overview-panel,.natal-explore,.natal-compare,
+.natal-focus,.natal-context-sheet,.astra-event-feed,.astra-active-panel,
+.astra-month-events,.natal-glossary,.natal-selection,.natal-composite-result){
+  background:var(--astra-surface);border-color:var(--astra-divider);color:var(--astra-ink);
+  border-radius:var(--astra-radius-lg);box-shadow:none
+}
+:is(.card,.calendar,.natal-settings,.natal-overview-panel,.natal-explore,.natal-compare,
+.natal-focus,.astra-event-feed,.astra-month-events){border-width:1px;border-style:solid}
+:root[data-astra-theme="dark"] :is(.card,.calendar,.natal-settings,.natal-overview-panel,
+.natal-explore,.natal-compare,.natal-focus,.natal-context-sheet,
+.astra-event-feed,.astra-active-panel,.astra-month-events,.natal-glossary){
+  background:var(--astra-surface);border-color:var(--astra-border);color:var(--astra-ink)
+}
+
+/* Buttons and navigation. Visual focus must remain independent of selection. */
+:is(button,input,textarea,select,summary):focus-visible{
+  outline:3px solid var(--astra-focus)!important;outline-offset:2px
+}
+:is(button,.nav,summary){-webkit-tap-highlight-color:transparent}
+:is(.primary,.natal-main-action,.astra-month-calendar-link,.astra-personal-save){
+  background:var(--astra-primary);color:var(--astra-primary-ink);
+  border:2px solid var(--astra-primary-ink);border-radius:var(--astra-radius-md);
+  box-shadow:none;font-weight:750;min-height:44px;
+  transition:transform var(--astra-motion),box-shadow var(--astra-motion)
+}
+:is(.primary,.natal-main-action,.astra-month-calendar-link,.astra-personal-save):hover:not(:disabled){
+  background:var(--astra-primary);color:var(--astra-primary-ink);
+  box-shadow:var(--astra-shadow-pop);transform:translate(-1px,-1px)
+}
+:is(.ghost,.arrow,.astra-personal-create,.natal-secondary-action,.natal-settings-link){
+  background:var(--astra-surface);color:var(--astra-ink);border:1px solid var(--astra-border);
+  border-radius:var(--astra-radius-md);box-shadow:none
+}
+:is(.ghost,.arrow,.astra-personal-create,.natal-secondary-action,.natal-settings-link):hover:not(:disabled){
+  background:var(--astra-secondary-surface)
+}
+:is(.tag,.tag-outline,.small-tag){border-radius:var(--astra-radius-pill)}
+.switch{background:var(--astra-secondary-surface);border:1px solid var(--astra-divider);border-radius:var(--astra-radius-lg)}
+.switch button{color:var(--astra-muted);border-radius:var(--astra-radius-md)}
+.switch button.on{background:var(--astra-surface);color:var(--astra-ink);box-shadow:0 1px 3px #00000016}
+.bottom-nav{background:var(--astra-surface);border-color:var(--astra-divider)}
+.bottom-nav .nav{color:var(--astra-muted);border-radius:var(--astra-radius-md)}
+.bottom-nav .nav.active{color:var(--astra-primary-ink);background:var(--astra-primary);font-weight:800}
+.bottom-nav .nav.active .nav-ico{color:inherit}
+:root[data-astra-theme="dark"] .bottom-nav{background:var(--astra-surface);border-color:var(--astra-divider)}
+:root[data-astra-theme="dark"] .bottom-nav .nav{color:var(--astra-muted)}
+:root[data-astra-theme="dark"] .bottom-nav .nav.active{background:var(--astra-primary);color:var(--astra-primary-ink)}
+:root[data-astra-theme="dark"] :is(.primary,.natal-main-action,.astra-month-calendar-link){
+  background:var(--astra-primary);color:var(--astra-primary-ink);border-color:var(--astra-primary-ink)
+}
+:root[data-astra-theme="dark"] :is(.ghost,.arrow,.astra-personal-create,.natal-secondary-action,.natal-settings-link){
+  background:var(--astra-secondary-surface);border-color:var(--astra-border);color:var(--astra-ink)
+}
+
+/* Form inputs and state. No behavioral changes to date or city search. */
+:is(.field label,.filter-wrap label,.tags-field legend){color:var(--astra-ink);font-size:var(--astra-font-size-sm);font-weight:700}
+:is(.field input,.field select,.field textarea,.filter-wrap select,
+.city-search input,.natal-transit-time input,.natal-progress-controls input,
+.natal-composite input,.natal-compare input){
+  min-height:44px;max-width:100%;border:1px solid var(--astra-border);
+  background:var(--astra-surface);color:var(--astra-ink);
+  border-radius:var(--astra-radius-md);font-family:var(--astra-font-body)
+}
+:is(.field input,.field select,.field textarea,.filter-wrap select,
+.city-search input,.natal-transit-time input,.natal-progress-controls input):disabled{
+  opacity:.6;cursor:not-allowed
+}
+:is(input,textarea)::placeholder{color:var(--astra-muted);opacity:1}
+:is(input,textarea,select)[aria-invalid="true"]{
+  border:2px solid var(--astra-danger);box-shadow:0 0 0 1px var(--astra-danger)
+}
+.field-help{font-size:.8125rem}
+:root[data-astra-theme="dark"] :is(.field input,.field select,.field textarea,
+.filter-wrap select,.city-search input,.natal-transit-time input,
+.natal-progress-controls input,.natal-composite input,.natal-compare input){
+  background:var(--astra-secondary-surface);color:var(--astra-ink);border-color:var(--astra-border)
+}
+:root[data-astra-theme="dark"] :is(input,textarea)::placeholder{color:var(--astra-muted)}
+:root[data-astra-theme="dark"] .astra-appearance-options button[aria-pressed="true"]{
+  background:var(--astra-selected);border-color:var(--astra-selected-border)
+}
+
+/* Keep the lunar icon transparent and the solar event as one continuous ribbon.
+   The specific calendar geometry remains owned by solar-ribbon.css. */
+.calendar .moon-phase-badge,
+:root[data-astra-theme="dark"] .calendar .moon-phase-badge{
+  background:transparent!important;border:0!important;box-shadow:none!important
+}
+.calendar .astra-calendar-date-week .day{background:transparent!important}
+.calendar .astra-solar-ribbon-segment{background:var(--solar-bg)}
+:root[data-astra-theme="dark"] .calendar .astra-calendar-date-week .day{color:#F8EFD5}
+:root[data-astra-theme="dark"] .calendar .astra-calendar-date-week .day.selected{color:#F8EFD5}
+@media(max-width:370px){.bottom-nav .nav-label{font-size:10px}}
+@media(prefers-reduced-motion:reduce){
+  :is(.primary,.natal-main-action,.astra-month-calendar-link,.astra-personal-save){transition:none!important}
+  :is(.primary,.natal-main-action,.astra-month-calendar-link,.astra-personal-save):hover{transform:none}
+}
