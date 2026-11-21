@@ -1,7 +1,7 @@
 /* ASTRA P3 — contrast, keyboard, zoom and screen reader friendly layout.
    Runs after P2. Never changes astronomy or the actual continuous solar ribbon. */
 :root{
-  --astra-calendar-ink:#1E404F;
+  --astra-calendar-ink:#102A34;
   --astra-calendar-focus:#17465D;
   --astra-control-min:44px;
 }
