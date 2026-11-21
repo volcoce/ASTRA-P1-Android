@@ -115,7 +115,7 @@ test('Solar band: daily banner conveys sign and degree without a natal wheel',()
 
 test('Solar band: sources, accessible labels and styles remain in sync',()=>{
   assert.match(runtime,/sunLongitudeAtNoon:Number\.isFinite\(sunLongitudeAtNoon\)/);
-  assert.match(app,/solarRibbon\(year,m,count\)/);
+  assert.match(app,/solarMonthPeriods\(year,m,count\)/);
   assert.match(app,/solarDayBand\(sky\?\.sunLongitude\)/);
   assert.match(html,/href="solar-ribbon.css"/);
   assert.ok(smoke.includes("ROOT/'solar-ribbon.css'"));
