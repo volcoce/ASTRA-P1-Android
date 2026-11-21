@@ -121,7 +121,7 @@ test('P4: Retro Pop element ring preserves zodiac geometry across all wheel mode
   ]){
     for(const element of expected){
       assert.equal(count(svg,new RegExp('zodiac-element-'+element,'g')),3,name+' '+element);
-      assert.match(skins,new RegExp('\\\\.zodiac-element-'+element));
+      assert.ok(skins.includes('.zodiac-element-'+element));
     }
     assert.equal(count(svg,/class="wheel-zodiac-sector /g),12,name);
   }
