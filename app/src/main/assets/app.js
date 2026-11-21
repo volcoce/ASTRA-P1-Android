@@ -975,7 +975,7 @@
       const [a,b,c,d]=[polar(start,195,asc),polar(end,195,asc),polar(end,169,asc),polar(start,169,asc)];
       const path='M '+a.join(' ')+' A 195 195 0 0 0 '+b.join(' ')+' L '+c.join(' ')+' A 169 169 0 0 1 '+d.join(' ')+' Z';
       const [gx,gy]=polar(start+15,182,asc);
-      segments.push('<path class="wheel-zodiac-sector '+(i%2?'is-odd':'is-even')+
+      segments.push('<path class="wheel-zodiac-sector '+(i%2?'is-odd':'is-even')+' zodiac-element-'+['fire','earth','air','water'][i%4]+
         '" d="'+path+'" fill="'+(i%2?'#eee5f6':'#faf5ff')+'" stroke="#a38cb9" stroke-width="1.2"/>'+
         '<text x="'+gx+'" y="'+gy+'" text-anchor="middle" dominant-baseline="central" class="zodiac-symbol">'+zodiacSymbols[i]+'</text>');
     }
@@ -1051,7 +1051,7 @@
       const start=i*30,end=start+30;
       const [a,b,c,d]=[polar(start,195,asc),polar(end,195,asc),polar(end,166,asc),polar(start,166,asc)];
       const [x,y]=polar(start+15,181,asc);
-      segments.push('<path class="wheel-zodiac-sector '+(i%2?'is-odd':'is-even')+
+      segments.push('<path class="wheel-zodiac-sector '+(i%2?'is-odd':'is-even')+' zodiac-element-'+['fire','earth','air','water'][i%4]+
         '" d="M '+a.join(' ')+' A 195 195 0 0 0 '+b.join(' ')+
         ' L '+c.join(' ')+' A 166 166 0 0 1 '+d.join(' ')+' Z" fill="'+(i%2?'#eee5f6':'#faf5ff')+'" stroke="#a38cb9"/>'+
         '<text x="'+x+'" y="'+y+'" text-anchor="middle" dominant-baseline="central" class="zodiac-symbol">'+zodiacSymbols[i]+'</text>');
@@ -1157,7 +1157,7 @@
     for(let i=0;i<12;i++){
       const a=p(i*30,221),b=p((i+1)*30,221),c=p((i+1)*30,196),d=p(i*30,196);
       const t=p(i*30+15,208);
-      parts.push('<path class="wheel-zodiac-sector '+(i%2?'is-odd':'is-even')+
+      parts.push('<path class="wheel-zodiac-sector '+(i%2?'is-odd':'is-even')+' zodiac-element-'+['fire','earth','air','water'][i%4]+
         '" d="M '+a.join(' ')+' A 221 221 0 0 0 '+b.join(' ')+
         ' L '+c.join(' ')+' A 196 196 0 0 1 '+d.join(' ')+' Z" fill="'+(i%2?'#eae1f0':'#f8f4fa')+'" stroke="#9d8aaa" stroke-width="1"/>'+
         '<text x="'+t[0]+'" y="'+t[1]+'" text-anchor="middle" dominant-baseline="central" class="zodiac-symbol">'+zodiacSymbols[i]+'</text>');
@@ -1281,43 +1281,47 @@
       clone.setAttribute('height',String(output));
       const embedded=document.createElementNS('http://www.w3.org/2000/svg','style');
       embedded.textContent=[
-        ".wheel-modern .wheel-paper{fill:#fff;stroke:#9db4c1;stroke-width:1.15}",
-        ".wheel-modern .wheel-zodiac-sector{stroke:#b9cdd8;stroke-width:.88}",
+        ".wheel-modern .wheel-paper{fill:#FFF9EA;stroke:#1E404F;stroke-width:1.8}",
+        ".wheel-modern .wheel-zodiac-sector{stroke:#1E404F;stroke-width:.85}",
         ".wheel-modern .wheel-zodiac-sector.is-even{fill:#f4f8fb}",
         ".wheel-modern .wheel-zodiac-sector.is-odd{fill:#e8f1f6}",
-        ".wheel-modern .zodiac-symbol{font:700 18px Georgia,serif;fill:#28516a;stroke:#f6fafc;stroke-width:.55;paint-order:stroke}",
-        ".wheel-modern .wheel-degree-tick{stroke:#a6becc;stroke-width:1.05;stroke-linecap:round}",
-        ".wheel-modern .wheel-degree-tick.is-medium{stroke:#6b93a9;stroke-width:1.3}",
-        ".wheel-modern .wheel-degree-tick.is-major{stroke:#345e77;stroke-width:1.9}",
-        ".wheel-modern .wheel-zodiac-inner{fill:#fff;stroke:#9fb7c6;stroke-width:1.35}",
-        ".wheel-modern .wheel-house-backdrop{fill:#f9fbfc;stroke:#a9c0cd;stroke-width:1.15}",
-        ".wheel-modern .wheel-house-sector.is-even{fill:#fafcfd}",
-        ".wheel-modern .wheel-house-sector.is-odd{fill:#f0f6f9}",
-        ".wheel-modern .wheel-active-house{fill:#cfe7f4;fill-opacity:.86}",
-        ".wheel-modern .wheel-house-divider{stroke:#b1c4ce;stroke-width:1.25}",
-        ".wheel-modern .wheel-house-divider.is-major{stroke:#6c8a9c;stroke-width:2.15}",
-        ".wheel-modern .wheel-house-divider.is-active{stroke:#246283;stroke-width:2.8}",
-        ".wheel-modern .house-number{font:700 12px Arial,sans-serif;fill:#365a70;stroke:#fff;stroke-width:2.5;paint-order:stroke}",
-        ".wheel-modern .wheel-aspect-backdrop{fill:#fff;stroke:#bcced8;stroke-width:1.1}",
+        ".wheel-modern .wheel-zodiac-sector.zodiac-element-fire{fill:#F6D5B3}",
+        ".wheel-modern .wheel-zodiac-sector.zodiac-element-earth{fill:#E1E6C2}",
+        ".wheel-modern .wheel-zodiac-sector.zodiac-element-air{fill:#D1E7F0}",
+        ".wheel-modern .wheel-zodiac-sector.zodiac-element-water{fill:#CBDDD7}",
+        ".wheel-modern .zodiac-symbol{font:700 18px Georgia,serif;fill:#1E404F;stroke:#FFF9EA;stroke-width:.5;paint-order:stroke}",
+        ".wheel-modern .wheel-degree-tick{stroke:#B6AFA0;stroke-width:1.05;stroke-linecap:round}",
+        ".wheel-modern .wheel-degree-tick.is-medium{stroke:#637881;stroke-width:1.3}",
+        ".wheel-modern .wheel-degree-tick.is-major{stroke:#1E404F;stroke-width:1.9}",
+        ".wheel-modern .wheel-zodiac-inner{fill:#FFF9EA;stroke:#1E404F;stroke-width:1.35}",
+        ".wheel-modern .wheel-house-backdrop{fill:#FFF9EA;stroke:#9BAAA7;stroke-width:1.15}",
+        ".wheel-modern .wheel-house-sector.is-even{fill:#FFF9EA}",
+        ".wheel-modern .wheel-house-sector.is-odd{fill:#F2E8D5}",
+        ".wheel-modern .wheel-active-house{fill:#F0BE57;fill-opacity:.64}",
+        ".wheel-modern .wheel-house-divider{stroke:#A3B0AD;stroke-width:1.25}",
+        ".wheel-modern .wheel-house-divider.is-major{stroke:#1E404F;stroke-width:2.15}",
+        ".wheel-modern .wheel-house-divider.is-active{stroke:#C03A22;stroke-width:2.8}",
+        ".wheel-modern .house-number{font:700 12px Arial,sans-serif;fill:#1E404F;stroke:#FFF9EA;stroke-width:2.5;paint-order:stroke}",
+        ".wheel-modern .wheel-aspect-backdrop{fill:#FFF9EA;stroke:#9BAAA7;stroke-width:1.1}",
         ".wheel-modern .wheel-aspect-line{stroke-linecap:round}",
-        ".wheel-modern .natal-leader line,.wheel-modern .wheel-planet-leader{stroke:#819bad;stroke-width:1.15}",
-        ".wheel-modern .natal-leader circle,.wheel-modern .wheel-true-anchor{fill:#446a83;stroke:#fff;stroke-width:.75}",
-        ".wheel-modern .natal-planet-hit .wheel-planet-disc{fill:#fff;stroke:#a7bfcd;stroke-width:1.35}",
-        ".wheel-modern .natal-planet-hit .natal-planet{font:700 20px Georgia,serif;fill:#23455e}",
-        ".wheel-modern .natal-planet-hit.is-sun .natal-planet{fill:#9d6422}",
-        ".wheel-modern .natal-planet-hit.is-sun .wheel-planet-disc{fill:#fffaf0;stroke:#c8a16a}",
-        ".wheel-modern .natal-planet-hit.is-moon .natal-planet{fill:#365f99}",
-        ".wheel-modern .natal-planet-hit.is-moon .wheel-planet-disc{fill:#f7faff;stroke:#8ca9d2}",
-        ".wheel-modern .natal-planet-hit.is-active .wheel-planet-disc{fill:#225a78;stroke:#143e59;stroke-width:2}",
+        ".wheel-modern .natal-leader line,.wheel-modern .wheel-planet-leader{stroke:#66818C;stroke-width:1.15}",
+        ".wheel-modern .natal-leader circle,.wheel-modern .wheel-true-anchor{fill:#34685C;stroke:#FFF9EA;stroke-width:.75}",
+        ".wheel-modern .natal-planet-hit .wheel-planet-disc{fill:#FFF9EA;stroke:#66818C;stroke-width:1.35}",
+        ".wheel-modern .natal-planet-hit .natal-planet{font:700 20px Georgia,serif;fill:#1E404F}",
+        ".wheel-modern .natal-planet-hit.is-sun .natal-planet{fill:#8F4C14}",
+        ".wheel-modern .natal-planet-hit.is-sun .wheel-planet-disc{fill:#F0BE57;stroke:#A36D25}",
+        ".wheel-modern .natal-planet-hit.is-moon .natal-planet{fill:#1E404F}",
+        ".wheel-modern .natal-planet-hit.is-moon .wheel-planet-disc{fill:#82AAC7;stroke:#365F79}",
+        ".wheel-modern .natal-planet-hit.is-active .wheel-planet-disc{fill:#1E404F;stroke:#C03A22;stroke-width:2}",
         ".wheel-modern .natal-planet-hit.is-active .natal-planet{fill:#fff}",
-        ".wheel-modern .angle-label{font:850 10.5px Arial,sans-serif;fill:#245774;stroke:#fff;stroke-width:3;paint-order:stroke}",
-        ".wheel-modern.natal-double-wheel .wheel-paper{fill:#e8f3f9;stroke:#86aabc}",
-        ".wheel-modern.natal-double-wheel .wheel-transit-band{fill:#fff;stroke:#b4cbd7}",
-        ".wheel-modern.natal-double-wheel .natal-planet-hit .wheel-planet-disc{fill:#fdfaff;stroke:#a99cc1}",
-        ".wheel-modern.natal-double-wheel .natal-planet-hit .natal-planet{fill:#654d80}",
-        ".wheel-modern.natal-double-wheel .natal-transit-hit .wheel-planet-disc{fill:#f4fbff;stroke:#80afc6}",
-        ".wheel-modern.natal-double-wheel .natal-transit-hit .natal-planet{fill:#205f80}",
-        ".wheel-modern.natal-double-wheel .natal-transit-hit.is-active .wheel-planet-disc{fill:#245877;stroke:#133d58}",
+        ".wheel-modern .angle-label{font:850 10.5px Arial,sans-serif;fill:#1E404F;stroke:#FFF9EA;stroke-width:3;paint-order:stroke}",
+        ".wheel-modern.natal-double-wheel .wheel-paper{fill:#F8EFD5;stroke:#1E404F}",
+        ".wheel-modern.natal-double-wheel .wheel-transit-band{fill:#D1E7F0;stroke:#34685C}",
+        ".wheel-modern.natal-double-wheel .natal-planet-hit .wheel-planet-disc{fill:#FFF9EA;stroke:#34685C}",
+        ".wheel-modern.natal-double-wheel .natal-planet-hit .natal-planet{fill:#34685C}",
+        ".wheel-modern.natal-double-wheel .natal-transit-hit .wheel-planet-disc{fill:#FFF9EA;stroke:#C03A22}",
+        ".wheel-modern.natal-double-wheel .natal-transit-hit .natal-planet{fill:#C03A22}",
+        ".wheel-modern.natal-double-wheel .natal-transit-hit.is-active .wheel-planet-disc{fill:#1E404F;stroke:#C03A22}",
         ".wheel-modern.natal-double-wheel .natal-transit-hit.is-active .natal-planet{fill:#fff}",
         "text{text-rendering:geometricPrecision}"
       ].join('\n');
