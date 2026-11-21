@@ -107,3 +107,7 @@ Projet expérimental, sans version Android de production annoncée. Les builds C
 Les fichiers `app/src/main/assets/astra-tokens.css` et `astra-components.css` définissent les couleurs sémantiques, typographies, espacements, rayons, états d'interaction et composants communs des thèmes clair et sombre. Ils sont chargés **après** les feuilles historiques afin de centraliser progressivement la présentation sans casser le moteur astronomique, la roue ni le ruban solaire. Le thème reste contrôlé par `data-astra-theme` sur `<html>`.
 
 Les fonds solaires du calendrier utilisent les quatre éléments astrologiques via `--solar-fire-bg`, `--solar-earth-bg`, `--solar-air-bg` et `--solar-water-bg`. Les segments demeurent continus et arrondis au passage des signes. Les nouveaux composants doivent utiliser les variables `--astra-*` plutôt que des couleurs littérales.
+
+## Interface P1 — quatre espaces principaux
+
+La hiérarchie visuelle de **Ce jour**, **Ce mois**, **Calendrier** et **Mon ciel** est définie dans `app/src/main/assets/astra-p1-screens.css`, chargé après les tokens et les composants P0. Ce jour distingue carte lunaire, chronologie, journal puis événements ; Ce mois privilégie les phases majeures avant les indicateurs ; Calendrier garde **un ruban solaire de fond par semaine** avec extrémités arrondies aux changements de signe ; Mon ciel privilégie le triptyque natal et l’exploration progressive. Les calculs, filtres, données locales et destinations de navigation ne changent pas.
