@@ -858,8 +858,8 @@
       '<button type="button" class="arrow" data-month="1" aria-label="Mois suivant">›</button></div>'+
       '<button type="button" class="astra-personal-create" data-personal-new="1">+ Événement</button>'+
       (state.profile?'<details class="calendar-options"><summary>Options d’affichage</summary>'+switcher()+filters()+'</details>':'')+
-      '<div class="calendar astra-calendar-board"><div class="cal-grid">'+['L','M','M','J','V','S','D'].map(x=>
-      '<span class="weekday">'+x+'</span>').join('')+weeks.join('')+'</div>'+
+      '<div class="calendar astra-calendar-board"><div class="cal-grid">'+['L','M','M','J','V','S','D'].map((x,i)=>
+      '<span class="weekday" aria-label="'+['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'][i]+'">'+x+'</span>').join('')+weeks.join('')+'</div>'+
       (periods?solarMonthSummary(periods):'')+
       (state.profile?'<div class="calendar-phase-legend" aria-label="Légende des marqueurs du calendrier">'+
       '<span class="cal-legend-item"><span class="moon-phase-legend-dot new" aria-hidden="true">'+moonPhaseIcon(0)+'</span> Nouvelle Lune</span>'+
@@ -892,7 +892,7 @@
     const history=Object.entries(state.journal).sort((a,b)=>b[0].localeCompare(a[0])).filter(([day,item])=>!searchTerm||`${day} ${item.note} ${(item.tags||[]).map(t=>themes[t]).join(' ')}`.toLocaleLowerCase('fr').includes(searchTerm.toLocaleLowerCase('fr'))).slice(0,30);
     return '<button type="button" class="astra-journal-back" data-goto="today">← Retour à Ce jour</button>'+header('Mon journal','Un espace pour noter ta journée et ton ressenti.')+
       `<section class="card astra-journal-editor" aria-labelledby="journalEditorTitle"><h2 class="card-title" id="journalEditorTitle">${safe(displayDate(selected))}</h2><div class="actions"><button class="ghost" data-offset="-1">Jour précédent</button><button class="ghost" data-offset="1">Jour suivant</button></div>`+
-      `<div class="field"><label>Comment tu te sens ?</label><div class="mood-row">${[1,2,3,4,5].map(n=>`<button type="button" data-mood="${n}" aria-pressed="${d.mood===n}" aria-label="Humeur ${n} sur 5" class="mood ${d.mood===n?'on':''}"><span class="mood-symbol" aria-hidden="true">${moodSymbols[n]}</span><span>${['','Très bas','Bas','Moyen','Bien','Très bien'][n]}</span></button>`).join('')}</div></div>`+
+      `<div class="field"><label>Comment tu te sens ?</label><div class="mood-row" role="group" aria-label="Évaluer son humeur sur cinq niveaux">${[1,2,3,4,5].map(n=>`<button type="button" data-mood="${n}" aria-pressed="${d.mood===n}" aria-label="Humeur ${n} sur 5" class="mood ${d.mood===n?'on':''}"><span class="mood-symbol" aria-hidden="true">${moodSymbols[n]}</span><span>${['','Très bas','Bas','Moyen','Bien','Très bien'][n]}</span></button>`).join('')}</div></div>`+
       `<div class="field"><label for="energyRange">Ton énergie · <output id="energyValue">${d.energy}/5</output></label><input id="energyRange" type="range" min="1" max="5" value="${d.energy}" step="1"></div>`+
       `<fieldset class="tags-field"><legend>Thèmes de la journée (facultatif)</legend><div class="tag-buttons">${Object.entries(themes).map(([code,label])=>`<button type="button" data-tag="${code}" aria-pressed="${d.tags.includes(code)}" class="tag-button ${d.tags.includes(code)?'on':''}">${label}</button>`).join('')}</div></fieldset>`+
       `<div class="field"><label for="journalNote">Quelques mots sur ta journée</label><textarea id="journalNote" maxlength="10000" spellcheck="true" placeholder="Qu’as-tu vécu ou ressenti aujourd’hui ?">${safe(d.note)}</textarea></div><button class="primary full" data-save="1">Enregistrer ma journée</button>${state.journal[selected]?'<button class="subnav danger" data-delete-note="1">Supprimer cette note</button>':''}</section>`+
