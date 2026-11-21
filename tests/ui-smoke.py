@@ -17,7 +17,8 @@ window.ASTRA_ENGINE = {
  moonPhase(){return 128.1},
  formatSign(lon){return lon===250?'10° Sagittaire':lon===235?'25° Scorpion':lon===37?'7° Taureau':lon===61?'1° Gémeaux':'7° Bélier'},
  dailySky(day,zone,mode){return {day,timezone:zone,mode,at:new Date(day+'T12:00:00Z').toISOString(),
-  sunLongitude:Number(day.slice(-2))<19?235:250,moonLongitude:window.__moonScenario&&day.endsWith('-20')?37:7,moonPhase:128.1}},
+  sunLongitude:day.startsWith('2026-10-')?235:day.startsWith('2026-12-')?250:Number(day.slice(-2))<19?235:250,moonLongitude:window.__moonScenario&&day.endsWith('-20')?37:7,moonPhase:128.1}},
+ sunSignIngress(day,zone,mode){return null},
  moonSignChanges(day,zone,mode){return window.__moonScenario&&day.endsWith('-20')?
   [{at:day+'T13:09:00Z',fromSign:'Taureau',toSign:'Gémeaux',fromIndex:1,toIndex:2,mode}]:[]},
  formatSignExact(){return '07°00′00″ Bélier'},formatOrbExact(orb){return orb.toFixed(2)+'°'},
@@ -690,6 +691,11 @@ if __name__ == '__main__':
             # A single ribbon layer spans the seven date cells of each week.
             assert page.locator('.calendar .astra-calendar-date-week').count()>0
             assert page.locator('.calendar .astra-adjacent-day').count()>0
+            assert page.locator('.calendar .astra-solar-ribbon-segment.is-outside-month').count()>0
+            assert page.locator('.calendar .astra-calendar-date-week').first.locator('.astra-solar-ribbon-segment').count()>=2
+            assert page.locator('.calendar .astra-solar-ribbon-segment.is-outside-month').first.evaluate(
+                "el => getComputedStyle(el).backgroundColor"
+            )=='rgb(224, 233, 237)'
             assert page.locator('.calendar .astra-adjacent-day[data-day="2026-10-26"]').count()==1
             assert page.locator('.calendar .astra-adjacent-day[data-day="2026-12-06"]').count()==1
             assert page.locator('.calendar .astra-adjacent-day').first.get_attribute('aria-label').endswith('hors du mois affiché')
@@ -782,9 +788,11 @@ if __name__ == '__main__':
             capture('calendar-320')
             # Personal events belong IN each week of the grid, never in a list below.
             assert page.locator('.astra-calendar-day-summary').count()==0
-            assert page.locator('.astra-personal-create').count()==1
+            assert page.locator('.astra-personal-create').count()==0
             assert page.locator('[data-calendar-view]').count()==0
-            page.locator('.astra-personal-create').click()
+            page.locator('.calendar .day[data-day="2026-11-23"]').click()
+            assert page.locator('#calendarDayDialog[open]').count()==1
+            page.locator('#calendarDayDialog [data-personal-new]').click()
             assert page.locator('#personalEventDialog[open]').count()==1
             page.locator('#personalTitle').fill('Séjour sur trois jours')
             page.locator('#personalStart').fill('2026-11-23')
@@ -800,7 +808,8 @@ if __name__ == '__main__':
             assert stored['calendarEvents'][0]['end']=='2026-11-25'
 
             # Crosses both a week boundary and November -> December.
-            page.locator('[data-personal-new]').click()
+            page.locator('.calendar .day[data-day="2026-11-27"]').click()
+            page.locator('#calendarDayDialog [data-personal-new]').click()
             page.locator('#personalTitle').fill('Voyage fin novembre')
             page.locator('#personalStart').fill('2026-11-27')
             page.locator('#personalEnd').fill('2026-12-04')
@@ -818,7 +827,8 @@ if __name__ == '__main__':
             page.wait_for_timeout(120)
 
             # A timed one-day appointment uses the same calendar grid.
-            page.locator('[data-personal-new]').click()
+            page.locator('.calendar .day[data-day="2026-11-24"]').click()
+            page.locator('#calendarDayDialog [data-personal-new]').click()
             page.locator('#personalTitle').fill('Consultation')
             page.locator('#personalStart').fill('2026-11-24')
             page.locator('#personalEnd').fill('2026-11-24')
