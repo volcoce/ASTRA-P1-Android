@@ -1,0 +1,156 @@
+/* ASTRA P3 — contrast, keyboard, zoom and screen reader friendly layout.
+   Runs after P2. Never changes astronomy or the actual continuous solar ribbon. */
+:root{
+  --astra-calendar-ink:#1E404F;
+  --astra-calendar-focus:#17465D;
+  --astra-control-min:44px;
+}
+:root[data-astra-theme="dark"]{
+  --astra-calendar-ink:#F8EFD5;
+  --astra-calendar-focus:#F0BE57;
+}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+html,body,.app-shell,.main{min-width:0;max-width:100%}
+.main{overflow-wrap:break-word}
+:is(button,a,input,select,textarea,summary,[role="button"]):focus-visible{
+  outline:3px solid var(--astra-focus)!important;
+  outline-offset:2px!important;
+}
+:is(.calendar .day,.astra-week-day,.bottom-nav .nav):focus-visible{
+  outline:3px solid var(--astra-calendar-focus)!important;
+  outline-offset:-3px!important;z-index:3;
+}
+:is(.ghost,.primary,.arrow,.astra-personal-close,.astra-calendar-inspector-sky,
+.astra-personal-save,.astra-personal-delete,.astra-journal-back,.natal-back,
+.astra-back-today,.astra-appearance-options button){
+  min-height:var(--astra-control-min)
+}
+:is(.field input,.field select,.field textarea,.astra-personal-field input,
+.astra-personal-field select,.astra-personal-field textarea)[aria-invalid="true"]{
+  border:2px solid var(--astra-danger)!important;
+}
+:root[data-astra-theme="dark"] :is(.field input,.field select,.field textarea,
+.astra-personal-field input,.astra-personal-field select,
+.astra-personal-field textarea)[aria-invalid="true"]{
+  border-color:var(--astra-danger)!important;
+}
+:root[data-astra-theme="dark"] .astra-personal-dialog,
+:root[data-astra-theme="dark"] .astra-calendar-day-dialog{
+  background:var(--astra-surface);color:var(--astra-ink);
+  border-color:var(--astra-border)
+}
+:root[data-astra-theme="dark"] .astra-personal-dialog :is(h2,label,small,p),
+:root[data-astra-theme="dark"] .astra-personal-field>span{color:var(--astra-ink)}
+:root[data-astra-theme="dark"] .astra-personal-dialog :is(input,select,textarea){
+  background:var(--astra-secondary-surface);color:var(--astra-ink);
+  border-color:var(--astra-border)
+}
+/* Every zodiac element background uses an ink colour with checked contrast.
+   These overrides correct late P0/P1 declarations that painted light ink
+   on pale calendar ribbons or dark ink on dark ribbons. */
+.calendar.astra-calendar-board .astra-calendar-date-week .day,
+:root[data-astra-theme="dark"] .calendar.astra-calendar-board .astra-calendar-date-week .day,
+:root[data-astra-theme="dark"] .calendar .astra-calendar-date-week .day{
+  color:var(--astra-calendar-ink)!important;
+  background:transparent!important;
+  background-image:none!important;
+}
+.calendar.astra-calendar-board .astra-calendar-date-week .day.selected,
+:root[data-astra-theme="dark"] .calendar.astra-calendar-board .astra-calendar-date-week .day.selected{
+  color:var(--astra-calendar-ink)!important;
+  outline:3px solid var(--astra-calendar-focus);
+  outline-offset:-3px;
+}
+.calendar.astra-calendar-board .astra-calendar-date-week .day.today:not(.selected){
+  outline:2px dashed var(--astra-calendar-focus);
+  outline-offset:-3px
+}
+.calendar.astra-calendar-board .astra-calendar-date-week .day .count{
+  color:inherit;
+}
+.calendar.astra-calendar-board .astra-calendar-date-week .day .moon-phase-badge{
+  background:transparent!important;border:0!important;box-shadow:none!important;
+}
+/* Preserve the whole week as a SINGLE ribbon, with rounded zodiac boundaries. */
+.calendar.astra-calendar-board .astra-solar-ribbon-backdrop{
+  pointer-events:none;position:absolute;
+}
+.calendar.astra-calendar-board .astra-solar-ribbon-segment.ends-at-ingress{
+  border-top-right-radius:11px;border-bottom-right-radius:11px
+}
+.calendar.astra-calendar-board .astra-solar-ribbon-segment.starts-at-ingress{
+  border-top-left-radius:11px;border-bottom-left-radius:11px
+}
+.calendar-phase-legend{color:var(--astra-ink)}
+.calendar-phase-legend .cal-legend-item{min-width:0}
+.calendar .astra-calendar-solar-note,.calendar .astra-calendar-solar-note span{
+  color:var(--astra-ink)
+}
+:root[data-astra-theme="dark"] .astra-month-phase.new :is(strong,small),
+:root[data-astra-theme="dark"] .astra-month-phase.full :is(strong,small){
+  color:var(--color-cream)
+}
+:root[data-astra-theme="dark"] .astra-month-phase.new .astra-month-phase-icon,
+:root[data-astra-theme="dark"] .astra-month-phase.full .astra-month-phase-icon,
+:root[data-astra-theme="dark"] .astra-month-phase>span:last-child{
+  color:var(--color-cream)
+}
+:root[data-astra-theme="dark"] .astra-week-day.is-selected,
+:root[data-astra-theme="dark"] .astra-week-day.is-selected b{
+  color:var(--color-cream)
+}
+:root[data-astra-theme="dark"] .astra-event-detail .astra-event-facts :is(span,strong){
+  color:var(--astra-ink)
+}
+:root[data-astra-theme="dark"] .natal-home .natal-summary-item{
+  color:var(--astra-ink)
+}
+:root[data-astra-theme="dark"] .bottom-nav .nav.active,
+:root[data-astra-theme="dark"] .bottom-nav .nav.active .nav-label{
+  color:var(--astra-primary-ink)
+}
+/* Screen-reader labels remain DOM text, not injected with ::before. */
+.screen-intro,.astra-section-head,.astra-month-headline,
+.astra-month-event,.astra-event-detail,.astra-personal-form{min-width:0}
+.astra-month-event-text,.event-body,.astra-month-phase-copy{overflow-wrap:anywhere}
+.astra-personal-dialog{max-width:100vw;overscroll-behavior:contain}
+@media(max-width:480px){
+  .main{padding-inline:clamp(10px,3.5vw,18px)}
+  .astra-month-headline{flex-wrap:wrap}
+  .astra-month-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .astra-journal-editor .mood-row{gap:4px}
+  .astra-journal-editor .mood{min-width:0}
+}
+@media(max-width:360px){
+  .calendar.astra-calendar-board{padding-inline:3px}
+  .calendar.astra-calendar-board .weekday{font-size:11px}
+  .bottom-nav .nav{min-height:52px;padding-inline:1px}
+  .bottom-nav .nav-label{font-size:10px;line-height:1.25}
+  .astra-personal-date-fields,.astra-personal-time-fields{
+    grid-template-columns:repeat(2,minmax(0,1fr))
+  }
+}
+@media(orientation:landscape) and (max-height:500px){
+  .astra-personal-dialog{max-height:95dvh}
+  .bottom-nav .nav{min-height:46px}
+}
+@media(prefers-contrast:more){
+  :root{--astra-border:#1E404F;--astra-muted:#294C57;--astra-focus:#C03A22}
+  :root[data-astra-theme="dark"]{
+    --astra-border:#F8EFD5;--astra-muted:#F8EFD5;--astra-focus:#F0BE57;
+  }
+  .calendar.astra-calendar-board .astra-calendar-date-week .day.selected{
+    outline-width:4px;
+  }
+  :is(button,input,select,textarea,summary):focus-visible{
+    outline-width:4px!important;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  html:focus-within{scroll-behavior:auto}
+  .astra-personal-dialog[open],.astra-event-detail{animation:none!important}
+  .bottom-nav .nav,.astra-personal-dialog,
+  .astra-journal-editor .mood,.astra-event-feed .event-button{
+    transition:none!important;
+  }
+}
