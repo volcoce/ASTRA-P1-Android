@@ -444,42 +444,6 @@
     const mostPresent=max?totals.flatMap((days,index)=>days===max?[index]:[]):[];
     return {segments,indices,totals,mostPresent,dayCount,max,ingresses};
   }
-  // A single visual band per solar-sign period, split only by calendar weeks.
-  // Each date has two half-columns so ingress dates can show both signs 50/50.
-  function solarCalendarWeek(year,monthIndex,firstWeekday,week,periods){
-    const first=1-firstWeekday+7*week;
-    const from=Math.max(1,first),to=Math.min(periods.dayCount,first+6);
-    if(from>to)return '';
-    const firstHalf=2*from-1,lastHalf=2*to;
-    const items=periods.segments.filter(seg=>seg.endHalf>=firstHalf&&seg.startHalf<=lastHalf).map(seg=>{
-      const visibleStart=Math.max(firstHalf,seg.startHalf);
-      const visibleEnd=Math.min(lastHalf,seg.endHalf);
-      const startColumn=visibleStart-2*(first-1);
-      const width=visibleEnd-visibleStart+1;
-      const name=seg.index===null?'Position solaire indisponible':zodiacNames[seg.index];
-      const element=seg.index===null?'unknown':['fire','earth','air','water'][seg.index%4];
-      const ingress=periods.ingresses.find(x=>Number(x.day.slice(8))===seg.start||
-        Number(x.day.slice(8))===seg.end);
-      const ingressText=ingress&&ingress.day.slice(8)>=String(from).padStart(2,'0')&&
-        ingress.day.slice(8)<=String(to).padStart(2,'0')?
-        ' · passage '+ingress.fromSign+' → '+ingress.toSign+' le '+ingress.day+
-        ' (partage 50/50 visuel)':'';
-      const aria='Soleil en '+name+' · du '+seg.start+' au '+seg.end+
-        ' · élément '+({fire:'Feu',earth:'Terre',air:'Air',water:'Eau',unknown:'indisponible'})[element]+ingressText;
-      const day=year+'-'+pad(monthIndex+1)+'-'+pad(Math.max(from,seg.start));
-      return '<button type="button" class="astra-solar-calendar-event solar-element-'+element+
-        (visibleStart>seg.startHalf?' continues-before':'')+
-        (visibleEnd<seg.endHalf?' continues-after':'')+
-        (width<=2?' is-narrow':'')+
-        '" style="grid-column:'+startColumn+' / span '+width+
-        '" data-day="'+day+'" aria-label="'+safe(aria)+'" title="'+safe(aria)+'">'+
-        '<span class="astra-solar-calendar-glyph" aria-hidden="true">'+
-        (seg.index===null?'?':zodiacSymbols[seg.index])+'</span>'+
-        '<span class="astra-solar-calendar-label" aria-hidden="true">'+safe(name)+'</span>'+
-        '</button>';
-    }).join('');
-    return '<div class="astra-solar-calendar-week" role="group" aria-label="Parcours du Soleil de la semaine">'+items+'</div>';
-  }
   function solarMonthSummary(periods){
     if(!periods.mostPresent.length)
       return '<p class="astra-calendar-solar-note">☉ Positions solaires à midi indisponibles pour ce mois.</p>';
@@ -837,19 +801,40 @@
       const phase=isNew?'new':isFull?'full':null;
       const phaseLabel=phase==='new'?'Nouvelle Lune':phase==='full'?'Pleine Lune':'';
       const solarIndex=solarSignIndex(calendarDay?.sunLongitudeAtNoon);
+      const sunIngress=calendarDay?.sunIngress;
+      const validIngress=state.profile&&sunIngress&&Number.isInteger(sunIngress.fromIndex)&&
+        Number.isInteger(sunIngress.toIndex)&&sunIngress.fromIndex>=0&&sunIngress.fromIndex<12&&
+        sunIngress.toIndex>=0&&sunIngress.toIndex<12&&sunIngress.fromIndex!==sunIngress.toIndex;
+      const startIndex=validIngress?sunIngress.fromIndex:solarIndex;
+      const endIndex=validIngress?sunIngress.toIndex:solarIndex;
+      const elementOf=index=>index===null?null:['fire','earth','air','water'][index%4];
+      const solarStart=elementOf(startIndex),solarEnd=elementOf(endIndex);
+      const before=d>1?result?.days?.[year+'-'+pad(m+1)+'-'+pad(d-1)]:null;
+      const after=d<count?result?.days?.[year+'-'+pad(m+1)+'-'+pad(d+1)]:null;
+      const beforeIndex=before?.sunIngress?.toIndex??solarSignIndex(before?.sunLongitudeAtNoon);
+      const afterIndex=after?.sunIngress?.fromIndex??solarSignIndex(after?.sunLongitudeAtNoon);
+      const continuesBefore=d>1&&(weekday+d-1)%7!==0&&beforeIndex===startIndex;
+      const continuesAfter=d<count&&(weekday+d)%7!==0&&afterIndex===endIndex;
+      const solarClass=state.profile&&solarStart?
+        ' astra-solar-cell solar-element-'+solarStart+
+        (validIngress?' solar-split':'')+
+        (continuesBefore?' solar-continues-before':'')+
+        (continuesAfter?' solar-continues-after':''):'';
+      const solarStyle=validIngress?' style="--solar-split-bg:var(--solar-'+solarEnd+'-bg)"':'';
       const solarNameForDay=solarIndex===null?'Position solaire indisponible':'Soleil en '+zodiacNames[solarIndex]+' à midi';
+      const ingressLabel=validIngress?', passage '+sunIngress.fromSign+' → '+sunIngress.toSign+
+        ' (fond partagé 50/50)':'';
       const phaseAngle=calendarDay?.moonPhaseAtNoon;
       const phaseName=lunarLabel(phaseAngle);
       const moonIndicator=Number.isFinite(phaseAngle)?
         '<span class="moon-phase-badge" aria-hidden="true">'+moonPhaseIcon(phaseAngle)+'</span>':'';
-      cells.push(`<button type="button" class="day ${day===selected?'selected':''} ${day===isoDay(new Date())?'today':''} ${phase?'moon-'+phase:''}" data-day="${day}" aria-pressed="${day===selected}" ${day===todayKey?'aria-current="date"':''} aria-label="${safe(displayDate(day))}, ${total} événement(s) exact(s), ${personalCount} événement(s) personnel(s), ${entry.active.length} aspect(s) actif(s)${Number.isFinite(phaseAngle)?', '+phaseName+' à midi':''}${phase?', '+phaseLabel:''}, ${solarNameForDay}">${d}<span class="count">${total?total+' ✦':entry.active.length?entry.active.length+' ~':''}</span>${moonIndicator}${state.journal[day]?'<span class="pinhole"></span>':''}</button>`);
+      cells.push(`<button type="button" class="day ${day===selected?'selected':''} ${day===isoDay(new Date())?'today':''} ${phase?'moon-'+phase:''}${solarClass}"${solarStyle} data-day="${day}" aria-pressed="${day===selected}" ${day===todayKey?'aria-current="date"':''} aria-label="${safe(displayDate(day))}, ${total} événement(s) exact(s), ${personalCount} événement(s) personnel(s), ${entry.active.length} aspect(s) actif(s)${Number.isFinite(phaseAngle)?', '+phaseName+' à midi':''}${phase?', '+phaseLabel:''}, ${solarNameForDay}${ingressLabel}">${d}<span class="count">${total?total+' ✦':entry.active.length?entry.active.length+' ~':''}</span>${moonIndicator}${state.journal[day]?'<span class="pinhole"></span>':''}</button>`);
     }
-    // Solar sign bands and personal events share the calendar week grid,
-    // but remain independent lanes above the date cells.
+    // Each solar element runs continuously across date-cell backgrounds.
+    // Only personal events occupy dedicated multi-day grid lanes.
     const weeks=[];
     for(let week=0;week<Math.ceil((weekday+count)/7);week++){
       const first=1-weekday+7*week;
-      if(periods)weeks.push(solarCalendarWeek(year,m,weekday,week,periods));
       const personal=personalCalendarWeek(year,m,weekday,week,count);
       if(personal)weeks.push(personal);
       for(let c=0;c<7;c++){
