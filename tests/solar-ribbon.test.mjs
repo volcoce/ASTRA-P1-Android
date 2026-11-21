@@ -81,5 +81,5 @@ test('Solar band: sources, accessible labels and styles remain in sync',()=>{
   assert.ok(smoke.includes("ROOT/'solar-ribbon.css'"));
   assert.match(css,/\.astra-solar-track-piece\{/);
   assert.match(css,/\.calendar \.day \.sun-aspect-line\{/);
-  assert.match(app,/Point bleu : aspect exact du Soleil/);
+  assert.match(app,/Aspect solaire exact/);
 });
