@@ -59,7 +59,6 @@
 .event-kind-moon-full{--event-bg:#fff1d9;--event-ink:#89612c;--event-edge:#d5ad69}
 .event-kind-moon-quarter{--event-bg:#e8eefb;--event-ink:#4b6596;--event-edge:#94aad5}
 .event-kind-station{--event-bg:#e2f2ef;--event-ink:#306e65;--event-edge:#84c1b4}
-.event-kind-solar-aspect{--event-bg:#f8e9d5;--event-ink:#835520;--event-edge:#d5a263}
 .event-kind-exact-aspect{--event-bg:#e5eff7;--event-ink:#305e83;--event-edge:#8eb5d2}
 .event-kind-active{--event-bg:#edf0f4;--event-ink:#546777;--event-edge:#b4c0ca}
 .event-button[class*="event-kind-"] .event-glyph,
