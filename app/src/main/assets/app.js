@@ -1701,6 +1701,9 @@
       return true;
     }
     if(openDetail){openDetail=null;render();return true;}
+    if(activeTab==='calendar'&&calendarView==='day'){
+      calendarView='month';render();return true;
+    }
     if(activeTab==='profile'&&profileScreen!=='overview'&&state.profile){
       captureBirthForm();profileScreen='overview';natalSelection=null;
       render();$('app').querySelector('h1.page-title')?.focus({preventScroll:true});
@@ -1911,12 +1914,32 @@
       return;
     }
     if(a.goto){go(a.goto);return;}
+    if(a.calendarView){
+      if(activeTab!=='calendar'||!['day','month'].includes(a.calendarView))return;
+      calendarView=a.calendarView;openDetail=null;render();
+      $('app').querySelector('[data-calendar-view="'+calendarView+'"]')?.focus({preventScroll:true});
+      return;
+    }
+    if(a.calendarToday){
+      calendarView='day';selectDay(isoDay(new Date()));
+      $('app').querySelector('[data-calendar-view="day"]')?.focus({preventScroll:true});
+      return;
+    }
+    if(a.calendarDayOffset){
+      const direction=Number(a.calendarDayOffset);
+      if(activeTab==='calendar'&&[1,-1].includes(direction)){
+        selectDay(shiftDay(selected,direction));
+        $('app').querySelector('[data-calendar-day-offset="'+direction+'"]')?.focus({preventScroll:true});
+      }
+      return;
+    }
     if(a.mode){state.mode=a.mode;openDetail=null;persist();refresh();return;}
     if(a.month){month=new Date(month.getFullYear(),month.getMonth()+Number(a.month),1);selected=isoDay(month);openDetail=null;refresh();writeBrowserRoute('replace');return;}
     if(a.day){pendingDayFocus=a.day;selectDay(a.day);return;}
     if(a.offset){const [year,mon,day]=selected.split('-').map(Number);selectDay(isoDay(new Date(year,mon-1,day+Number(a.offset))));return;}
     if(a.event!==undefined){
       openDetail=renderedEvents[Number(a.event)]||null;render();
+      $('detailPanel')?.focus({preventScroll:true});
       $('detailPanel')?.scrollIntoView({
         behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',
         block:'start'
