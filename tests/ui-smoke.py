@@ -15,9 +15,9 @@ Object.defineProperty(window,'localStorage',{configurable:true,value:{getItem:k=
 window.ASTRA_ENGINE = {
  validateProfile(p){if(!p.date || (p.timeKnown!==false&&!p.time) || !p.timezone || !Number.isFinite(Number(p.latitude)))throw Error('Profil invalide');return true;},
  moonPhase(){return 128.1},
- formatSign(lon){return lon===250?'10° Sagittaire':lon===37?'7° Taureau':lon===61?'1° Gémeaux':'7° Bélier'},
+ formatSign(lon){return lon===250?'10° Sagittaire':lon===235?'25° Scorpion':lon===37?'7° Taureau':lon===61?'1° Gémeaux':'7° Bélier'},
  dailySky(day,zone,mode){return {day,timezone:zone,mode,at:new Date(day+'T12:00:00Z').toISOString(),
-  sunLongitude:250,moonLongitude:window.__moonScenario&&day.endsWith('-20')?37:7,moonPhase:128.1}},
+  sunLongitude:Number(day.slice(-2))<19?235:250,moonLongitude:window.__moonScenario&&day.endsWith('-20')?37:7,moonPhase:128.1}},
  moonSignChanges(day,zone,mode){return window.__moonScenario&&day.endsWith('-20')?
   [{at:day+'T13:09:00Z',fromSign:'Taureau',toSign:'Gémeaux',fromIndex:1,toIndex:2,mode}]:[]},
  formatSignExact(){return '07°00′00″ Bélier'},formatOrbExact(orb){return orb.toFixed(2)+'°'},
@@ -57,6 +57,7 @@ window.ASTRA_ENGINE = {
      const k=year+'-'+String(month).padStart(2,'0')+'-'+String(d).padStart(2,'0');
      days[k]={active:[{type:'active',body:'Sun',natal:'Moon',aspect:'Trigone',angle:120,delta:.43,orb:1.7}],
        exact:[{type:'exact',body:[5,9,20,23].includes(d)?'Sun':'Mercury',natal:'Moon',aspect:'Trigone',at:k+'T11:30:00Z'}],
+       sunLongitudeAtNoon:d<19?235:250,
        moonPhaseAtNoon:d===5?5:d===20?180:d<9?65:d<18?128:d<24?225:315,
        sky:d===5?[{type:'moon',name:'Nouvelle Lune',at:k+'T14:00:00Z',moonLongitude:11}]:d===20?[{type:'moon',name:'Pleine Lune',at:k+'T14:00:00Z',moonLongitude:61}]:[]};
    }
@@ -90,6 +91,7 @@ if __name__ == '__main__':
             html=html.replace('<link rel="stylesheet" href="atlas-ui.css">','')
             html=html.replace('<link rel="stylesheet" href="theme.css">','')
             html=html.replace('<link rel="stylesheet" href="wheel-ui.css">','')
+            html=html.replace('<link rel="stylesheet" href="solar-ribbon.css">','')
             html=html.replace('<script src="theme-bootstrap.js"></script>','')
             page.goto('about:blank')
             page.add_script_tag(content=JS)
@@ -104,6 +106,7 @@ if __name__ == '__main__':
             page.add_style_tag(content=(ROOT/'atlas-ui.css').read_text(encoding='utf-8'))
             page.add_style_tag(content=(ROOT/'theme.css').read_text(encoding='utf-8'))
             page.add_style_tag(content=(ROOT/'wheel-ui.css').read_text(encoding='utf-8'))
+            page.add_style_tag(content=(ROOT/'solar-ribbon.css').read_text(encoding='utf-8'))
             page.add_script_tag(content=(ROOT/'app.js').read_text(encoding='utf-8'))
             # P0 design regression: verify computed font sizes and flat surfaces.
             px=lambda selector: page.locator(selector).first.evaluate(
@@ -631,6 +634,13 @@ if __name__ == '__main__':
             assert page.locator('.calendar-options').count()==1
             assert page.locator('.calendar-options').get_attribute('open') is None
             assert page.locator('h1.page-title').inner_text()=='Calendrier'
+            # Solar-sign frieze follows noon solar longitude, not natal positions.
+            assert page.locator('.astra-solar-ribbon').count()==1
+            assert page.locator('.astra-solar-track-piece').count()==2
+            assert 'Scorpion' in page.locator('.astra-solar-track-piece').first.inner_text()
+            assert 'Sagittaire' in page.locator('.astra-solar-track-piece').last.inner_text()
+            assert page.locator('.astra-solar-track-pin').count()==1
+            assert 'À midi' in page.locator('.astra-solar-ribbon-heading').inner_text()
             # Calculated phase icon for every day; New/Full highlighted
             # separately. Only the 4 mock solar exact contacts are underlined.
             new_moon=page.locator('.calendar .day.moon-new')
@@ -679,7 +689,7 @@ if __name__ == '__main__':
             assert page.locator('.calendar .day[data-day$="-12"].sun-exact').count()==0
             assert 'aspect(s) exact(s) du Soleil' in page.locator('.calendar .day[data-day$="-09"]').get_attribute('aria-label')
             assert page.locator('.calendar-phase-legend .cal-legend-item').count()==4
-            assert 'Trait doré' in page.locator('.calendar-phase-legend').inner_text()
+            assert 'Point bleu' in page.locator('.calendar-phase-legend').inner_text()
             assert 'Nouvelle Lune' in page.locator('.calendar-phase-legend').inner_text()
             assert 'Pleine Lune' in page.locator('.calendar-phase-legend').inner_text()
             new_bg=new_moon.evaluate("e=>getComputedStyle(e).backgroundColor")
