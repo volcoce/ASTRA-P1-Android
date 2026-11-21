@@ -101,3 +101,9 @@ Le moteur généré `runtime.bundle.js` est ignoré par Git et reconstruit avec 
 ## Statut
 
 Projet expérimental, sans version Android de production annoncée. Les builds CI et les APK Preview servent au développement et aux essais. Aucune licence open source n'est déclarée dans ce dépôt.
+
+## Design System — P0 Retro Pop Celestial
+
+Les fichiers `app/src/main/assets/astra-tokens.css` et `astra-components.css` définissent les couleurs sémantiques, typographies, espacements, rayons, états d'interaction et composants communs des thèmes clair et sombre. Ils sont chargés **après** les feuilles historiques afin de centraliser progressivement la présentation sans casser le moteur astronomique, la roue ni le ruban solaire. Le thème reste contrôlé par `data-astra-theme` sur `<html>`.
+
+Les fonds solaires du calendrier utilisent les quatre éléments astrologiques via `--solar-fire-bg`, `--solar-earth-bg`, `--solar-air-bg` et `--solar-water-bg`. Les segments demeurent continus et arrondis au passage des signes. Les nouveaux composants doivent utiliser les variables `--astra-*` plutôt que des couleurs littérales.
