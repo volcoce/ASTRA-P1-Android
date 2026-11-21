@@ -47,6 +47,7 @@ test('P0: calendar announces the selected date and current date', () => {
   assert.match(html,/data-day="2026-11-20" aria-pressed="true" aria-current="date" aria-label="vendredi 20 novembre 2026/);
   assert.match(html,/data-day="2026-11-19" aria-pressed="false"/);
   assert.match(html,/<button type="button" class="day/);
+  assert.match(html,/class="astra-adjacent-day"/);
 });
 
 test('P0: chart uses native modal semantics and restores keyboard access', () => {
