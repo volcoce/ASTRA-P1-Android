@@ -11,7 +11,7 @@
   const pad = n => String(n).padStart(2, '0');
   const isoDay = date => `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
   const detectedZone = (() => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'; } catch { return 'UTC'; } })();
-  const defaultState = () => ({profile:null, mode:'tropical', natalView:'essential', natalZodiac:'tropical', natalAspectFilter:'all', houseSystem:'placidus',wheelLayout:'natal',natalZoom:1,transitDay:isoDay(new Date()),transitTime:'12:00', orb:'auto', filter:'all', appearance:'system', journal:{}});
+  const defaultState = () => ({profile:null, mode:'tropical', natalView:'essential', natalZodiac:'tropical', natalAspectFilter:'all', houseSystem:'placidus',wheelLayout:'natal',natalZoom:1,transitDay:isoDay(new Date()),transitTime:'12:00', orb:'auto', filter:'all', appearance:'system', journal:{},calendarEvents:[]});
   const moodSymbols = ['','☹','◔','◯','◕','☺'];
   const themes = {relations:'Relations',travail:'Travail',sante:'Bien-être',creation:'Créativité',repos:'Repos',autre:'Autre'};
   const planets = {Sun:'Soleil',Moon:'Lune',Mercury:'Mercure',Venus:'Vénus',Mars:'Mars',Jupiter:'Jupiter',Saturn:'Saturne',Uranus:'Uranus',Neptune:'Neptune',Pluto:'Pluton'};
@@ -37,6 +37,32 @@
     }
     return journal;
   }
+  // Personal events share the existing local backup. End dates are inclusive.
+  const calendarColors=['blue','purple','green','orange','rose','slate'];
+  function sanitizeCalendarEvents(raw){
+    if(!Array.isArray(raw))return [];
+    const seen=new Set(),items=[];
+    for(const value of raw.slice(0,2000)){
+      if(!value||typeof value!=='object'||Array.isArray(value))continue;
+      const id=String(value.id||'');
+      if(!/^[a-zA-Z0-9_-]{1,90}$/.test(id)||seen.has(id))continue;
+      const title=String(value.title||'').trim().slice(0,120);
+      const start=String(value.start||''),end=String(value.end||'');
+      if(!title||!validRouteDay(start)||!validRouteDay(end)||end<start)continue;
+      const allDay=value.allDay!==false;
+      const startTime=typeof value.startTime==='string'?value.startTime:'09:00';
+      const endTime=typeof value.endTime==='string'?value.endTime:'10:00';
+      if(!allDay&&(!/^([01]\\d|2[0-3]):[0-5]\\d$/.test(startTime)||
+        !/^([01]\\d|2[0-3]):[0-5]\\d$/.test(endTime)||
+        (start===end&&endTime<=startTime)))continue;
+      seen.add(id);
+      items.push({id,title,start,end,allDay,
+        startTime:allDay?'':startTime,endTime:allDay?'':endTime,
+        color:calendarColors.includes(value.color)?value.color:'blue',
+        note:String(value.note||'').slice(0,3000)});
+    }
+    return items;
+  }
   function cleanState(raw) {
     const base = defaultState();
     if (!raw || typeof raw !== 'object') return base;
@@ -51,7 +77,7 @@
       natalZoom:[1,1.25,1.5,1.75,2].includes(raw.natalZoom)?raw.natalZoom:1,
       transitDay:typeof raw.transitDay==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(raw.transitDay)?raw.transitDay:isoDay(new Date()),
       transitTime:typeof raw.transitTime==='string'&&/^([01]\d|2[0-3]):[0-5]\d$/.test(raw.transitTime)?raw.transitTime:'12:00',orb:'auto',
-      filter:Object.hasOwn(filtersMap,raw.filter)?raw.filter:'all',appearance:['system','light','dark'].includes(raw.appearance)?raw.appearance:'system',journal:sanitizeJournal(raw.journal)};
+      filter:Object.hasOwn(filtersMap,raw.filter)?raw.filter:'all',appearance:['system','light','dark'].includes(raw.appearance)?raw.appearance:'system',journal:sanitizeJournal(raw.journal),calendarEvents:sanitizeCalendarEvents(raw.calendarEvents)};
   }
   function loadState() { try { return cleanState(JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}')); } catch { return defaultState(); } }
   let state = loadState();
@@ -101,6 +127,9 @@
   let focusReturnScreen='overview';
   let selected = isoDay(new Date());
   let month = new Date(new Date().getFullYear(),new Date().getMonth(),1);
+  let calendarSheet=false;
+  let personalEditor=null; // 'new' or a saved event ID
+
   // Browser-only deep links. The Android shell keeps its native back handler.
   const webRouting = !window.ASTRA_CHART_EXPORT &&
     ['http:','https:'].includes(window.location.protocol) &&
