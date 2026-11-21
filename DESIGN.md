@@ -151,3 +151,7 @@ Last updated: 2026-11-20.
 - **Mon ciel** : résumé Soleil/Lune/Ascendant, une action principale d’exploration, onglets d’analyse et roue accessible, outils avancés secondaires.
 
 Styles P1 dans `astra-p1-screens.css`, après `astra-components.css`. Ne modifier ni la géométrie des roues, ni les éphémérides pour appliquer cette identité.
+
+### P2 — Navigation et sous-écrans
+
+Les sous-écrans adoptent les tokens Retro Pop Celestial via `astra-p2-navigation.css`. Le journal reste une route secondaire, non un cinquième onglet. Une fiche d'événement astrologique s'ouvre inline après la liste et n'est pas transformée en modale ; les éditeurs d'événements personnels restent des dialogues natifs avec `aria-labelledby`. Les réglages et contrôles avancés sont progressifs. Les états hover, focus, selected, invalid, dark et reduced-motion doivent tous fonctionner sans déplacer la géométrie de la roue ou casser le ruban solaire.
