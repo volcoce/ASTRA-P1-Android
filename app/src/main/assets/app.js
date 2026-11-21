@@ -176,6 +176,7 @@
   }
   // The home feed is a glanceable overview, with detail revealed on request.
   let todayExpanded = false;
+  let calendarInterval = null; // Only shown when a multi-day event bar is selected.
   let overviewPane='wheel';
   let transitRange='all';
   let progressionDay=isoDay(new Date());
@@ -659,7 +660,8 @@
   function calendar() {
     if(!state.profile)return unconfigured();
     const year=month.getFullYear(),m=month.getMonth(),weekday=(new Date(year,m,1).getDay()+6)%7,count=new Date(year,m+1,0).getDate();
-    const cells=Array.from({length:weekday},()=>'<span></span>');
+    const cells=[];
+    const periods=solarMonthPeriods(year,m,count);
     const todayKey=isoDay(new Date());
     for(let d=1;d<=count;d++){
       const day=`${year}-${pad(m+1)}-${pad(d)}`,entry=classify(result?.days?.[day]);
@@ -681,6 +683,26 @@
         '<span class="moon-phase-badge" aria-hidden="true">'+moonPhaseIcon(phaseAngle)+'</span>':'';
       cells.push(`<button type="button" class="day ${day===selected?'selected':''} ${day===isoDay(new Date())?'today':''} ${phase?'moon-'+phase:''} ${sunCount?'sun-exact':''}" data-day="${day}" aria-pressed="${day===selected}" ${day===todayKey?'aria-current="date"':''} aria-label="${safe(displayDate(day))}, ${total} événement(s) exact(s), ${entry.active.length} aspect(s) actif(s)${Number.isFinite(phaseAngle)?', '+phaseName+' à midi':''}${phase?', '+phaseLabel:''}${sunCount?', '+sunCount+' aspect(s) exact(s) du Soleil':''}, ${solarName}">${d}<span class="count">${total?total+' ✦':entry.active.length?entry.active.length+' ~':''}</span>${moonIndicator}${sunCount?'<span class="sun-aspect-line" aria-hidden="true"></span>':''}${state.journal[day]?'<span class="pinhole"></span>':''}</button>`);
     }
+    // Each week contains its multi-day event lane and then seven date cells.
+    // Calendar bars live INSIDE the same grid, exactly like all-day ranges.
+    const weeks=[];
+    for(let week=0;week<Math.ceil((weekday+count)/7);week++){
+      const first=1-weekday+7*week;
+      weeks.push(solarCalendarWeek(year,m,weekday,week,periods));
+      for(let c=0;c<7;c++){
+        const number=first+c;
+        weeks.push(number>=1&&number<=count?cells[number-1]:
+          '<span class="astra-calendar-blank-day" aria-hidden="true"></span>');
+      }
+    }
+    const selectedPeriod=calendarInterval&&calendarInterval.year===year&&
+      calendarInterval.month===m?calendarInterval:null;
+    const periodIndex=selectedPeriod?.index;
+    const periodInfo=selectedPeriod?
+      '<div class="astra-calendar-interval-info" id="calendarIntervalInfo" tabindex="-1">'+
+      '<strong>☉ '+(periodIndex===null?'Position solaire indisponible':'Soleil en '+safe(zodiacNames[periodIndex]))+'</strong>'+
+      '<span>Du '+selectedPeriod.start+' au '+selectedPeriod.end+' · '+(selectedPeriod.end-selectedPeriod.start+1)+
+      ' jour'+(selectedPeriod.end>selectedPeriod.start?'s':'')+' à midi</span></div>':'';
     const day=currentDay(),events=dayEvents(day);
     const preview=events.slice(0,3);
     const remaining=Math.max(0,events.length-preview.length);
@@ -688,7 +710,7 @@
     const selectedPanel='<section class="card astra-calendar-day-summary" id="calendarDaySummary" aria-labelledby="calendarSelectedTitle">'+
       '<div class="astra-calendar-selected-head"><h2 id="calendarSelectedTitle">'+dateLabel+'</h2>'+
       '<span class="astra-calendar-selected-count">'+events.length+' événement'+(events.length!==1?'s':'')+'</span></div>'+
-      '<div class="astra-calendar-day-events">'+
+      periodInfo+'<div class="astra-calendar-day-events">'+
       (preview.length?preview.map(row).join(''):'<p class="astra-calendar-empty">Aucun événement exact à cette date.</p>')+
       '</div>'+
       (remaining?'<p class="astra-calendar-more">+'+remaining+' autre'+(remaining>1?'s':'')+' événement'+(remaining>1?'s':'')+'</p>':'')+
@@ -701,9 +723,9 @@
       '<h2>'+safe(new Intl.DateTimeFormat('fr-FR',{month:'long',year:'numeric'}).format(month))+'</h2>'+
       '<button type="button" class="arrow" data-month="1" aria-label="Mois suivant">›</button></div>'+
       '<details class="calendar-options"><summary>Options d’affichage</summary>'+switcher()+filters()+'</details>'+
-      '<div class="calendar">'+solarRibbon(year,m,count)+
-      '<div class="cal-grid">'+['L','M','M','J','V','S','D'].map(x=>
-      '<span class="weekday">'+x+'</span>').join('')+cells.join('')+'</div>'+
+      '<div class="calendar"><div class="cal-grid">'+['L','M','M','J','V','S','D'].map(x=>
+      '<span class="weekday">'+x+'</span>').join('')+weeks.join('')+'</div>'+
+      solarMonthSummary(periods)+
       '<div class="calendar-phase-legend" aria-label="Légende des marqueurs du calendrier">'+
       '<span class="cal-legend-item"><span class="moon-phase-legend-dot new" aria-hidden="true">'+moonPhaseIcon(0)+'</span> Nouvelle Lune</span>'+
       '<span class="cal-legend-item"><span class="moon-phase-legend-dot full" aria-hidden="true">'+moonPhaseIcon(180)+'</span> Pleine Lune</span>'+
@@ -1886,9 +1908,26 @@
       window.scrollTo({top:0,behavior:'instant'});
       return;
     }
-    if(a.mode){state.mode=a.mode;openDetail=null;persist();refresh();return;}
-    if(a.month){month=new Date(month.getFullYear(),month.getMonth()+Number(a.month),1);selected=isoDay(month);openDetail=null;refresh();writeBrowserRoute('replace');return;}
-    if(a.day){pendingDayFocus=a.day;selectDay(a.day);return;}
+    if(a.calendarRangeStart!==undefined){
+      if(activeTab!=='calendar')return;
+      const start=Number(a.calendarRangeStart),end=Number(a.calendarRangeEnd);
+      const index=a.calendarRangeIndex===''?null:Number(a.calendarRangeIndex);
+      if(!Number.isInteger(start)||!Number.isInteger(end)||start<1||
+        end>new Date(month.getFullYear(),month.getMonth()+1,0).getDate()||
+        start>end||(index!==null&&(!Number.isInteger(index)||index<0||index>11)))return;
+      const prefix=month.getFullYear()+'-'+pad(month.getMonth()+1)+'-';
+      const current=selected.startsWith(prefix)?Number(selected.slice(8)):null;
+      const target=current>=start&&current<=end?current:start;
+      calendarInterval={year:month.getFullYear(),month:month.getMonth(),start,end,index};
+      selected=prefix+pad(target);openDetail=null;
+      render();writeBrowserRoute('replace');
+      $('calendarIntervalInfo')?.focus({preventScroll:true});
+      $('calendarDaySummary')?.scrollIntoView({block:'start',behavior:'instant'});
+      return;
+    }
+    if(a.mode){state.mode=a.mode;calendarInterval=null;openDetail=null;persist();refresh();return;}
+    if(a.month){month=new Date(month.getFullYear(),month.getMonth()+Number(a.month),1);selected=isoDay(month);calendarInterval=null;openDetail=null;refresh();writeBrowserRoute('replace');return;}
+    if(a.day){calendarInterval=null;pendingDayFocus=a.day;selectDay(a.day);return;}
     if(a.offset){const [year,mon,day]=selected.split('-').map(Number);selectDay(isoDay(new Date(year,mon-1,day+Number(a.offset))));return;}
     if(a.event!==undefined){
       openDetail=renderedEvents[Number(a.event)]||null;render();
