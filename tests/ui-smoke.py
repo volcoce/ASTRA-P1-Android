@@ -644,17 +644,14 @@ if __name__ == '__main__':
             assert page.locator('.calendar-options').count()==1
             assert page.locator('.calendar-options').get_attribute('open') is None
             assert page.locator('h1.page-title').inner_text()=='Calendrier'
-            # Solar sign is the continuous background of the date cells;
-            # no independent solar row or solar-event button remains.
-            assert page.locator('.astra-solar-calendar-week').count()==0
-            assert page.locator('.astra-solar-calendar-event').count()==0
-            assert page.locator('.calendar .day.astra-solar-cell').count()>0
-            assert page.locator('.calendar .day.solar-element-water').count()>0
-            assert page.locator('.calendar .day.solar-element-fire').count()>0
-            assert page.locator('.calendar .day.solar-split').count()==1
-            split=page.locator('.calendar .day.solar-split')
-            assert '--solar-split-bg:' in split.get_attribute('style')
-            assert '50/50' in split.get_attribute('aria-label')
+            # A single ribbon layer spans the seven date cells of each week.
+            assert page.locator('.calendar .astra-calendar-date-week').count()>0
+            assert page.locator('.calendar .astra-solar-ribbon-backdrop').count()>0
+            assert page.locator('.calendar .astra-solar-ribbon-segment.solar-element-water').count()>0
+            assert page.locator('.calendar .astra-solar-ribbon-segment.solar-element-fire').count()>0
+            assert page.locator('.calendar .day.astra-solar-cell').count()==0
+            assert page.locator('.calendar .day[data-day$="-19"]').count()==1
+            assert '50/50' in page.locator('.calendar .day[data-day$="-19"]').get_attribute('aria-label')
             assert 'Signe le plus présent' in page.locator('.astra-calendar-solar-note').inner_text()
             page.locator('.calendar .day[data-day$="-19"]').click()
             assert page.locator('#calendarDayDialog[open]').count()==1
@@ -718,7 +715,7 @@ if __name__ == '__main__':
             page.locator('#eventFilter').select_option('exact')
             assert page.locator('.calendar .day.moon-new').count()==1
             assert page.locator('.calendar .day.moon-full').count()==1
-            assert page.locator('.calendar .day.solar-split').count()==1
+            assert page.locator('.calendar .astra-solar-ribbon-backdrop').count()>0
             assert page.locator('.calendar .day .moon-phase-badge').count()==month_days
             page.locator('.calendar-options > summary').click()
             page.locator('#eventFilter').select_option('moon')
