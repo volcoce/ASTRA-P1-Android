@@ -52,7 +52,9 @@ test('P0: Calendar is only a month grid with one compact selected-day preview',(
   assert.equal(count(markup,/class="day /g),30);
   assert.equal(count(markup,/class="card astra-calendar-day-summary"/g),1);
   assert.equal(count(markup,/data-mock-event=/g),2);
-  assert.match(markup,/astra-solar-ribbon/);
+  assert.equal(count(markup,/class="astra-calendar-week-events"/g),6);
+  assert.match(markup,/astra-calendar-solar-note/);
+  assert.ok(!markup.includes('astra-solar-ribbon'));
   assert.match(markup,/data-calendar-open-day="1"/);
   assert.match(markup,/vendredi 20 novembre 2026/);
   for(const duplicate of ['data-calendar-view','astra-calendar-day-sky',
