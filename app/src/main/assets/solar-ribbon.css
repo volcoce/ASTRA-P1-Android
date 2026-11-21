@@ -8,13 +8,13 @@
 /* One actual ribbon beneath the whole week, not rounded date cards.
    Solar spans use half-day columns so ingress days show two colours 50/50. */
 :root{
-  --solar-fire-bg:#ffdbad;--solar-earth-bg:#d9eab7;
-  --solar-air-bg:#cbe5fa;--solar-water-bg:#d9d1f6;
+  --solar-fire-bg:#FAD7B0;--solar-earth-bg:#D9D6B8;
+  --solar-air-bg:#D1E4F0;--solar-water-bg:#BDD7E3;
 }
-.solar-element-fire{--solar-bg:var(--solar-fire-bg)}
-.solar-element-earth{--solar-bg:var(--solar-earth-bg)}
-.solar-element-air{--solar-bg:var(--solar-air-bg)}
-.solar-element-water{--solar-bg:var(--solar-water-bg)}
+.solar-element-fire{--solar-bg:var(--solar-fire-bg);--solar-muted-bg:var(--solar-fire-muted)}
+.solar-element-earth{--solar-bg:var(--solar-earth-bg);--solar-muted-bg:var(--solar-earth-muted)}
+.solar-element-air{--solar-bg:var(--solar-air-bg);--solar-muted-bg:var(--solar-air-muted)}
+.solar-element-water{--solar-bg:var(--solar-water-bg);--solar-muted-bg:var(--solar-water-muted)}
 .solar-element-unknown{--solar-bg:transparent}
 .calendar .cal-grid{grid-auto-flow:row;column-gap:0!important;row-gap:7px}
 .calendar .astra-calendar-date-week{
@@ -28,6 +28,11 @@
 }
 .calendar .astra-solar-ribbon-segment{
   display:block;min-width:0;background:var(--solar-bg);height:100%;
+}
+/* A month boundary is a flat, muted colour change; only zodiac ingresses
+   receive rounded edges. Never round individual adjacent-month dates. */
+.calendar .astra-solar-ribbon-segment.is-outside-month{
+  background:var(--solar-muted-bg,var(--solar-bg));
 }
 /* At the boundary between zodiac signs, the outgoing and incoming
    colours each end in a rounded edge, not a hard vertical cut. */
