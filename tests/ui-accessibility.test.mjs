@@ -22,7 +22,7 @@ test('P0: calendar announces the selected date and current date', () => {
     Date: class FixedCalendarDate extends Date {
       constructor(...args){super(...(args.length?args:['2026-11-20T12:00:00Z']));}
     },
-    state: {profile:{timezone:'Europe/Paris'},journal:{}},
+    state: {profile:{timezone:'Europe/Paris'},journal:{},calendarEvents:[]},
     month: new Date(2026,10,1),
     selected: '2026-11-20',
     calendarInterval: null,
@@ -37,6 +37,7 @@ test('P0: calendar announces the selected date and current date', () => {
     lunarLabel: () => '', safe: value => value,
     solarSignIndex: () => null, solarMonthPeriods:()=>({segments:[],dayCount:30}),
     solarCalendarWeek: () => '', solarMonthSummary: () => '',
+    personalCalendarWeek: () => '',calendarDayInspector: () => '',personalEventEditor: () => '',
     solarDayBand: () => '',
     isoDay: date => [date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join('-'),
     pad: number => String(number).padStart(2,'0'),
@@ -52,7 +53,7 @@ test('P0: chart uses native modal semantics and restores keyboard access', () =>
   assert.ok(app.includes("'<dialog class=\"natal-focus\" id=\"natalChart\""));
   assert.ok(app.includes("focusDialog.showModal()"));
   assert.ok(app.includes("event.target.matches('dialog.natal-focus')"));
-  assert.ok(app.includes("pendingDayFocus=a.day"));
+  assert.ok(app.includes("pendingDayFocus=calendarSheet?null:a.day"));
   assert.ok(css.includes('dialog.natal-focus::backdrop'));
 });
 
