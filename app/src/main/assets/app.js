@@ -684,10 +684,64 @@
       cells.push(`<button type="button" class="day ${day===selected?'selected':''} ${day===isoDay(new Date())?'today':''} ${phase?'moon-'+phase:''} ${sunCount?'sun-exact':''}" data-day="${day}" aria-pressed="${day===selected}" ${day===todayKey?'aria-current="date"':''} aria-label="${safe(displayDate(day))}, ${total} événement(s) exact(s), ${entry.active.length} aspect(s) actif(s)${Number.isFinite(phaseAngle)?', '+phaseName+' à midi':''}${phase?', '+phaseLabel:''}${sunCount?', '+sunCount+' aspect(s) exact(s) du Soleil':''}, ${solarName}">${d}<span class="count">${total?total+' ✦':entry.active.length?entry.active.length+' ~':''}</span>${moonIndicator}${sunCount?'<span class="sun-aspect-line" aria-hidden="true"></span>':''}${state.journal[day]?'<span class="pinhole"></span>':''}</button>`);
     }
     const day=currentDay(),events=dayEvents(day);
-    return header('Calendrier','Choisis une date pour découvrir les événements du ciel.')+birthTimeWarning()+
-      `<div class="month-head"><button class="arrow" data-month="-1" aria-label="Mois précédent">‹</button><h2>${safe(new Intl.DateTimeFormat('fr-FR',{month:'long',year:'numeric'}).format(month))}</h2><button class="arrow" data-month="1" aria-label="Mois suivant">›</button></div>`+'<details class="calendar-options"><summary>Options d’affichage</summary>'+switcher()+filters()+'</details>'+
-      `<div class="calendar">`+solarRibbon(year,m,count)+`<div class="cal-grid">${['L','M','M','J','V','S','D'].map(x=>`<span class="weekday">${x}</span>`).join('')}${cells.join('')}</div><div class="calendar-phase-legend" aria-label="Légende des marqueurs du calendrier"><span class="cal-legend-item"><span class="moon-phase-legend-dot new" aria-hidden="true">${moonPhaseIcon(0)}</span> Nouvelle Lune</span><span class="cal-legend-item"><span class="moon-phase-legend-dot full" aria-hidden="true">${moonPhaseIcon(180)}</span> Pleine Lune</span><span class="cal-legend-item"><span class="moon-phase-legend-mini" aria-hidden="true">${moonPhaseIcon(90)}</span> Icône : phase à midi</span><span class="cal-legend-item"><span class="sun-aspect-legend" aria-hidden="true"></span> Point bleu : aspect exact du Soleil</span></div><p class="tiny">✦ contact exact · ~ aspect à midi · point rose : journal</p></div>${status()}`+
-      `<section class="card"><div class="section-row"><h2 class="card-title">${safe(displayDate(selected))}</h2></div><div class="pill-row"><span class="tag">${events.length} événement(s)</span><span class="tag-outline">${day.active.length} actif(s)</span></div>${events.map(row).join('')||'<p class="tiny">Aucun événement exact ce jour.</p>'}${day.active.slice(0,30).map(e=>row({...e,type:'active'})).join('')}</section>`+detailView()+lunarTimeline();
+    const now=isoDay(new Date()),hasEvents=events.length>0,hasActive=day.active.length>0;
+    const dateLabel=safe(displayDate(selected));
+    const toolbar='<div class="astra-calendar-toolbar" aria-label="Affichage du calendrier">'+
+      '<div class="astra-calendar-view-switch" role="group" aria-label="Vue du calendrier">'+
+      '<button type="button" data-calendar-view="month" aria-pressed="'+(calendarView==='month')+
+      '" class="'+(calendarView==='month'?'is-selected':'')+'">Mois</button>'+
+      '<button type="button" data-calendar-view="day" aria-pressed="'+(calendarView==='day')+
+      '" class="'+(calendarView==='day'?'is-selected':'')+'">Jour</button></div>'+
+      '<button type="button" class="astra-calendar-today" data-calendar-today="1"'+
+      (selected===now?' disabled':'')+'>Aujourd’hui</button></div>';
+    const options='<details class="calendar-options"><summary>Options d’affichage</summary>'+
+      switcher()+filters()+'</details>';
+    const monthHeading='<div class="month-head astra-calendar-month-head">'+
+      '<button type="button" class="arrow" data-month="-1" aria-label="Mois précédent">‹</button>'+
+      '<h2>'+safe(new Intl.DateTimeFormat('fr-FR',{month:'long',year:'numeric'}).format(month))+'</h2>'+
+      '<button type="button" class="arrow" data-month="1" aria-label="Mois suivant">›</button></div>';
+    const grid='<div class="calendar">'+solarRibbon(year,m,count)+
+      '<div class="cal-grid">'+['L','M','M','J','V','S','D'].map(x=>
+        '<span class="weekday">'+x+'</span>').join('')+cells.join('')+'</div>'+
+      '<div class="calendar-phase-legend" aria-label="Légende des marqueurs du calendrier">'+
+      '<span class="cal-legend-item"><span class="moon-phase-legend-dot new" aria-hidden="true">'+moonPhaseIcon(0)+'</span> Nouvelle Lune</span>'+
+      '<span class="cal-legend-item"><span class="moon-phase-legend-dot full" aria-hidden="true">'+moonPhaseIcon(180)+'</span> Pleine Lune</span>'+
+      '<span class="cal-legend-item"><span class="moon-phase-legend-mini" aria-hidden="true">'+moonPhaseIcon(90)+'</span> Icône : phase à midi</span>'+
+      '<span class="cal-legend-item"><span class="sun-aspect-legend" aria-hidden="true"></span> Point bleu : aspect exact du Soleil</span>'+
+      '</div><p class="tiny">✦ contact exact · ~ aspect à midi · point rose : journal</p></div>';
+    // A proper day-view avoids enlarging the month grid to show full event details.
+    const dayHeading='<div class="astra-calendar-day-heading" aria-label="Navigation entre journées">'+
+      '<button type="button" data-calendar-day-offset="-1" aria-label="Jour précédent">‹</button>'+
+      '<h2>'+dateLabel+'</h2>'+
+      '<button type="button" data-calendar-day-offset="1" aria-label="Jour suivant">›</button></div>';
+    let daySky=null;
+    if(calendarView==='day'&&result){
+      try{daySky=E.dailySky(selected,state.profile.timezone||detectedZone,state.mode);}
+      catch{/* Keep the day readable even if a sky snapshot is unavailable. */}
+    }
+    const daySkyPanel='<section class="astra-calendar-day-sky" aria-label="Ciel à midi de la date sélectionnée">'+
+      '<div class="astra-calendar-day-sky-moon">'+moonPhaseIcon(daySky?.moonPhase,'hero')+
+      '<div><b>'+(daySky?'Lune en '+safe(zodiacSignAt(daySky.moonLongitude)):'Lune indisponible')+
+      '</b><span>'+safe(lunarLabel(daySky?.moonPhase))+'</span></div></div>'+
+      solarDayBand(daySky?.sunLongitude)+'</section>';
+    const eventList=hasEvents?events.map(row).join(''):
+      '<p class="astra-calendar-empty">Aucun événement exact calculé pour cette date.</p>';
+    const activePanel=hasActive?
+      '<details class="astra-calendar-active"><summary>Aspects en cours à midi <span>'+day.active.length+'</span></summary>'+
+      '<p>Aspects observés à midi, distincts des instants exacts.</p>'+
+      day.active.slice(0,30).map(e=>row({...e,type:'active'})).join('')+
+      (day.active.length>30?'<p class="tiny">30 aspects affichés sur '+day.active.length+'.</p>':'')+'</details>':'';
+    const selectedPanel='<section class="card astra-calendar-day-summary" id="calendarDaySummary" aria-labelledby="calendarSelectedTitle">'+
+      '<div class="astra-calendar-selected-head"><div><p class="astra-calendar-overline">DATE SÉLECTIONNÉE</p>'+
+      '<h2 id="calendarSelectedTitle">'+dateLabel+'</h2></div>'+
+      (calendarView==='month'?'<button type="button" data-calendar-view="day" class="astra-calendar-open-day">Vue jour ›</button>':'')+
+      '</div><div class="astra-calendar-day-counts"><span><b>'+events.length+'</b> événement'+(events.length>1?'s':'')+' exact'+(events.length>1?'s':'')+'</span>'+
+      '<span><b>'+day.active.length+'</b> aspect'+(day.active.length>1?'s':'')+' en cours</span></div>'+
+      '<div class="astra-calendar-day-events">'+eventList+'</div>'+activePanel+'</section>';
+    return header('Calendrier','Explore les dates, les phases lunaires et les événements astronomiques.')+
+      birthTimeWarning()+toolbar+options+
+      (calendarView==='month'?monthHeading+grid:dayHeading+daySkyPanel)+status()+
+      selectedPanel+detailView()+lunarTimeline();
   }
   function initDraft() {
     if(journalDraftDate!==selected||!journalDraft){
