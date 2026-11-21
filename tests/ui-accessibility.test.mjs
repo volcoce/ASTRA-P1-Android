@@ -36,7 +36,7 @@ test('P0: calendar announces the selected date and current date', () => {
     filters: () => '', row: () => '', moonPhaseIcon: () => '',
     lunarLabel: () => '', safe: value => value,
     solarSignIndex: () => null, solarMonthPeriods:()=>({segments:[],dayCount:30}),
-    solarCalendarWeek: () => '', solarMonthSummary: () => '',
+    solarCalendarBackdropWeek: () => '<div class="astra-solar-ribbon-backdrop"></div>', solarMonthSummary: () => '',
     personalCalendarWeek: () => '',calendarDayInspector: () => '',personalEventEditor: () => '',
     solarDayBand: () => '',
     isoDay: date => [date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join('-'),
