@@ -94,6 +94,32 @@ export function dailySky(day,zone='UTC',mode='tropical'){
     moonPhase:moonPhase(instant)};
 }
 
+/** Exact solar sign boundary within a local civil day, if any.
+ * The calendar may DRAW this day half-and-half, but this instant gives the
+ * astronomical changeover (not necessarily local noon).
+ */
+export function sunSignIngress(day,zone='UTC',mode='tropical'){
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(day))throw new Error('Date solaire invalide');
+  if(!['tropical','sidereal'].includes(mode))throw new Error('Zodiaque invalide');
+  const next=new Date(day+'T12:00:00Z');
+  if(!Number.isFinite(next.getTime())||next.toISOString().slice(0,10)!==day)
+    throw new Error('Date solaire invalide');
+  next.setUTCDate(next.getUTCDate()+1);
+  const start=localToUtc(day,'00:00',zone).getTime();
+  const end=localToUtc(next.toISOString().slice(0,10),'00:00',zone).getTime();
+  const signAt=t=>Math.floor(mod(longitude('Sun',new Date(t),mode))/30);
+  const fromIndex=signAt(start),toIndex=signAt(end-1);
+  if(fromIndex===toIndex)return null;
+  let left=start,right=end;
+  for(let i=0;i<42&&right-left>10000;i++){
+    const mid=(left+right)/2;
+    if(signAt(mid)===fromIndex)left=mid;else right=mid;
+  }
+  const at=new Date(Math.round((left+right)/2)).toISOString();
+  return {at,fromIndex,toIndex,
+    fromSign:signNames[fromIndex],toSign:signNames[toIndex],mode};
+}
+
 /** Determine each lunar zodiac-sign ingress within one civil day.
  * Bracket sign boundaries in 2-hour samples, then bisect until < 10 sec.
  * Day bounds use midnight in the supplied IANA timezone, including DST.
@@ -262,6 +288,8 @@ export function calculateMonth(profile,year,month,mode='tropical',orb='auto',opt
     active.sort((a,b)=>a.delta-b.delta);
     days[day]={date:day,active,exact:[],sky:[],
       sunLongitudeAtNoon:Number.isFinite(sunLongitudeAtNoon)?+sunLongitudeAtNoon.toFixed(6):null,
+      // Actual day and local instant of ingress, independent of the noon sign.
+      sunIngress:sunSignIngress(day,zone,mode),
       moonPhaseAtNoon:+moonPhaseAtNoon.toFixed(5)};
   }
   function addMoment(array,object){const day=isoDay(new Date(object.at),zone);if(day.slice(0,7)===`${year}-${String(month).padStart(2,'0')}`){array.push(object);days[day]?.[array===exact?'exact':'sky'].push(object);}}
@@ -307,4 +335,4 @@ export function calculateMonth(profile,year,month,mode='tropical',orb='auto',opt
   return {year,month,mode,orb,chart,days,exact:exact.length,stations:stations.length,phases:phases.length,
     approximateNatal:!chart.timeKnown,calculatedAt:new Date().toISOString()};
 }
-if(typeof window!=='undefined')window.ASTRA_ENGINE={BODIES,BODY_FR,natalChart,calculateMonth,moonPhase,dailySky,moonSignChanges,upcomingMoonPhases,transitContactWindow,secondaryProgressions,compositeMidpoints,formatSign,validateProfile,localToUtc,describeEvent,DISCLAIMER,searchCities,normalizePlace,houseOf,layoutPlanetLabels,MIN_LABEL_SPACING_DEGREES,formatSignExact,formatOrbExact,filterNatalAspects,describeNatalPlanet,describeNatalHouse,describeNatalAspect,NATAL_ASPECT_FILTERS,transitSnapshot,HOUSE_SYSTEMS};
+if(typeof window!=='undefined')window.ASTRA_ENGINE={BODIES,BODY_FR,natalChart,calculateMonth,moonPhase,dailySky,sunSignIngress,moonSignChanges,upcomingMoonPhases,transitContactWindow,secondaryProgressions,compositeMidpoints,formatSign,validateProfile,localToUtc,describeEvent,DISCLAIMER,searchCities,normalizePlace,houseOf,layoutPlanetLabels,MIN_LABEL_SPACING_DEGREES,formatSignExact,formatOrbExact,filterNatalAspects,describeNatalPlanet,describeNatalHouse,describeNatalAspect,NATAL_ASPECT_FILTERS,transitSnapshot,HOUSE_SYSTEMS};
