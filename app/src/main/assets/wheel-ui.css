@@ -20,11 +20,30 @@
 }
 .natal-wheel.wheel-modern .wheel-zodiac-sector.is-even{fill:#f4f8fb}
 .natal-wheel.wheel-modern .wheel-zodiac-sector.is-odd{fill:#e8f1f6}
+/* A complete filled zodiac wedge, not a thin golden underline.
+   Selection always refers to the longitude chosen in app.js. */
 .natal-wheel.wheel-modern .wheel-zodiac-sector.is-sign-active{
-  fill:#ffedcf;
-  stroke:#b17c38;
-  stroke-width:1.5;
+  fill:#f2d39a;
+  stroke:#b57c36;
+  stroke-width:1.2;
 }
+.natal-wheel.wheel-modern .wheel-zodiac-sector.is-sign-active + .zodiac-symbol{
+  fill:#633c14;
+  stroke:#f8e5bd;
+  stroke-width:.85;
+}
+.wheel-band-key{
+  display:inline-block;
+  width:17px;
+  height:11px;
+  margin-right:5px;
+  vertical-align:-1px;
+  border:1px solid #b57c36;
+  border-radius:3px;
+  background:#f2d39a;
+}
+.natal-home-hint .wheel-band-key,
+.natal-focus-legend .wheel-band-key{flex:none}
 .natal-wheel.wheel-modern .zodiac-symbol{
   fill:#28516a;
   font-family:Georgia,"Times New Roman",serif;
@@ -152,22 +171,6 @@
 .natal-wheel.wheel-modern .natal-planet-hit:focus-visible .natal-planet{
   fill:#173e57;
 }
-.natal-wheel.wheel-modern .wheel-core-disc{
-  fill:#fff;
-  stroke:#a7bfcd;
-  stroke-width:1.3;
-}
-.natal-wheel.wheel-modern .wheel-core-star{fill:#c09357}
-.natal-wheel.wheel-modern .wheel-core-title{
-  fill:#254a63;
-  font:750 12px/1 system-ui,Arial,sans-serif;
-  letter-spacing:2px;
-}
-.natal-wheel.wheel-modern .wheel-core-sub{
-  fill:#6c8292;
-  font:700 8.5px/1 system-ui,Arial,sans-serif;
-  letter-spacing:1px;
-}
 .natal-wheel.wheel-modern .angle-label{
   fill:#245774;
   stroke:#fff;
@@ -179,10 +182,6 @@
 }
 .natal-wheel.wheel-date-only .wheel-aspect-backdrop{
   fill:#fff;
-}
-.natal-wheel.wheel-date-only .wheel-core-sub{
-  font-size:8px;
-  letter-spacing:.45px;
 }
 /* Double wheel — the transit band is blue, the natal layer remains violet.
    These classes distinguish layers without changing glyph coordinates. */
@@ -233,8 +232,6 @@
   stroke:#183f5b;
   stroke-width:3;
 }
-.natal-double-wheel.wheel-modern .wheel-core-title{font-size:14px}
-.natal-double-wheel.wheel-modern .wheel-core-sub{font-size:9px}
 .natal-wheel-viewport:has(> .wheel-modern){
   background:#fff;
   border-color:#cadbe5;
