@@ -28,6 +28,7 @@ const context={
   switcher:()=>'',filters:()=>'',moonPhaseIcon:()=>'<svg></svg>',lunarLabel:()=> 'Pleine lune',
   solarMonthPeriods:()=>({segments:[],indices:[],totals:[],mostPresent:[],dayCount:30,max:0}),
   solarMonthSummary:()=>'<p class="astra-calendar-solar-note"></p>',
+  solarVisiblePeriods:()=>({days:[]}),
   solarCalendarBackdropWeek:()=>'<div class="astra-solar-ribbon-backdrop"></div>',
   personalCalendarWeek:()=>'',calendarDayInspector:()=>'',personalEventEditor:()=>'',
   solarSignIndex:n=>Number.isFinite(n)?Math.floor(n/30):null,
@@ -50,7 +51,8 @@ test('Calendar: one month grid; personal events rendered in calendar, no duplica
   assert.match(markup,/data-day="2026-12-06"/);
   assert.equal(count(markup,/class="astra-solar-calendar-week"/g),0);
   assert.match(markup,/astra-calendar-solar-note/);
-  assert.match(markup,/data-personal-new="1"/);
+  assert.ok(!markup.includes('class="astra-personal-create"'));
+  assert.ok(!markup.includes('data-personal-new="1"'));
   assert.ok(!markup.includes('astra-calendar-day-summary'));
   assert.ok(!markup.includes('astra-calendar-day-events'));
   assert.ok(!markup.includes('data-calendar-view'));
