@@ -109,6 +109,13 @@ html,body,.app-shell,.main{min-width:0;max-width:100%}
 :root[data-astra-theme="dark"] .bottom-nav .nav.active .nav-label{
   color:var(--astra-primary-ink)
 }
+/* Full weekday names and hidden control hints remain accessible DOM text. */
+.astra-sr-only{
+  position:absolute!important;width:1px!important;height:1px!important;
+  padding:0!important;margin:-1px!important;overflow:hidden!important;
+  clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important;
+  clip-path:inset(50%)!important
+}
 /* Screen-reader labels remain DOM text, not injected with ::before. */
 .screen-intro,.astra-section-head,.astra-month-headline,
 .astra-month-event,.astra-event-detail,.astra-personal-form{min-width:0}
