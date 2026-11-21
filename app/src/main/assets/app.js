@@ -2023,9 +2023,26 @@
       if(place){placeSearch.selected=place;placeSearch.options=[];placeSearch.error='';placeSearch.needFold=false;birthDraft.fold=null;birthDraft.city=place.label;render();$('birthCity')?.focus({preventScroll:true});}
       return;
     }
+    if(a.personalNew){
+      calendarSheet=false;personalEditor='new';render();
+      $('personalTitle')?.focus({preventScroll:true});return;
+    }
+    if(a.personalEdit){
+      if(!state.calendarEvents.some(e=>e.id===a.personalEdit))return;
+      calendarSheet=false;personalEditor=a.personalEdit;render();
+      $('personalTitle')?.focus({preventScroll:true});return;
+    }
+    if(a.personalClose){personalEditor=null;render();return;}
+    if(a.personalDelete){
+      const item=state.calendarEvents.find(e=>e.id===a.personalDelete);
+      if(!item||!confirm('Supprimer « '+item.title+' » ?'))return;
+      state.calendarEvents=state.calendarEvents.filter(e=>e.id!==item.id);
+      persist();personalEditor=null;render();show('Événement supprimé');return;
+    }
+    if(a.calendarSheetClose){calendarSheet=false;calendarInterval=null;render();return;}
     if(a.goto){go(a.goto);return;}
     if(a.calendarOpenDay){
-      // Navigate to the existing detailed daily screen without resetting the chosen date.
+      calendarSheet=false;personalEditor=null;
       activeTab='today';openDetail=null;todayExpanded=false;pendingPageFocus=true;
       render();writeBrowserRoute('push');
       window.scrollTo({top:0,behavior:'instant'});
@@ -2042,17 +2059,24 @@
       const current=selected.startsWith(prefix)?Number(selected.slice(8)):null;
       const target=current>=start&&current<=end?current:start;
       calendarInterval={year:month.getFullYear(),month:month.getMonth(),start,end,index};
-      selected=prefix+pad(target);openDetail=null;
-      render();writeBrowserRoute('replace');
-      $('calendarIntervalInfo')?.focus({preventScroll:true});
-      $('calendarDaySummary')?.scrollIntoView({block:'start',behavior:'instant'});
-      return;
+      selected=prefix+pad(target);calendarSheet=true;openDetail=null;
+      render();writeBrowserRoute('replace');return;
     }
     if(a.mode){state.mode=a.mode;calendarInterval=null;openDetail=null;persist();refresh();return;}
-    if(a.month){month=new Date(month.getFullYear(),month.getMonth()+Number(a.month),1);selected=isoDay(month);calendarInterval=null;openDetail=null;refresh();writeBrowserRoute('replace');return;}
-    if(a.day){calendarInterval=null;pendingDayFocus=a.day;selectDay(a.day);return;}
+    if(a.month){
+      month=new Date(month.getFullYear(),month.getMonth()+Number(a.month),1);
+      selected=isoDay(month);calendarInterval=null;calendarSheet=false;
+      personalEditor=null;openDetail=null;refresh();writeBrowserRoute('replace');return;
+    }
+    if(a.day){
+      calendarInterval=null;
+      calendarSheet=activeTab==='calendar';personalEditor=null;
+      pendingDayFocus=calendarSheet?null:a.day;
+      selectDay(a.day);return;
+    }
     if(a.offset){const [year,mon,day]=selected.split('-').map(Number);selectDay(isoDay(new Date(year,mon-1,day+Number(a.offset))));return;}
     if(a.event!==undefined){
+      calendarSheet=false;personalEditor=null;
       openDetail=renderedEvents[Number(a.event)]||null;render();
       $('detailPanel')?.focus({preventScroll:true});
       $('detailPanel')?.scrollIntoView({
