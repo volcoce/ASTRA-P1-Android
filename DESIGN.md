@@ -159,3 +159,7 @@ Les sous-écrans adoptent les tokens Retro Pop Celestial via `astra-p2-navigatio
 ### P3 — Contrastes, focus, lecture assistée et responsive
 
 Le dernier niveau CSS `astra-p3-accessibility.css` corrige les conflits de cascade des précédentes étapes, sans transformer les rubans de fond continus en cartes. Contrastes WCAG AA de texte ordinaire (minimum 4,5:1) vérifiés sur les couples de fond/encre prioritaires, états focus visibles au clavier, libellés complets des sept jours, régions et groupes déjà sémantisés conservés, modales natives avec annulation Escape, réduction des animations et media queries mobiles/paysage. Les contrôles et les annonces doivent rester vérifiables sur Android avec TalkBack et clavier physique.
+
+### P4 — Habillage des roues et parité des exports
+
+Les mêmes secteurs rétro pop servent aux roues natales, sans heure et doubles : les secteurs portent la classe `zodiac-element-{fire,earth,air,water}`. `astra-p4-wheel.css` ne modifie aucune coordonnée, orbite, position de marqueur ou ordre des anneaux. Disques des planètes natales, transits, survol, sélection et focus ont des contrastes dédiés. L'export SVG embarque la même palette comme CSS autonome et le PNG en découle. Contrôler visuellement sur 320–393 px, vue complète, thème sombre et export, sans encombrer le centre de la roue.
