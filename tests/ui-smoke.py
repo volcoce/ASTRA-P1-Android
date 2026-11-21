@@ -99,6 +99,7 @@ if __name__ == '__main__':
             html=html.replace('<link rel="stylesheet" href="astra-tokens.css">','')
             html=html.replace('<link rel="stylesheet" href="astra-components.css">','')
             html=html.replace('<link rel="stylesheet" href="astra-p1-screens.css">','')
+            html=html.replace('<link rel="stylesheet" href="astra-p2-navigation.css">','')
             html=html.replace('<script src="theme-bootstrap.js"></script>','')
             page.goto('about:blank')
             page.add_script_tag(content=JS)
@@ -119,6 +120,7 @@ if __name__ == '__main__':
             page.add_style_tag(content=(ROOT/'astra-tokens.css').read_text(encoding='utf-8'))
             page.add_style_tag(content=(ROOT/'astra-components.css').read_text(encoding='utf-8'))
             page.add_style_tag(content=(ROOT/'astra-p1-screens.css').read_text(encoding='utf-8'))
+            page.add_style_tag(content=(ROOT/'astra-p2-navigation.css').read_text(encoding='utf-8'))
             page.add_script_tag(content=(ROOT/'app.js').read_text(encoding='utf-8'))
             # P0 design regression: verify computed font sizes and flat surfaces.
             px=lambda selector: page.locator(selector).first.evaluate(
