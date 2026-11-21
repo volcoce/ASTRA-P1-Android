@@ -44,13 +44,14 @@ const count=(s,re)=>(s.match(re)||[]).length;
 test('Calendar: one month grid; personal events rendered in calendar, no duplicated list',()=>{
   const markup=calendar();
   assert.equal(count(markup,/class="day /g),30);
-  assert.equal(count(markup,/class="astra-calendar-week-events"/g),6);
+  assert.equal(count(markup,/class="astra-calendar-week-events"/g),0);
   assert.match(markup,/astra-calendar-solar-note/);
   assert.match(markup,/data-personal-new="1"/);
   assert.ok(!markup.includes('astra-calendar-day-summary'));
   assert.ok(!markup.includes('astra-calendar-day-events'));
   assert.ok(!markup.includes('data-calendar-view'));
-  assert.ok(!markup.includes('astra-solar-ribbon'));
+  assert.ok(!markup.includes('astra-calendar-range-event'));
+  assert.ok(!markup.includes('data-calendar-range-start'));
   assert.match(markup,/data-day="2026-11-20" aria-pressed="true"/);
 });
 
