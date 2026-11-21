@@ -115,3 +115,9 @@ La hiérarchie visuelle de **Ce jour**, **Ce mois**, **Calendrier** et **Mon cie
 ## P2 — Navigation et sous-écrans
 
 Les styles secondaires sont regroupés dans `app/src/main/assets/astra-p2-navigation.css`, chargé après les écrans P1. Cette couche harmonise le **journal** (éditeur prioritaire, indicateurs et historique), les **fiches d'événements** intégrées à la page, les **réglages**, les **panneaux du thème** et les **modales natives** du calendrier personnel. Elle conserve les comportements existants : quatre onglets principaux, journal en route secondaire, dates inclusives et événements multi-jours, raccourcis clavier et fermeture native des dialogues, lecture hors connexion. Les transitions respectent `prefers-reduced-motion`.
+
+## P3 — Thèmes et accessibilité
+
+La couche `app/src/main/assets/astra-p3-accessibility.css` est chargée après les styles P0–P2. Elle renforce la lisibilité en thèmes clair et sombre, dont le contraste des chiffres sur les quatre rubans solaires, les contours de focus clavier, les cibles tactiles, les états de champs invalides, les formulaires des dialogues et le comportement 320/360/480 px et paysage. Le contraste accru (`prefers-contrast: more`) et la réduction des animations (`prefers-reduced-motion: reduce`) sont pris en charge. Les noms complets des jours de semaine et le groupe de contrôle de l'humeur sont exposés aux technologies d'assistance.
+
+Les tests automatisés de `tests/design-p3.test.mjs` vérifient les associations de couleurs, les libellés, les mécanismes d'accessibilité et l'ordre de chargement CSS. Ces tests ne remplacent pas un audit manuel TalkBack/VoiceOver ni la comparaison visuelle sur appareil.
