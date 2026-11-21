@@ -194,9 +194,10 @@ if __name__ == '__main__':
             assert page.locator('.natal-home .natal-wheel-viewport').evaluate(
                 "el => getComputedStyle(el).backgroundImage"
             ) == 'none'
+            # P1: natal summary uses one clear grouped surface, not borderless tiles.
             assert page.locator('.natal-home .natal-primary-cards').evaluate(
-                "el => getComputedStyle(el).borderTopWidth"
-            ) == '0px'
+                "el => parseFloat(getComputedStyle(el).borderTopWidth)"
+            ) >= 1
             assert page.locator('.natal-summary-item').count()==3
             assert [x.strip() for x in page.locator('.natal-summary-name').all_text_contents()]==['Soleil','Lune','Ascendant']
             assert page.locator('.natal-summary-icon').all_text_contents()==['☼','☽','↑']
