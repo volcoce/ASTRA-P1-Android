@@ -1,4 +1,4 @@
-name: ASTRA Public — Calcul dynamique Android 17
+name: ASTRA · Android Preview CI
 on:
   push:
     branches: [main, public-runtime]
@@ -59,11 +59,6 @@ jobs:
           name: ASTRA-UI-regression-screenshots
           path: tests/artifacts/screenshots/*.png
           if-no-files-found: warn
-      - name: Préparer la signature stable (DEBUG / Preview uniquement)
-        run: |
-          base64 --decode ci/astra-preview-test-signing.p12.b64 > ci/astra-preview-test-signing.p12
-          test -s ci/astra-preview-test-signing.p12
-          keytool -list -storetype PKCS12 -keystore ci/astra-preview-test-signing.p12 -storepass 'astra-preview-TEST-only-2026' >/dev/null
       - name: Préparer la signature de test ASTRA Preview
         run: |
           base64 --decode ci/astra-preview-test-signing.p12.b64 > ci/astra-preview-test-signing.p12
