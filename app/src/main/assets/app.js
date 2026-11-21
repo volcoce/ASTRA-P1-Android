@@ -461,8 +461,12 @@
       const total=seg.index===null?0:periods.totals[seg.index];
       const pct=Math.round(total/periods.dayCount*100);
       const dayRange=seg.start===seg.end?String(seg.start):seg.start+'–'+seg.end;
-      const entry=seg.startHalf%2===0?periods.ingresses.find(x=>Number(x.day.slice(8))===seg.start):null;
-      const exit=seg.endHalf%2===1?periods.ingresses.find(x=>Number(x.day.slice(8))===seg.end):null;
+      // Only the week containing the real ingress owns the split-edge style.
+      // Other weekly slices of the same long period must look continuous.
+      const entry=seg.startHalf%2===0&&visibleStart===seg.startHalf?
+        periods.ingresses.find(x=>Number(x.day.slice(8))===seg.start):null;
+      const exit=seg.endHalf%2===1&&visibleEnd===seg.endHalf?
+        periods.ingresses.find(x=>Number(x.day.slice(8))===seg.end):null;
       const ingress=entry||exit;
       const changed=ingress?', passage de '+ingress.fromSign+' à '+ingress.toSign+
         ' à '+new Intl.DateTimeFormat('fr-FR',{hour:'2-digit',minute:'2-digit',timeZone:zone}).format(new Date(ingress.at))+
