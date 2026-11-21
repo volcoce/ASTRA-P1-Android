@@ -520,6 +520,12 @@ if __name__ == '__main__':
             capture('settings-dark-393')
             page.locator('[data-tab="calendar"]').click()
             capture('calendar-dark-393')
+            assert page.evaluate("""() => {
+              const root=getComputedStyle(document.documentElement);
+              return root.getPropertyValue('--solar-earth-bg').trim()==='#6E6A33' &&
+                root.getPropertyValue('--solar-water-bg').trim()==='#2D7777' &&
+                root.getPropertyValue('--solar-air-bg').trim()==='#3E6E90';
+            }""")
             assert page.locator('.calendar .day').first.evaluate(
                 "el => getComputedStyle(el).color"
             )=='rgb(248, 239, 213)'
@@ -532,6 +538,11 @@ if __name__ == '__main__':
             page.emulate_media(reduced_motion='no-preference')
             page.locator('[data-appearance="light"]').click()
             assert page.evaluate("document.documentElement.dataset.astraTheme")=='light'
+            assert page.evaluate("""() => {
+              const root=getComputedStyle(document.documentElement);
+              return root.getPropertyValue('--solar-earth-bg').trim()==='#C8C36A' &&
+                root.getPropertyValue('--solar-water-bg').trim()==='#5FA3A3';
+            }""")
             page.locator('[data-profile-screen="overview"]').click()
             assert page.locator('#orb').count()==0
             # New default: full wheel is fitted to the 320 px screen.
