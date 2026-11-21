@@ -34,6 +34,10 @@
   background:transparent!important;background-image:none!important;
   border:0!important;border-radius:0!important;box-shadow:none!important;
 }
+/* Light solar ribbons require dark, readable day numbers even in night mode. */
+:root[data-astra-theme="dark"] .calendar .astra-calendar-date-week .day{
+  color:#25394b;
+}
 .calendar .astra-calendar-date-week .day.selected,
 :root[data-astra-theme="dark"] .calendar .astra-calendar-date-week .day.selected{
   outline:2px solid #235e81;outline-offset:-3px;
