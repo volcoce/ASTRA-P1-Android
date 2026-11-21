@@ -463,6 +463,34 @@
     const mostPresent=max?totals.flatMap((days,index)=>days===max?[index]:[]):[];
     return {segments,indices,totals,mostPresent,dayCount,max,ingresses};
   }
+  // Exact major Moon phases on outside-month dates, using the same
+  // astronomical engine as the main month. Cached across UI re-renders.
+  const calendarLunationCache=new Map();
+  function solarVisibleMajorPhases(days){
+    const phases=new Map();
+    if(!days.length||!state.profile||!E?.upcomingMoonPhases)return phases;
+    const zone=state.profile.timezone;
+    const key=[days[0].day,days[days.length-1].day,zone,state.mode].join('|');
+    if(calendarLunationCache.has(key))return calendarLunationCache.get(key);
+    const after=days[days.length-1].day;
+    let cursor=new Date(Date.parse(days[0].day+'T00:00:00Z')-2*86400000);
+    for(let batch=0;batch<4;batch++){
+      let resultPhases;
+      try{resultPhases=E.upcomingMoonPhases(cursor,zone,state.mode);}catch{break;}
+      if(!Array.isArray(resultPhases)||!resultPhases.length)break;
+      for(const event of resultPhases){
+        if(event?.day>=days[0].day&&event.day<=after&&
+          (event.name==='Nouvelle Lune'||event.name==='Pleine Lune'))
+          phases.set(event.day,event.name==='Nouvelle Lune'?'new':'full');
+      }
+      const last=Date.parse(resultPhases[resultPhases.length-1].at);
+      if(!Number.isFinite(last)||last>=Date.parse(after+'T23:59:59Z'))break;
+      cursor=new Date(last+60000);
+    }
+    calendarLunationCache.set(key,phases);
+    if(calendarLunationCache.size>10)calendarLunationCache.delete(calendarLunationCache.keys().next().value);
+    return phases;
+  }
   // The visible calendar is a 35/42-day range, not just the civil month.
   // A sign ingress is illustrated as two half-days; a month boundary merely
   // switches between saturated and muted fills, WITHOUT extra round corners.
@@ -485,7 +513,7 @@
         else segments.push({index:sign,outside,startHalf:pos,endHalf:pos});
       });
     }
-    return {days,segments,ingressHalves,weekCount};
+    return {days,segments,ingressHalves,weekCount,majorPhases:solarVisibleMajorPhases(days)};
   }
   // Each week has fourteen equal columns. Date-cell buttons float above
   // one uninterrupted background. Splits at the month boundary stay FLAT.
@@ -890,11 +918,14 @@
           const adjacent=isoDay(new Date(year,m,number));
           const outsideSky=visiblePeriods?.days?.[week*7+c]?.sky;
           const outsidePhase=outsideSky?.moonPhaseAtNoon;
+          const outsideMajor=visiblePeriods?.majorPhases?.get(adjacent);
           const outsideMoon=Number.isFinite(outsidePhase)?
             '<span class="moon-phase-badge" aria-hidden="true">'+moonPhaseIcon(outsidePhase)+'</span>':'';
-          dates.push('<button type="button" class="astra-adjacent-day" data-day="'+adjacent+
+          dates.push('<button type="button" class="astra-adjacent-day'+
+            (outsideMajor?' moon-'+outsideMajor:'')+'" data-day="'+adjacent+
             '" aria-label="'+safe(displayDate(adjacent))+', hors du mois affiché'+
             (Number.isFinite(outsidePhase)?', '+lunarLabel(outsidePhase)+' à midi':'')+
+            (outsideMajor?', '+(outsideMajor==='new'?'Nouvelle Lune':'Pleine Lune'):'')+
             '">'+new Date(year,m,number).getDate()+outsideMoon+'</button>');
         }
       }
