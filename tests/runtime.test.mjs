@@ -258,7 +258,6 @@ test('calendar preserves physical lunar phase at local noon for each civil day',
   assert.ok(Math.abs(other.days['2026-11-20'].moonPhaseAtNoon-
     out.days['2026-11-20'].moonPhaseAtNoon)<0.00001,
     'Physical Moon illumination is independent of zodiac choice');
-  const solarDays=dates.filter(day=>out.days[day].exact.some(e=>e.type==='exact'&&e.body==='Sun'));
-  assert.ok(solarDays.length>0);
-  assert.ok(solarDays.length<dates.length,'Solar exact contacts must be occasional');
+  assert.ok(dates.every(day=>out.days[day].exact.every(e=>e.body!=='Sun')),
+    'The removed exact solar aspect feature must not generate calendar events');
 });
