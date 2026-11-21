@@ -644,40 +644,27 @@ if __name__ == '__main__':
             assert page.locator('.calendar-options').count()==1
             assert page.locator('.calendar-options').get_attribute('open') is None
             assert page.locator('h1.page-title').inner_text()=='Calendrier'
-            # Multi-day solar events are continuous bars INSIDE each calendar week.
-            assert page.locator('.astra-solar-ribbon').count()==0
-            assert page.locator('.calendar .cal-grid .astra-calendar-week-events').count()==6
-            assert page.locator('.calendar .astra-calendar-range-event').count()==7
-            solar_sc = page.locator('.astra-calendar-range-event[data-calendar-range-index="7"]')
-            solar_sa = page.locator('.astra-calendar-range-event[data-calendar-range-index="8"]')
-            assert solar_sc.count()==4 and solar_sa.count()==3
-            assert '18,5 jours visuels (62 % du mois)' in solar_sc.first.get_attribute('aria-label')
-            assert '11,5 jours visuels (38 % du mois)' in solar_sa.first.get_attribute('aria-label')
-            before=page.locator('.astra-calendar-range-event.ends-at-ingress')
-            after=page.locator('.astra-calendar-range-event.starts-after-ingress')
-            assert before.count()==1 and after.count()==1
-            assert 'grid-column:1 / span 7' in before.get_attribute('style')
-            assert 'grid-column:8 / span 7' in after.get_attribute('style')
-            assert '07:24' in after.get_attribute('aria-label')
-            assert 'moitié-moitié' in after.get_attribute('aria-label')
+            # Solar sign is the continuous background of the date cells;
+            # no independent solar row or solar-event button remains.
+            assert page.locator('.astra-solar-calendar-week').count()==0
+            assert page.locator('.astra-solar-calendar-event').count()==0
+            assert page.locator('.calendar .day.astra-solar-cell').count()>0
+            assert page.locator('.calendar .day.solar-element-water').count()>0
+            assert page.locator('.calendar .day.solar-element-fire').count()>0
+            assert page.locator('.calendar .day.solar-split').count()==1
+            split=page.locator('.calendar .day.solar-split')
+            assert '--solar-split-bg:' in split.get_attribute('style')
+            assert '50/50' in split.get_attribute('aria-label')
             assert 'Signe le plus présent' in page.locator('.astra-calendar-solar-note').inner_text()
-            assert 'Scorpion' in page.locator('.astra-calendar-solar-note').inner_text()
-            solar_sa.first.click()
-            assert page.locator('#calendarDayDialog[open]').count()==1
-            assert 'Soleil en Sagittaire' in page.locator('.astra-calendar-sheet-solar').inner_text()
-            assert 'du 19 au 30' in page.locator('.astra-calendar-sheet-solar').inner_text()
-            page.locator('[data-calendar-sheet-close]').click()
             page.locator('.calendar .day[data-day$="-19"]').click()
             assert page.locator('#calendarDayDialog[open]').count()==1
-            assert '07:24' in page.locator('.astra-calendar-sheet-solar').inner_text()
             assert 'moitié-moitié' in page.locator('.astra-calendar-sheet-solar').inner_text()
             page.locator('[data-calendar-sheet-close]').click()
             page.locator('.calendar .day[data-day$="-20"]').click()
             assert page.locator('#calendarDayDialog[open]').count()==1
-            assert page.locator('.astra-calendar-sheet-solar').count()==0
             page.locator('[data-calendar-sheet-close]').click()
             # Calculated phase icon for every day; New/Full highlighted
-            # separately. Only the 4 mock solar exact contacts are underlined.
+            # separately. There are no exact-Sun-aspect marker decorations.
             new_moon=page.locator('.calendar .day.moon-new')
             full_moon=page.locator('.calendar .day.moon-full')
             assert new_moon.count()==1 and full_moon.count()==1
@@ -718,28 +705,24 @@ if __name__ == '__main__':
             assert page.evaluate('document.documentElement.scrollWidth')<=322
             assert new_moon.locator('.astra-phase-graphic.astra-phase-0').count()==1
             assert full_moon.locator('.astra-phase-graphic.astra-phase-4').count()==1
-            assert page.locator('.calendar .day.sun-exact').count()==4
-            assert page.locator('.calendar .day.sun-exact .sun-aspect-line').count()==4
-            assert page.locator('.calendar .day[data-day$="-09"].sun-exact').count()==1
-            assert page.locator('.calendar .day[data-day$="-12"].sun-exact').count()==0
-            assert 'aspect(s) exact(s) du Soleil' in page.locator('.calendar .day[data-day$="-09"]').get_attribute('aria-label')
-            assert page.locator('.calendar-phase-legend .cal-legend-item').count()==3
-            assert 'Aspect solaire exact' in page.locator('.calendar-phase-legend').inner_text()
+            assert page.locator('.calendar .day.sun-exact').count()==0
+            assert page.locator('.calendar .day .sun-aspect-line').count()==0
+            assert page.locator('.calendar-phase-legend .cal-legend-item').count()==2
+            assert 'Aspect solaire exact' not in page.locator('.calendar-phase-legend').inner_text()
             assert 'Nouvelle Lune' in page.locator('.calendar-phase-legend').inner_text()
             assert 'Pleine Lune' in page.locator('.calendar-phase-legend').inner_text()
-            new_bg=new_moon.evaluate("e=>getComputedStyle(e).backgroundColor")
-            full_bg=full_moon.evaluate("e=>getComputedStyle(e).backgroundColor")
-            assert new_bg!=full_bg,(new_bg,full_bg)
-            # The markers do not disappear when the event list is filtered.
+            assert page.evaluate("""() => [...document.querySelectorAll('.calendar .day .moon-phase-badge')].every(el =>
+              getComputedStyle(el).backgroundColor === 'rgba(0, 0, 0, 0)')""")
+            # Solar element colors remain independent of the event filter.
             page.locator('.calendar-options > summary').click()
             page.locator('#eventFilter').select_option('exact')
             assert page.locator('.calendar .day.moon-new').count()==1
             assert page.locator('.calendar .day.moon-full').count()==1
-            assert page.locator('.calendar .day.sun-exact').count()==4
+            assert page.locator('.calendar .day.solar-split').count()==1
             assert page.locator('.calendar .day .moon-phase-badge').count()==month_days
             page.locator('.calendar-options > summary').click()
             page.locator('#eventFilter').select_option('moon')
-            assert page.locator('.calendar .day.sun-exact').count()==4
+            assert page.locator('.calendar .day.solar-split').count()==1
             assert page.locator('.calendar .day .moon-phase-badge').count()==month_days
             # Calendar filters cannot erase the unfiltred daily summary.
             page.locator('[data-tab="today"]').click()
