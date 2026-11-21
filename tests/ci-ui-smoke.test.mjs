@@ -7,7 +7,7 @@ const app=readFileSync(new URL('../app/src/main/assets/app.js',import.meta.url),
 const html=readFileSync(new URL('../app/src/main/assets/index.html',import.meta.url),'utf8');
 
 test('CI: synthetic-browser smoke loads every active theme asset',()=>{
-  for(const asset of ['style.css','atlas-ui.css','theme.css','wheel-ui.css','solar-ribbon.css','calendar-p0.css']){
+  for(const asset of ['style.css','atlas-ui.css','theme.css','wheel-ui.css','solar-ribbon.css','calendar-p0.css','personal-calendar.css']){
     assert.match(html,new RegExp('href="'+asset.replace('.','\\.')+'"'));
     assert.ok(smoke.includes("ROOT/'"+asset+"'"),asset);
   }
