@@ -412,6 +412,25 @@
   const solarSignIndex=longitude=>Number.isFinite(longitude)?
     Math.floor((((longitude%360)+360)%360)/30):null;
   const solarDayLongitude=day=>result?.days?.[day]?.sunLongitudeAtNoon;
+  // Adjacent-month dates require only a lightweight physical sky snapshot.
+  // Cache by timezone and zodiac mode; the selected month's full calculation
+  // remains the source for all in-month days.
+  const solarAdjacentCache=new Map();
+  function solarAdjacentDay(day){
+    if(!state.profile||!E?.dailySky||!E?.sunSignIngress)return null;
+    const key=[day,state.profile.timezone,state.mode].join('|');
+    if(solarAdjacentCache.has(key))return solarAdjacentCache.get(key);
+    let snapshot=null;
+    try{
+      const sky=E.dailySky(day,state.profile.timezone,state.mode);
+      snapshot={sunLongitudeAtNoon:sky.sunLongitude,
+        moonPhaseAtNoon:sky.moonPhase,
+        sunIngress:E.sunSignIngress(day,state.profile.timezone,state.mode)};
+    }catch{/* A missing local civil-time boundary should not hide dates. */}
+    solarAdjacentCache.set(key,snapshot);
+    if(solarAdjacentCache.size>90)solarAdjacentCache.delete(solarAdjacentCache.keys().next().value);
+    return snapshot;
+  }
   // Solar monthly statistics use local-noon signs and a 50/50 visual convention
   // on ingress days. Calendar tiles display these colours as their background.
   function solarMonthPeriods(year,monthIndex,dayCount){
@@ -444,26 +463,44 @@
     const mostPresent=max?totals.flatMap((days,index)=>days===max?[index]:[]):[];
     return {segments,indices,totals,mostPresent,dayCount,max,ingresses};
   }
-  // Continuous weekly ribbon BEHIND the dates. The same 14 half-columns
-  // preserve a purely visual 50/50 split on a solar ingress date.
+  // The visible calendar is a 35/42-day range, not just the civil month.
+  // A sign ingress is illustrated as two half-days; a month boundary merely
+  // switches between saturated and muted fills, WITHOUT extra round corners.
+  function solarVisiblePeriods(year,monthIndex,firstWeekday,weekCount){
+    const first=1-firstWeekday,days=[],segments=[],ingressHalves=new Set();
+    for(let i=0;i<weekCount*7;i++){
+      const number=first+i,day=isoDay(new Date(year,monthIndex,number));
+      const outside=number<1||number>new Date(year,monthIndex+1,0).getDate();
+      const sky=outside?solarAdjacentDay(day):result?.days?.[day];
+      days.push({day,outside,sky});
+      const index=solarSignIndex(sky?.sunLongitudeAtNoon),ingress=sky?.sunIngress;
+      const valid=ingress&&Number.isInteger(ingress.fromIndex)&&
+        Number.isInteger(ingress.toIndex)&&ingress.fromIndex>=0&&ingress.fromIndex<12&&
+        ingress.toIndex>=0&&ingress.toIndex<12&&ingress.fromIndex!==ingress.toIndex;
+      if(valid)ingressHalves.add(i*2+2);
+      const indices=valid?[ingress.fromIndex,ingress.toIndex]:[index,index];
+      indices.forEach((sign,half)=>{
+        const pos=i*2+half+1,last=segments[segments.length-1];
+        if(last&&last.index===sign&&last.outside===outside)last.endHalf=pos;
+        else segments.push({index:sign,outside,startHalf:pos,endHalf:pos});
+      });
+    }
+    return {days,segments,ingressHalves,weekCount};
+  }
+  // Each week has fourteen equal columns. Date-cell buttons float above
+  // one uninterrupted background. Splits at the month boundary stay FLAT.
   function solarCalendarBackdropWeek(year,monthIndex,firstWeekday,week,periods){
-    const first=1-firstWeekday+7*week,from=Math.max(1,first);
-    const to=Math.min(periods.dayCount,first+6);
-    if(from>to)return '';
-    const fromHalf=2*from-1,toHalf=2*to;
+    const fromHalf=week*14+1,toHalf=fromHalf+13;
     const parts=periods.segments.filter(s=>s.endHalf>=fromHalf&&s.startHalf<=toHalf).map(s=>{
       const start=Math.max(s.startHalf,fromHalf),end=Math.min(s.endHalf,toHalf);
-      const col=start-2*(first-1),span=end-start+1;
+      const col=start-fromHalf+1,span=end-start+1;
       const element=s.index===null?'unknown':['fire','earth','air','water'][s.index%4];
-      // Round both touching edges only at an actual sign ingress.
-      // The ingress remains exactly halfway through the date cell.
-      const startsAtIngress=start===s.startHalf&&s.startHalf%2===0&&
-        periods.ingresses.some(i=>Number(i.day.slice(8))===s.start);
-      const endsAtIngress=end===s.endHalf&&s.endHalf%2===1&&
-        periods.ingresses.some(i=>Number(i.day.slice(8))===s.end);
+      const startIngress=start===s.startHalf&&periods.ingressHalves.has(start);
+      const endIngress=end===s.endHalf&&periods.ingressHalves.has(end+1);
       return '<span class="astra-solar-ribbon-segment solar-element-'+element+
-        (startsAtIngress?' starts-at-ingress':'')+
-        (endsAtIngress?' ends-at-ingress':'')+
+        (s.outside?' is-outside-month':'')+
+        (startIngress?' starts-at-ingress':'')+
+        (endIngress?' ends-at-ingress':'')+
         '" style="grid-column:'+col+' / span '+span+'"></span>';
     }).join('');
     return '<div class="astra-solar-ribbon-backdrop" aria-hidden="true">'+parts+'</div>';
@@ -812,6 +849,8 @@
     const year=month.getFullYear(),m=month.getMonth(),weekday=(new Date(year,m,1).getDay()+6)%7,count=new Date(year,m+1,0).getDate();
     const cells=[];
     const periods=state.profile?solarMonthPeriods(year,m,count):null;
+    const weekCount=Math.ceil((weekday+count)/7);
+    const visiblePeriods=state.profile?solarVisiblePeriods(year,m,weekday,weekCount):null;
     const todayKey=isoDay(new Date());
     for(let d=1;d<=count;d++){
       const day=`${year}-${pad(m+1)}-${pad(d)}`,entry=classify(result?.days?.[day]);
@@ -836,7 +875,7 @@
     }
     // One continuous solar ribbon behind each week's dates, not seven cards.
     const weeks=[];
-    for(let week=0;week<Math.ceil((weekday+count)/7);week++){
+    for(let week=0;week<weekCount;week++){
       const first=1-weekday+7*week;
       const personal=personalCalendarWeek(year,m,weekday,week,count);
       if(personal)weeks.push(personal);
@@ -849,13 +888,18 @@
           // Context dates complete the Monday–Sunday grid, but never extend
           // the current month's solar ribbon or duplicate its calculations.
           const adjacent=isoDay(new Date(year,m,number));
+          const outsideSky=visiblePeriods?.days[week*7+c]?.sky;
+          const outsidePhase=outsideSky?.moonPhaseAtNoon;
+          const outsideMoon=Number.isFinite(outsidePhase)?
+            '<span class="moon-phase-badge" aria-hidden="true">'+moonPhaseIcon(outsidePhase)+'</span>':'';
           dates.push('<button type="button" class="astra-adjacent-day" data-day="'+adjacent+
-            '" aria-label="'+safe(displayDate(adjacent))+', hors du mois affiché">'+
-            new Date(year,m,number).getDate()+'</button>');
+            '" aria-label="'+safe(displayDate(adjacent))+', hors du mois affiché'+
+            (Number.isFinite(outsidePhase)?', '+lunarLabel(outsidePhase)+' à midi':'')+
+            '">'+new Date(year,m,number).getDate()+outsideMoon+'</button>');
         }
       }
       weeks.push('<div class="astra-calendar-date-week">'+
-        (periods?solarCalendarBackdropWeek(year,m,weekday,week,periods):'')+
+        (visiblePeriods?solarCalendarBackdropWeek(year,m,weekday,week,visiblePeriods):'')+
         dates.join('')+'</div>');
     }
     return header('Calendrier','Repère les phases et événements, puis choisis une date.')+
@@ -864,7 +908,7 @@
       '<button type="button" class="arrow" data-month="-1" aria-label="Mois précédent">‹</button>'+
       '<h2>'+safe(new Intl.DateTimeFormat('fr-FR',{month:'long',year:'numeric'}).format(month))+'</h2>'+
       '<button type="button" class="arrow" data-month="1" aria-label="Mois suivant">›</button></div>'+
-      '<button type="button" class="astra-personal-create" data-personal-new="1">+ Événement</button>'+
+
       (state.profile?'<details class="calendar-options"><summary>Options d’affichage</summary>'+switcher()+filters()+'</details>':'')+
       '<div class="calendar astra-calendar-board"><div class="cal-grid">'+['L','M','M','J','V','S','D'].map((x,i)=>
       '<span class="weekday"><span aria-hidden="true">'+x+'</span><span class="astra-sr-only">'+['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'][i]+'</span></span>').join('')+weeks.join('')+'</div>'+
