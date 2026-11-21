@@ -45,6 +45,9 @@ const count=(s,re)=>(s.match(re)||[]).length;
 test('Calendar: one month grid; personal events rendered in calendar, no duplicated list',()=>{
   const markup=calendar();
   assert.equal(count(markup,/class="day /g),30);
+  assert.equal(count(markup,/class="astra-adjacent-day"/g),12);
+  assert.match(markup,/data-day="2026-10-26"/);
+  assert.match(markup,/data-day="2026-12-06"/);
   assert.equal(count(markup,/class="astra-solar-calendar-week"/g),0);
   assert.match(markup,/astra-calendar-solar-note/);
   assert.match(markup,/data-personal-new="1"/);
