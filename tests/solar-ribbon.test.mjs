@@ -37,20 +37,32 @@ test('Ingress preserves half-day convention for monthly summary',()=>{
   assert.equal(model.ingresses[0].day,'2026-11-22');
   assert.match(solarMonthSummary(model),/Jour du passage partagé 50\/50/);
 });
-test('Calendar directly colors day cells instead of rendering an extra solar row',()=>{
+test('Solar band spans weekly half-columns, with two element colors at ingress',()=>{
+  const {solarMonthPeriods,solarCalendarWeek}=solarModule();
+  const periods=solarMonthPeriods(2026,10,30);
+  const weekday=(new Date(2026,10,1).getDay()+6)%7;
+  const firstWeek=solarCalendarWeek(2026,10,weekday,0,periods);
+  assert.match(firstWeek,/astra-solar-calendar-week/);
+  assert.match(firstWeek,/solar-element-water/);
+  assert.match(firstWeek,/grid-column:13 \/ span 2/);
+  const ingressWeek=solarCalendarWeek(2026,10,weekday,3,periods);
+  assert.match(ingressWeek,/solar-element-water/);
+  assert.match(ingressWeek,/solar-element-fire/);
+  assert.match(ingressWeek,/grid-column:1 \/ span 13/);
+  assert.match(ingressWeek,/grid-column:14 \/ span 1/);
+  assert.match(ingressWeek,/Soleil en Scorpion/);
+  assert.match(ingressWeek,/Soleil en Sagittaire/);
+});
+test('Calendar uses solar rows instead of coloring individual day backgrounds',()=>{
   const start=app.indexOf('  function calendar() {'),end=app.indexOf('  function initDraft()',start);
   const code=app.slice(start,end);
   assert.match(code,/solarCalendarWeek\(year,m,weekday,week,periods\)/);
-  assert.match(code,/--solar-split-bg:var\(--solar-sign-/);
-  assert.match(code,/sunIngress\.fromIndex/);
-  assert.match(code,/sunIngress\.toIndex/);
-  assert.ok(code.includes('solarCalendarWeek('));
   assert.ok(!app.includes('astra-solar-cell'));
-  assert.ok(app.includes('data-day'));
-  assert.match(css,/\.calendar \.day\.astra-solar-cell/);
-  assert.match(css,/linear-gradient\(90deg/);
-  assert.match(css,/var\(--solar-split-bg,var\(--solar-bg\)\)/);
-  assert.match(css,/solar-element-water/);
+  assert.match(css,/\.astra-solar-calendar-week/);
+  assert.match(css,/grid-template-columns:repeat\(14/);
+  for(const element of ['fire','earth','air','water'])
+    assert.match(css,new RegExp('solar-element-'+element));
+  assert.ok(!css.includes('solar-split-bg'));
 });
 test('Other sky data stays available and daily Sun banner remains separate',()=>{
   const {solarDayBand}=solarModule();
