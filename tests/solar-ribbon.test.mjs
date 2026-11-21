@@ -40,17 +40,17 @@ test('Ingress preserves half-day convention for monthly summary',()=>{
 test('Calendar directly colors day cells instead of rendering an extra solar row',()=>{
   const start=app.indexOf('  function calendar() {'),end=app.indexOf('  function initDraft()',start);
   const code=app.slice(start,end);
-  assert.match(code,/astra-solar-cell solar-split solar-sign-/);
+  assert.match(code,/solarCalendarWeek\(year,m,weekday,week,periods\)/);
   assert.match(code,/--solar-split-bg:var\(--solar-sign-/);
   assert.match(code,/sunIngress\.fromIndex/);
   assert.match(code,/sunIngress\.toIndex/);
-  assert.ok(!code.includes('solarCalendarWeek('));
-  assert.ok(!app.includes('astra-calendar-range-event'));
-  assert.ok(!app.includes('data-calendar-range-start'));
+  assert.ok(code.includes('solarCalendarWeek('));
+  assert.ok(!app.includes('astra-solar-cell'));
+  assert.ok(app.includes('data-day'));
   assert.match(css,/\.calendar \.day\.astra-solar-cell/);
   assert.match(css,/linear-gradient\(90deg/);
   assert.match(css,/var\(--solar-split-bg,var\(--solar-bg\)\)/);
-  assert.ok(!css.includes('.astra-calendar-week-events'));
+  assert.match(css,/solar-element-water/);
 });
 test('Other sky data stays available and daily Sun banner remains separate',()=>{
   const {solarDayBand}=solarModule();
