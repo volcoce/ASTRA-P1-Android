@@ -1,15 +1,19 @@
-# ASTRA Public — Preview 0.8.10
+# ASTRA Public — Preview 0.8.11
 
-## Bande zodiacale visible et centre épuré — Preview 0.8.10
+## Frise solaire dans le calendrier, roue neutre — Preview 0.8.11
 
-- Suppression des médaillons ASTRA / TROPICAL / SIDÉRAL / HEURE INCONNUE / NATAL / TRANSITS au centre des trois roues, sans cacher les aspects.
-- Le signe zodiacal associé à la sélection est mis en évidence par **un secteur entier rempli d'ambre clair**, et plus seulement par un filet doré.
-- Sans sélection, la roue natale montre le signe du **Soleil natal** et la roue double celui du **Soleil en transit** ; sélectionner une planète ou la cuspide d'une maison adapte la bande.
-- Une légende sous la roue nomme précisément la planète ou la cuspide et son signe. Les degrés planétaires et la séparation natal/transit sont inchangés.
-- Les exports SVG/PNG conservent la nouvelle bande. Tests de régression pour les trois variantes, le signe par défaut, les sélections et l'absence de cartouche central.
-- Le test d'accessibilité du calendrier utilise une date de référence fixe pour ne plus échouer lorsqu'il n'est plus exécuté le 20 novembre 2026.
+- **Placement corrigé** : le signe solaire du jour doit être indiqué par une frise colorée dans le calendrier, pas par un secteur doré dans la roue natale.
+- La frise **« Parcours du Soleil »** montre les signes traversés dans le mois. Chaque bande occupe une largeur proportionnelle aux jours concernés, avec symbole, nom du signe et dates ; un repère marque la date sélectionnée.
+- Le calcul utilise la **longitude astronomique du Soleil à midi dans le fuseau du profil**, déjà produite pour chaque jour par le moteur mensuel. Un changement de signe pendant la journée peut donc différer du repère de midi.
+- Dans « Ce jour », une **bande de fond colorée** indique le signe actuel du Soleil à midi et son degré dans ce signe.
+- Les aspects exacts du Soleil dans les cases du calendrier restent disponibles, mais sont représentés par un **point bleu**, distinct de la frise solaire (et des phases lunaires).
+- Les trois variantes de la roue (avec maisons, heure inconnue, natal/transits) ont un **centre épuré sans cartouche ASTRA** et n'affichent plus de bande solaire.
+- Le calcul zodiacal respecte les modes tropical et sidéral. L'interface et les exports SVG/PNG n'ajoutent pas de signe fictif ni de surbrillance indépendante du contexte.
+- Tests dédiés pour les segments de la frise, la sélection, l'accessibilité, l'absence de bande dans la roue et les propriétés astronomiques.
 
+### Historique de la 0.8.10
 
+La version 0.8.10 avait placé une bande ambrée sur le zodiaque **dans la roue natale**. C'était une mauvaise interprétation de la demande. Cette présentation a été retirée en 0.8.11 ; la suppression du médaillon central, elle, est conservée.
 
 ## Refonte graphique de la roue astrologique — Preview 0.8.9
 
