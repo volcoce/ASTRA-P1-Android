@@ -686,6 +686,110 @@
         (exactEvents.length>featured.length?'<p class="astra-section-help">Les cinq premiers sont affichés. Consulte le calendrier pour les autres dates.</p>':'')+
         '<button type="button" class="astra-month-calendar-link" data-goto="calendar">Ouvrir le calendrier <span aria-hidden="true">→</span></button></section>';
   }
+  // A personal event has inclusive civil start/end dates. Split visual bars at
+  // week boundaries without splitting, duplicating or modifying the event.
+  function personalCalendarWeek(year,monthIndex,firstWeekday,week,dayCount){
+    const first=1-firstWeekday+7*week;
+    const from=Math.max(1,first),to=Math.min(dayCount,first+6);
+    if(from>to)return '';
+    const prefix=year+'-'+pad(monthIndex+1)+'-';
+    const low=prefix+pad(from),high=prefix+pad(to);
+    const ranges=state.calendarEvents.filter(e=>e.start<=high&&e.end>=low)
+      .map(e=>{
+        const starts=e.start>low?e.start:low,ends=e.end<high?e.end:high;
+        const startNumber=Number(starts.slice(8)),endNumber=Number(ends.slice(8));
+        return {event:e,startColumn:startNumber-first+1,endColumn:endNumber-first+1,
+          before:e.start<starts,after:e.end>ends};
+      }).sort((a,b)=>a.startColumn-b.startColumn||
+        b.endColumn-a.endColumn||a.event.title.localeCompare(b.event.title));
+    if(!ranges.length)return '';
+    const occupied=[],items=[];
+    for(const span of ranges){
+      let row=occupied.findIndex(col=>col<span.startColumn);
+      if(row===-1){row=occupied.length;occupied.push(0);}
+      occupied[row]=span.endColumn;
+      const e=span.event,days=span.endColumn-span.startColumn+1;
+      const time=e.allDay?'Toute la journée':e.startTime+'–'+e.endTime;
+      const announce=e.title+', '+displayDate(e.start)+(e.end!==e.start?' au '+displayDate(e.end):'')+
+        ', '+time;
+      const title=(e.allDay?'':e.startTime+' · ')+e.title;
+      items.push('<button type="button" class="astra-personal-calendar-event event-color-'+e.color+
+        (span.before?' continues-before':'')+(span.after?' continues-after':'')+
+        (days===1?' is-single-day':'')+
+        '" style="grid-column:'+span.startColumn+' / span '+days+';grid-row:'+(row+1)+
+        '" data-personal-edit="'+safe(e.id)+'" aria-label="'+safe(announce)+'" title="'+safe(announce)+'">'+
+        '<span class="astra-personal-calendar-title" aria-hidden="true">'+safe(title)+'</span></button>');
+    }
+    return '<div class="astra-personal-calendar-week" role="group" aria-label="Événements personnels de la semaine" '+
+      'style="grid-template-rows:repeat('+occupied.length+',minmax(27px,auto))">'+
+      items.join('')+'</div>';
+  }
+  function personalEventEditor(){
+    if(personalEditor===null)return '';
+    const editing=personalEditor!=='new';
+    const saved=editing?state.calendarEvents.find(e=>e.id===personalEditor):null;
+    if(editing&&!saved)return '';
+    const e=saved||{title:'',start:selected,end:selected,allDay:true,
+      startTime:'09:00',endTime:'10:00',color:'blue',note:''};
+    const title=editing?'Modifier l’événement':'Nouvel événement';
+    const field=(id,label,type,value,extra='')=>
+      '<label class="astra-personal-field" for="'+id+'"><span>'+label+'</span>'+
+      '<input id="'+id+'" name="'+id+'" type="'+type+'" value="'+safe(value)+
+      '" '+extra+'></label>';
+    return '<dialog id="personalEventDialog" class="astra-personal-dialog" aria-labelledby="personalEventDialogTitle">'+
+      '<form id="personalEventForm" class="astra-personal-form">'+
+      '<div class="astra-personal-dialog-head"><h2 id="personalEventDialogTitle">'+title+'</h2>'+
+      '<button type="button" class="astra-personal-close" data-personal-close="1" aria-label="Fermer">×</button></div>'+
+      field('personalTitle','Titre','text',e.title,'required maxlength="120" placeholder="Nom de l’événement"')+
+      '<div class="astra-personal-date-fields">'+
+      field('personalStart','Du','date',e.start,'required min="1900-01-01" max="2100-12-31"')+
+      field('personalEnd','Au (inclus)','date',e.end,'required min="1900-01-01" max="2100-12-31"')+
+      '</div>'+
+      '<label class="astra-personal-all-day"><input type="checkbox" id="personalAllDay"'+(e.allDay?' checked':'')+
+      '> Toute la journée</label>'+
+      '<div class="astra-personal-time-fields" id="personalTimeFields"'+(e.allDay?' hidden':'')+'>'+
+      field('personalStartTime','Heure de début','time',e.startTime||'09:00')+
+      field('personalEndTime','Heure de fin','time',e.endTime||'10:00')+'</div>'+
+      '<label class="astra-personal-field" for="personalColor"><span>Couleur</span>'+
+      '<select id="personalColor">'+calendarColors.map(color=>
+      '<option value="'+color+'"'+(e.color===color?' selected':'')+'>'+({
+        blue:'Bleu',purple:'Violet',green:'Vert',orange:'Orange',rose:'Rose',slate:'Gris'
+      })[color]+'</option>').join('')+'</select></label>'+
+      '<label class="astra-personal-field" for="personalNote"><span>Description (facultative)</span>'+
+      '<textarea id="personalNote" maxlength="3000" rows="3">'+safe(e.note)+'</textarea></label>'+
+      '<p class="astra-personal-error" id="personalEventError" role="alert" hidden></p>'+
+      '<div class="astra-personal-actions">'+
+      (editing?'<button type="button" class="astra-personal-delete" data-personal-delete="'+safe(e.id)+'">Supprimer</button>':'')+
+      '<button type="submit" class="astra-personal-save">'+(editing?'Enregistrer les modifications':'Créer l’événement')+'</button>'+
+      '</div><p class="tiny">Enregistré uniquement sur cet appareil · inclus dans la sauvegarde JSON.</p>'+
+      '</form></dialog>';
+  }
+  function calendarDayInspector(){
+    if(!calendarSheet)return '';
+    const personal=state.calendarEvents.filter(e=>e.start<=selected&&e.end>=selected)
+      .sort((a,b)=>a.start.localeCompare(b.start)||a.title.localeCompare(b.title));
+    const astro=dayEvents(currentDay());
+    const period=calendarInterval&&calendarInterval.year===month.getFullYear()&&
+      calendarInterval.month===month.getMonth()?calendarInterval:null;
+    const periodText=period?
+      '<p class="astra-calendar-sheet-solar">☉ Soleil en '+
+      safe(period.index===null?'signe indisponible':zodiacNames[period.index])+
+      ' · du '+period.start+' au '+period.end+'</p>':'';
+    const list=personal.map(e=>{
+      const dates=e.start===e.end?displayDate(e.start):
+        displayDate(e.start)+' au '+displayDate(e.end);
+      return '<button type="button" class="astra-calendar-inspector-event event-color-'+e.color+
+        '" data-personal-edit="'+safe(e.id)+'"><b>'+safe(e.title)+'</b>'+
+        '<span>'+safe(dates)+(e.allDay?' · Toute la journée':' · '+safe(e.startTime+'–'+e.endTime))+
+        '</span></button>';
+    }).join('')+astro.map(row).join('');
+    return '<dialog class="astra-personal-dialog astra-calendar-day-dialog" id="calendarDayDialog" aria-labelledby="calendarDayDialogTitle">'+
+      '<div class="astra-personal-dialog-head"><h2 id="calendarDayDialogTitle">'+safe(displayDate(selected))+'</h2>'+
+      '<button type="button" class="astra-personal-close" data-calendar-sheet-close="1" aria-label="Fermer">×</button></div>'+
+      periodText+'<div class="astra-calendar-inspector-list">'+(list||'<p class="astra-calendar-empty">Aucun événement ce jour.</p>')+'</div>'+
+      '<div class="astra-personal-actions"><button type="button" class="astra-personal-save" data-personal-new="1">+ Ajouter un événement</button>'+
+      '<button type="button" class="astra-calendar-inspector-sky" data-calendar-open-day="1">Voir le ciel de cette journée</button></div></dialog>';
+  }
   function calendar() {
     if(!state.profile)return unconfigured();
     const year=month.getFullYear(),m=month.getMonth(),weekday=(new Date(year,m,1).getDay()+6)%7,count=new Date(year,m+1,0).getDate();
