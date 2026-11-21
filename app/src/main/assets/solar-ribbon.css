@@ -5,73 +5,58 @@
 .solar-sign-2,.solar-sign-6,.solar-sign-10{--solar-bg:#cbe5fa;--solar-ink:#274f73}
 .solar-sign-3,.solar-sign-7,.solar-sign-11{--solar-bg:#d9d1f6;--solar-ink:#51417a}
 
-/* Continuous solar backgrounds in date cells; no additional solar event row. */
+/* One actual ribbon beneath the whole week, not rounded date cards.
+   Solar spans use half-day columns so ingress days show two colours 50/50. */
 :root{
   --solar-fire-bg:#ffdbad;--solar-earth-bg:#d9eab7;
   --solar-air-bg:#cbe5fa;--solar-water-bg:#d9d1f6;
 }
-.solar-element-fire{--solar-bg:var(--solar-fire-bg);--solar-ink:#713c20}
-.solar-element-earth{--solar-bg:var(--solar-earth-bg);--solar-ink:#36542b}
-.solar-element-air{--solar-bg:var(--solar-air-bg);--solar-ink:#274f73}
-.solar-element-water{--solar-bg:var(--solar-water-bg);--solar-ink:#51417a}
-.calendar .cal-grid{grid-auto-flow:row;column-gap:0}
-.calendar .day.astra-solar-cell,
-.calendar .day.astra-solar-cell.moon-new:not(.selected),
-.calendar .day.astra-solar-cell.moon-full:not(.selected),
-:root[data-astra-theme="dark"] .calendar .day.astra-solar-cell{
-  background-color:var(--solar-bg);
-  background-image:linear-gradient(to right,
-    var(--solar-bg) 0%,var(--solar-bg) 50%,
-    var(--solar-split-bg,var(--solar-bg)) 50%,
-    var(--solar-split-bg,var(--solar-bg)) 100%);
-  color:var(--solar-ink);
-  border-radius:7px;
-  border:0;
+.solar-element-fire{--solar-bg:var(--solar-fire-bg)}
+.solar-element-earth{--solar-bg:var(--solar-earth-bg)}
+.solar-element-air{--solar-bg:var(--solar-air-bg)}
+.solar-element-water{--solar-bg:var(--solar-water-bg)}
+.solar-element-unknown{--solar-bg:transparent}
+.calendar .cal-grid{grid-auto-flow:row;column-gap:0!important;row-gap:7px}
+.calendar .astra-calendar-date-week{
+  grid-column:1/-1;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));
+  position:relative;min-width:0;isolation:isolate;gap:0;
 }
-/* A period is one continuous rectangular background across adjacent dates.
-   Only the start and end of a visible weekly segment are rounded. */
-.calendar .day.astra-solar-cell{border-radius:0}
-.calendar .day.astra-solar-cell:not(.solar-continues-before){
-  border-top-left-radius:9px;border-bottom-left-radius:9px
+.calendar .astra-solar-ribbon-backdrop{
+  position:absolute;inset:0;z-index:0;pointer-events:none;
+  display:grid;grid-template-columns:repeat(14,minmax(0,1fr));
+  overflow:hidden;border-radius:11px;
 }
-.calendar .day.astra-solar-cell:not(.solar-continues-after){
-  border-top-right-radius:9px;border-bottom-right-radius:9px
+.calendar .astra-solar-ribbon-segment{
+  display:block;min-width:0;background:var(--solar-bg);height:100%;
 }
-/* All-day event rows can continue above without covering the solar background. */
-.calendar .day.astra-solar-cell .moon-phase-badge,
-:root[data-astra-theme="dark"] .calendar .day.astra-solar-cell .moon-phase-badge{
-  background:transparent!important;border:0!important;box-shadow:none!important;
-  border-radius:0!important;padding:0!important
+.calendar .astra-calendar-date-week .day{
+  position:relative;z-index:1;min-width:0;
+  background:transparent!important;background-image:none!important;
+  border:0!important;border-radius:0!important;box-shadow:none!important;
 }
-.calendar .day.astra-solar-cell .astra-phase-graphic{
-  display:block;background:transparent!important;border:0;box-shadow:none
+.calendar .astra-calendar-date-week .day.selected,
+:root[data-astra-theme="dark"] .calendar .astra-calendar-date-week .day.selected{
+  outline:2px solid #235e81;outline-offset:-3px;
+  color:inherit;box-shadow:none!important;
 }
-/* Fixed, readable month calendar on wider displays; no stretched giant tiles. */
-.astra-calendar-month-head,
-.calendar-options,
-.calendar,
-.calendar ~ .astra-calendar-day-dialog{max-width:840px;margin-left:auto;margin-right:auto}
-.calendar .cal-grid{column-gap:0!important;row-gap:5px}
-@media(min-width:700px){
-  .calendar .day{height:62px;min-height:62px}
-  .calendar{padding:16px 14px 18px}
+.calendar .astra-calendar-date-week .day.today:not(.selected){
+  outline:2px dashed #235e81;outline-offset:-3px;
 }
-@media(max-width:699px){
-  .calendar .day{height:55px;min-height:55px}
-  .calendar{padding:10px 6px 14px}
+.calendar .astra-calendar-date-week .day:focus-visible{
+  outline:3px solid #235e81;outline-offset:-3px;z-index:2;
 }
-
-.calendar .day.astra-solar-cell.selected,
-:root[data-astra-theme="dark"] .calendar .day.astra-solar-cell.selected{
-  color:#172637;
-  outline:2px solid #235e81;
-  outline-offset:-2px;
-  box-shadow:inset 0 0 0 1px #fff;
+.calendar .astra-calendar-date-week .day.moon-new,
+.calendar .astra-calendar-date-week .day.moon-full{
+  background:transparent!important;
 }
-.calendar .day.astra-solar-cell.today:not(.selected){outline:2px solid #235e81;outline-offset:-2px}
-.calendar .day.astra-solar-cell .count{background:#294f64}
-.calendar .day.astra-solar-cell .moon-phase-badge{z-index:1}
-.calendar .day.astra-solar-cell:focus-visible{outline:3px solid #235e81;outline-offset:-2px}
+.calendar .astra-calendar-date-week .moon-phase-badge,
+:root[data-astra-theme="dark"] .calendar .astra-calendar-date-week .moon-phase-badge{
+  background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0!important;
+}
+.calendar .astra-calendar-date-week .astra-phase-graphic{background:transparent!important}
+.astra-calendar-month-head,.calendar-options,.calendar{max-width:840px;margin-inline:auto}
+@media(min-width:700px){.calendar .day{height:62px;min-height:62px}.calendar{padding:16px 14px 18px}}
+@media(max-width:699px){.calendar .day{height:55px;min-height:55px}.calendar{padding:10px 6px 14px}}
 .astra-calendar-blank-day{min-width:0;height:55px}
 .astra-calendar-solar-note{margin:11px 0 4px;font:550 12px/1.5 system-ui,Arial,sans-serif;color:#455f70}
 .astra-calendar-solar-note b{font-weight:800}
@@ -89,10 +74,3 @@
 .astra-solar-daily-degree{margin-left:auto;flex:none;font-size:12px;font-weight:750}
 .astra-solar-daily-band.is-unknown{background:#e8edf1;color:#405566}
 
-/* The Moon illustration is transparent even when the user has no natal profile. */
-.calendar .day .moon-phase-badge,
-:root[data-astra-theme="dark"] .calendar .day .moon-phase-badge{
-  background:transparent!important;border:0!important;box-shadow:none!important;
-  border-radius:0!important
-}
-.calendar .day .astra-phase-graphic{background:transparent!important}
