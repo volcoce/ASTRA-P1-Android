@@ -23,7 +23,6 @@
 .astra-calendar-day-events{border-top:1px solid #e4ebef}
 .astra-calendar-day-events .event-button{padding:10px 2px;min-height:66px}
 .astra-calendar-day-events .event-button:first-child{border-top:0}
-.astra-calendar-day-events .event-more{display:none}
 .astra-calendar-day-events .event-glyph{width:35px;height:35px}
 .astra-calendar-day-events .event-category-label{margin-bottom:2px}
 .astra-calendar-empty{margin:13px 2px;color:#657887;font-size:13px;line-height:1.6}
@@ -68,7 +67,7 @@
   background:var(--event-bg);color:var(--event-ink);
   border:1px solid var(--event-edge);
 }
-.event-category-label{
+.event-button .event-body .event-category-label{
   display:block;margin:0 0 3px;color:var(--event-ink,#46677c)!important;
   font:800 10px/1.3 system-ui,sans-serif;
   letter-spacing:.04em;text-transform:uppercase;
