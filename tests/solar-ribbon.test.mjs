@@ -23,7 +23,7 @@ const ctx={
 function solarModule(){
   const a=app.indexOf('  const solarSignIndex='),b=app.indexOf('  function eventTitle(',a);
   return new Function('ctx','with(ctx){'+app.slice(a,b)+
-    ';return {solarSignIndex,solarMonthPeriods,solarMonthSummary,solarDayBand,solarVisiblePeriods,solarCalendarBackdropWeek};}')(ctx);
+    ';return {solarSignIndex,solarMonthPeriods,solarMonthSummary,solarDayBand,solarVisiblePeriods,solarCalendarBackdropWeek,solarVisibleMajorPhases};}')(ctx);
 }
 test('solar month preserves real sign intervals and 50/50 ingress',()=>{
   const {solarMonthPeriods,solarMonthSummary}=solarModule();
@@ -66,6 +66,27 @@ test('solar ribbon remains full-width across adjacent months and has true ingres
   assert.match(render,/solarCalendarBackdropWeek/);
   assert.ok(!render.includes('astra-solar-cell'));
   assert.ok(!render.includes('class="astra-personal-create"'));
+});
+test('outside-month exact lunations remain marked but do not shift zodiac segments',()=>{
+  let calls=0;
+  ctx.E.upcomingMoonPhases=()=>{
+    calls++;
+    return [
+      {name:'Nouvelle Lune',day:'2026-10-30',at:'2026-10-30T12:00:00Z'},
+      {name:'Premier quartier',day:'2026-11-07',at:'2026-11-07T12:00:00Z'},
+      {name:'Pleine Lune',day:'2026-12-02',at:'2026-12-02T12:00:00Z'},
+      {name:'Dernier quartier',day:'2026-12-08',at:'2026-12-08T12:00:00Z'}
+    ];
+  };
+  const {solarVisiblePeriods}=solarModule();
+  const p=solarVisiblePeriods(2026,10,6,6);
+  assert.equal(p.majorPhases.get('2026-10-30'),'new');
+  assert.equal(p.majorPhases.get('2026-12-02'),'full');
+  assert.equal(calls,1);
+  const repeat=solarVisiblePeriods(2026,10,6,6);
+  assert.equal(repeat.majorPhases.get('2026-12-02'),'full');
+  assert.equal(calls,1,'Lunar quarter lookup must remain cached across calendar renders');
+  delete ctx.E.upcomingMoonPhases;
 });
 test('daily solar label and unknown position remain supported',()=>{
   const {solarDayBand,solarSignIndex}=solarModule();
