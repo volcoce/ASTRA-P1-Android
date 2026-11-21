@@ -699,6 +699,10 @@ if __name__ == '__main__':
             assert page.locator('.calendar .astra-adjacent-day[data-day="2026-10-26"]').count()==1
             assert page.locator('.calendar .astra-adjacent-day[data-day="2026-12-06"]').count()==1
             assert page.locator('.calendar .astra-adjacent-day').first.get_attribute('aria-label').__contains__('hors du mois affiché')
+            assert page.locator('.calendar .astra-adjacent-day.moon-new').count()>=1
+            assert page.locator('.calendar .astra-adjacent-day.moon-new .moon-phase-badge').first.evaluate(
+                "el => getComputedStyle(el).borderTopStyle"
+            )=='solid'
             assert page.locator('.calendar .day.moon-new .moon-phase-badge').count()==1
             assert page.locator('.calendar .day.moon-full .moon-phase-badge').count()==1
             assert page.locator('.calendar .day.moon-full .moon-phase-badge').evaluate("el => getComputedStyle(el).borderTopStyle")=='solid'
