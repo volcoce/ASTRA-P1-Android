@@ -1,4 +1,14 @@
-# ASTRA Public — Preview 0.8.11
+# ASTRA Public — Preview 0.8.12
+
+## Calendrier P0 — Vues jour et mois, fiches d'événements
+
+- **Deux vues dans Calendrier** : mois pour la grille et la frise solaire, jour pour les informations chronologiques et le ciel à midi ; les quatre onglets principaux restent inchangés.
+- **Navigation directe** : commandes jour précédent/suivant, mois précédent/suivant, retour à aujourd'hui, date sélectionnée conservée, navigation clavier et bouton Retour Android.
+- **Fiches d'événements** : catégorie explicite, horaire exact dans le fuseau du profil, zodiaque de référence, détails astronomiques, lecture astrologique distincte, question de journal ; la fiche reçoit le focus pour les lecteurs d'écran.
+- **Couleurs par catégorie** : Nouvelle Lune (violet), Pleine Lune (ambre), quartiers (bleu), stations (vert), aspects solaires exacts (ocre), autres aspects (bleu), aspects en cours (gris), avec libellés textuels indépendants des couleurs.
+- **Déjà conservés** : bande solaire par signe en calendrier, phases lunaires calculées, filtres d'événements, date sélectionnable, détails et journal.
+- **Tests dédiés P0** : bascule jour/mois, navigation, tri chronologique, catégories, tests Chromium en largeur 320 px, tests de régression des données et des autres pages.
+- **Hors P0** : création et modification d'événements personnels, rappels, synchronisation Google Agenda, vues semaine et planning.
 
 ## Frise solaire dans le calendrier, roue neutre — Preview 0.8.11
 
