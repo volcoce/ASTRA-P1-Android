@@ -310,7 +310,7 @@ export function calculateMonth(profile,year,month,mode='tropical',orb='auto',opt
     const a=samples[i-1],b=samples[i];
     for(const body of BODIES) {
       const x=a.positions[body],y=b.positions[body];
-      for(const native of (chart.timeKnown?usableNatal:[])) for(const target of TARGETS){
+      for(const native of (body!=='Sun'&&chart.timeKnown?usableNatal:[])) for(const target of TARGETS){
         const pa=signed(x-natal[native]-target.angle),pb=signed(y-natal[native]-target.angle);
         if(pa===0 || (pa*pb<0&&Math.abs(pb-pa)<45)) {
           const at=pa===0?new Date(a.t).toISOString():root(body,natal[native],target.angle,a.t,b.t);
