@@ -9,48 +9,63 @@ for(let d=1;d<=30;d++)days['2026-11-'+String(d).padStart(2,'0')]={
   sunLongitudeAtNoon:d<=21?235:250,
   sunIngress:d===22?{fromIndex:7,toIndex:8,fromSign:'Scorpion',toSign:'Sagittaire'}:null
 };
-const ctx={result:{days},state:{profile:{timezone:'Europe/Paris'}},zodiacNames:names,
-  pad:n=>String(n).padStart(2,'0'),safe:x=>String(x)};
+const ctx={
+  result:{days},state:{profile:{timezone:'Europe/Paris'},mode:'tropical'},
+  E:{
+    dailySky(day){return {sunLongitude:day.startsWith('2026-10-')?235:250,moonPhase:100}},
+    sunSignIngress(){return null}
+  },
+  zodiacNames:names,pad:n=>String(n).padStart(2,'0'),
+  isoDay:date=>[date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),
+    String(date.getDate()).padStart(2,'0')].join('-'),
+  safe:x=>String(x)
+};
 function solarModule(){
   const a=app.indexOf('  const solarSignIndex='),b=app.indexOf('  function eventTitle(',a);
   return new Function('ctx','with(ctx){'+app.slice(a,b)+
-    ';return {solarSignIndex,solarMonthPeriods,solarMonthSummary,solarDayBand,solarCalendarBackdropWeek};}')(ctx);
+    ';return {solarSignIndex,solarMonthPeriods,solarMonthSummary,solarDayBand,solarVisiblePeriods,solarCalendarBackdropWeek};}')(ctx);
 }
 test('solar month preserves real sign intervals and 50/50 ingress',()=>{
   const {solarMonthPeriods,solarMonthSummary}=solarModule();
   const p=solarMonthPeriods(2026,10,30);
   assert.equal(p.totals[7],21.5);
   assert.equal(p.totals[8],8.5);
-  assert.match(solarMonthSummary(p),/50\/50/);
+  assert.match(solarMonthSummary(p),/50\\/50/);
 });
-test('solar ribbon is a single background per week, not per-day cards',()=>{
-  const {solarMonthPeriods,solarCalendarBackdropWeek}=solarModule();
-  const periods=solarMonthPeriods(2026,10,30);
+test('solar ribbon remains full-width across adjacent months and has true ingress corners',()=>{
+  const {solarVisiblePeriods,solarCalendarBackdropWeek}=solarModule();
   const wd=(new Date(2026,10,1).getDay()+6)%7;
-  const week=solarCalendarBackdropWeek(2026,10,wd,3,periods);
-  assert.match(week,/astra-solar-ribbon-backdrop/);
-  assert.match(week,/solar-element-water/);
-  assert.match(week,/solar-element-fire/);
-  assert.match(week,/grid-column:1 \/ span 13/);
-  assert.match(week,/grid-column:14 \/ span 1/);
-  assert.equal((week.match(/astra-solar-ribbon-segment/g)||[]).length,2);
-  assert.equal((week.match(/ends-at-ingress/g)||[]).length,1);
-  assert.equal((week.match(/starts-at-ingress/g)||[]).length,1);
-  assert.match(css,/\.astra-solar-ribbon-segment\.ends-at-ingress/);
-  assert.match(css,/\.astra-solar-ribbon-segment\.starts-at-ingress/);
-  // Week boundaries must not add a false zodiac-sign transition.
-  const firstWeek=solarCalendarBackdropWeek(2026,10,wd,0,periods);
-  assert.ok(!firstWeek.includes('starts-at-ingress'));
-  assert.ok(!firstWeek.includes('ends-at-ingress'));
+  const periods=solarVisiblePeriods(2026,10,wd,6);
+  assert.equal(periods.days.length,42);
+  assert.equal(periods.days[0].day,'2026-10-26');
+  assert.equal(periods.days[41].day,'2026-12-06');
+  assert.equal(periods.segments.reduce((n,s)=>n+s.endHalf-s.startHalf+1,0),84);
+  const first=solarCalendarBackdropWeek(2026,10,wd,0,periods);
+  assert.match(first,/solar-element-water/);
+  assert.match(first,/is-outside-month/);
+  assert.match(first,/grid-column:1 \\/ span 12/);
+  assert.match(first,/grid-column:13 \\/ span 2/);
+  assert.ok(!first.includes('starts-at-ingress'));
+  assert.ok(!first.includes('ends-at-ingress'));
+  const ingress=solarCalendarBackdropWeek(2026,10,wd,3,periods);
+  assert.match(ingress,/solar-element-water/);
+  assert.match(ingress,/solar-element-fire/);
+  assert.match(ingress,/grid-column:1 \\/ span 13/);
+  assert.match(ingress,/grid-column:14 \\/ span 1/);
+  assert.equal((ingress.match(/ends-at-ingress/g)||[]).length,1);
+  assert.equal((ingress.match(/starts-at-ingress/g)||[]).length,1);
+  const last=solarCalendarBackdropWeek(2026,10,wd,5,periods);
+  assert.match(last,/grid-column:1 \\/ span 2/);
+  assert.match(last,/grid-column:3 \\/ span 12/);
+  assert.match(last,/is-outside-month/);
+  assert.ok(!last.includes('starts-at-ingress'));
+  assert.ok(!last.includes('ends-at-ingress'));
+  assert.match(css,/\\.astra-solar-ribbon-segment\\.is-outside-month/);
   const render=app.slice(app.indexOf('  function calendar() {'),app.indexOf('  function initDraft()'));
-  assert.match(render,/astra-calendar-date-week/);
+  assert.match(render,/solarVisiblePeriods/);
   assert.match(render,/solarCalendarBackdropWeek/);
-  assert.ok(!render.includes('solarClass'));
-  assert.match(css,/\.astra-solar-ribbon-backdrop/);
-  assert.match(css,/\.astra-solar-ribbon-segment/);
-  assert.match(css,/background:transparent!important/);
-  assert.match(css,/--solar-fire-bg/);
-  assert.match(css,/--solar-water-bg/);
+  assert.ok(!render.includes('astra-solar-cell'));
+  assert.ok(!render.includes('class="astra-personal-create"'));
 });
 test('daily solar label and unknown position remain supported',()=>{
   const {solarDayBand,solarSignIndex}=solarModule();
