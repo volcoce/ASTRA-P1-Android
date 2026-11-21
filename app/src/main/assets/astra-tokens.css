@@ -1,0 +1,131 @@
+/* ASTRA P0 — Retro Pop Celestial / single semantic source of truth.
+   Load after legacy styles. No remote fonts; Android and web render offline. */
+:root {
+  color-scheme:light;
+  --color-cream:#F8EFD5;
+  --color-deep-ocean:#1E404F;
+  --color-retro-red:#C03A22;
+  --color-copper:#D58A4B;
+  --color-dandelion:#F0BE57;
+  --color-cornflower:#82AAC7;
+  --color-teal:#34685C;
+  --color-olive:#988A20;
+  --color-peach:#E9BD96;
+  --color-coral:#F59A80;
+
+  --astra-bg:#F8EFD5;
+  --astra-surface:#FFF9EA;
+  --astra-surface-alt:#F1DFBE;
+  --astra-secondary-surface:#F2E6CD;
+  --astra-ink:#1E404F;
+  --astra-muted:#526A72;
+  --astra-border:#70848B;
+  --astra-divider:#C4BEAF;
+  --astra-primary:#F0BE57;
+  --astra-primary-ink:#1E404F;
+  --astra-secondary:#82AAC7;
+  --astra-secondary-ink:#1E404F;
+  --astra-danger:#C03A22;
+  --astra-danger-ink:#FFFFFF;
+  --astra-focus:#1E404F;
+  --astra-selected:#F2D69D;
+  --astra-selected-border:#1E404F;
+  --astra-sun:#F0BE57;
+  --astra-moon:#82AAC7;
+  --astra-paper:var(--astra-bg);
+  --astra-rule:var(--astra-border);
+  --astra-brand:var(--color-teal);
+  --astra-brand-strong:var(--color-deep-ocean);
+  --astra-focus-ring:var(--astra-focus);
+  --astra-natal:#34685C;
+  --astra-transit:#C03A22;
+  --atlas-night:#1E404F;
+  --atlas-sea:#34685C;
+  --atlas-gold:#F0BE57;
+  --atlas-subtle:#F2E6CD;
+
+  /* Map the legacy design contract onto semantic tokens. */
+  --ink:var(--astra-ink);
+  --secondary:var(--astra-muted);
+  --violet:var(--astra-brand);
+  --deep:var(--astra-brand-strong);
+  --pale:var(--astra-bg);
+  --plum:var(--astra-secondary-surface);
+  --border:var(--astra-border);
+  --shadow:none;
+
+  --astra-font-body:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  --astra-font-display:Georgia,"Times New Roman",serif;
+  --astra-font-size-sm:.8125rem;
+  --astra-font-size-body:.9375rem;
+  --astra-font-size-title:clamp(1.75rem,4.8vw,2.25rem);
+  --astra-line-height:1.5;
+  --astra-radius-sm:8px;
+  --astra-radius-md:12px;
+  --astra-radius-lg:18px;
+  --astra-radius-xl:24px;
+  --astra-radius-pill:999px;
+  --astra-space-1:4px;
+  --astra-space-2:8px;
+  --astra-space-3:12px;
+  --astra-space-4:16px;
+  --astra-space-5:20px;
+  --astra-space-6:24px;
+  --astra-space-8:32px;
+  --astra-shadow-pop:3px 3px 0 #1E404F;
+  --astra-shadow-soft:0 5px 18px #1E404F18;
+  --astra-motion:150ms cubic-bezier(.2,.75,.35,1);
+
+  /* Calendar sign ribbon: muted backgrounds, not day-card fills. */
+  --element-fire:#E6692A;
+  --element-earth:#988A20;
+  --element-air:#82AAC7;
+  --element-water:#34685C;
+  --solar-fire-bg:#FAD7B0;
+  --solar-earth-bg:#DFE3B4;
+  --solar-air-bg:#D1E4F0;
+  --solar-water-bg:#C9DDD5;
+}
+:root[data-astra-theme="dark"] {
+  color-scheme:dark;
+  --astra-bg:#101F2A;
+  --astra-surface:#1E3543;
+  --astra-surface-alt:#294A49;
+  --astra-secondary-surface:#243E4D;
+  --astra-ink:#F8EFD5;
+  --astra-muted:#BBCBD1;
+  --astra-border:#66818C;
+  --astra-divider:#405765;
+  --astra-primary:#F0BE57;
+  --astra-primary-ink:#1E404F;
+  --astra-secondary:#82AAC7;
+  --astra-secondary-ink:#102A38;
+  --astra-danger:#F59A80;
+  --astra-danger-ink:#321913;
+  --astra-focus:#F0BE57;
+  --astra-selected:#294A49;
+  --astra-selected-border:#F0BE57;
+  --astra-sun:#F0BE57;
+  --astra-moon:#B8CBEF;
+  --astra-brand:#82AAC7;
+  --astra-brand-strong:#F8EFD5;
+  --astra-natal:#A9D5C5;
+  --astra-transit:#F59A80;
+  --astra-shadow-pop:3px 3px 0 #050E14;
+  --astra-shadow-soft:0 6px 20px #00000040;
+  --solar-fire-bg:#74452E;
+  --solar-earth-bg:#4B5333;
+  --solar-air-bg:#31566D;
+  --solar-water-bg:#31574F;
+  --atlas-night:#101F2A;
+  --atlas-sea:#82AAC7;
+  --atlas-gold:#F0BE57;
+  --atlas-subtle:#243E4D;
+  --ink:var(--astra-ink);
+  --secondary:var(--astra-muted);
+  --violet:var(--astra-brand);
+  --deep:var(--astra-brand-strong);
+  --pale:var(--astra-bg);
+  --plum:var(--astra-secondary-surface);
+  --border:var(--astra-border);
+}
