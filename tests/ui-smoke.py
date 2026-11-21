@@ -509,6 +509,14 @@ if __name__ == '__main__':
             assert page.evaluate(
                 "getComputedStyle(document.documentElement).getPropertyValue('--astra-calendar-ink').trim()"
             )=='#F8EFD5'
+            capture('settings-dark-393')
+            page.locator('[data-tab="calendar"]').click()
+            capture('calendar-dark-393')
+            assert page.locator('.calendar .day').first.evaluate(
+                "el => getComputedStyle(el).color"
+            )=='rgb(248, 239, 213)'
+            page.locator('[data-tab="profile"]').click()
+            page.locator('[data-profile-screen="settings"]').click()
             page.emulate_media(reduced_motion='reduce')
             assert page.locator('.bottom-nav .nav').first.evaluate(
                 "e => getComputedStyle(e).transitionDuration"
