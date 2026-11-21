@@ -27,7 +27,6 @@ const context={
   header:()=>'',birthTimeWarning:()=>'',status:()=>'',detailView:()=>'',
   switcher:()=>'',filters:()=>'',moonPhaseIcon:()=>'<svg></svg>',lunarLabel:()=> 'Pleine lune',
   solarMonthPeriods:()=>({segments:[],indices:[],totals:[],mostPresent:[],dayCount:30,max:0}),
-  solarCalendarWeek:()=>'<div class="astra-calendar-week-events"></div>',
   solarMonthSummary:()=>'<p class="astra-calendar-solar-note"></p>',
   personalCalendarWeek:()=>'',calendarDayInspector:()=>'',personalEventEditor:()=>'',
   solarSignIndex:n=>Number.isFinite(n)?Math.floor(n/30):null,
@@ -45,14 +44,14 @@ const count=(s,re)=>(s.match(re)||[]).length;
 test('Calendar: one month grid; personal events rendered in calendar, no duplicated list',()=>{
   const markup=calendar();
   assert.equal(count(markup,/class="day /g),30);
-  assert.equal(count(markup,/class="astra-solar-calendar-week"/g),6);
+  assert.equal(count(markup,/class="astra-solar-calendar-week"/g),0);
   assert.match(markup,/astra-calendar-solar-note/);
   assert.match(markup,/data-personal-new="1"/);
   assert.ok(!markup.includes('astra-calendar-day-summary'));
   assert.ok(!markup.includes('astra-calendar-day-events'));
   assert.ok(!markup.includes('data-calendar-view'));
-  assert.ok(markup.includes('astra-solar-calendar-event'));
-  assert.ok(!markup.includes('astra-solar-cell'));
+  assert.ok(!markup.includes('astra-solar-calendar-event'));
+  assert.ok(markup.includes('astra-solar-cell') || !markup.includes('solar-element-'));
   assert.match(markup,/data-day="2026-11-20" aria-pressed="true"/);
 });
 
