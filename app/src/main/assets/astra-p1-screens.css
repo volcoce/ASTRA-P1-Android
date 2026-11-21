@@ -1,0 +1,224 @@
+/* ASTRA P1 / Four principal screens. Loaded after P0 shared components.
+   Layout hierarchy only; physical astronomy, dates and event actions untouched. */
+
+/* Reusable page hierarchy */
+.main>.screen-intro{max-width:840px;margin:0 auto 14px}
+.screen-intro .page-title{
+  margin:4px 0 6px;font-family:var(--astra-font-display);
+  font-size:clamp(28px,5vw,38px);line-height:1.14;letter-spacing:-.025em
+}
+.screen-intro .lead{max-width:60ch;margin:0 0 16px;font-size:14px;line-height:1.55}
+.astra-section-head h2,.natal-home-header .card-title{
+  color:var(--astra-ink);font-family:var(--astra-font-display);
+  font-size:clamp(19px,3vw,24px);font-weight:700;letter-spacing:-.01em
+}
+.astra-section-help{color:var(--astra-muted);max-width:65ch}
+
+/* CE JOUR — selected date -> lunar snapshot -> chronological movements ->
+   journal -> events -> advanced active aspects */
+.astra-week-strip{margin-bottom:15px}
+.astra-day-hero{
+  max-width:840px;margin:0 auto 15px;padding:23px 24px 20px;
+  min-height:unset;border:2px solid var(--color-deep-ocean);
+  border-radius:var(--astra-radius-xl);
+  background:var(--color-cornflower);color:var(--color-deep-ocean);
+  box-shadow:var(--astra-shadow-soft)
+}
+.astra-day-hero:before,.astra-day-hero:after{display:none}
+.astra-hero-kicker,.astra-moon-title,.astra-moon-phase,.astra-sky-reference,
+.astra-hero-stat strong,.astra-hero-stat span{color:var(--color-deep-ocean)}
+.astra-hero-kicker{font-weight:800;letter-spacing:.09em}
+.astra-moon-title{font-family:var(--astra-font-display);font-size:clamp(24px,5vw,34px);line-height:1.12}
+.astra-hero-moon{gap:16px}
+.astra-hero-moon-icon{
+  background:var(--color-cream);border:2px solid var(--color-deep-ocean);
+  width:62px;height:62px;border-radius:50%
+}
+.astra-hero-moon-icon .astra-phase-graphic{width:43px;height:43px}
+.astra-sky-reference{margin-top:13px;font-weight:600;opacity:.85}
+.astra-day-hero .astra-solar-daily-band{
+  display:inline-flex;max-width:100%;background:var(--color-dandelion);
+  border:1px solid var(--color-deep-ocean);color:var(--color-deep-ocean);
+  padding:8px 12px;border-radius:var(--astra-radius-md);margin:18px 0 0
+}
+.astra-hero-stat{border-top:1px solid #1E404F55;margin-top:15px;gap:9px}
+.astra-hero-stat strong{font-size:22px}
+.astra-hero-link{
+  background:var(--color-cream);color:var(--color-deep-ocean);
+  border:1px solid var(--color-deep-ocean);border-radius:var(--astra-radius-md)
+}
+.astra-day-moon-moments{
+  max-width:840px;margin:0 auto 16px;padding:16px 18px;
+  border:1px solid var(--astra-divider);border-radius:var(--astra-radius-lg);
+  background:var(--astra-surface);color:var(--astra-ink)
+}
+.astra-day-moon-moments h3{
+  color:var(--astra-ink);font-family:var(--astra-font-display);
+  font-size:17px;margin-bottom:12px
+}
+.astra-day-moon-moment-list{gap:0;border-left:2px solid var(--color-copper);margin-left:5px}
+.astra-day-moon-moment{
+  padding:8px 0 9px 15px;position:relative;
+  color:var(--astra-ink);grid-template-columns:50px minmax(0,1fr)
+}
+.astra-day-moon-moment:before{
+  content:"";position:absolute;left:-5px;top:13px;width:8px;height:8px;
+  background:var(--color-copper);border-radius:50%
+}
+.astra-day-moon-moment time{color:var(--astra-brand-strong)}
+.astra-day-moon-explanation{
+  color:var(--astra-muted);border-color:var(--astra-divider);font-size:12px
+}
+.astra-day-journal-link{
+  max-width:840px;width:100%;margin:0 auto 23px;
+  background:var(--astra-surface-alt);color:var(--astra-ink);
+  border:1px solid var(--astra-border);border-radius:var(--astra-radius-lg)
+}
+.astra-feed,.astra-active-panel{max-width:840px;margin-left:auto;margin-right:auto}
+.astra-event-feed{background:var(--astra-surface);border-color:var(--astra-divider)}
+.astra-active-panel{background:var(--astra-surface);border-color:var(--astra-divider)}
+.astra-active-panel>summary,.astra-active-panel>p{color:var(--astra-ink)}
+:root[data-astra-theme="dark"] .astra-day-hero{
+  background:#31566D;border-color:var(--astra-border);box-shadow:none
+}
+:root[data-astra-theme="dark"] .astra-day-hero :is(.astra-hero-kicker,.astra-moon-title,
+  .astra-moon-phase,.astra-sky-reference,.astra-hero-stat strong,.astra-hero-stat span){color:#FFF9EA}
+:root[data-astra-theme="dark"] .astra-day-hero .astra-solar-daily-band{
+  background:var(--color-dandelion);color:var(--color-deep-ocean)
+}
+:root[data-astra-theme="dark"] .astra-hero-stat{border-color:#FFFFFF55}
+:root[data-astra-theme="dark"] .astra-day-moon-moments{background:var(--astra-surface);border-color:var(--astra-border)}
+
+/* CE MOIS — month navigation, summary, major phases, supporting metrics,
+   then first chronological events and calendar entry */
+.astra-month-navigation,.astra-month-hero,.astra-month-metrics,
+.astra-month-section{max-width:840px;margin-left:auto;margin-right:auto}
+.astra-month-navigation{margin-bottom:15px}
+.astra-month-hero{
+  background:var(--color-dandelion);color:var(--color-deep-ocean);
+  border:2px solid var(--color-deep-ocean);border-radius:var(--astra-radius-xl);
+  padding:19px 22px 20px;box-shadow:var(--astra-shadow-soft)
+}
+.astra-month-hero:after{display:none}
+.astra-month-kicker,.astra-month-headline strong,
+.astra-month-headline span,.astra-month-hero>p:last-child{color:var(--color-deep-ocean)}
+.astra-month-headline strong{font-family:var(--astra-font-display);font-size:clamp(45px,9vw,62px)}
+.astra-month-headline span{font-size:15px}
+.astra-month-metrics{margin-bottom:21px}
+.astra-month-metrics>div,.astra-month-metrics>button{
+  background:var(--astra-surface);border:1px solid var(--astra-divider);
+  border-radius:var(--astra-radius-lg);color:var(--astra-ink);
+  min-height:87px;padding:14px 16px
+}
+.astra-month-metrics>div:first-child{background:var(--astra-secondary-surface)}
+.astra-month-metrics strong,.astra-month-metrics span{color:var(--astra-ink)}
+.astra-month-metrics span{color:var(--astra-muted)}
+.astra-month-section{margin-bottom:24px}
+.astra-month-phases{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.astra-month-phase{
+  min-height:106px;align-items:flex-start;
+  background:var(--astra-surface);border-color:var(--astra-divider);
+  border-radius:var(--astra-radius-lg);padding:15px
+}
+.astra-month-phase.new{background:#C9DDD5;border-color:#34685C}
+.astra-month-phase.full{background:#F5DBA2;border-color:#D58A4B}
+.astra-month-phase .astra-month-phase-copy strong,
+.astra-month-phase .astra-month-phase-copy small,
+.astra-month-phase>span:last-child{color:var(--color-deep-ocean)}
+.astra-month-events{
+  background:var(--astra-surface);border-color:var(--astra-divider);
+  border-radius:var(--astra-radius-lg)
+}
+.astra-month-event{background:transparent;color:var(--astra-ink);border-color:var(--astra-divider)}
+.astra-month-event-day,.astra-month-event-text,.astra-month-event>span:last-child{color:var(--astra-ink)}
+:root[data-astra-theme="dark"] .astra-month-hero{
+  background:#75452E;border-color:var(--astra-border)
+}
+:root[data-astra-theme="dark"] .astra-month-hero :is(.astra-month-kicker,
+  .astra-month-headline strong,.astra-month-headline span){color:var(--color-cream)}
+:root[data-astra-theme="dark"] .astra-month-hero>p:last-child{color:#F8EFD5}
+:root[data-astra-theme="dark"] .astra-month-phase.new{background:#31574F;border-color:#88B4A5}
+:root[data-astra-theme="dark"] .astra-month-phase.full{background:#6E4E28;border-color:#F0BE57}
+:root[data-astra-theme="dark"] .astra-month-phase :is(.astra-month-phase-copy strong,
+  .astra-month-phase-copy small){color:#F8EFD5}
+
+/* CALENDRIER — clear month chooser, slim options, one truly continuous
+   background ribbon behind day labels. Do not restore individual day fills. */
+.astra-calendar-month-head{max-width:840px;margin:4px auto 14px}
+.calendar-options{
+  max-width:840px;margin:0 auto 12px;
+  background:var(--astra-surface);border:1px solid var(--astra-divider);
+  border-radius:var(--astra-radius-md);padding:0 12px
+}
+.calendar-options>summary{color:var(--astra-ink);min-height:44px}
+.calendar.astra-calendar-board{
+  background:var(--astra-surface);border:1px solid var(--astra-divider);
+  border-radius:var(--astra-radius-xl);padding:16px 12px 18px;
+  max-width:840px;margin-inline:auto
+}
+.calendar.astra-calendar-board .cal-grid{row-gap:8px}
+.calendar.astra-calendar-board .weekday{color:var(--astra-muted);font-size:12px}
+.calendar.astra-calendar-board .astra-calendar-date-week{gap:0}
+.calendar.astra-calendar-board .astra-solar-ribbon-backdrop{border-radius:11px}
+.calendar.astra-calendar-board .astra-calendar-date-week .day{
+  background:transparent!important;box-shadow:none!important;border-radius:0!important
+}
+.calendar .astra-calendar-solar-note{color:var(--astra-ink);line-height:1.5;font-size:12px}
+.calendar .astra-calendar-solar-note span{color:var(--astra-muted)}
+.calendar-phase-legend{gap:12px;flex-wrap:wrap}
+:root[data-astra-theme="dark"] .calendar.astra-calendar-board{
+  background:var(--astra-surface);border-color:var(--astra-border)
+}
+:root[data-astra-theme="dark"] .calendar .astra-calendar-date-week .day{
+  color:var(--color-cream)
+}
+
+/* MON CIEL — readable natal triptych, one primary action, progressive wheel
+   and comparison/advanced tools. SVG/geometry remains unchanged. */
+.natal-home.card{max-width:840px;margin:0 auto}
+.natal-home .natal-home-header{margin-bottom:17px}
+.natal-home .natal-primary-cards{
+  background:var(--astra-surface);border:1px solid var(--astra-divider);
+  border-radius:var(--astra-radius-lg);padding:8px 6px;max-width:650px
+}
+.natal-home .natal-summary-item{background:transparent;border-color:var(--astra-divider)}
+.natal-home .natal-summary-value{color:var(--astra-ink)}
+.natal-home .natal-summary-sign{color:var(--astra-brand-strong)}
+.natal-home .natal-home-actions--primary{max-width:650px;margin:0 auto 18px}
+.natal-home .natal-home-actions--primary button{
+  min-height:64px;background:var(--astra-primary);color:var(--astra-primary-ink);
+  border:2px solid var(--astra-primary-ink);border-radius:var(--astra-radius-lg)
+}
+.natal-home .natal-home-actions--primary button :is(strong,small){color:var(--astra-primary-ink)}
+.natal-home .natal-overview-tabs,.natal-home .natal-extras,
+.natal-home .natal-glossary{max-width:750px;margin-left:auto;margin-right:auto}
+.natal-home .natal-overview-panel{border-color:var(--astra-divider);background:var(--astra-surface)}
+.natal-home .natal-home-actions--secondary{margin-top:20px}
+.natal-home .natal-secondary-action{
+  background:var(--astra-secondary-surface);border:1px solid var(--astra-divider);
+  color:var(--astra-ink);border-radius:var(--astra-radius-lg)
+}
+.natal-home .natal-secondary-action :is(strong,small){color:var(--astra-ink)}
+.natal-home .natal-wheel-viewport{background:#FFF9EA}
+:root[data-astra-theme="dark"] .natal-home .natal-primary-cards{
+  background:var(--astra-surface);border-color:var(--astra-border)
+}
+:root[data-astra-theme="dark"] .natal-home .natal-summary-sign{color:var(--color-cornflower)}
+:root[data-astra-theme="dark"] .natal-home .natal-home-actions--primary button{
+  background:var(--astra-primary);color:var(--astra-primary-ink)
+}
+/* Spacing/stack behavior across mobile devices */
+@media(max-width:480px){
+  .astra-day-hero{padding:20px 17px}
+  .astra-hero-moon-icon{width:51px;height:51px}
+  .astra-hero-moon-icon .astra-phase-graphic{width:34px;height:34px}
+  .astra-month-phases{grid-template-columns:1fr}
+  .astra-month-phase{min-height:70px}
+  .astra-month-headline{gap:10px}
+  .calendar.astra-calendar-board{padding:10px 6px 13px}
+  .calendar.astra-calendar-board .cal-grid{row-gap:6px}
+  .natal-home .natal-primary-cards{padding-inline:3px}
+}
+@media(prefers-reduced-motion:reduce){
+  .astra-day-hero,.astra-month-hero{transition:none!important}
+}
