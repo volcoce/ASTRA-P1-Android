@@ -128,7 +128,7 @@ test('P4: Retro Pop element ring preserves zodiac geometry across all wheel mode
   assert.match(skins,/natal-transit-hit/);
   assert.ok(skins.includes(':root[data-astra-theme="dark"]'));
   assert.match(app,/\.wheel-modern \.wheel-zodiac-sector\.zodiac-element-fire/);
-  assert.match(app,/#F6D5B3/);
+  assert.match(app,/#F4C78F/);
   assert.ok(skins.includes('zodiac-element-earth{fill:#C8C36A}'));
   assert.ok(skins.includes('zodiac-element-water{fill:#5FA3A3}'));
   assert.ok(app.includes('zodiac-element-earth{fill:#C8C36A}'));
