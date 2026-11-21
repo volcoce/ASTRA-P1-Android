@@ -590,7 +590,7 @@ if __name__ == '__main__':
                     assert page.locator('.astra-month-hero').count()==0
                     assert page.locator('.astra-lunar-milestone').count()==0
                     assert page.locator('.astra-calendar-day-summary').count()==0
-                    assert page.locator('.astra-personal-create').count()==1
+                    assert page.locator('.astra-personal-create').count()==0
                     assert page.locator('#calendarDayDialog').count()==0
                     assert page.locator('[data-calendar-view]').count()==0
                 elif tab=='profile':
