@@ -1,6 +1,18 @@
-# ASTRA Public — Preview 0.8.12
+# ASTRA Public — Preview 0.8.13
 
-## Calendrier P0 — Vues jour et mois, fiches d'événements
+## Simplification UI — Suppression des fonctions en double (0.8.13)
+
+La 0.8.12 dupliquait l'écran complet **Ce jour** dans une seconde vue « Jour » du **Calendrier**. Elle affichait aussi plusieurs fois le Soleil, les phases lunaires et les raccourcis dans une seule journée.
+
+- **Calendrier** : une unique grille mensuelle avec frise des signes solaires, marqueurs des phases lunaires et aperçu de la date sélectionnée limité à trois événements. Les options de filtres et l'ouverture des fiches sont conservées.
+- **Accès unique au détail quotidien** : « Voir le ciel de cette journée » ouvre **Ce jour** en conservant la date sélectionnée, sans dupliquer l'écran journalier ni perdre les événements restants.
+- **Ce jour** : la bande solaire n'est affichée qu'une fois ; les cartes « Soleil » et « Mon ciel » redondantes ont été retirées, et seul le lien pratique vers le journal reste disponible. Un seul pictogramme lunaire et un seul compteur d'événements.
+- La seconde vue « Jour » du calendrier, ses commandes de navigation, les phases lunaires à venir redondantes et la liste supplémentaire d'aspects dans le calendrier ont été retirées.
+- Les **fiches d'événements détaillées**, couleurs par catégorie, calculs astronomiques, vue mensuelle, phases, journal et quatre onglets principaux restent disponibles.
+- Tests de régression couvrant la navigation calendrier → date choisie → Ce jour, le retour vers le calendrier, la limite à trois événements dans l'aperçu et la lisibilité sur écran Android étroit.
+
+
+## Calendrier P0 initial — Preview 0.8.12 (simplifié en 0.8.13)
 
 - **Deux vues dans Calendrier** : mois pour la grille et la frise solaire, jour pour les informations chronologiques et le ciel à midi ; les quatre onglets principaux restent inchangés.
 - **Navigation directe** : commandes jour précédent/suivant, mois précédent/suivant, retour à aujourd'hui, date sélectionnée conservée, navigation clavier et bouton Retour Android.
