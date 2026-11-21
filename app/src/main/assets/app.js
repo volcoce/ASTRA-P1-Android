@@ -843,8 +843,16 @@
       const dates=[];
       for(let c=0;c<7;c++){
         const number=first+c;
-        dates.push(number>=1&&number<=count?cells[number-1]:
-          '<span class="astra-calendar-blank-day" aria-hidden="true"></span>');
+        if(number>=1&&number<=count){
+          dates.push(cells[number-1]);
+        }else{
+          // Context dates complete the Monday–Sunday grid, but never extend
+          // the current month's solar ribbon or duplicate its calculations.
+          const adjacent=isoDay(new Date(year,m,number));
+          dates.push('<button type="button" class="astra-adjacent-day" data-day="'+adjacent+
+            '" aria-label="'+safe(displayDate(adjacent))+', hors du mois affiché">'+
+            new Date(year,m,number).getDate()+'</button>');
+        }
       }
       weeks.push('<div class="astra-calendar-date-week">'+
         (periods?solarCalendarBackdropWeek(year,m,weekday,week,periods):'')+
