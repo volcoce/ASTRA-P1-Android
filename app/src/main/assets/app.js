@@ -444,6 +444,22 @@
     const mostPresent=max?totals.flatMap((days,index)=>days===max?[index]:[]):[];
     return {segments,indices,totals,mostPresent,dayCount,max,ingresses};
   }
+  // Continuous weekly ribbon BEHIND the dates. The same 14 half-columns
+  // preserve a purely visual 50/50 split on a solar ingress date.
+  function solarCalendarBackdropWeek(year,monthIndex,firstWeekday,week,periods){
+    const first=1-firstWeekday+7*week,from=Math.max(1,first);
+    const to=Math.min(periods.dayCount,first+6);
+    if(from>to)return '';
+    const fromHalf=2*from-1,toHalf=2*to;
+    const parts=periods.segments.filter(s=>s.endHalf>=fromHalf&&s.startHalf<=toHalf).map(s=>{
+      const start=Math.max(s.startHalf,fromHalf),end=Math.min(s.endHalf,toHalf);
+      const col=start-2*(first-1),span=end-start+1;
+      const element=s.index===null?'unknown':['fire','earth','air','water'][s.index%4];
+      return '<span class="astra-solar-ribbon-segment solar-element-'+element+
+        '" style="grid-column:'+col+' / span '+span+'"></span>';
+    }).join('');
+    return '<div class="astra-solar-ribbon-backdrop" aria-hidden="true">'+parts+'</div>';
+  }
   function solarMonthSummary(periods){
     if(!periods.mostPresent.length)
       return '<p class="astra-calendar-solar-note">☉ Positions solaires à midi indisponibles pour ce mois.</p>';
@@ -801,47 +817,30 @@
       const phase=isNew?'new':isFull?'full':null;
       const phaseLabel=phase==='new'?'Nouvelle Lune':phase==='full'?'Pleine Lune':'';
       const solarIndex=solarSignIndex(calendarDay?.sunLongitudeAtNoon);
-      const sunIngress=calendarDay?.sunIngress;
-      const validIngress=state.profile&&sunIngress&&Number.isInteger(sunIngress.fromIndex)&&
-        Number.isInteger(sunIngress.toIndex)&&sunIngress.fromIndex>=0&&sunIngress.fromIndex<12&&
-        sunIngress.toIndex>=0&&sunIngress.toIndex<12&&sunIngress.fromIndex!==sunIngress.toIndex;
-      const startIndex=validIngress?sunIngress.fromIndex:solarIndex;
-      const endIndex=validIngress?sunIngress.toIndex:solarIndex;
-      const elementOf=index=>index===null?null:['fire','earth','air','water'][index%4];
-      const solarStart=elementOf(startIndex),solarEnd=elementOf(endIndex);
-      const before=d>1?result?.days?.[year+'-'+pad(m+1)+'-'+pad(d-1)]:null;
-      const after=d<count?result?.days?.[year+'-'+pad(m+1)+'-'+pad(d+1)]:null;
-      const beforeIndex=before?.sunIngress?.toIndex??solarSignIndex(before?.sunLongitudeAtNoon);
-      const afterIndex=after?.sunIngress?.fromIndex??solarSignIndex(after?.sunLongitudeAtNoon);
-      const continuesBefore=d>1&&(weekday+d-1)%7!==0&&beforeIndex===startIndex;
-      const continuesAfter=d<count&&(weekday+d)%7!==0&&afterIndex===endIndex;
-      const solarClass=state.profile&&solarStart?
-        ' astra-solar-cell solar-element-'+solarStart+
-        (validIngress?' solar-split':'')+
-        (continuesBefore?' solar-continues-before':'')+
-        (continuesAfter?' solar-continues-after':''):'';
-      const solarStyle=validIngress?' style="--solar-split-bg:var(--solar-'+solarEnd+'-bg)"':'';
       const solarNameForDay=solarIndex===null?'Position solaire indisponible':'Soleil en '+zodiacNames[solarIndex]+' à midi';
-      const ingressLabel=validIngress?', passage '+sunIngress.fromSign+' → '+sunIngress.toSign+
-        ' (fond partagé 50/50)':'';
+      const ingress=calendarDay?.sunIngress;
+      const ingressLabel=ingress?', passage '+ingress.fromSign+' → '+ingress.toSign+' (ruban partagé 50/50)':'';
       const phaseAngle=calendarDay?.moonPhaseAtNoon;
       const phaseName=lunarLabel(phaseAngle);
       const moonIndicator=Number.isFinite(phaseAngle)?
         '<span class="moon-phase-badge" aria-hidden="true">'+moonPhaseIcon(phaseAngle)+'</span>':'';
-      cells.push(`<button type="button" class="day ${day===selected?'selected':''} ${day===isoDay(new Date())?'today':''} ${phase?'moon-'+phase:''}${solarClass}"${solarStyle} data-day="${day}" aria-pressed="${day===selected}" ${day===todayKey?'aria-current="date"':''} aria-label="${safe(displayDate(day))}, ${total} événement(s) exact(s), ${personalCount} événement(s) personnel(s), ${entry.active.length} aspect(s) actif(s)${Number.isFinite(phaseAngle)?', '+phaseName+' à midi':''}${phase?', '+phaseLabel:''}, ${solarNameForDay}${ingressLabel}">${d}<span class="count">${total?total+' ✦':entry.active.length?entry.active.length+' ~':''}</span>${moonIndicator}${state.journal[day]?'<span class="pinhole"></span>':''}</button>`);
+      cells.push(`<button type="button" class="day ${day===selected?'selected':''} ${day===isoDay(new Date())?'today':''} ${phase?'moon-'+phase:''}" data-day="${day}" aria-pressed="${day===selected}" ${day===todayKey?'aria-current="date"':''} aria-label="${safe(displayDate(day))}, ${total} événement(s) exact(s), ${personalCount} événement(s) personnel(s), ${entry.active.length} aspect(s) actif(s)${Number.isFinite(phaseAngle)?', '+phaseName+' à midi':''}${phase?', '+phaseLabel:''}, ${solarNameForDay}${ingressLabel}">${d}<span class="count">${total?total+' ✦':entry.active.length?entry.active.length+' ~':''}</span>${moonIndicator}${state.journal[day]?'<span class="pinhole"></span>':''}</button>`);
     }
-    // Each solar element runs continuously across date-cell backgrounds.
-    // Only personal events occupy dedicated multi-day grid lanes.
+    // One continuous solar ribbon behind each week's dates, not seven cards.
     const weeks=[];
     for(let week=0;week<Math.ceil((weekday+count)/7);week++){
       const first=1-weekday+7*week;
       const personal=personalCalendarWeek(year,m,weekday,week,count);
       if(personal)weeks.push(personal);
+      const dates=[];
       for(let c=0;c<7;c++){
         const number=first+c;
-        weeks.push(number>=1&&number<=count?cells[number-1]:
+        dates.push(number>=1&&number<=count?cells[number-1]:
           '<span class="astra-calendar-blank-day" aria-hidden="true"></span>');
       }
+      weeks.push('<div class="astra-calendar-date-week">'+
+        (periods?solarCalendarBackdropWeek(year,m,weekday,week,periods):'')+
+        dates.join('')+'</div>');
     }
     return header('Calendrier','Repère les phases et événements, puis choisis une date.')+
       birthTimeWarning()+
