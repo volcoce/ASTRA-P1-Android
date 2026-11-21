@@ -111,3 +111,7 @@ Les fonds solaires du calendrier utilisent les quatre éléments astrologiques v
 ## Interface P1 — quatre espaces principaux
 
 La hiérarchie visuelle de **Ce jour**, **Ce mois**, **Calendrier** et **Mon ciel** est définie dans `app/src/main/assets/astra-p1-screens.css`, chargé après les tokens et les composants P0. Ce jour distingue carte lunaire, chronologie, journal puis événements ; Ce mois privilégie les phases majeures avant les indicateurs ; Calendrier garde **un ruban solaire de fond par semaine** avec extrémités arrondies aux changements de signe ; Mon ciel privilégie le triptyque natal et l’exploration progressive. Les calculs, filtres, données locales et destinations de navigation ne changent pas.
+
+## P2 — Navigation et sous-écrans
+
+Les styles secondaires sont regroupés dans `app/src/main/assets/astra-p2-navigation.css`, chargé après les écrans P1. Cette couche harmonise le **journal** (éditeur prioritaire, indicateurs et historique), les **fiches d'événements** intégrées à la page, les **réglages**, les **panneaux du thème** et les **modales natives** du calendrier personnel. Elle conserve les comportements existants : quatre onglets principaux, journal en route secondaire, dates inclusives et événements multi-jours, raccourcis clavier et fermeture native des dialogues, lecture hors connexion. Les transitions respectent `prefers-reduced-motion`.
