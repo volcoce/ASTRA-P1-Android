@@ -67,3 +67,20 @@
 :root[data-astra-theme="dark"] .calendar.astra-calendar-board .astra-calendar-date-week .astra-adjacent-day .astra-phase-graphic{
   opacity:.85
 }
+
+/* The outside-month lunar milestones remain recognisable, but subdued. */
+.calendar.astra-calendar-board .astra-calendar-date-week .astra-adjacent-day.moon-new .moon-phase-badge,
+.calendar.astra-calendar-board .astra-calendar-date-week .astra-adjacent-day.moon-full .moon-phase-badge{
+  width:26px;height:26px;box-sizing:border-box;
+  background:#DDD6F4!important;border:1px solid #927CB0!important;
+  border-radius:50%!important;filter:saturate(.6);opacity:.9;
+}
+.calendar.astra-calendar-board .astra-calendar-date-week .astra-adjacent-day.moon-full .moon-phase-badge{
+  background:#F5DBA2!important;border-color:#AD742B!important;
+}
+:root[data-astra-theme="dark"] .calendar.astra-calendar-board .astra-calendar-date-week .astra-adjacent-day.moon-new .moon-phase-badge{
+  background:#C7B9E5!important;border-color:#F1DDFE!important;
+}
+:root[data-astra-theme="dark"] .calendar.astra-calendar-board .astra-calendar-date-week .astra-adjacent-day.moon-full .moon-phase-badge{
+  background:#EEC983!important;border-color:#FFF1CB!important;
+}
