@@ -33,6 +33,7 @@ test('P0: calendar announces the selected date and current date', () => {
     detailView: () => '', lunarTimeline: () => '', switcher: () => '',
     filters: () => '', row: () => '', moonPhaseIcon: () => '',
     lunarLabel: () => '', safe: value => value,
+    solarSignIndex: () => null, solarRibbon: () => '',
     isoDay: date => [date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join('-'),
     pad: number => String(number).padStart(2,'0'),
     displayDate: format
