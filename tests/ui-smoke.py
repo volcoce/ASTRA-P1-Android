@@ -500,6 +500,21 @@ if __name__ == '__main__':
             page.locator('[data-profile-screen="overview"]').click()
             settings=page.evaluate("JSON.parse(localStorage.getItem('astra-public-v1'))")
             assert settings['natalView']=='essential' and settings['natalZodiac']=='tropical'
+            # P3: both appearance modes, readable ribbon ink and reduced motion.
+            page.locator('[data-profile-screen="settings"]').click()
+            page.locator('[data-appearance="dark"]').click()
+            assert page.evaluate("document.documentElement.dataset.astraTheme")=='dark'
+            assert page.evaluate(
+                "getComputedStyle(document.documentElement).getPropertyValue('--astra-calendar-ink').trim()"
+            )=='#F8EFD5'
+            page.emulate_media(reduced_motion='reduce')
+            assert page.locator('.bottom-nav .nav').first.evaluate(
+                "e => getComputedStyle(e).transitionDuration"
+            )=='0s'
+            page.emulate_media(reduced_motion='no-preference')
+            page.locator('[data-appearance="light"]').click()
+            assert page.evaluate("document.documentElement.dataset.astraTheme")=='light'
+            page.locator('[data-profile-screen="overview"]').click()
             assert page.locator('#orb').count()==0
             # New default: full wheel is fitted to the 320 px screen.
             # Explicit 125–200% zoom is the only reason for internal scrolling.
