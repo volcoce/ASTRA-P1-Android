@@ -455,7 +455,15 @@
       const start=Math.max(s.startHalf,fromHalf),end=Math.min(s.endHalf,toHalf);
       const col=start-2*(first-1),span=end-start+1;
       const element=s.index===null?'unknown':['fire','earth','air','water'][s.index%4];
+      // Round both touching edges only at an actual sign ingress.
+      // The ingress remains exactly halfway through the date cell.
+      const startsAtIngress=start===s.startHalf&&s.startHalf%2===0&&
+        periods.ingresses.some(i=>Number(i.day.slice(8))===s.start);
+      const endsAtIngress=end===s.endHalf&&s.endHalf%2===1&&
+        periods.ingresses.some(i=>Number(i.day.slice(8))===s.end);
       return '<span class="astra-solar-ribbon-segment solar-element-'+element+
+        (startsAtIngress?' starts-at-ingress':'')+
+        (endsAtIngress?' ends-at-ingress':'')+
         '" style="grid-column:'+col+' / span '+span+'"></span>';
     }).join('');
     return '<div class="astra-solar-ribbon-backdrop" aria-hidden="true">'+parts+'</div>';
