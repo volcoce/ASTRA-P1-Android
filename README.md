@@ -1,4 +1,15 @@
-# ASTRA Public — Preview 0.8.9
+# ASTRA Public — Preview 0.8.10
+
+## Bande zodiacale visible et centre épuré — Preview 0.8.10
+
+- Suppression des médaillons ASTRA / TROPICAL / SIDÉRAL / HEURE INCONNUE / NATAL / TRANSITS au centre des trois roues, sans cacher les aspects.
+- Le signe zodiacal associé à la sélection est mis en évidence par **un secteur entier rempli d'ambre clair**, et plus seulement par un filet doré.
+- Sans sélection, la roue natale montre le signe du **Soleil natal** et la roue double celui du **Soleil en transit** ; sélectionner une planète ou la cuspide d'une maison adapte la bande.
+- Une légende sous la roue nomme précisément la planète ou la cuspide et son signe. Les degrés planétaires et la séparation natal/transit sont inchangés.
+- Les exports SVG/PNG conservent la nouvelle bande. Tests de régression pour les trois variantes, le signe par défaut, les sélections et l'absence de cartouche central.
+- Le test d'accessibilité du calendrier utilise une date de référence fixe pour ne plus échouer lorsqu'il n'est plus exécuté le 20 novembre 2026.
+
+
 
 ## Refonte graphique de la roue astrologique — Preview 0.8.9
 
