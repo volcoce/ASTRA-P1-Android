@@ -23,16 +23,16 @@ test('P3 light and dark text plus solar element ribbon pairings reach AA',()=>{
     ['#1E404F','#F8EFD5'],['#1E404F','#FFF9EA'],
     ['#1E404F','#F0BE57'],['#F8EFD5','#101F2A'],
     ['#BBCBD1','#243E4D'],
-    ['#1E404F','#FAD7B0'],['#1E404F','#D9D6B8'],
-    ['#1E404F','#D1E4F0'],['#1E404F','#BDD7E3'],
-    ['#F8EFD5','#74452E'],['#F8EFD5','#57533B'],
-    ['#F8EFD5','#31566D'],['#F8EFD5','#294F68'],
+    ['#1E404F','#F4C78F'],['#1E404F','#C8C36A'],
+    ['#1E404F','#8FB9D6'],['#1E404F','#5FA3A3'],
+    ['#F8EFD5','#8C5A37'],['#F8EFD5','#6E6A33'],
+    ['#F8EFD5','#3E6E90'],['#F8EFD5','#2D7777'],
   ]) assert.ok(contrast(ink,bg)>=4.5,ink+' on '+bg+' = '+contrast(ink,bg).toFixed(2));
   assert.match(css,/--astra-calendar-ink/);
   assert.match(css,/color:var\(--astra-calendar-ink\)!important/);
   for(const n of ['fire','earth','air','water'])assert.match(tokens,new RegExp('--solar-'+n+'-bg'));
-  assert.ok(tokens.includes('--solar-earth-bg:#D9D6B8'));
-  assert.ok(tokens.includes('--solar-water-bg:#BDD7E3'));
+  assert.ok(tokens.includes('--solar-earth-bg:#C8C36A'));
+  assert.ok(tokens.includes('--solar-water-bg:#5FA3A3'));
   for(const n of ['fire','earth','air','water'])assert.ok(tokens.includes('--solar-'+n+'-muted:'));
 
 });
