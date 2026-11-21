@@ -34,6 +34,14 @@ test('solar ribbon is a single background per week, not per-day cards',()=>{
   assert.match(week,/grid-column:1 \/ span 13/);
   assert.match(week,/grid-column:14 \/ span 1/);
   assert.equal((week.match(/astra-solar-ribbon-segment/g)||[]).length,2);
+  assert.equal((week.match(/ends-at-ingress/g)||[]).length,1);
+  assert.equal((week.match(/starts-at-ingress/g)||[]).length,1);
+  assert.match(css,/\.astra-solar-ribbon-segment\.ends-at-ingress/);
+  assert.match(css,/\.astra-solar-ribbon-segment\.starts-at-ingress/);
+  // Week boundaries must not add a false zodiac-sign transition.
+  const firstWeek=solarCalendarBackdropWeek(2026,10,wd,0,periods);
+  assert.ok(!firstWeek.includes('starts-at-ingress'));
+  assert.ok(!firstWeek.includes('ends-at-ingress'));
   const render=app.slice(app.indexOf('  function calendar() {'),app.indexOf('  function initDraft()'));
   assert.match(render,/astra-calendar-date-week/);
   assert.match(render,/solarCalendarBackdropWeek/);
