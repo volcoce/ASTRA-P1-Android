@@ -130,7 +130,7 @@ html,body,.app-shell,.main{min-width:0;max-width:100%}
 }
 @media(max-width:360px){
   .calendar.astra-calendar-board{padding-inline:3px}
-  .calendar.astra-calendar-board .weekday{font-size:11px}
+  .calendar.astra-calendar-board .weekday{font-size:12px}
   .bottom-nav .nav{min-height:52px;padding-inline:1px}
   .bottom-nav .nav-label{font-size:10px;line-height:1.25}
   .astra-personal-date-fields,.astra-personal-time-fields{
