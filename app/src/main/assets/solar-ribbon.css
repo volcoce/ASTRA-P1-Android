@@ -19,8 +19,9 @@
   grid-column:1 / -1;
   min-width:0;
   display:grid;
-  grid-template-columns:repeat(7,minmax(0,1fr));
-  gap:2px;
+  grid-template-columns:repeat(14,minmax(0,1fr));
+  gap:0;
+  /* Two half-columns per civil day: a sign ingress shares the date 50/50. */
   align-items:stretch;
   height:30px;
   margin-top:2px;
@@ -46,6 +47,14 @@
 }
 .astra-calendar-range-event.continues-before{border-top-left-radius:2px;border-bottom-left-radius:2px}
 .astra-calendar-range-event.continues-after{border-top-right-radius:2px;border-bottom-right-radius:2px}
+.astra-calendar-range-event.ends-at-ingress{
+  border-top-right-radius:0;border-bottom-right-radius:0;
+  border-right:0;
+}
+.astra-calendar-range-event.starts-after-ingress{
+  border-top-left-radius:0;border-bottom-left-radius:0;
+  border-left:1px solid rgba(255,255,255,.9);
+}
 .astra-calendar-range-event:hover{filter:brightness(.95)}
 .astra-calendar-range-event:focus-visible{
   outline:3px solid #235e81;
@@ -93,7 +102,7 @@
   .astra-calendar-range-event small{display:block}
 }
 @media(max-width:360px){
-  .astra-calendar-week-events{gap:1px;height:28px}
+  .astra-calendar-week-events{gap:0;height:28px}
   .astra-calendar-range-event{height:28px;padding:0 3px;font-size:10px}
   .astra-calendar-blank-day{height:53px}
 }
