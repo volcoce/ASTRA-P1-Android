@@ -14,7 +14,7 @@ function solarModule(ctx){
   assert.ok(start>0&&stop>start);
   const functions=app.slice(start,stop);
   return new Function('ctx','with(ctx){'+functions+
-    ';return {solarSignIndex,solarRibbon,solarDayBand};}')(ctx);
+    ';return {solarSignIndex,solarMonthPeriods,solarCalendarWeek,solarMonthSummary,solarDayBand};}')(ctx);
 }
 const zodiacNames=['Bélier','Taureau','Gémeaux','Cancer','Lion','Vierge',
   'Balance','Scorpion','Sagittaire','Capricorne','Verseau','Poissons'];
@@ -40,50 +40,68 @@ test('Solar band: sign from calculated longitude, independent of natal profile',
   assert.equal(solarSignIndex(null),null);
 });
 
-test('Solar band: calendar has two proportional segments with an exact selected-day pin',()=>{
-  const {solarRibbon}=solarModule(context);
-  const ribbon=solarRibbon(2026,10,30);
-  assert.equal((ribbon.match(/class="astra-solar-track-piece /g)||[]).length,2);
-  assert.match(ribbon,/Scorpion/);
-  assert.match(ribbon,/Sagittaire/);
-  assert.match(ribbon,/flex-grow:21/);
-  assert.match(ribbon,/flex-grow:9/);
-  assert.match(ribbon,/astra-solar-track-pin/);
-  assert.match(ribbon,/21 j · 70 %/);
-  assert.match(ribbon,/9 j · 30 %/);
-  assert.match(ribbon,/Signe le plus présent : Scorpion/);
-  assert.match(ribbon,/21 j sur 30 \(70 %\)/);
-  assert.match(ribbon,/Jour sélectionné : 21 novembre 2026 · Soleil en Scorpion à midi/);
-  assert.match(ribbon,/À midi · Europe\/Paris · tropical/);
-  assert.match(ribbon,/un changement de signe peut survenir dans la journée/);
+test('Solar intervals: monthly data groups consecutive days per solar sign',()=>{
+  const {solarMonthPeriods}=solarModule(context);
+  const model=solarMonthPeriods(2026,10,30);
+  assert.deepEqual(model.segments,[
+    {start:1,end:21,index:7},
+    {start:22,end:30,index:8}
+  ]);
+  assert.equal(model.totals[7],21);
+  assert.equal(model.totals[8],9);
+  assert.deepEqual(model.mostPresent,[7]);
 });
 
-test('Solar band: selected date and zodiac convention are reflected in the ribbon',()=>{
-  context.selected='2026-11-22';
-  context.state.mode='sidereal';
-  try{
-    const ribbon=solarModule(context).solarRibbon(2026,10,30);
-    assert.match(ribbon,/Jour sélectionné : 22 novembre 2026 · Soleil en Sagittaire à midi/);
-    assert.match(ribbon,/sidéral/);
-  }finally{context.selected='2026-11-21';context.state.mode='tropical';}
+test('Solar intervals: date ranges render WITHIN calendar weeks as contiguous bars',()=>{
+  const {solarMonthPeriods,solarCalendarWeek}=solarModule(context);
+  const model=solarMonthPeriods(2026,10,30);
+  const weekday=(new Date(2026,10,1).getDay()+6)%7;
+  const firstWeek=solarCalendarWeek(2026,10,weekday,0,model);
+  assert.match(firstWeek,/class="astra-calendar-week-events"/);
+  assert.match(firstWeek,/grid-column:7 \/ span 1/);
+  assert.match(firstWeek,/class="astra-calendar-range-event solar-sign-7 is-narrow/);
+  const changingWeek=solarCalendarWeek(2026,10,weekday,3,model);
+  assert.equal((changingWeek.match(/class="astra-calendar-range-event /g)||[]).length,2);
+  assert.match(changingWeek,/grid-column:1 \/ span 6/);
+  assert.match(changingWeek,/grid-column:7 \/ span 1/);
+  assert.match(changingWeek,/Soleil en Scorpion/);
+  assert.match(changingWeek,/Soleil en Sagittaire/);
+  assert.match(changingWeek,/21 jours à midi \(70 % du mois\)/);
+  assert.match(changingWeek,/data-calendar-range-start="22" data-calendar-range-end="30"/);
+  assert.ok(!changingWeek.includes('astra-solar-ribbon'));
 });
 
-test('Solar band: handles tied signs and incomplete month positions without inventing data',()=>{
-  const previousDays=context.result.days,previousSelected=context.selected;
+test('Solar intervals: month leader stays a compact caption under the same grid',()=>{
+  const {solarMonthPeriods,solarMonthSummary}=solarModule(context);
+  const summary=solarMonthSummary(solarMonthPeriods(2026,10,30));
+  assert.match(summary,/astra-calendar-solar-note/);
+  assert.match(summary,/Signe le plus présent/);
+  assert.match(summary,/Scorpion/);
+  assert.match(summary,/21 j \(70 %\)/);
+  assert.match(summary,/Selon la position du Soleil à midi/);
+  assert.ok(!summary.includes('<section'));
+});
+
+test('Solar intervals: missing days remain unassigned and ties are announced',()=>{
+  const previousDays=context.result.days;
   const incomplete={};
   for(let d=1;d<=30;d++){
     const key='2026-11-'+String(d).padStart(2,'0');
     incomplete[key]={sunLongitudeAtNoon:d<=12?235:d<=24?250:null};
   }
   context.result={days:incomplete};
-  context.selected='2026-11-30';
   try{
-    const ribbon=solarModule(context).solarRibbon(2026,10,30);
-    assert.match(ribbon,/Signes à égalité : Scorpion et Sagittaire/);
-    assert.match(ribbon,/12 j sur 30 \(40 %\)/);
-    assert.match(ribbon,/données manquantes certains jours/);
-    assert.match(ribbon,/Jour sélectionné : 30 novembre 2026 · signe inconnu/);
-  }finally{context.result={days:previousDays};context.selected=previousSelected;}
+    const {solarMonthPeriods,solarCalendarWeek,solarMonthSummary}=solarModule(context);
+    const model=solarMonthPeriods(2026,10,30);
+    assert.deepEqual(model.mostPresent,[7,8]);
+    assert.equal(model.totals.reduce((a,b)=>a+b,0),24);
+    assert.match(solarMonthSummary(model),/Signes les plus présents/);
+    assert.match(solarMonthSummary(model),/Scorpion et Sagittaire/);
+    assert.match(solarMonthSummary(model),/12 j \(40 %\)/);
+    assert.match(solarMonthSummary(model),/données partielles/);
+    const weekday=(new Date(2026,10,1).getDay()+6)%7;
+    assert.match(solarCalendarWeek(2026,10,weekday,5,model),/is-unknown/);
+  }finally{context.result={days:previousDays};}
 });
 
 test('Solar band: daily banner conveys sign and degree without a natal wheel',()=>{
@@ -101,9 +119,11 @@ test('Solar band: sources, accessible labels and styles remain in sync',()=>{
   assert.match(app,/solarDayBand\(sky\?\.sunLongitude\)/);
   assert.match(html,/href="solar-ribbon.css"/);
   assert.ok(smoke.includes("ROOT/'solar-ribbon.css'"));
-  assert.match(css,/\.astra-solar-track-piece\{/);
-  assert.match(css,/\.astra-solar-track-share\{/);
-  assert.match(app,/Proportion de jours par signe solaire/);
+  assert.match(css,/\.astra-calendar-range-event\{/);
+  assert.match(css,/\.astra-calendar-week-events\{/);
+  assert.match(app,/solarCalendarWeek\(year,m,weekday,week,periods\)/);
+  assert.ok(!app.includes('solarRibbon(year,m,count)'));
+  assert.ok(!app.includes('astra-solar-ribbon-heading'));
   assert.match(css,/\.calendar \.day \.sun-aspect-line\{/);
   assert.match(app,/Aspect solaire exact/);
 });
