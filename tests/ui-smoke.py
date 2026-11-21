@@ -101,6 +101,7 @@ if __name__ == '__main__':
             html=html.replace('<link rel="stylesheet" href="astra-p1-screens.css">','')
             html=html.replace('<link rel="stylesheet" href="astra-p2-navigation.css">','')
             html=html.replace('<link rel="stylesheet" href="astra-p3-accessibility.css">','')
+            html=html.replace('<link rel="stylesheet" href="astra-p4-calendar.css">','')
             html=html.replace('<script src="theme-bootstrap.js"></script>','')
             page.goto('about:blank')
             page.add_script_tag(content=JS)
@@ -123,6 +124,7 @@ if __name__ == '__main__':
             page.add_style_tag(content=(ROOT/'astra-p1-screens.css').read_text(encoding='utf-8'))
             page.add_style_tag(content=(ROOT/'astra-p2-navigation.css').read_text(encoding='utf-8'))
             page.add_style_tag(content=(ROOT/'astra-p3-accessibility.css').read_text(encoding='utf-8'))
+            page.add_style_tag(content=(ROOT/'astra-p4-calendar.css').read_text(encoding='utf-8'))
             page.add_script_tag(content=(ROOT/'app.js').read_text(encoding='utf-8'))
             # P0 design regression: verify computed font sizes and flat surfaces.
             px=lambda selector: page.locator(selector).first.evaluate(
@@ -672,6 +674,13 @@ if __name__ == '__main__':
             assert page.locator('h1.page-title').inner_text()=='Calendrier'
             # A single ribbon layer spans the seven date cells of each week.
             assert page.locator('.calendar .astra-calendar-date-week').count()>0
+            assert page.locator('.calendar .astra-adjacent-day').count()>0
+            assert page.locator('.calendar .astra-adjacent-day[data-day="2026-10-26"]').count()==1
+            assert page.locator('.calendar .astra-adjacent-day[data-day="2026-12-06"]').count()==1
+            assert page.locator('.calendar .astra-adjacent-day').first.get_attribute('aria-label').endswith('hors du mois affiché')
+            assert page.locator('.calendar .day.moon-new .moon-phase-badge').count()==1
+            assert page.locator('.calendar .day.moon-full .moon-phase-badge').count()==1
+            assert page.locator('.calendar .day.moon-full .moon-phase-badge').evaluate("el => getComputedStyle(el).borderTopStyle")=='solid'
             assert page.locator('.calendar .astra-solar-ribbon-backdrop').count()>0
             assert page.locator('.calendar .astra-solar-ribbon-segment.solar-element-water').count()>0
             assert page.locator('.calendar .astra-solar-ribbon-segment.solar-element-fire').count()>0
@@ -734,7 +743,7 @@ if __name__ == '__main__':
             assert 'Aspect solaire exact' not in page.locator('.calendar-phase-legend').inner_text()
             assert 'Nouvelle Lune' in page.locator('.calendar-phase-legend').inner_text()
             assert 'Pleine Lune' in page.locator('.calendar-phase-legend').inner_text()
-            assert page.evaluate("""() => [...document.querySelectorAll('.calendar .day .moon-phase-badge')].every(el =>
+            assert page.evaluate("""() => [...document.querySelectorAll('.calendar .day:not(.moon-new):not(.moon-full) .moon-phase-badge')].every(el =>
               getComputedStyle(el).backgroundColor === 'rgba(0, 0, 0, 0)')""")
             # Solar element colors remain independent of the event filter.
             page.locator('.calendar-options > summary').click()
