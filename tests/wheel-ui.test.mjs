@@ -29,6 +29,8 @@ const sample={
   state:{natalView:'essential',natalZodiac:'tropical',natalAspectFilter:'all'},
   natalSelection:null,
   zodiacSymbols:['♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓'],
+  zodiacNames:['Bélier','Taureau','Gémeaux','Cancer','Lion','Vierge',
+    'Balance','Scorpion','Sagittaire','Capricorne','Verseau','Poissons'],
   natalGlyphs:{Sun:'☉',Moon:'☾',Mercury:'☿',Venus:'♀',Mars:'♂',Jupiter:'♃',
     Saturn:'♄',Uranus:'♅',Neptune:'♆',Pluto:'♇'},
   aspectColors:{Conjonction:'#ad789f',Carré:'#c16e89',Trigone:'#6496c7',Sextile:'#599b98'},
@@ -48,7 +50,7 @@ function renderers(){
   assert.ok(beginning>0&&next>beginning&&dob>next&&dobEnd>dob);
   const code=app.slice(beginning,next)+app.slice(dob,dobEnd);
   return new Function('ctx','with(ctx){'+code+
-    ';return {wheelSvg,wheelSvgDateOnly,doubleWheelSvg,wheelDegreeTicks};}')(sample);
+    ';return {wheelSvg,wheelSvgDateOnly,doubleWheelSvg,wheelDegreeTicks,wheelHighlightedSign};}')(sample);
 }
 const count=(html,pattern)=>(html.match(pattern)||[]).length;
 
@@ -116,4 +118,59 @@ test('Chart UI: all visual layers load in app and Chromium; exports embed wheel 
   assert.match(wheelCss,/\.natal-transit-hit \.wheel-planet-disc/);
   assert.match(app,/\.wheel-modern \.wheel-zodiac-sector\.is-even/);
   assert.match(app,/\.wheel-modern\.natal-double-wheel \.natal-transit-hit/);
+});
+
+
+test('Chart UI: zodiac highlight is always a filled, identified sign band',()=>{
+  const {wheelSvg,wheelSvgDateOnly,doubleWheelSvg}=renderers();
+  const natal=wheelSvg(chart,true),dateOnly=wheelSvgDateOnly({...chart,houses:null},true);
+  assert.match(natal,/data-highlighted-sign="0"/);
+  assert.match(dateOnly,/data-highlighted-sign="0"/);
+  assert.match(natal,/Bande ambrée : Soleil natal en Bélier/);
+  assert.equal(count(natal,/is-sign-active/g),1);
+  assert.equal(count(dateOnly,/is-sign-active/g),1);
+  const transit={...chart.positions,Sun:227,Venus:304};
+  const double=doubleWheelSvg({chart,positions:transit,contacts:[]});
+  assert.match(double,/data-highlighted-sign="7"/);
+  assert.match(double,/Bande ambrée : Soleil en transit en Scorpion/);
+  assert.equal(count(double,/is-sign-active/g),1);
+  assert.match(wheelCss,/is-sign-active\{[\s\S]*?fill:#f2d39a/);
+  assert.match(app,/is-sign-active\{fill:#f2d39a/);
+});
+
+test('Chart UI: selecting a planet or house follows its real longitude, not its label',()=>{
+  const {wheelSvg,wheelSvgDateOnly,doubleWheelSvg}=renderers();
+  const transit={...chart.positions,Sun:227,Venus:304};
+  for(const [selection,expectedNatal,expectedDouble] of [
+    [{kind:'planet',id:'Venus'},1,1],
+    [{kind:'house',id:'11'},10,10],
+    [{kind:'transit',id:'Venus'},0,10],
+    [null,0,7]
+  ]){
+    sample.natalSelection=selection;
+    try{
+      assert.match(wheelSvg(chart,true),new RegExp('data-highlighted-sign="'+expectedNatal+'"'));
+      assert.match(doubleWheelSvg({chart,positions:transit,contacts:[]}),
+        new RegExp('data-highlighted-sign="'+expectedDouble+'"'));
+      if(selection?.kind!=='house'){
+        assert.match(wheelSvgDateOnly({...chart,houses:null},true),
+          new RegExp('data-highlighted-sign="'+expectedNatal+'"'));
+      }
+    }finally{sample.natalSelection=null;}
+  }
+});
+
+test('Chart UI: all wheel centers are clean of branding and covering discs',()=>{
+  const {wheelSvg,wheelSvgDateOnly,doubleWheelSvg}=renderers();
+  for(const svg of [
+    wheelSvg(chart,true),
+    wheelSvgDateOnly({...chart,houses:null},true),
+    doubleWheelSvg({chart,positions:chart.positions,contacts:[]})
+  ]){
+    for(const legacy of ['wheel-core-disc','wheel-core-star','wheel-core-title','wheel-core-sub',
+      '>ASTRA</text>','>TROPICAL</text>','>SIDÉRAL</text>','>NATAL / TRANSITS</text>'])
+      assert.ok(!svg.includes(legacy),legacy);
+  }
+  assert.ok(!wheelCss.includes('.wheel-core-'));
+  assert.ok(!app.includes('".wheel-modern .wheel-core-'));
 });
