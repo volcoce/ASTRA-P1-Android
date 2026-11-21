@@ -14,7 +14,7 @@ const ctx={result:{days},state:{profile:{timezone:'Europe/Paris'}},zodiacNames:n
 function solarModule(){
   const a=app.indexOf('  const solarSignIndex='),b=app.indexOf('  function eventTitle(',a);
   return new Function('ctx','with(ctx){'+app.slice(a,b)+
-    ';return {solarSignIndex,solarMonthPeriods,solarMonthSummary,solarDayBand};}')(ctx);
+    ';return {solarSignIndex,solarMonthPeriods,solarMonthSummary,solarDayBand,solarCalendarBackdropWeek};}')(ctx);
 }
 test('solar month preserves real sign intervals and 50/50 ingress',()=>{
   const {solarMonthPeriods,solarMonthSummary}=solarModule();
@@ -23,25 +23,26 @@ test('solar month preserves real sign intervals and 50/50 ingress',()=>{
   assert.equal(p.totals[8],8.5);
   assert.match(solarMonthSummary(p),/50\/50/);
 });
-test('calendar paints continuous element backgrounds without extra solar row',()=>{
-  const start=app.indexOf('  function calendar() {'),end=app.indexOf('  function initDraft()',start);
-  const code=app.slice(start,end);
-  assert.ok(start>=0&&end>start);
-  assert.match(code,/solar-continues-before/);
-  assert.match(code,/solar-continues-after/);
-  assert.match(code,/solar-element-/);
-  assert.match(code,/solar-split-bg/);
-  assert.ok(!code.includes('solarCalendarWeek('));
-  assert.match(css,/\.calendar \.day\.astra-solar-cell/);
+test('solar ribbon is a single background per week, not per-day cards',()=>{
+  const {solarMonthPeriods,solarCalendarBackdropWeek}=solarModule();
+  const periods=solarMonthPeriods(2026,10,30);
+  const wd=(new Date(2026,10,1).getDay()+6)%7;
+  const week=solarCalendarBackdropWeek(2026,10,wd,3,periods);
+  assert.match(week,/astra-solar-ribbon-backdrop/);
+  assert.match(week,/solar-element-water/);
+  assert.match(week,/solar-element-fire/);
+  assert.match(week,/grid-column:1 \/ span 13/);
+  assert.match(week,/grid-column:14 \/ span 1/);
+  assert.equal((week.match(/astra-solar-ribbon-segment/g)||[]).length,2);
+  const render=app.slice(app.indexOf('  function calendar() {'),app.indexOf('  function initDraft()'));
+  assert.match(render,/astra-calendar-date-week/);
+  assert.match(render,/solarCalendarBackdropWeek/);
+  assert.ok(!render.includes('solarClass'));
+  assert.match(css,/\.astra-solar-ribbon-backdrop/);
+  assert.match(css,/\.astra-solar-ribbon-segment/);
+  assert.match(css,/background:transparent!important/);
   assert.match(css,/--solar-fire-bg/);
-  assert.match(css,/--solar-earth-bg/);
-  assert.match(css,/--solar-air-bg/);
   assert.match(css,/--solar-water-bg/);
-  assert.match(css,/column-gap:0/);
-  assert.match(css,/\.calendar \.day\.astra-solar-cell:not\(\.solar-continues-before\)/);
-  assert.match(css,/\.calendar \.day\.astra-solar-cell:not\(\.solar-continues-after\)/);
-  assert.match(css,/moon-phase-badge/);
-  assert.ok(!css.includes('.astra-solar-calendar-week'));
 });
 test('daily solar label and unknown position remain supported',()=>{
   const {solarDayBand,solarSignIndex}=solarModule();
