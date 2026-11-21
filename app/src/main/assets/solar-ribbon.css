@@ -29,6 +29,16 @@
 .calendar .astra-solar-ribbon-segment{
   display:block;min-width:0;background:var(--solar-bg);height:100%;
 }
+/* At the boundary between zodiac signs, the outgoing and incoming
+   colours each end in a rounded edge, not a hard vertical cut. */
+.calendar .astra-solar-ribbon-segment.ends-at-ingress{
+  border-top-right-radius:11px;
+  border-bottom-right-radius:11px;
+}
+.calendar .astra-solar-ribbon-segment.starts-at-ingress{
+  border-top-left-radius:11px;
+  border-bottom-left-radius:11px;
+}
 .calendar .astra-calendar-date-week .day{
   position:relative;z-index:1;min-width:0;
   background:transparent!important;background-image:none!important;
