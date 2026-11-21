@@ -1,93 +1,47 @@
-/* Solar sign palette, calendar cell backgrounds and the daily sky band. */
-.solar-sign-0 {--solar-bg:#f2d7d1;--solar-ink:#71312c}
-.solar-sign-1 {--solar-bg:#dce9d5;--solar-ink:#315636}
-.solar-sign-2 {--solar-bg:#f2e7ae;--solar-ink:#665019}
-.solar-sign-3 {--solar-bg:#dce5f7;--solar-ink:#304d79}
-.solar-sign-4 {--solar-bg:#f3dda9;--solar-ink:#755019}
-.solar-sign-5 {--solar-bg:#d9e9de;--solar-ink:#315a48}
-.solar-sign-6 {--solar-bg:#f0dce9;--solar-ink:#743d62}
-.solar-sign-7 {--solar-bg:#e6d9ee;--solar-ink:#57376c}
-.solar-sign-8 {--solar-bg:#f2dfc2;--solar-ink:#77501e}
-.solar-sign-9 {--solar-bg:#dbe4ec;--solar-ink:#3e5569}
-.solar-sign-10{--solar-bg:#d5eaed;--solar-ink:#245968}
-.solar-sign-11{--solar-bg:#dfe1f4;--solar-ink:#424c7a}
-/* Zodiac palette shared by daily band and calendar tile backgrounds. */
-:root{--solar-sign-0-bg:#f2d7d1;--solar-sign-1-bg:#dce9d5;--solar-sign-2-bg:#f2e7ae;--solar-sign-3-bg:#dce5f7;--solar-sign-4-bg:#f3dda9;--solar-sign-5-bg:#d9e9de;--solar-sign-6-bg:#f0dce9;--solar-sign-7-bg:#e6d9ee;--solar-sign-8-bg:#f2dfc2;--solar-sign-9-bg:#dbe4ec;--solar-sign-10-bg:#d5eaed;--solar-sign-11-bg:#dfe1f4;}
-/* The solar ribbon is now the background of each civil-day tile.
-   Phase icons, personal events and date labels remain above the tint. */
-.calendar .day.astra-solar-cell,
-.calendar .day.astra-solar-cell.moon-new:not(.selected),
-.calendar .day.astra-solar-cell.moon-full:not(.selected),
-:root[data-astra-theme="dark"] .calendar .day.astra-solar-cell{
-  background-color:var(--solar-bg);
-  background-image:linear-gradient(90deg,
-    var(--solar-bg) 0%,var(--solar-bg) 50%,
-    var(--solar-split-bg,var(--solar-bg)) 50%,var(--solar-split-bg,var(--solar-bg)) 100%);
-  color:var(--solar-ink);
-  border-color:color-mix(in srgb,var(--solar-ink) 25%,transparent);
+/* ASTRA solar periods: continuous bands inside the calendar grid.
+   Each civil date has two half columns to represent an ingress 50/50. */
+.solar-sign-0,.solar-sign-4,.solar-sign-8{--solar-bg:#ffdbad;--solar-ink:#713c20}
+.solar-sign-1,.solar-sign-5,.solar-sign-9{--solar-bg:#d9eab7;--solar-ink:#36542b}
+.solar-sign-2,.solar-sign-6,.solar-sign-10{--solar-bg:#cbe5fa;--solar-ink:#274f73}
+.solar-sign-3,.solar-sign-7,.solar-sign-11{--solar-bg:#d9d1f6;--solar-ink:#51417a}
+.calendar .cal-grid{grid-auto-flow:row}
+.astra-solar-calendar-week{
+  grid-column:1/-1;display:grid;grid-template-columns:repeat(14,minmax(0,1fr));
+  align-items:stretch;gap:0;min-width:0;height:29px;margin:3px 0 1px;
 }
-.calendar .day.astra-solar-cell.selected,
-:root[data-astra-theme="dark"] .calendar .day.astra-solar-cell.selected{
-  background-color:var(--solar-bg);
-  color:#172637;
-  border:2px solid #235e81;
-  box-shadow:inset 0 0 0 1px #fff,0 0 0 1px #235e81;
+.solar-element-fire{--solar-bg:#ffdbad;--solar-ink:#713c20}
+.solar-element-earth{--solar-bg:#d9eab7;--solar-ink:#36542b}
+.solar-element-air{--solar-bg:#cbe5fa;--solar-ink:#274f73}
+.solar-element-water{--solar-bg:#d9d1f6;--solar-ink:#51417a}
+.solar-element-unknown{--solar-bg:#e8edf1;--solar-ink:#4b5967}
+.astra-solar-calendar-event{
+  box-sizing:border-box;min-width:0;height:29px;
+  display:flex;align-items:center;gap:5px;overflow:hidden;
+  background:var(--solar-bg);color:var(--solar-ink);
+  border:1px solid color-mix(in srgb,var(--solar-ink) 25%,transparent);
+  padding:0 6px;margin:0;
+  border-radius:6px;font:750 11px/1.25 system-ui,sans-serif;cursor:pointer;
 }
-.calendar .day.astra-solar-cell.today:not(.selected){border:2px solid #235e81}
-.calendar .day.astra-solar-cell .count{background:#294f64}
-.calendar .day.astra-solar-cell .moon-phase-badge{z-index:1}
-.calendar .day.astra-solar-cell:focus-visible{outline:3px solid #235e81;outline-offset:2px}
+.astra-solar-calendar-event.continues-before{border-top-left-radius:2px;border-bottom-left-radius:2px}
+.astra-solar-calendar-event.continues-after{border-top-right-radius:2px;border-bottom-right-radius:2px}
+.astra-solar-calendar-event.is-narrow{padding:0 1px;justify-content:center}
+.astra-solar-calendar-event.is-narrow .astra-solar-calendar-label{display:none}
+.astra-solar-calendar-event .astra-solar-calendar-glyph{flex:none;font:700 14px/1 Georgia,serif}
+.astra-solar-calendar-label{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.astra-solar-calendar-event:focus-visible{outline:3px solid #235e81;outline-offset:2px;position:relative;z-index:2}
 .astra-calendar-blank-day{min-width:0;height:55px}
-.astra-calendar-solar-note{
-  margin:11px 0 4px;
-  font:550 12px/1.5 system-ui,Arial,sans-serif;
-  color:#455f70;
-}
+.astra-calendar-solar-note{margin:11px 0 4px;font:550 12px/1.5 system-ui,Arial,sans-serif;color:#455f70}
 .astra-calendar-solar-note b{font-weight:800}
 .astra-calendar-solar-note span{color:#607888;font-weight:450}
-.astra-calendar-interval-info{
-  display:grid;gap:2px;
-  padding:10px 12px;
-  margin:10px 0 12px;
-  border-left:4px solid #bf8b56;
-  border-radius:8px;
-  background:#f2f5f8;
-  color:#24495f;
-}
+.astra-calendar-interval-info{display:grid;gap:2px;padding:10px 12px;margin:10px 0 12px;border-left:4px solid #bf8b56;border-radius:8px;background:#f2f5f8;color:#24495f}
 .astra-calendar-interval-info strong{font:750 13px/1.4 system-ui,sans-serif}
 .astra-calendar-interval-info span{font:500 12px/1.5 system-ui,sans-serif}
 :root[data-astra-theme="dark"] .astra-calendar-solar-note,
 :root[data-astra-theme="dark"] .astra-calendar-solar-note span{color:#d4e2eb}
 :root[data-astra-theme="dark"] .astra-calendar-interval-info{background:#223d4f;color:#e0ecf3}
-@media(max-width:360px){
-  .astra-calendar-blank-day{height:53px}
-}
-.astra-solar-daily-band{
-  display:flex;
-  align-items:center;
-  gap:9px;
-  padding:10px 12px;
-  margin:13px 0 7px;
-  background:var(--solar-bg,#e9edf0);
-  color:var(--solar-ink,#344e60);
-  border:1px solid rgba(39,65,84,.16);
-  border-radius:12px;
-  min-width:0;
-  box-sizing:border-box;
-}
-.astra-solar-daily-band strong{
-  color:inherit;
-  font:750 14px/1.35 system-ui,Arial,sans-serif;
-  min-width:0;
-}
-.astra-solar-daily-glyph{
-  flex:none;
-  font:700 22px/1 Georgia,serif;
-}
-.astra-solar-daily-degree{
-  margin-left:auto;
-  flex:none;
-  font-size:12px;
-  font-weight:750;
-}
+@media(max-width:360px){.astra-solar-calendar-week,.astra-solar-calendar-event{height:27px}.astra-calendar-blank-day{height:53px}}
+.astra-solar-daily-band{display:flex;align-items:center;gap:9px;padding:10px 12px;margin:13px 0 7px;background:var(--solar-bg,#e9edf0);color:var(--solar-ink,#344e60);border:1px solid rgba(39,65,84,.16);border-radius:12px;min-width:0;box-sizing:border-box}
+.astra-solar-daily-band strong{color:inherit;font:750 14px/1.35 system-ui,Arial,sans-serif;min-width:0}
+.astra-solar-daily-glyph{flex:none;font:700 22px/1 Georgia,serif}
+.astra-solar-daily-degree{margin-left:auto;flex:none;font-size:12px;font-weight:750}
 .astra-solar-daily-band.is-unknown{background:#e8edf1;color:#405566}
