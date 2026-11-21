@@ -46,8 +46,8 @@ test('Solar intervals: monthly data groups consecutive days per solar sign',()=>
   const {solarMonthPeriods}=solarModule(context);
   const model=solarMonthPeriods(2026,10,30);
   assert.deepEqual(model.segments,[
-    {start:1,end:22,index:7,startHalf:1,endHalf:43},
-    {start:22,end:30,index:8,startHalf:44,endHalf:60}
+    {index:7,start:1,end:22,startHalf:1,endHalf:43},
+    {index:8,start:22,end:30,startHalf:44,endHalf:60}
   ]);
   assert.equal(model.totals[7],21.5);
   assert.equal(model.totals[8],8.5);
