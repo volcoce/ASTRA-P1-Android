@@ -23,14 +23,18 @@ test('P3 light and dark text plus solar element ribbon pairings reach AA',()=>{
     ['#1E404F','#F8EFD5'],['#1E404F','#FFF9EA'],
     ['#1E404F','#F0BE57'],['#F8EFD5','#101F2A'],
     ['#BBCBD1','#243E4D'],
-    ['#1E404F','#FAD7B0'],['#1E404F','#DFE3B4'],
-    ['#1E404F','#D1E4F0'],['#1E404F','#C9DDD5'],
-    ['#F8EFD5','#74452E'],['#F8EFD5','#4B5333'],
-    ['#F8EFD5','#31566D'],['#F8EFD5','#31574F'],
+    ['#1E404F','#FAD7B0'],['#1E404F','#D9D6B8'],
+    ['#1E404F','#D1E4F0'],['#1E404F','#BDD7E3'],
+    ['#F8EFD5','#74452E'],['#F8EFD5','#57533B'],
+    ['#F8EFD5','#31566D'],['#F8EFD5','#294F68'],
   ]) assert.ok(contrast(ink,bg)>=4.5,ink+' on '+bg+' = '+contrast(ink,bg).toFixed(2));
   assert.match(css,/--astra-calendar-ink/);
   assert.match(css,/color:var\(--astra-calendar-ink\)!important/);
   for(const n of ['fire','earth','air','water'])assert.match(tokens,new RegExp('--solar-'+n+'-bg'));
+  assert.ok(tokens.includes('--solar-earth-bg:#D9D6B8'));
+  assert.ok(tokens.includes('--solar-water-bg:#BDD7E3'));
+  for(const n of ['fire','earth','air','water'])assert.ok(tokens.includes('--solar-'+n+'-muted:'));
+
 });
 test('P3 preserves full weekday names and readable navigation labels',()=>{
   assert.match(app,/Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche/);
