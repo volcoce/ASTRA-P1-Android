@@ -1,4 +1,17 @@
-# ASTRA Public — Preview 0.8.16
+# ASTRA Public — Preview 0.8.17
+
+## Jour de transition solaire partagé moitié-moitié (0.8.17)
+
+- **Le jour exact de l'entrée du Soleil dans un nouveau signe**, la bande solaire intégrée au calendrier partage visuellement sa case **50 % dans l'ancien signe, 50 % dans le nouveau**. Les autres dates restent entièrement dans leur signe.
+- Les bandes hebdomadaires utilisent **14 demi-colonnes alignées sur les 7 jours**, ce qui évite d'ajouter une seconde frise ou une liste séparée.
+- Le moteur astronomique détermine **la date civile locale et l'instant réel** du changement en tropical ou sidéral par recherche de frontière zodiacale, et conserve l'horaire précis dans les données mensuelles.
+- La fenêtre ouverte depuis la date ou la bande indique **l'heure réelle dans le fuseau du profil**. **Attention : les moitiés sont une convention graphique, pas une affirmation que le Soleil passe 12 heures dans chaque signe.**
+- Le calcul du signe le plus représenté au cours du mois alloue une demi-journée visuelle à chaque signe le jour du passage ; les pourcentages reflètent donc cette convention.
+- Les phases lunaires, marqueurs d'aspects, notes et événements personnels couvrant plusieurs jours conservent leurs comportements.
+- Tests complémentaires sur l'heure de l'entrée solaire, les deux moitiés d'une date de transition, les mois et le rendu à 320 px.
+
+## Historique — Preview 0.8.16
+
 
 ## Événements personnels multi-jours intégrés à la grille (0.8.16)
 
