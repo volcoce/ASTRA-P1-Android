@@ -21,7 +21,7 @@ Calendar rule: each day can show one moon-phase indicator at local noon. Keep Ne
 
 Use exactly four bottom tabs in this order: **Ce jour / Ce mois / Calendrier / Mon ciel**. Ce jour and Ce mois are anchored to the current date and month upon entering their tabs; Calendar remains the historical/future browser. Filters chosen in Calendar must not affect daily/monthly summaries. The journal is a secondary route accessible from day and month widgets and without a natal profile. Keep the **bottom navigation persistent** while the viewport is not occupied by the keyboard. Use text labels, not just planet symbols. At 320 CSS pixels, only the secondary widget rail scrolls horizontally; the page must never scroll sideways.
 
-This document complements `README.md` and protects P0–P2 usability improvements. It is not permission to replace the existing palette, calculations, personal data storage, navigation, or technologies wholesale.
+This document complements `README.md` and protects P0–P2 usability improvements. The approved P0 Retro Pop Celestial palette is implemented through semantic tokens; astronomical calculations, personal data storage, navigation and technologies remain unchanged.
 
 ## Art direction — *Atlas céleste*
 
@@ -139,6 +139,6 @@ Reject a change when it introduces any of the following without a specific ASTRA
 
 **Decision principle:** use one coherent visual design brief, Vercel-style functional QA, and a single polish reference. Stacking all ten competing skills will not reliably produce better product design.
 
-**Current layered implementation:** `style.css` remains as legacy functionality/layout, with `atlas-ui.css` loaded last as the active visual system. Future changes should modify the active system and gradually migrate obsolete legacy declarations rather than adding more competing files.
+**Current layered implementation:** legacy `style.css`, `atlas-ui.css`, `theme.css` and feature styles remain for layout/compatibility. The approved P0 foundation loads `astra-tokens.css` then `astra-components.css` last. New shared visual decisions belong in those two files; gradually remove obsolete legacy declarations rather than adding more parallel overrides. Preserve the natal wheel geometry and continuous solar backdrop.
 
 Last updated: 2026-11-20.
