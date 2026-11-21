@@ -163,3 +163,10 @@ Le dernier niveau CSS `astra-p3-accessibility.css` corrige les conflits de casca
 ### P4 — Habillage des roues et parité des exports
 
 Les mêmes secteurs rétro pop servent aux roues natales, sans heure et doubles : les secteurs portent la classe `zodiac-element-{fire,earth,air,water}`. `astra-p4-wheel.css` ne modifie aucune coordonnée, orbite, position de marqueur ou ordre des anneaux. Disques des planètes natales, transits, survol, sélection et focus ont des contrastes dédiés. L'export SVG embarque la même palette comme CSS autonome et le PNG en découle. Contrôler visuellement sur 320–393 px, vue complète, thème sombre et export, sans encombrer le centre de la roue.
+
+
+### Calendrier — continuité inter-mois
+
+Le ruban solaire couvre les **semaines visibles entières**, y compris les dates du mois précédent et suivant. Les jours adjacents conservent leur signe solaire et leur phase lunaire à midi local, obtenus par `dailySky` et `sunSignIngress` (cache léger), mais leurs couleurs sont atténuées avec `--solar-{fire,earth,air,water}-muted`. Le changement de saturation à la frontière d'un mois **ne crée jamais d'arrondi artificiel**. Les coins ne s'arrondissent que lors d'un véritable changement de signe; le partage 50/50 reste une convention visuelle de la journée de transit. Terre passe à un olive chaud (`#D9D6B8`), Eau à un bleu aquatique (`#BDD7E3`), également dans la roue zodiacale et les exports.
+
+Le bouton « + Événement » au-dessus de la grille a été supprimé : sélectionner une date ouvre sa fiche, qui conserve « Ajouter un événement ». Les données et sauvegardes personnelles ne changent pas.
