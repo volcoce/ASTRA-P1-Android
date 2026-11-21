@@ -1,0 +1,210 @@
+/* ASTRA P2 — Retro Pop Celestial secondary views, overlays, navigation.
+   This layer is intentionally about reusable sub-screen presentation, not data. */
+:root{
+  --astra-p2-ease:cubic-bezier(.2,.75,.35,1);
+  --astra-p2-duration:180ms;
+  --astra-p2-shadow:0 14px 38px #1E404F29;
+}
+:root[data-astra-theme="dark"]{--astra-p2-shadow:0 18px 40px #0009}
+
+/* Navigation: a restrained, unmistakable active state and keyboard focus. */
+.bottom-nav{border-top:1px solid var(--astra-divider);box-shadow:0 -4px 22px #1E404F0D}
+.bottom-nav .nav{
+  min-width:0;min-height:56px;
+  transition:background-color var(--astra-p2-duration) var(--astra-p2-ease),
+    color var(--astra-p2-duration) var(--astra-p2-ease)
+}
+.bottom-nav .nav.active{border-radius:var(--astra-radius-md);box-shadow:inset 0 0 0 1px #1E404F24}
+.bottom-nav .nav:focus-visible{
+  outline:3px solid var(--astra-focus)!important;outline-offset:-2px!important
+}
+.bottom-nav .nav .nav-label{overflow-wrap:normal;word-break:normal}
+.astra-journal-back,.natal-back,.astra-back-today{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:44px;gap:8px;padding:10px 14px;
+  color:var(--astra-ink);background:var(--astra-surface);
+  border:1px solid var(--astra-divider);border-radius:var(--astra-radius-md);
+  font-weight:750;text-decoration:none
+}
+.astra-journal-back{margin-bottom:12px}
+.natal-subpage-heading{gap:10px;margin-bottom:18px}
+.natal-subpage-heading .card-title{font-family:var(--astra-font-display);color:var(--astra-ink)}
+.natal-section-lead{color:var(--astra-muted);line-height:1.5}
+
+/* Journal: the editor is the primary task; statistics and history are secondary. */
+.astra-journal-editor,.astra-journal-summary,.astra-journal-history{
+  max-width:840px;margin:0 auto 16px;background:var(--astra-surface);
+  border:1px solid var(--astra-divider);border-radius:var(--astra-radius-xl);
+  box-shadow:none
+}
+.astra-journal-editor{
+  border:2px solid var(--astra-border);
+  background:var(--astra-surface);
+}
+.astra-journal-editor>.card-title{font-family:var(--astra-font-display);font-size:23px}
+.astra-journal-editor .actions{margin:8px 0 19px;gap:8px}
+.astra-journal-editor .actions .ghost{min-height:44px}
+.astra-journal-editor .mood-row{grid-template-columns:repeat(5,minmax(0,1fr));gap:7px}
+.astra-journal-editor .mood{
+  min-width:0;min-height:78px;padding:9px 2px;
+  background:var(--astra-secondary-surface);color:var(--astra-ink);
+  border:1px solid var(--astra-divider);border-radius:var(--astra-radius-md);
+  transition:background-color var(--astra-p2-duration) var(--astra-p2-ease),
+    transform var(--astra-p2-duration) var(--astra-p2-ease)
+}
+.astra-journal-editor .mood.on{
+  background:var(--astra-primary);color:var(--astra-primary-ink);
+  border:2px solid var(--astra-primary-ink);box-shadow:inset 0 0 0 1px #fff5
+}
+.astra-journal-editor .mood-symbol{font-size:23px}
+.astra-journal-editor .mood span:last-child{font-size:11px;line-height:1.25;overflow-wrap:anywhere}
+.astra-journal-editor .tag-buttons{gap:8px}
+.astra-journal-editor .tag-button{
+  background:var(--astra-secondary-surface);color:var(--astra-ink);
+  border:1px solid var(--astra-divider);border-radius:var(--astra-radius-pill);
+  min-height:38px;padding:7px 12px
+}
+.astra-journal-editor .tag-button.on{
+  border:2px solid var(--astra-ink);background:var(--color-cornflower);color:var(--color-deep-ocean)
+}
+.astra-journal-editor #journalNote{min-height:150px;resize:vertical}
+.astra-journal-editor input[type="range"]{accent-color:var(--astra-brand)}
+.astra-journal-editor .primary{margin-top:12px}
+.astra-journal-summary .insights{gap:10px}
+.astra-journal-summary .insights>div{
+  background:var(--astra-secondary-surface);border:1px solid var(--astra-divider);
+  border-radius:var(--astra-radius-md);min-width:0
+}
+.astra-journal-summary .insights b{color:var(--astra-ink)}
+.astra-journal-history .history-item{padding:13px 0;border-color:var(--astra-divider)}
+.astra-journal-history .history-item button{
+  display:inline-flex;align-items:center;min-height:38px;padding:7px 10px;
+  border-radius:var(--astra-radius-sm);background:var(--astra-secondary-surface);
+  color:var(--astra-ink);border:1px solid var(--astra-divider)
+}
+
+/* Event rows and interpretation sheets. Preserve inline detail focus behavior. */
+.astra-event-feed .event-button,.astra-month-event,.astra-calendar-inspector-event{
+  transition:background-color var(--astra-p2-duration) var(--astra-p2-ease)
+}
+.astra-event-feed .event-button:hover,
+.astra-month-event:hover,.astra-calendar-inspector-event:hover{
+  background:var(--astra-secondary-surface)
+}
+.astra-event-feed .event-button:focus-visible{outline-offset:-1px!important}
+.astra-event-detail{
+  max-width:840px;margin:18px auto;scroll-margin-top:24px;
+  border:2px solid var(--astra-border);border-radius:var(--astra-radius-xl);
+  background:var(--astra-surface)
+}
+.astra-event-detail .detail-head{gap:10px;flex-wrap:wrap}
+.astra-event-detail .card-title{font-family:var(--astra-font-display);color:var(--astra-ink)}
+.astra-event-detail .detail-tone{color:var(--astra-ink);font-size:15px}
+.astra-event-detail .detail-group{border-color:var(--astra-divider)}
+.astra-event-detail .detail-group h3{font-size:14px;color:var(--astra-ink)}
+.astra-event-detail .detail-group p{color:var(--astra-muted);font-size:13px;line-height:1.65}
+.astra-event-detail .close-detail{min-height:44px}
+.astra-event-facts{background:var(--astra-secondary-surface);border-radius:var(--astra-radius-lg);border:1px solid var(--astra-divider)}
+.astra-event-facts :is(span,strong){color:var(--astra-ink)}
+
+/* Secondary screens: settings, natal exploration and diagnostic panels. */
+.astra-settings-section,.astra-birth-settings,.astra-privacy-settings{
+  max-width:840px;margin:0 auto 16px;background:var(--astra-surface);
+  border:1px solid var(--astra-divider);border-radius:var(--astra-radius-xl)
+}
+.astra-settings-section .card-title,.astra-birth-settings .card-title,
+.astra-privacy-settings .card-title{font-family:var(--astra-font-display)}
+.astra-appearance-options{gap:8px}
+.astra-appearance-options button{
+  background:var(--astra-secondary-surface);border:1px solid var(--astra-divider);
+  color:var(--astra-ink);min-height:48px;border-radius:var(--astra-radius-md)
+}
+.astra-appearance-options button[aria-pressed="true"]{
+  background:var(--astra-primary);color:var(--astra-primary-ink);
+  border:2px solid var(--astra-primary-ink)
+}
+.natal-more-options,.natal-extras,.natal-glossary,.calculation-details,
+.natal-preview-disclosure,.natal-focus-legend{
+  border-color:var(--astra-divider);color:var(--astra-ink)
+}
+:is(.natal-more-options,.natal-extras,.natal-glossary,.calculation-details,
+.natal-preview-disclosure)>summary{
+  color:var(--astra-ink);font-weight:750;cursor:pointer;min-height:44px
+}
+:is(.natal-more-options,.natal-extras,.natal-glossary,.calculation-details,
+.natal-preview-disclosure)[open]>summary{color:var(--astra-brand-strong)}
+.natal-context-sheet{border:1px solid var(--astra-border);
+  background:var(--astra-surface);color:var(--astra-ink);
+  border-radius:var(--astra-radius-lg);box-shadow:var(--astra-p2-shadow)}
+.natal-context-sheet :is(h2,h3,p){color:var(--astra-ink)}
+.natal-focus-close,.natal-focus-launch button{min-height:44px}
+.astra-performance-scroll{border-color:var(--astra-divider)}
+.astra-performance thead th{background:var(--astra-secondary-surface)}
+
+/* Native event dialogs: consistent top layer with native escape/focus semantics. */
+.astra-personal-dialog{
+  background:var(--astra-surface);color:var(--astra-ink);
+  border:2px solid var(--astra-border);border-bottom:0;
+  border-radius:var(--astra-radius-xl) var(--astra-radius-xl) 0 0;
+  box-shadow:var(--astra-p2-shadow)
+}
+.astra-personal-dialog::backdrop{background:rgba(16,31,42,.66)}
+.astra-personal-dialog-head h2{
+  font-family:var(--astra-font-display);color:var(--astra-ink);
+  font-size:23px;line-height:1.25
+}
+.astra-personal-close{
+  flex:none;min-width:44px;min-height:44px;
+  color:var(--astra-ink);background:var(--astra-secondary-surface);
+  border:1px solid var(--astra-divider);border-radius:var(--astra-radius-md)
+}
+.astra-personal-form{gap:14px}
+.astra-personal-field>span{color:var(--astra-ink);font-weight:750}
+.astra-personal-field :is(input,textarea,select){
+  min-height:44px;background:var(--astra-surface);color:var(--astra-ink);
+  border:1px solid var(--astra-border);border-radius:var(--astra-radius-md)
+}
+.astra-personal-all-day{color:var(--astra-ink)}
+.astra-personal-all-day input{accent-color:var(--astra-brand)}
+.astra-personal-error{background:var(--astra-secondary-surface);color:var(--astra-danger)}
+.astra-personal-save,.astra-calendar-inspector-sky{
+  min-height:46px;background:var(--astra-primary);color:var(--astra-primary-ink);
+  border:2px solid var(--astra-primary-ink);
+  border-radius:var(--astra-radius-md);font-weight:750
+}
+.astra-personal-delete{
+  min-height:44px;border:1px solid var(--astra-danger);
+  color:var(--astra-danger);background:var(--astra-surface);
+  border-radius:var(--astra-radius-md)
+}
+.astra-personal-dialog .tiny{color:var(--astra-muted)}
+/* Toasts should not block navigation or focus; announce by existing aria-live. */
+.toast{
+  pointer-events:none;max-width:min(90vw,500px);
+  padding:12px 16px;border-radius:var(--astra-radius-md);
+  background:var(--color-deep-ocean);color:var(--color-cream);
+  box-shadow:var(--astra-p2-shadow);
+}
+:root[data-astra-theme="dark"] .toast{background:var(--astra-primary);color:var(--astra-primary-ink)}
+/* Transform-only motion, never move layout or astronomy labels. */
+@keyframes astra-p2-sheet-in{
+  from{opacity:.65;transform:translateY(12px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@media(prefers-reduced-motion:no-preference){
+  .astra-personal-dialog[open]{animation:astra-p2-sheet-in var(--astra-p2-duration) var(--astra-p2-ease) both}
+  .astra-event-detail{animation:astra-p2-sheet-in var(--astra-p2-duration) var(--astra-p2-ease) both}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{scroll-behavior:auto!important}
+  .astra-personal-dialog[open],.astra-event-detail{animation:none!important}
+  .bottom-nav .nav,.astra-journal-editor .mood,
+  .astra-event-feed .event-button,.astra-month-event{transition:none!important}
+}
+@media(max-width:370px){
+  .astra-journal-editor .mood-row{gap:3px}
+  .astra-journal-editor .mood{min-height:72px;padding:8px 1px}
+  .astra-journal-editor .mood span:last-child{font-size:10px}
+  .astra-personal-dialog{padding:17px 12px max(18px,var(--astra-safe-bottom,18px))}
+  .astra-personal-date-fields,.astra-personal-time-fields{gap:7px}
+}
