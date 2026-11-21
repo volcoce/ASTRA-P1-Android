@@ -102,6 +102,7 @@ if __name__ == '__main__':
             html=html.replace('<link rel="stylesheet" href="astra-p2-navigation.css">','')
             html=html.replace('<link rel="stylesheet" href="astra-p3-accessibility.css">','')
             html=html.replace('<link rel="stylesheet" href="astra-p4-calendar.css">','')
+            html=html.replace('<link rel="stylesheet" href="astra-p4-wheel.css">','')
             html=html.replace('<script src="theme-bootstrap.js"></script>','')
             page.goto('about:blank')
             page.add_script_tag(content=JS)
@@ -125,6 +126,7 @@ if __name__ == '__main__':
             page.add_style_tag(content=(ROOT/'astra-p2-navigation.css').read_text(encoding='utf-8'))
             page.add_style_tag(content=(ROOT/'astra-p3-accessibility.css').read_text(encoding='utf-8'))
             page.add_style_tag(content=(ROOT/'astra-p4-calendar.css').read_text(encoding='utf-8'))
+            page.add_style_tag(content=(ROOT/'astra-p4-wheel.css').read_text(encoding='utf-8'))
             page.add_script_tag(content=(ROOT/'app.js').read_text(encoding='utf-8'))
             # P0 design regression: verify computed font sizes and flat surfaces.
             px=lambda selector: page.locator(selector).first.evaluate(
@@ -314,6 +316,11 @@ if __name__ == '__main__':
             assert page.locator('.natal-summary-name').first.evaluate("e => parseFloat(getComputedStyle(e).fontSize)")>=12
             assert page.locator('.natal-main-action').evaluate("e => e.getBoundingClientRect().height")>=48
             assert page.locator('.wheel-zodiac-sector').count()==12
+            for element in ('fire','earth','air','water'):
+                assert page.locator('.wheel-zodiac-sector.zodiac-element-'+element).count()==3
+            assert page.locator('.natal-home .wheel-zodiac-sector.zodiac-element-fire').first.evaluate(
+                'el => getComputedStyle(el).fill'
+            )=='rgb(246, 213, 179)'
             assert page.locator('.wheel-house-sector').count()==12
             # The true degree markers never move; labels use the actual solver.
             labels=page.locator('.natal-planet-hit').evaluate_all("""items => items.map(e => ({
