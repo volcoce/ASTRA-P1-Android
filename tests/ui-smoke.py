@@ -93,6 +93,7 @@ if __name__ == '__main__':
             html=html.replace('<link rel="stylesheet" href="wheel-ui.css">','')
             html=html.replace('<link rel="stylesheet" href="solar-ribbon.css">','')
             html=html.replace('<link rel="stylesheet" href="calendar-p0.css">','')
+            html=html.replace('<link rel="stylesheet" href="personal-calendar.css">','')
             html=html.replace('<script src="theme-bootstrap.js"></script>','')
             page.goto('about:blank')
             page.add_script_tag(content=JS)
