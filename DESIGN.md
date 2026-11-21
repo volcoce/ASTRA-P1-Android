@@ -10,14 +10,14 @@ Design for **read → explore → inspect → configure**, not for exposing ever
 
 Do not reproduce Flo's visual branding. The reusable information architecture is a seven-day context strip, one dominant status widget, a concise row of accessible secondary information, and a vertically scannable details feed. Flo's published design study found a scrollable main screen more discoverable than hidden short-lived stories.
 
-**Aujourd'hui** must present:
+**Ce jour** must present:
 1. Select a day from a week strip (Monday–Sunday) with previous/next week accessible.
 2. One hero showing **Moon zodiac sign and an illustrated lunar-phase icon calculated at local noon**, with timezone and zodiac system stated; when the Moon changes sign or a lunar quarter occurs that civil day, display the precise chronological events and explain any sign difference. Do not imply a noon Moon sign applies all day. The count of exact events is secondary; never invent a prediction or sentiment.
 3. A compact horizontally scrollable set of **secondary** widgets: Sun sign at that same local noon, journal entry, natal chart. Do not duplicate the Moon phase in a second card.
 4. A vertically scrolling feed of first events with explicit expansion for the remainder.
 5. Secondary in-orb aspects under an accessible disclosure. Ensure no user loses the underlying astronomical data.
 
-Calendar rule: every day may show one small monochrome moon-phase SVG at local noon; a separate short warm-gold underline means **an exact aspect from transiting Sun to natal planet that day**. Do not use a full-row highlight for ordinary solar aspects, and keep violet New Moon and gold Full Moon distinct. Provide a textual legend and accessible day label; markers must not depend on event filters.
+Calendar rule: each day can show one moon-phase indicator at local noon. Keep New Moon and Full Moon visually distinct, with a textual legend and an accessible day label. The **solar-sign bands** are separate, span multiple days within the calendar grid, and split transition dates 50/50 as a visual convention, not an exact duration claim. The removed “Aspect solaire exact” marker must not be reintroduced.
 
 Use exactly four bottom tabs in this order: **Ce jour / Ce mois / Calendrier / Mon ciel**. Ce jour and Ce mois are anchored to the current date and month upon entering their tabs; Calendar remains the historical/future browser. Filters chosen in Calendar must not affect daily/monthly summaries. The journal is a secondary route accessible from day and month widgets and without a natal profile. Keep the **bottom navigation persistent** while the viewport is not occupied by the keyboard. Use text labels, not just planet symbols. At 320 CSS pixels, only the secondary widget rail scrolls horizontally; the page must never scroll sideways.
 
@@ -26,7 +26,7 @@ This document complements `README.md` and protects P0–P2 usability improvement
 ## Art direction — *Atlas céleste*
 
 - Visual character: a precise, calm astronomical plate with contemporary sans-serif interface typography. The **chart and its clearly named signs are the primary visual objects**.
-- Current implementation (Preview 0.7.0): ink-blue masthead, cool paper, accessible deep-blue actions and warm brass accent. The chart remains on neutral white. A surface is not better because it has a gradient, border, shadow and rounded corners simultaneously.
+- Visual reference established in Preview 0.7.0: ink-blue masthead, cool paper, accessible deep-blue actions and warm brass accent. The chart remains on neutral white. A surface is not better because it has a gradient, border, shadow and rounded corners simultaneously.
 - Geometry and data must be the strongest visual contrast. Decorative texture must never compete with a degree, planet, house, legend, or selection state.
 - Identity should come from the zodiac geometry, not from stock cosmic illustrations, meaningless sparkles, multiple competing gradients, or animated backgrounds.
 - The sky wheel is interactive data visualization: **physical longitude markers never move**; visual glyph spacing may move with visible leader lines.
