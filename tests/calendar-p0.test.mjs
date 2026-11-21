@@ -33,7 +33,9 @@ const context={
   header:()=>'',birthTimeWarning:()=>'',status:()=>'',detailView:()=>'',
   switcher:()=>'',filters:()=>'',row:e=>'<button data-mock-event="'+e.type+'"></button>',
   lunarLabel:()=> 'Pleine lune',moonPhaseIcon:()=>'<svg></svg>',
-  solarRibbon:()=>'<div class="astra-solar-ribbon"></div>',
+  solarMonthPeriods:()=>({segments:[],indices:[],totals:[],mostPresent:[],dayCount:30,max:0}),
+  solarCalendarWeek:()=>'<div class="astra-calendar-week-events"></div>',
+  solarMonthSummary:()=>'<p class="astra-calendar-solar-note"></p>',
   solarSignIndex:n=>Number.isFinite(n)?Math.floor(n/30):null,
   zodiacNames:['Bélier','Taureau','Gémeaux','Cancer','Lion','Vierge',
     'Balance','Scorpion','Sagittaire','Capricorne','Verseau','Poissons']
