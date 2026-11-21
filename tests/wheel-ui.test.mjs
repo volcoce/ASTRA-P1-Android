@@ -111,6 +111,25 @@ test('Chart UI: five-degree tick markers stay inside SVG viewBoxes',()=>{
   }
 });
 
+test('P4: Retro Pop element ring preserves zodiac geometry across all wheel modes',()=>{
+  const skins=readFileSync(new URL('../app/src/main/assets/astra-p4-wheel.css',import.meta.url),'utf8');
+  const expected=['fire','earth','air','water'];
+  for(const [name,svg] of [
+    ['natal',renderers().wheelSvg(chart,true)],
+    ['date-only',renderers().wheelSvgDateOnly({...chart,houses:null},true)],
+    ['double',renderers().doubleWheelSvg({chart,positions:chart.positions,contacts:[]})]
+  ]){
+    for(const element of expected){
+      assert.equal(count(svg,new RegExp('zodiac-element-'+element,'g')),3,name+' '+element);
+      assert.match(skins,new RegExp('\\\\.zodiac-element-'+element));
+    }
+    assert.equal(count(svg,/class="wheel-zodiac-sector /g),12,name);
+  }
+  assert.match(skins,/natal-transit-hit/);
+  assert.match(skins,/:root\\[data-astra-theme="dark"\\]/);
+  assert.match(app,/\.wheel-modern \.wheel-zodiac-sector\.zodiac-element-fire/);
+  assert.match(app,/#F6D5B3/);
+});
 test('Chart UI: all visual layers load in app and Chromium; exports embed wheel styling',()=>{
   assert.match(html,/href="wheel-ui.css"/);
   assert.ok(smoke.includes("ROOT/'wheel-ui.css'"));
