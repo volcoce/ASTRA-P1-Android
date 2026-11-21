@@ -499,15 +499,6 @@ button.astra-insight-tile:hover{border-color:#7597aa}
 .calendar .day.selected .moon-phase-badge{
   background:#fff;border-radius:100%;width:19px;height:19px;left:1px;bottom:1px;
 }
-.calendar .day .sun-aspect-line{
-  position:absolute;bottom:4px;right:3px;height:4px;width:13px;
-  background:#c47c2d;border-radius:6px;box-shadow:0 0 0 1px #fff7;
-  pointer-events:none;
-}
-.calendar .day.selected .sun-aspect-line{background:#f3cf83;box-shadow:none}
-.calendar .day.sun-exact:not(.selected):not(.moon-new):not(.moon-full){
-  box-shadow:inset 0 -1px 0 #f2e3c5;
-}
 .calendar .day.moon-new .pinhole,.calendar .day.moon-full .pinhole{
   left:4px;top:4px;right:auto;
 }
@@ -523,9 +514,6 @@ button.astra-insight-tile:hover{border-color:#7597aa}
 .calendar-phase-legend .moon-phase-legend-dot.new{background:#eeeafb;border:1px solid #c9c0e9}
 .calendar-phase-legend .moon-phase-legend-dot.full{background:#fff1d7;border:1px solid #edd29f}
 .calendar-phase-legend .moon-phase-legend-mini{display:inline-grid;place-items:center;width:23px;height:23px}
-.calendar-phase-legend .sun-aspect-legend{
-  display:inline-block;width:23px;height:4px;background:#c47c2d;border-radius:4px;
-}
 .calendar-phase-legend .moon-phase-legend-dot .astra-phase-graphic{width:17px;height:17px}
 @media(max-width:360px){
   .calendar-phase-legend{column-gap:11px;font-size:11.5px}
@@ -716,10 +704,6 @@ button.astra-insight-tile:hover{border-color:#7597aa}
 .calendar .day .moon-phase-badge .astra-phase-graphic{width:21px;height:21px}
 .calendar .day.selected .moon-phase-badge{
   left:50%;bottom:7px;width:23px;height:23px
-}
-.calendar .day .sun-aspect-line{
-  bottom:1px;left:50%;right:auto;transform:translateX(-50%);
-  width:22px;height:3px;box-shadow:none
 }
 
 /* ASTRA P1: fluid layouts, text zoom and resilient navigation. */
