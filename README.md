@@ -1,4 +1,16 @@
-# ASTRA Public — Preview 0.8.14
+# ASTRA Public — Preview 0.8.15
+
+## Événements sur plusieurs jours intégrés au calendrier (0.8.15)
+
+- **Même principe que les événements « toute la journée » de Google Agenda** : les périodes « Soleil en [signe] » sont désormais des bandes colorées qui occupent plusieurs colonnes **dans la grille du calendrier**. Elles sont réparties par semaine, au-dessus des dates concernées ; elles ne sont plus affichées dans une section séparée.
+- Une période peut commencer en milieu de semaine et continuer la semaine suivante. La représentation est fractionnée aux limites visuelles des semaines, sans changer la durée réelle de la période calculée dans le mois.
+- Toucher une bande affiche **le signe solaire et les dates de la période** dans le panneau de la journée sélectionnée ; toucher une case date rétablit le comportement normal.
+- Un discret texte sous la grille conserve le **signe le plus présent du mois et son pourcentage**, sans recréer une seconde frise.
+- Les barres restent basées sur les **signes solaires à midi local**, en zodiaque tropical ou sidéral. Elles ne prétendent pas que l'entrée dans le signe a eu lieu à minuit ; les jours hors du mois ne sont pas attribués sans calcul.
+- Les icônes de phases lunaires, événements exacts et marqueurs de journal sont inchangés. La version ne crée pas encore d'événements personnels de plusieurs jours : les nouvelles barres représentent les périodes astronomiques calculées.
+- Tests du découpage par semaine, barres cliquables, jours manquants, accessibilité et rendu Chromium à largeur 320 px.
+
+## Historique — Preview 0.8.14
 
 ## Parcours du Soleil — occupation par signe (Preview 0.8.14)
 
