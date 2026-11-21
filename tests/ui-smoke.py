@@ -278,7 +278,7 @@ if __name__ == '__main__':
             page.set_viewport_size({'width':393,'height':844})
             assert page.evaluate(
                 "getComputedStyle(document.documentElement).getPropertyValue('--astra-focus-ring').trim()"
-            )=='#226987'
+            )=='#1E404F'  # Retro Pop P0/P3 focus token
             # P2.1: immersive reading keeps home uncluttered and restores focus.
             page.locator('.natal-home [data-open-focus]').click()
             # P0 uses a native HTML dialog opened with showModal().
