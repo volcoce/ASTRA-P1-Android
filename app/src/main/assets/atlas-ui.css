@@ -681,7 +681,7 @@ button.astra-insight-tile:hover{border-color:#7597aa}
 }
 
 
-/* Keep Moon icon, date and Sun aspect line inside one calendar tile.
+/* Keep Moon icon and date inside one calendar tile.
    The SVG variant is "astra-phase-variant-cell" (never "calendar"):
    otherwise it inherits .calendar padding and border and overflows tiles. */
 .calendar .cal-grid{
