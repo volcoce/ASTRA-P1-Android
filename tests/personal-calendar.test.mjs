@@ -17,7 +17,7 @@ const fixture={
   allDay:true,startTime:'',endTime:'',color:'purple',note:''
 };
 const state={calendarEvents:[fixture]};
-const ctx={state,pad,safe,displayDate:dateLabel,
+const ctx={state,pad,safe,displayDate:dateLabel,result:{days:{}},detectedZone:'Europe/Paris',
   selected:'2026-11-24',personalEditor:null,calendarSheet:false,
   calendarColors:['blue','purple','green','orange','rose','slate'],
   dayEvents:()=>[],currentDay:()=>({exact:[],sky:[],active:[]}),
