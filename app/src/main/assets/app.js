@@ -101,6 +101,8 @@
   let focusReturnScreen='overview';
   let selected = isoDay(new Date());
   let month = new Date(new Date().getFullYear(),new Date().getMonth(),1);
+  // Transient calendar presentation; the user's dates and events are unchanged.
+  let calendarView='month';
   // Browser-only deep links. The Android shell keeps its native back handler.
   const webRouting = !window.ASTRA_CHART_EXPORT &&
     ['http:','https:'].includes(window.location.protocol) &&
@@ -452,21 +454,59 @@
     const angle={Conjonction:0,Sextile:60,Carré:90,Trigone:120,Opposition:180}[event.aspect];
     return `${planets[event.body]} et ${planets[event.natal]} · ${angle===undefined?event.aspect.toLowerCase():'angle de '+angle+'°'}`;
   }
+  function eventCategory(event){
+    if(event.type==='moon')return event.name==='Nouvelle Lune'?'moon-new':
+      event.name==='Pleine Lune'?'moon-full':'moon-quarter';
+    if(event.type==='station')return 'station';
+    if(event.type==='active')return 'active';
+    return event.body==='Sun'?'solar-aspect':'exact-aspect';
+  }
+  const eventCategoryLabel=category=>({
+    'moon-new':'Nouvelle Lune','moon-full':'Pleine Lune',
+    'moon-quarter':'Quartier lunaire',station:'Station planétaire',
+    active:'Aspect en cours','solar-aspect':'Aspect solaire exact',
+    'exact-aspect':'Aspect exact'
+  })[category]||'Événement';
   function row(event) {
     const id=renderedEvents.push(event)-1;
-    const isSky=event.type==='moon'||event.type==='station';
+    const category=eventCategory(event),isActive=event.type==='active';
     const glyph=event.type==='moon'?'☾':event.type==='station'?'℞':aspects[event.aspect]||'✧';
-    const isActive=event.type==='active';
-    const label=isActive?`À ${Number(event.delta).toFixed(2)}° de l’angle exact · observé à midi${event.approximateNatal?' · natal indicatif':''}`:`${event.type==='moon'?'Phase lunaire':event.type==='station'?'Station apparente':'Aspect exact'} · ${dateTime(event.at)}`;
-    return `<button class="event event-button ${isSky?'sky-event':''}" data-event="${id}" aria-label="Détails : ${safe(eventTitle(event))}"><span class="event-glyph" aria-hidden="true">${glyph}</span><span class="event-body"><b>${safe(eventTitle(event))}</b><span class="event-sub">${safe(label)}</span><span class="event-more">Voir l’explication</span></span><span class="event-arrow" aria-hidden="true">›</span></button>`;
+    const label=isActive?`Observé à midi · écart ${Number(event.delta).toFixed(2)}°${event.approximateNatal?' · natal indicatif':''}`:
+      `${dateTime(event.at)} · ${eventCategoryLabel(category)}`;
+    return `<button type="button" class="event event-button event-kind-${category}${event.type==='moon'||event.type==='station'?' sky-event':''}" data-event="${id}" aria-label="Détails : ${safe(eventTitle(event))}, ${safe(label)}"><span class="event-glyph" aria-hidden="true">${glyph}</span><span class="event-body"><small class="event-category-label">${eventCategoryLabel(category)}</small><b>${safe(eventTitle(event))}</b><span class="event-sub">${safe(label)}</span><span class="event-more">Voir la fiche de l’événement</span></span><span class="event-arrow" aria-hidden="true">›</span></button>`;
   }
   function detailView() {
     if(!openDetail)return '';
     let d;
     try { d=E.describeEvent(openDetail); } catch { return ''; }
-    const raw=openDetail;
-    const measure=raw.type==='active'?`Écart à l’angle exact : ${Number(raw.delta).toFixed(3)}° (orbe automatique ${Number(raw.orb).toFixed(2)}°)`:raw.at?`Horaire local : ${dateTime(raw.at)}`:'';
-    return `<section class="card detail" id="detailPanel" tabindex="-1" aria-label="Détails du transit"><div class="detail-head"><span class="tag">${safe(d.kind)}</span><button class="ghost close-detail" data-close="1" aria-label="Fermer les détails">Fermer ×</button></div><h2 class="card-title">${safe(d.title)}</h2><p class="detail-tone">${safe(d.tone)}</p><div class="detail-group"><h3>Calcul astronomique</h3><p>${safe(d.astronomy)} ${safe(measure)}</p></div><div class="detail-group"><h3>Lecture astrologique</h3><p>${safe(d.interpretation)}</p></div><div class="detail-group"><h3>Question de journal</h3><p>${safe(d.question)}</p><button class="ghost" data-prompt="${safe(d.question)}">Répondre dans mon journal</button></div><p class="tiny">${safe(d.disclaimer)}</p></section>`;
+    const raw=openDetail,category=eventCategory(raw);
+    const zone=state.profile?.timezone||detectedZone;
+    const exact=raw.type!=='active'&&raw.at;
+    const timing=exact?'<time datetime="'+safe(raw.at)+'">'+safe(dateTime(raw.at))+'</time>':
+      '<span>Observation à midi · '+safe(displayDate(selected))+'</span>';
+    const measure=raw.type==='active'?
+      `Écart à l’angle exact : ${Number(raw.delta).toFixed(3)}° (orbe ${Number(raw.orb).toFixed(2)}°)`:
+      exact?'Instant exact calculé pour le phénomène.':'';
+    const measureDetails=raw.type==='moon'&&Number.isFinite(raw.moonLongitude)?
+      'Position lunaire : '+safe(E.formatSign(raw.moonLongitude)):
+      raw.type==='station'?'Mouvement apparent : '+safe(raw.direction||'station'):
+      raw.aspect?'Aspect : '+safe(raw.aspect)+' · '+safe(planets[raw.body]||raw.body)+
+      (raw.natal?' et '+safe(planets[raw.natal]||raw.natal)+' natal':''):'';
+    return '<section class="card detail astra-event-detail event-kind-'+category+
+      '" id="detailPanel" tabindex="-1" aria-label="Fiche de l’événement" aria-labelledby="detailTitle">'+
+      '<div class="detail-head"><span class="tag">'+safe(eventCategoryLabel(category))+'</span>'+
+      '<button type="button" class="ghost close-detail" data-close="1" aria-label="Fermer les détails">Fermer ×</button></div>'+
+      '<h2 class="card-title" id="detailTitle">'+safe(d.title)+'</h2>'+
+      '<div class="astra-event-facts"><div><span>Date et heure</span><strong>'+timing+'</strong></div>'+
+      '<div><span>Référence horaire</span><strong>'+safe(zone)+' · '+(state.mode==='sidereal'?'Sidéral':'Tropical')+'</strong></div>'+
+      '<div><span>Catégorie</span><strong>'+safe(eventCategoryLabel(category))+'</strong></div></div>'+
+      '<p class="detail-tone">'+safe(d.tone)+'</p>'+
+      '<div class="detail-group"><h3>Calcul astronomique</h3><p>'+safe(d.astronomy)+
+      (measure?' '+safe(measure):'')+'</p>'+(measureDetails?'<p>'+measureDetails+'</p>':'')+'</div>'+
+      '<div class="detail-group"><h3>Lecture astrologique</h3><p>'+safe(d.interpretation)+'</p></div>'+
+      '<div class="detail-group"><h3>Question de journal</h3><p>'+safe(d.question)+'</p>'+
+      '<button type="button" class="ghost" data-prompt="'+safe(d.question)+'">Répondre dans mon journal</button></div>'+
+      '<p class="tiny">'+safe(d.disclaimer)+'</p></section>';
   }
   function birthTimeWarning(){
     return state.profile?.timeKnown===false?
