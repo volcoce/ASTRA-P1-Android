@@ -50,7 +50,7 @@ function renderers(){
   assert.ok(beginning>0&&next>beginning&&dob>next&&dobEnd>dob);
   const code=app.slice(beginning,next)+app.slice(dob,dobEnd);
   return new Function('ctx','with(ctx){'+code+
-    ';return {wheelSvg,wheelSvgDateOnly,doubleWheelSvg,wheelDegreeTicks,wheelHighlightedSign};}')(sample);
+    ';return {wheelSvg,wheelSvgDateOnly,doubleWheelSvg,wheelDegreeTicks};}')(sample);
 }
 const count=(html,pattern)=>(html.match(pattern)||[]).length;
 
@@ -67,11 +67,11 @@ test('Chart UI: natal wheel shows 12 zodiac sectors, 12 house sectors and 72 gra
   assert.match(svg,/class="angle-label"[^>]*>ASC<\/text>/);
 });
 
-test('Chart UI: selected natal planet highlights its actual zodiac sign',()=>{
+test('Chart UI: selected planet highlights only its glyph, not the zodiac band',()=>{
   sample.natalSelection={kind:'planet',id:'Sun'};
   try{
     const svg=renderers().wheelSvg(chart,true);
-    assert.equal(count(svg,/is-sign-active/g),1);
+    assert.equal(count(svg,/is-sign-active/g),0);
     assert.match(svg,/natal-planet-hit is-sun is-active/);
     assert.match(svg,/aria-pressed="true"/);
   }finally{sample.natalSelection=null;}
@@ -121,43 +121,21 @@ test('Chart UI: all visual layers load in app and Chromium; exports embed wheel 
 });
 
 
-test('Chart UI: zodiac highlight is always a filled, identified sign band',()=>{
+test('Chart UI: solar zodiac band is not drawn on any natal or transit wheel',()=>{
   const {wheelSvg,wheelSvgDateOnly,doubleWheelSvg}=renderers();
-  const natal=wheelSvg(chart,true),dateOnly=wheelSvgDateOnly({...chart,houses:null},true);
-  assert.match(natal,/data-highlighted-sign="0"/);
-  assert.match(dateOnly,/data-highlighted-sign="0"/);
-  assert.match(natal,/Bande ambrée : Soleil natal en Bélier/);
-  assert.equal(count(natal,/is-sign-active/g),1);
-  assert.equal(count(dateOnly,/is-sign-active/g),1);
-  const transit={...chart.positions,Sun:227,Venus:304};
-  const double=doubleWheelSvg({chart,positions:transit,contacts:[]});
-  assert.match(double,/data-highlighted-sign="7"/);
-  assert.match(double,/Bande ambrée : Soleil en transit en Scorpion/);
-  assert.equal(count(double,/is-sign-active/g),1);
-  assert.match(wheelCss,/is-sign-active\{[\s\S]*?fill:#f2d39a/);
-  assert.match(app,/is-sign-active\{fill:#f2d39a/);
-});
-
-test('Chart UI: selecting a planet or house follows its real longitude, not its label',()=>{
-  const {wheelSvg,wheelSvgDateOnly,doubleWheelSvg}=renderers();
-  const transit={...chart.positions,Sun:227,Venus:304};
-  for(const [selection,expectedNatal,expectedDouble] of [
-    [{kind:'planet',id:'Venus'},1,1],
-    [{kind:'house',id:'11'},10,10],
-    [{kind:'transit',id:'Venus'},0,10],
-    [null,0,7]
-  ]){
-    sample.natalSelection=selection;
-    try{
-      assert.match(wheelSvg(chart,true),new RegExp('data-highlighted-sign="'+expectedNatal+'"'));
-      assert.match(doubleWheelSvg({chart,positions:transit,contacts:[]}),
-        new RegExp('data-highlighted-sign="'+expectedDouble+'"'));
-      if(selection?.kind!=='house'){
-        assert.match(wheelSvgDateOnly({...chart,houses:null},true),
-          new RegExp('data-highlighted-sign="'+expectedNatal+'"'));
-      }
-    }finally{sample.natalSelection=null;}
+  const variants=[
+    wheelSvg(chart,true),
+    wheelSvgDateOnly({...chart,houses:null},true),
+    doubleWheelSvg({chart,positions:{...chart.positions,Sun:227},contacts:[]})
+  ];
+  for(const svg of variants){
+    assert.equal(count(svg,/is-sign-active/g),0);
+    assert.ok(!svg.includes('data-highlighted-sign'));
+    assert.ok(!svg.includes('Bande ambrée'));
   }
+  assert.ok(!wheelCss.includes('is-sign-active'));
+  assert.ok(!app.includes('wheelHighlightedSign'));
+  assert.ok(!app.includes('.wheel-modern .wheel-zodiac-sector.is-sign-active'));
 });
 
 test('Chart UI: all wheel centers are clean of branding and covering discs',()=>{
