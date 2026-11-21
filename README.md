@@ -1,4 +1,16 @@
-# ASTRA Public — Preview 0.8.15
+# ASTRA Public — Preview 0.8.16
+
+## Événements personnels multi-jours intégrés à la grille (0.8.16)
+
+- **Créer, modifier et supprimer des événements** depuis le Calendrier. Champs : titre, début, dernier jour inclus, « Toute la journée », heures si besoin, couleur et description facultative.
+- **Événements intégrés dans la grille mensuelle** : les barres continues occupent plusieurs colonnes, sont interrompues uniquement par les limites visuelles des semaines et réapparaissent dans le mois suivant si la durée dépasse une fin de mois.
+- Les événements simultanés sont répartis sur des rangées différentes pour éviter les superpositions ; une journée isolée peut aussi afficher une barre horaire.
+- **Pas de deuxième section d'événements** sous la grille. Un toucher sur une date ouvre un dialogue contextuel avec les événements de la date, les phénomènes astronomiques et l'accès au détail « Ce jour ». Un toucher sur une bande personnelle ouvre directement son formulaire de modification.
+- La grille conserve les bandes des signes solaires, phases lunaires, marqueurs de transits et jours du journal. Ces calculs sont distincts des événements créés manuellement.
+- **Stockage local** dans la sauvegarde JSON `astra-public-v1`, avec validation à l'import ; aucun accès à Google Agenda, aucun compte ni envoi de données. Le calendrier personnel fonctionne même si le thème natal n'a pas été configuré.
+- Tests dédiés aux événements couvrant plusieurs semaines et mois, horaires, chevauchements, validation des données et boîte de dialogue native. Tests Chromium pour création, modification, suppression et navigation tactile à 320 px.
+
+# ASTRA Public — Preview 0.8.15 (historique)
 
 ## Événements sur plusieurs jours intégrés au calendrier (0.8.15)
 
