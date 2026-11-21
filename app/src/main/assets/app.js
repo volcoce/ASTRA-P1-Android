@@ -523,12 +523,12 @@
       event.name==='Pleine Lune'?'moon-full':'moon-quarter';
     if(event.type==='station')return 'station';
     if(event.type==='active')return 'active';
-    return event.body==='Sun'?'solar-aspect':'exact-aspect';
+    return 'exact-aspect';
   }
   const eventCategoryLabel=category=>({
     'moon-new':'Nouvelle Lune','moon-full':'Pleine Lune',
     'moon-quarter':'Quartier lunaire',station:'Station planétaire',
-    active:'Aspect en cours','solar-aspect':'Aspect solaire exact',
+    active:'Aspect en cours',
     'exact-aspect':'Aspect exact'
   })[category]||'Événement';
   function row(event) {
@@ -840,14 +840,12 @@
       const total=entry.exact.length+entry.sky.length;
       const personalCount=state.calendarEvents.filter(e=>e.start<=day&&e.end>=day).length;
       const calendarDay=result?.days?.[day];
-      // Mark real phase events and exact transit-Sun-to-natal-planet aspects.
-      // Both markers ignore the active Calendar event filters.
+      // Mark lunar phases independently of Calendar event filters.
       const sky=calendarDay?.sky||[];
       const isNew=sky.some(e=>e.type==='moon'&&e.name==='Nouvelle Lune');
       const isFull=sky.some(e=>e.type==='moon'&&e.name==='Pleine Lune');
       const phase=isNew?'new':isFull?'full':null;
       const phaseLabel=phase==='new'?'Nouvelle Lune':phase==='full'?'Pleine Lune':'';
-      const sunCount=(calendarDay?.exact||[]).filter(e=>e.type==='exact'&&e.body==='Sun').length;
       const solarIndex=solarSignIndex(calendarDay?.sunLongitudeAtNoon);
       const solarName=solarIndex===null?'Position solaire indisponible':'Soleil en '+zodiacNames[solarIndex]+' à midi';
       const sunIngress=calendarDay?.sunIngress;
@@ -857,7 +855,7 @@
       const phaseName=lunarLabel(phaseAngle);
       const moonIndicator=Number.isFinite(phaseAngle)?
         '<span class="moon-phase-badge" aria-hidden="true">'+moonPhaseIcon(phaseAngle)+'</span>':'';
-      cells.push(`<button type="button" class="day ${day===selected?'selected':''} ${day===isoDay(new Date())?'today':''} ${phase?'moon-'+phase:''} ${sunCount?'sun-exact':''}" data-day="${day}" aria-pressed="${day===selected}" ${day===todayKey?'aria-current="date"':''} aria-label="${safe(displayDate(day))}, ${total} événement(s) exact(s), ${personalCount} événement(s) personnel(s), ${entry.active.length} aspect(s) actif(s)${Number.isFinite(phaseAngle)?', '+phaseName+' à midi':''}${phase?', '+phaseLabel:''}${sunCount?', '+sunCount+' aspect(s) exact(s) du Soleil':''}, ${solarName}${sunIngressLabel}">${d}<span class="count">${total?total+' ✦':entry.active.length?entry.active.length+' ~':''}</span>${moonIndicator}${sunCount?'<span class="sun-aspect-line" aria-hidden="true"></span>':''}${state.journal[day]?'<span class="pinhole"></span>':''}</button>`);
+      cells.push(`<button type="button" class="day ${day===selected?'selected':''} ${day===isoDay(new Date())?'today':''} ${phase?'moon-'+phase:''}" data-day="${day}" aria-pressed="${day===selected}" ${day===todayKey?'aria-current="date"':''} aria-label="${safe(displayDate(day))}, ${total} événement(s) exact(s), ${personalCount} événement(s) personnel(s), ${entry.active.length} aspect(s) actif(s)${Number.isFinite(phaseAngle)?', '+phaseName+' à midi':''}${phase?', '+phaseLabel:''}, ${solarName}${sunIngressLabel}">${d}<span class="count">${total?total+' ✦':entry.active.length?entry.active.length+' ~':''}</span>${moonIndicator}${state.journal[day]?'<span class="pinhole"></span>':''}</button>`);
     }
     // Each week contains its multi-day event lane and then seven date cells.
     // Calendar bars live INSIDE the same grid, exactly like all-day ranges.
@@ -887,7 +885,6 @@
       (state.profile?'<div class="calendar-phase-legend" aria-label="Légende des marqueurs du calendrier">'+
       '<span class="cal-legend-item"><span class="moon-phase-legend-dot new" aria-hidden="true">'+moonPhaseIcon(0)+'</span> Nouvelle Lune</span>'+
       '<span class="cal-legend-item"><span class="moon-phase-legend-dot full" aria-hidden="true">'+moonPhaseIcon(180)+'</span> Pleine Lune</span>'+
-      '<span class="cal-legend-item"><span class="sun-aspect-legend" aria-hidden="true"></span> Aspect solaire exact</span>'+
       '</div><p class="tiny">Icône lunaire : phase à midi · ✦ contact exact · ~ aspect actif · point rose : journal</p>':'')+'</div>'+
       status()+calendarDayInspector()+personalEventEditor()+detailView();
   }
