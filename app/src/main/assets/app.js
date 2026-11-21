@@ -2096,12 +2096,24 @@
     if(a.clear&&confirm('Effacer le thème natal et toutes les notes locales ?')){localStorage.removeItem(STORAGE_KEY);state=defaultState();applyAppearance();diagnosticsEnabled=false;performanceSamples.clear();cache.clear();natalCache.clear();journalDraft=null;birthDraft=null;placeSearch={options:[],selected:null,loading:false,error:'',needFold:false,requestId:placeSearch.requestId+1};openDetail=null;refresh();show('Données supprimées');}
   });
   $('app').addEventListener('cancel',event=>{
+    if(event.target.id==='personalEventDialog'){
+      event.preventDefault();personalEditor=null;render();return;
+    }
+    if(event.target.id==='calendarDayDialog'){
+      event.preventDefault();calendarSheet=false;calendarInterval=null;render();return;
+    }
     if(event.target.matches('dialog.natal-focus')){
       event.preventDefault();
       $('app').querySelector('[data-close-focus]')?.click();
     }
   },true);
   $('app').addEventListener('keydown',event=>{
+    if(event.key==='Escape'&&personalEditor!==null){
+      event.preventDefault();personalEditor=null;render();return;
+    }
+    if(event.key==='Escape'&&calendarSheet){
+      event.preventDefault();calendarSheet=false;calendarInterval=null;render();return;
+    }
     if(activeTab==='profile'&&profileScreen==='focus'&&event.key==='Tab'){
       const dialog=$('natalChart');
       const tabbable=[...dialog.querySelectorAll('button:not(:disabled),[tabindex="0"],input,select')]
@@ -2133,6 +2145,11 @@
     else natalChoose('house',Number(item.dataset.natalHouse),true);
   });
   $('app').addEventListener('input',event=>{
+    if(event.target.id==='personalAllDay'){
+      const fields=$('personalTimeFields');
+      if(fields)fields.hidden=event.target.checked;
+      return;
+    }
     if(event.target.id==='energyRange'){initDraft();journalDraft.energy=Number(event.target.value);$('energyValue').textContent=journalDraft.energy+'/5';}
     if(event.target.id==='secondCity'){
       clearValidationError('secondCity');compositeSearch.error='';
@@ -2209,6 +2226,46 @@
     }
   });
   $('app').addEventListener('submit',event=>{
+    if(event.target.id==='personalEventForm'){
+      event.preventDefault();
+      const form=event.target;
+      const input=id=>form.querySelector('#'+id);
+      const title=input('personalTitle').value.trim();
+      const start=input('personalStart').value,end=input('personalEnd').value;
+      const allDay=input('personalAllDay').checked;
+      const startTime=input('personalStartTime').value,endTime=input('personalEndTime').value;
+      const color=input('personalColor').value,note=input('personalNote').value;
+      const error=$('personalEventError');
+      const invalid=message=>{if(error){error.textContent=message;error.hidden=false;}};
+      if(!title||title.length>120){invalid('Indique un titre de 120 caractères au maximum.');return;}
+      if(!validRouteDay(start)||!validRouteDay(end)){invalid('Indique des dates valides.');return;}
+      if(end<start){invalid('Le dernier jour doit être postérieur ou égal au premier.');return;}
+      if(!allDay&&(!/^([01]\d|2[0-3]):[0-5]\d$/.test(startTime)||
+        !/^([01]\d|2[0-3]):[0-5]\d$/.test(endTime)||
+        (start===end&&endTime<=startTime))){
+        invalid('Vérifie les horaires : la fin doit suivre le début.');return;
+      }
+      if(!calendarColors.includes(color)){invalid('Couleur non reconnue.');return;}
+      const existing=personalEditor!=='new'?
+        state.calendarEvents.find(item=>item.id===personalEditor):null;
+      if(personalEditor!=='new'&&!existing){invalid('Événement introuvable.');return;}
+      if(!existing&&state.calendarEvents.length>=2000){invalid('Limite de 2 000 événements atteinte.');return;}
+      const id=existing?.id||window.crypto?.randomUUID?.().replaceAll('-','')||
+        'e'+Date.now().toString(36)+Math.random().toString(36).slice(2,12);
+      const entry={id,title,start,end,allDay,startTime:allDay?'':startTime,
+        endTime:allDay?'':endTime,color,note:note.slice(0,3000)};
+      if(existing)state.calendarEvents=state.calendarEvents.map(item=>item.id===id?entry:item);
+      else state.calendarEvents.push(entry);
+      persist();personalEditor=null;calendarSheet=false;
+      const [y,m]=start.split('-').map(Number);
+      selected=start;
+      if(month.getFullYear()!==y||month.getMonth()!==m-1){
+        month=new Date(y,m-1,1);refresh();
+      }else render();
+      writeBrowserRoute('replace');
+      show(existing?'Événement modifié':'Événement créé');
+      return;
+    }
     if(event.target.id==='compositeForm'){
       event.preventDefault();captureCompositeForm();
       try{
