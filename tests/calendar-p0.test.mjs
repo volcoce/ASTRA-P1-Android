@@ -96,6 +96,27 @@ test('P0: Solar and lunar information are not duplicated in the daily home',()=>
   assert.ok(!today.includes('astra-insight-tile as-sun'));
 });
 
+test('P0: event rows do not repeat lunar labels or instructions',()=>{
+  const begin=app.indexOf('  function eventCategory(event){');
+  const end=app.indexOf('  function detailView()',begin);
+  assert.ok(begin>=0&&end>begin);
+  const context={
+    safe:x=>String(x),dateTime:()=>'20/11/2026 15:00',
+    eventTitle:e=>e.type==='moon'?'Pleine Lune en Gémeaux':'Soleil et Lune · angle de 120°',
+    renderedEvents:[],aspects:{Trigone:'△'},planets:{Sun:'Soleil',Moon:'Lune'}
+  };
+  const render=new Function('ctx','event','with(ctx){'+app.slice(begin,end)+'return row(event);}');
+  const moonRow=render(context,moon);
+  assert.equal((moonRow.match(/Pleine Lune/g)||[]).length,1);
+  assert.ok(!moonRow.includes('event-category-label'));
+  assert.ok(!moonRow.includes('Voir la fiche'));
+  assert.match(moonRow,/event-arrow/);
+  const solarRow=render(context,exact);
+  assert.equal((solarRow.match(/Aspect solaire exact/g)||[]).length,1);
+  assert.match(solarRow,/event-category-label/);
+  assert.match(css,/\\.event-button \\.event-body \\.event-category-label\\{/);
+});
+
 test('P0: Category coding and event detail facts remain available',()=>{
   assert.match(app,/function eventCategory\(event\)/);
   for(const type of ['moon-new','moon-full','moon-quarter','station',
