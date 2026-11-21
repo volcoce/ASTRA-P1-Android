@@ -55,4 +55,6 @@ test('P3 does not replace solar ribbon with separately painted day cards',()=>{
   assert.match(css,/\.astra-solar-ribbon-segment\.starts-at-ingress/);
   assert.match(css,/\.astra-calendar-date-week \.day/);
   assert.ok(!css.includes('grid-template-columns:repeat(14'));
+  assert.match(asset('astra-p4-wheel.css'),/zodiac-element-fire/);
+  assert.match(asset('astra-p4-wheel.css'),/zodiac-element-water/);
 });
