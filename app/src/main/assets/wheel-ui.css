@@ -20,30 +20,6 @@
 }
 .natal-wheel.wheel-modern .wheel-zodiac-sector.is-even{fill:#f4f8fb}
 .natal-wheel.wheel-modern .wheel-zodiac-sector.is-odd{fill:#e8f1f6}
-/* A complete filled zodiac wedge, not a thin golden underline.
-   Selection always refers to the longitude chosen in app.js. */
-.natal-wheel.wheel-modern .wheel-zodiac-sector.is-sign-active{
-  fill:#f2d39a;
-  stroke:#b57c36;
-  stroke-width:1.2;
-}
-.natal-wheel.wheel-modern .wheel-zodiac-sector.is-sign-active + .zodiac-symbol{
-  fill:#633c14;
-  stroke:#f8e5bd;
-  stroke-width:.85;
-}
-.wheel-band-key{
-  display:inline-block;
-  width:17px;
-  height:11px;
-  margin-right:5px;
-  vertical-align:-1px;
-  border:1px solid #b57c36;
-  border-radius:3px;
-  background:#f2d39a;
-}
-.natal-home-hint .wheel-band-key,
-.natal-focus-legend .wheel-band-key{flex:none}
 .natal-wheel.wheel-modern .zodiac-symbol{
   fill:#28516a;
   font-family:Georgia,"Times New Roman",serif;
