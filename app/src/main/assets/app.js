@@ -381,57 +381,62 @@
   const solarSignIndex=longitude=>Number.isFinite(longitude)?
     Math.floor((((longitude%360)+360)%360)/30):null;
   const solarDayLongitude=day=>result?.days?.[day]?.sunLongitudeAtNoon;
-  function solarRibbon(year,monthIndex,dayCount){
-    const prefix=year+'-'+pad(monthIndex+1)+'-',segments=[],indices=[];
+  // Multi-day calendar event model, sampled at local noon. Solar sign periods
+  // occupy a range of civil days; they must be drawn WITHIN the calendar grid.
+  function solarMonthPeriods(year,monthIndex,dayCount){
+    const prefix=year+'-'+pad(monthIndex+1)+'-',segments=[],indices=[],totals=Array(12).fill(0);
     for(let d=1;d<=dayCount;d++){
       const index=solarSignIndex(solarDayLongitude(prefix+pad(d)));
       indices.push(index);
+      if(index!==null)totals[index]++;
       const prev=segments[segments.length-1];
       if(prev&&prev.index===index)prev.end=d;
-      else segments.push({index,start:d,end:d});
+      else segments.push({start:d,end:d,index});
     }
-    const knownDays=indices.filter(index=>index!==null).length;
-    if(!knownDays)
-      return '<p class="astra-solar-unavailable">Positions solaires indisponibles pour ce mois.</p>';
+    const max=Math.max(...totals);
+    const mostPresent=max?totals.flatMap((days,index)=>days===max?[index]:[]):[];
+    return {segments,indices,totals,mostPresent,dayCount,max};
+  }
+  // Reusable week-span lane: events spanning several days are split at the
+  // visual week boundary but retain their underlying start/end dates.
+  function solarCalendarWeek(year,monthIndex,firstWeekday,week,periods){
+    const first=1-firstWeekday+7*week,last=first+6;
+    const from=Math.max(1,first),to=Math.min(periods.dayCount,last);
     const label=new Intl.DateTimeFormat('fr-FR',{month:'long',year:'numeric'}).format(new Date(year,monthIndex,1));
-    const zone=state.profile?.timezone||detectedZone;
-    const dayNumber=selected.startsWith(prefix)?Number(selected.slice(8)):null;
-    const chosen=dayNumber&&dayNumber<=dayCount?indices[dayNumber-1]:null;
-    const pin=dayNumber&&dayNumber<=dayCount?
-      '<span class="astra-solar-track-pin" style="left:'+(((dayNumber-.5)/dayCount)*100).toFixed(3)+
-      '%" role="img" aria-label="'+safe('Jour sélectionné : '+dayNumber+' '+label+
-      (chosen===null?' · signe inconnu':' · Soleil en '+zodiacNames[chosen]+' à midi'))+'"></span>':'';
-    // Counts are day-at-noon samples, not exact elapsed astronomical durations.
-    // A sign may occupy two disjoint segments in a month near a data gap.
-    const totals=Array(12).fill(0);
-    indices.forEach(index=>{if(index!==null)totals[index]++;});
-    const maximum=Math.max(...totals);
-    const leading=totals.map((n,index)=>n===maximum?index:null).filter(index=>index!==null);
-    const band=segments.map(seg=>{
-      const name=seg.index===null?'Signe indisponible':zodiacNames[seg.index];
-      const glyph=seg.index===null?'?':zodiacSymbols[seg.index];
-      const duration=seg.end-seg.start+1;
-      const proportion=Math.round(duration/dayCount*100);
-      const days=seg.start===seg.end?'le '+seg.start:'du '+seg.start+' au '+seg.end;
-      const range=seg.start===seg.end?String(seg.start):seg.start+'–'+seg.end;
-      return '<span class="astra-solar-track-piece '+(seg.index===null?'is-unknown':'solar-sign-'+seg.index)+
-        (duration<5?' is-short':'')+'" style="flex-grow:'+duration+
-        '" role="img" aria-label="'+safe(name+', '+days+' '+label+', '+duration+
-        ' jour'+(duration>1?'s':'')+' sur '+dayCount+' ('+proportion+' %), position solaire à midi')+'">'+
-        '<span class="astra-solar-track-label" aria-hidden="true">'+glyph+' <b>'+safe(name)+'</b></span>'+
-        '<small aria-hidden="true">'+range+'</small>'+
-        '<strong class="astra-solar-track-share" aria-hidden="true">'+duration+' j · '+proportion+' %</strong></span>';
+    const items=periods.segments.filter(seg=>seg.end>=from&&seg.start<=to).map(seg=>{
+      const visibleStart=Math.max(from,seg.start),visibleEnd=Math.min(to,seg.end);
+      const cols=visibleEnd-visibleStart+1,startColumn=visibleStart-first+1;
+      const name=seg.index===null?'Position solaire indisponible':'Soleil en '+zodiacNames[seg.index];
+      const symbol=seg.index===null?'?':zodiacSymbols[seg.index];
+      const total=seg.index===null?0:periods.totals[seg.index];
+      const pct=Math.round(total/periods.dayCount*100);
+      const dayRange=seg.start===seg.end?String(seg.start):seg.start+'–'+seg.end;
+      const aria=seg.index===null?name+', du '+seg.start+' au '+seg.end+' '+label:
+        name+', du '+seg.start+' au '+seg.end+' '+label+', '+total+' jours à midi ('+pct+' % du mois)';
+      return '<button type="button" class="astra-calendar-range-event '+
+        (seg.index===null?'is-unknown':'solar-sign-'+seg.index)+
+        (cols<2?' is-narrow':'')+(visibleStart>seg.start?' continues-before':'')+
+        (visibleEnd<seg.end?' continues-after':'')+
+        '" style="grid-column:'+startColumn+' / span '+cols+
+        '" data-calendar-range-start="'+seg.start+'" data-calendar-range-end="'+seg.end+
+        '" data-calendar-range-index="'+(seg.index===null?'':seg.index)+
+        '" aria-label="'+safe(aria)+'" title="'+safe(aria)+'">'+
+        '<span class="astra-calendar-range-icon" aria-hidden="true">'+symbol+'</span>'+
+        '<span class="astra-calendar-range-label" aria-hidden="true">'+safe(name)+'</span>'+
+        (cols>3?'<small aria-hidden="true">'+dayRange+'</small>':'')+
+        '</button>';
     }).join('');
-    const allKnown=knownDays===dayCount;
-    const winner=leading.map(i=>zodiacNames[i]).join(' et ');
-    const winnerPercent=Math.round(maximum/dayCount*100);
-    return '<section class="astra-solar-ribbon" aria-label="Occupation mensuelle du Soleil par signe en '+safe(label)+'">'+
-      '<div class="astra-solar-ribbon-heading"><h3>☉ Parcours du Soleil</h3>'+
-      '<span>À midi · '+safe(zone)+' · '+(state.mode==='sidereal'?'sidéral':'tropical')+'</span></div>'+
-      '<div class="astra-solar-track" role="group" aria-label="Proportion de jours par signe solaire">'+band+pin+'</div>'+
-      '<p class="astra-solar-ribbon-note"><b>'+(leading.length>1?'Signes à égalité':'Signe le plus présent')+
-      ' : '+safe(winner)+'</b> · '+maximum+' j sur '+dayCount+' ('+winnerPercent+' %)'+
-      '<span> · Répartition selon le Soleil à midi'+(allKnown?'; un changement de signe peut survenir dans la journée.':'; données manquantes certains jours.')+'</span></p></section>';
+    return '<div class="astra-calendar-week-events" role="group" aria-label="Périodes solaires de la semaine">'+items+'</div>';
+  }
+  function solarMonthSummary(periods){
+    if(!periods.mostPresent.length)
+      return '<p class="astra-calendar-solar-note">☉ Positions solaires à midi indisponibles pour ce mois.</p>';
+    const names=periods.mostPresent.map(i=>zodiacNames[i]).join(' et ');
+    const pct=Math.round(periods.max/periods.dayCount*100);
+    const complete=periods.indices.every(index=>index!==null);
+    return '<p class="astra-calendar-solar-note">☉ '+(periods.mostPresent.length>1?'Signes les plus présents':'Signe le plus présent')+
+      ' : <b>'+safe(names)+'</b> · '+periods.max+' j ('+pct+' %)'+
+      '<span> · Selon la position du Soleil à midi'+(complete?'':' · données partielles')+'</span></p>';
   }
   function solarDayBand(longitude){
     const index=solarSignIndex(longitude);
