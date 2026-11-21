@@ -136,31 +136,3 @@
 }
 .astra-solar-daily-band.is-unknown,
 .astra-solar-track-piece.is-unknown{background:#e8edf1;color:#405566}
-.calendar .day .sun-aspect-line{
-  /* Exact solar aspect is a blue dot, not the solar-sign ribbon. */
-  position:absolute;
-  bottom:8px;
-  top:auto;
-  left:auto;
-  right:3px;
-  transform:none;
-  height:7px;
-  width:7px;
-  background:#276780;
-  border:1px solid #fff;
-  border-radius:50%;
-  box-shadow:none;
-  box-sizing:border-box;
-}
-.calendar .day.selected .sun-aspect-line{
-  background:#fff;
-  border:1px solid #1d5672;
-}
-.calendar-phase-legend .sun-aspect-legend{
-  width:9px;
-  height:9px;
-  border:1px solid #fff;
-  box-sizing:border-box;
-  border-radius:50%;
-  background:#276780;
-}
