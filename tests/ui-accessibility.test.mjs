@@ -25,6 +25,7 @@ test('P0: calendar announces the selected date and current date', () => {
     state: {profile:{timezone:'Europe/Paris'},journal:{}},
     month: new Date(2026,10,1),
     selected: '2026-11-20',
+    calendarView: 'month',
     classify: () => ({exact:[],sky:[],active:[]}),
     result: null,
     currentDay: () => ({exact:[],sky:[],active:[]}),
