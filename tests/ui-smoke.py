@@ -639,16 +639,22 @@ if __name__ == '__main__':
             assert page.locator('.calendar-options').count()==1
             assert page.locator('.calendar-options').get_attribute('open') is None
             assert page.locator('h1.page-title').inner_text()=='Calendrier'
-            # Solar-sign frieze follows noon solar longitude, not natal positions.
-            assert page.locator('.astra-solar-ribbon').count()==1
-            assert page.locator('.astra-solar-track-piece').count()==2
-            assert 'Scorpion' in page.locator('.astra-solar-track-piece').first.inner_text()
-            assert 'Sagittaire' in page.locator('.astra-solar-track-piece').last.inner_text()
-            assert '18 j · 60 %' in page.locator('.astra-solar-track-piece').first.inner_text()
-            assert '12 j · 40 %' in page.locator('.astra-solar-track-piece').last.inner_text()
-            assert 'Signe le plus présent : Scorpion' in page.locator('.astra-solar-ribbon-note').inner_text()
-            assert page.locator('.astra-solar-track-pin').count()==1
-            assert 'À midi' in page.locator('.astra-solar-ribbon-heading').inner_text()
+            # Multi-day solar events are continuous bars INSIDE each calendar week.
+            assert page.locator('.astra-solar-ribbon').count()==0
+            assert page.locator('.calendar .cal-grid .astra-calendar-week-events').count()==6
+            assert page.locator('.calendar .astra-calendar-range-event').count()==7
+            solar_sc = page.locator('.astra-calendar-range-event[data-calendar-range-index="7"]')
+            solar_sa = page.locator('.astra-calendar-range-event[data-calendar-range-index="8"]')
+            assert solar_sc.count()==4 and solar_sa.count()==3
+            assert '18 jours à midi (60 % du mois)' in solar_sc.first.get_attribute('aria-label')
+            assert '12 jours à midi (40 % du mois)' in solar_sa.first.get_attribute('aria-label')
+            assert 'Signe le plus présent' in page.locator('.astra-calendar-solar-note').inner_text()
+            assert 'Scorpion' in page.locator('.astra-calendar-solar-note').inner_text()
+            solar_sa.first.click()
+            assert 'Soleil en Sagittaire' in page.locator('#calendarIntervalInfo').inner_text()
+            assert 'Du 19 au 30' in page.locator('#calendarIntervalInfo').inner_text()
+            page.locator('.calendar .day[data-day$="-20"]').click()
+            assert page.locator('#calendarIntervalInfo').count()==0
             # Calculated phase icon for every day; New/Full highlighted
             # separately. Only the 4 mock solar exact contacts are underlined.
             new_moon=page.locator('.calendar .day.moon-new')
