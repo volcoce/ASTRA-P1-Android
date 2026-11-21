@@ -632,6 +632,8 @@
       `<section class="card"><h2 class="card-title">Historique</h2><div class="field"><label for="journalSearch">Rechercher dans mes notes</label><input id="journalSearch" type="search" value="${safe(searchTerm)}" placeholder="Mot-clé, date ou thème"></div>${history.map(([day,item])=>`<div class="history-item"><b>${safe(day)} · humeur ${item.mood}/5</b>${item.energy?` <small>· énergie ${item.energy}/5</small>`:''}<p>${safe(item.note)}</p>${(item.tags||[]).map(t=>`<span class="tag-outline small-tag">${safe(themes[t]||t)}</span>`).join('')}<button data-day="${day}">Consulter</button></div>`).join('')||'<p class="muted">Aucune note correspondante.</p>'}</section>`;
   }
   const zodiacSymbols=['♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓'];
+  const zodiacNames=['Bélier','Taureau','Gémeaux','Cancer','Lion','Vierge',
+    'Balance','Scorpion','Sagittaire','Capricorne','Verseau','Poissons'];
   const natalGlyphs={Sun:'☉',Moon:'☾',Mercury:'☿',Venus:'♀',Mars:'♂',Jupiter:'♃',Saturn:'♄',Uranus:'♅',Neptune:'♆',Pluto:'♇'};
   const aspectColors={Conjonction:'#ad789f',Sextile:'#599b98','Carré':'#c16e89',Trigone:'#6496c7',Opposition:'#ad7dc0'};
   const polar=(longitude,r,asc)=>{
@@ -680,6 +682,29 @@
     return '<g class="wheel-degree-track" aria-hidden="true">'+lines.join('')+'</g>';
   }
 
+  // The amber band points to an actual zodiac longitude, never the displaced
+  // label glyph. Default: natal Sun; for comparisons: transiting Sun.
+  // When a planet or house cusp is selected, the band follows that datum.
+  function wheelHighlightedSign(natalPositions,transitPositions=null,houseCusps=null){
+    const selection=natalSelection;
+    let longitude=transitPositions?transitPositions.Sun:natalPositions.Sun;
+    let subject=transitPositions?'Soleil en transit':'Soleil natal';
+    if(selection?.kind==='transit'&&transitPositions&&
+      Number.isFinite(transitPositions[selection.id])){
+      longitude=transitPositions[selection.id];
+      subject=(planets[selection.id]||selection.id)+' en transit';
+    }else if(selection?.kind==='planet'&&Number.isFinite(natalPositions[selection.id])){
+      longitude=natalPositions[selection.id];
+      subject=(planets[selection.id]||selection.id)+' natal';
+    }else if(selection?.kind==='house'&&Array.isArray(houseCusps)&&
+      Number.isInteger(Number(selection.id))&&Number(selection.id)>=1&&Number(selection.id)<=12){
+      longitude=houseCusps[Number(selection.id)-1];
+      subject='Cuspide de la maison '+selection.id;
+    }
+    const index=Number.isFinite(longitude)?Math.floor(((longitude%360)+360)%360/30):-1;
+    return {index,description:index<0?'Signe indisponible':subject+' en '+zodiacNames[index]};
+  }
+
   function wheelSvg(chart,quiet=false) {
     const h=chart.houses;
     if(!h||!Array.isArray(h.cusps)||h.cusps.length!==12)return '<p class="notice">Maisons indisponibles pour ce profil.</p>';
@@ -692,8 +717,8 @@
     // The zodiac ring is twelve equal 30° sectors; it must never be confused
     // with the variable-width Placidus house ring.
     const segments=[];
-    const selectedLongitude=sel?.kind==='planet'?chart.positions[sel.id]:null;
-    const selectedSign=Number.isFinite(selectedLongitude)?Math.floor(((selectedLongitude%360)+360)%360/30):-1;
+    const markedSign=wheelHighlightedSign(chart.positions,null,h.cusps);
+    const selectedSign=markedSign.index;
     for(let i=0;i<12;i++){
       const start=i*30,end=start+30;
       const [a,b,c,d]=[polar(start,195,asc),polar(end,195,asc),polar(end,169,asc),polar(start,169,asc)];
@@ -754,7 +779,7 @@
     const ascPoint=polar(asc,194,asc),mcPoint=polar(h.midheaven,194,asc);
     const mcX=Math.max(32,Math.min(388,mcPoint[0]));
     const mcY=Math.max(20,Math.min(397,mcPoint[1]-8));
-    return '<svg class="natal-wheel wheel-modern" viewBox="0 0 420 420" role="group" aria-label="Roue du thème natal '+(state.natalZodiac==='tropical'?'tropical':'sidéral')+'. Anneau extérieur : signes égaux, anneau intérieur : maisons. Choisir une planète ou une maison." xmlns="http://www.w3.org/2000/svg">'+
+    return '<svg class="natal-wheel wheel-modern" viewBox="0 0 420 420" role="group" data-highlighted-sign="'+selectedSign+'" aria-label="Roue du thème natal '+(state.natalZodiac==='tropical'?'tropical':'sidéral')+'. Bande ambrée : '+safe(markedSign.description)+'. Anneau extérieur : signes égaux, anneau intérieur : maisons. Choisir une planète ou une maison." xmlns="http://www.w3.org/2000/svg">'+
       '<title>Thème natal interactif : signes, maisons, planètes et aspects</title>'+
       '<circle class="wheel-paper" cx="210" cy="210" r="198" fill="#fff" stroke="#7d639a" stroke-width="1.3"/>'+
       segments.join('')+wheelDegreeTicks(210,206,asc)+
@@ -762,10 +787,7 @@
       '<circle class="wheel-house-backdrop" cx="210" cy="210" r="121" fill="#fbf9fd" stroke="#9b85b2" stroke-width="1.5"/>'+
       houses.join('')+highlight+houseLines.join('')+
       '<circle class="wheel-aspect-backdrop" cx="210" cy="210" r="94" fill="#fff" stroke="#9b85b2" stroke-width="1.4"/>'+
-      aspectLines.join('')+'<circle class="wheel-core-disc" cx="210" cy="210" r="47" fill="#fff" stroke="#aa94bc" stroke-width="1.2"/>'+
-      '<circle class="wheel-core-star" cx="210" cy="190" r="2.1"/>'+
-      '<text x="210" y="207" text-anchor="middle" class="wheel-core-title">ASTRA</text>'+
-      '<text x="210" y="221" text-anchor="middle" class="wheel-core-sub">'+(state.natalZodiac==='tropical'?'TROPICAL':'SIDÉRAL')+'</text>'+
+      aspectLines.join('')+
       glyphs.join('')+'<text x="'+(ascPoint[0]+7)+'" y="'+(ascPoint[1]-7)+'" class="angle-label" text-anchor="start">ASC</text>'+
       '<text x="'+mcX+'" y="'+mcY+'" class="angle-label" text-anchor="middle">MC</text></svg>';
   }
@@ -773,12 +795,14 @@
   // A fixed 0° orientation replaces the unknown Ascendant.
   function wheelSvgDateOnly(chart,quiet=false){
     const asc=0;
+    const markedSign=wheelHighlightedSign(chart.positions);
     const segments=[];
     for(let i=0;i<12;i++){
       const start=i*30,end=start+30;
       const [a,b,c,d]=[polar(start,195,asc),polar(end,195,asc),polar(end,166,asc),polar(start,166,asc)];
       const [x,y]=polar(start+15,181,asc);
-      segments.push('<path class="wheel-zodiac-sector '+(i%2?'is-odd':'is-even')+'" d="M '+a.join(' ')+' A 195 195 0 0 0 '+b.join(' ')+
+      segments.push('<path class="wheel-zodiac-sector '+(i%2?'is-odd':'is-even')+
+        (markedSign.index===i?' is-sign-active':'')+'" d="M '+a.join(' ')+' A 195 195 0 0 0 '+b.join(' ')+
         ' L '+c.join(' ')+' A 166 166 0 0 1 '+d.join(' ')+' Z" fill="'+(i%2?'#eee5f6':'#faf5ff')+'" stroke="#a38cb9"/>'+
         '<text x="'+x+'" y="'+y+'" text-anchor="middle" dominant-baseline="central" class="zodiac-symbol">'+zodiacSymbols[i]+'</text>');
     }
@@ -801,16 +825,13 @@
         '<circle class="wheel-planet-disc" cx="'+locp[0]+'" cy="'+locp[1]+'" r="17" fill="'+(selected?'#e4d3f4':'transparent')+'"/>'+
         '<text x="'+locp[0]+'" y="'+locp[1]+'" text-anchor="middle" pointer-events="none" dominant-baseline="central" class="natal-planet">'+natalGlyphs[body]+'</text></g>';
     });
-    return '<svg class="natal-wheel wheel-modern wheel-date-only" viewBox="0 0 420 420" role="group" aria-label="Roue du zodiaque sans maisons ni Ascendant, heure natale inconnue" xmlns="http://www.w3.org/2000/svg">'+
+    return '<svg class="natal-wheel wheel-modern wheel-date-only" viewBox="0 0 420 420" role="group" data-highlighted-sign="'+markedSign.index+'" aria-label="Roue du zodiaque sans maisons ni Ascendant, heure natale inconnue. Bande ambrée : '+safe(markedSign.description)+'." xmlns="http://www.w3.org/2000/svg">'+
       '<title>Positions zodiacales indicatives pour midi local ; heure inconnue</title>'+
       '<circle class="wheel-paper" cx="210" cy="210" r="198" fill="#fff"/>'+segments.join('')+
       wheelDegreeTicks(210,206,asc)+
       '<circle class="wheel-zodiac-inner" cx="210" cy="210" r="165" fill="#fff" stroke="#a38cb9"/>'+
       '<circle class="wheel-aspect-backdrop" cx="210" cy="210" r="98" fill="#fff" stroke="#a38cb9"/>'+
-      lines.join('')+'<circle class="wheel-core-disc" cx="210" cy="210" r="57" fill="#fff" stroke="#b8a3cb"/>'+
-      '<circle class="wheel-core-star" cx="210" cy="184" r="2.1"/>'+
-      '<text x="210" y="205" text-anchor="middle" class="wheel-core-title">ASTRA</text>'+
-      '<text x="210" y="221" text-anchor="middle" class="wheel-core-sub">HEURE INCONNUE</text>'+
+      lines.join('')+
       bodies.join('')+'</svg>';
   }
 
@@ -880,13 +901,15 @@
   function doubleWheelSvg(snapshot){
     const chart=snapshot.chart,h=chart.houses,asc=h?h.ascendant:0;
     const sel=natalSelection,full=state.natalView==='complete';
+    const markedSign=wheelHighlightedSign(chart.positions,snapshot.positions,h?.cusps);
     const p=(lng,r)=>{const a=(180-(lng-asc))*Math.PI/180;return [270+r*Math.cos(a),270+r*Math.sin(a)];};
     const parts=[];
     // Rappel zodiacal commun aux deux anneaux : les longitudes sont comparables.
     for(let i=0;i<12;i++){
       const a=p(i*30,221),b=p((i+1)*30,221),c=p((i+1)*30,196),d=p(i*30,196);
       const t=p(i*30+15,208);
-      parts.push('<path class="wheel-zodiac-sector '+(i%2?'is-odd':'is-even')+'" d="M '+a.join(' ')+' A 221 221 0 0 0 '+b.join(' ')+
+      parts.push('<path class="wheel-zodiac-sector '+(i%2?'is-odd':'is-even')+
+        (markedSign.index===i?' is-sign-active':'')+'" d="M '+a.join(' ')+' A 221 221 0 0 0 '+b.join(' ')+
         ' L '+c.join(' ')+' A 196 196 0 0 1 '+d.join(' ')+' Z" fill="'+(i%2?'#eae1f0':'#f8f4fa')+'" stroke="#9d8aaa" stroke-width="1"/>'+
         '<text x="'+t[0]+'" y="'+t[1]+'" text-anchor="middle" dominant-baseline="central" class="zodiac-symbol">'+zodiacSymbols[i]+'</text>');
     }
@@ -915,7 +938,7 @@
           '<text x="'+glyph[0]+'" y="'+glyph[1]+'" text-anchor="middle" dominant-baseline="central" pointer-events="none" class="natal-planet" fill="'+ink+'">'+natalGlyphs[body]+'</text></g>';
       }).join('');
     };
-    return '<svg class="natal-wheel natal-double-wheel wheel-modern" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 540" role="group" aria-label="Roue double : planètes natales en violet à l’intérieur, transits en bleu à l’extérieur">'+
+    return '<svg class="natal-wheel natal-double-wheel wheel-modern" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 540" role="group" data-highlighted-sign="'+markedSign.index+'" aria-label="Roue double : planètes natales en violet à l’intérieur, transits en bleu à l’extérieur. Bande ambrée : '+safe(markedSign.description)+'">'+
       '<title>ASTRA — Roue double natal/transits</title>'+
       '<circle class="wheel-paper" cx="270" cy="270" r="264" fill="#fff" stroke="#bca8c9"/>'+
       '<circle class="wheel-transit-band" cx="270" cy="270" r="232" fill="#f1f8fc" stroke="#a1becd" stroke-width="1.6"/>'+
@@ -924,9 +947,6 @@
       '<circle class="wheel-house-backdrop" cx="270" cy="270" r="133" fill="#faf7fc" stroke="#bba7c9"/>'+
       '<circle class="wheel-aspect-backdrop" cx="270" cy="270" r="98" fill="#fff" stroke="#baa8c8"/>'+
       links+houses+
-      '<circle class="wheel-core-star" cx="270" cy="241" r="2.2"/>'+
-      '<text x="270" y="264" text-anchor="middle" class="wheel-core-title">ASTRA</text>'+
-      '<text x="270" y="280" text-anchor="middle" class="wheel-core-sub">NATAL / TRANSITS</text>'+
       glyphRing(chart.positions,169,189,'natal-planet-hit','data-natal-body')+
       glyphRing(snapshot.positions,247,234,'natal-transit-hit','data-transit-body')+
       '</svg>';
@@ -1016,7 +1036,7 @@
         ".wheel-modern .wheel-zodiac-sector{stroke:#b9cdd8;stroke-width:.88}",
         ".wheel-modern .wheel-zodiac-sector.is-even{fill:#f4f8fb}",
         ".wheel-modern .wheel-zodiac-sector.is-odd{fill:#e8f1f6}",
-        ".wheel-modern .wheel-zodiac-sector.is-sign-active{fill:#ffedcf;stroke:#b17c38;stroke-width:1.5}",
+        ".wheel-modern .wheel-zodiac-sector.is-sign-active{fill:#f2d39a;stroke:#b57c36;stroke-width:1.2}",
         ".wheel-modern .zodiac-symbol{font:700 18px Georgia,serif;fill:#28516a;stroke:#f6fafc;stroke-width:.55;paint-order:stroke}",
         ".wheel-modern .wheel-degree-tick{stroke:#a6becc;stroke-width:1.05;stroke-linecap:round}",
         ".wheel-modern .wheel-degree-tick.is-medium{stroke:#6b93a9;stroke-width:1.3}",
@@ -1042,10 +1062,6 @@
         ".wheel-modern .natal-planet-hit.is-moon .wheel-planet-disc{fill:#f7faff;stroke:#8ca9d2}",
         ".wheel-modern .natal-planet-hit.is-active .wheel-planet-disc{fill:#225a78;stroke:#143e59;stroke-width:2}",
         ".wheel-modern .natal-planet-hit.is-active .natal-planet{fill:#fff}",
-        ".wheel-modern .wheel-core-disc{fill:#fff;stroke:#a7bfcd;stroke-width:1.3}",
-        ".wheel-modern .wheel-core-star{fill:#c09357}",
-        ".wheel-modern .wheel-core-title{font:750 12px Arial,sans-serif;fill:#254a63;letter-spacing:2px}",
-        ".wheel-modern .wheel-core-sub{font:700 8.5px Arial,sans-serif;fill:#6c8292;letter-spacing:1px}",
         ".wheel-modern .angle-label{font:850 10.5px Arial,sans-serif;fill:#245774;stroke:#fff;stroke-width:3;paint-order:stroke}",
         ".wheel-modern.natal-double-wheel .wheel-paper{fill:#e8f3f9;stroke:#86aabc}",
         ".wheel-modern.natal-double-wheel .wheel-transit-band{fill:#fff;stroke:#b4cbd7}",
@@ -1196,9 +1212,10 @@
       '<div class="natal-context-bar"><h2 id="natalContextTitle">Fiche de lecture</h2>'+
       '<button type="button" data-close-natal-detail="1" aria-label="Fermer la fiche">Fermer <span aria-hidden="true">×</span></button></div>'+
       '<div class="natal-context-content">'+selectedDetail+'</div></section>':'';
-    const shortCaption=uncertain
-      ?'<p class="natal-home-hint">Heure inconnue : Lune indicative, sans maisons. Les points montrent les degrés calculés à midi.</p>'
-      :'<p class="natal-home-hint">Les points marquent les degrés réels ; les glyphes sont espacés si nécessaire. Touche une planète pour lire sa fiche.</p>';
+    const bandLabel=wheelHighlightedSign(chart.positions,null,h?.cusps).description;
+    const shortCaption='<p class="natal-home-hint"><span class="wheel-band-key" aria-hidden="true"></span><b>Bande ambrée :</b> '+
+      safe(bandLabel)+'. Les petits points marquent les degrés réels.'+
+      (uncertain?' Heure inconnue : Lune indicative, sans maisons.':' Touche une planète pour changer de signe et lire sa fiche.')+'</p>';
     const pageBack='<button type="button" class="natal-back" data-profile-screen="overview">← Mon ciel</button>';
     const focusLaunch='<div class="natal-focus-launch"><button type="button" data-open-focus="1" aria-label="Agrandir la roue du ciel">Agrandir la roue <span aria-hidden="true">⤢</span></button></div>';
     if(isFocus){
@@ -1207,6 +1224,8 @@
       const legend=comparison?
         '<div class="wheel-ring-legend"><span><i class="natal-swatch"></i>Natal en violet</span><span><i class="transit-swatch"></i>Transits en bleu</span></div>':
         '<p class="natal-focus-legend">Les petits points indiquent les degrés réels ; les symboles peuvent être décalés pour rester lisibles.</p>';
+      const focusBand=wheelHighlightedSign(chart.positions,comparison?transitSnapshot.positions:null,h?.cusps).description;
+      const bandLegend='<p class="natal-focus-legend"><span class="wheel-band-key" aria-hidden="true"></span><b>Bande ambrée :</b> '+safe(focusBand)+'</p>';
       const moment=comparison?
         '<p class="natal-focus-moment">Transits du '+safe(state.transitDay)+' à '+safe(state.transitTime)+' · '+safe(detectedZone)+'</p>':'';
       return '<dialog class="natal-focus" id="natalChart" aria-modal="true" aria-labelledby="natalFocusTitle">'+
@@ -1216,7 +1235,7 @@
         (transitError?'<p class="notice" role="alert">'+safe(transitError)+'</p>':'')+
         '<div class="natal-focus-stage"><div class="natal-wheel-viewport" role="region" tabindex="0" aria-label="'+label+' agrandie ; utiliser le défilement pour explorer le zoom">'+
         resized+'</div></div>'+
-        '<div class="natal-focus-footer">'+legend+
+        '<div class="natal-focus-footer">'+bandLegend+legend+
         '<div class="natal-focus-tools"><div role="group" aria-label="Zoom de la roue agrandie" class="natal-zoom">'+
         '<button type="button" data-natal-zoom="-0.25" aria-label="Dézoomer" '+(state.natalZoom<=1?'disabled':'')+'>−</button>'+
         '<button type="button" data-natal-zoom="reset" aria-label="Réinitialiser le zoom">'+Math.round(state.natalZoom*100)+' %</button>'+
@@ -1362,7 +1381,9 @@
         comparing+notice+(transitError?'<p class="notice" role="alert">'+safe(transitError)+'</p>':'')+
         '<div class="natal-wheel-viewport" role="region" tabindex="0" aria-label="Roue double, natal et transits">'+resized+'</div>'+
         '<div class="wheel-ring-legend"><span><i class="natal-swatch"></i>Planètes natales</span>'+
-        '<span><i class="transit-swatch"></i>Planètes en transit</span></div>'+focusLaunch+
+        '<span><i class="transit-swatch"></i>Planètes en transit</span></div>'+
+        '<p class="natal-home-hint"><span class="wheel-band-key" aria-hidden="true"></span><b>Bande ambrée :</b> '+
+        safe(wheelHighlightedSign(chart.positions,transitSnapshot?.positions,h?.cusps).description)+'</p>'+focusLaunch+
         contactList+contextSheet+
         '<p class="tiny">Les contacts relèvent d’une lecture astrologique symbolique, pas de prédictions scientifiques.</p></section>';
     }
