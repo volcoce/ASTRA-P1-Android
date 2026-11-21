@@ -155,3 +155,7 @@ Styles P1 dans `astra-p1-screens.css`, après `astra-components.css`. Ne modifie
 ### P2 — Navigation et sous-écrans
 
 Les sous-écrans adoptent les tokens Retro Pop Celestial via `astra-p2-navigation.css`. Le journal reste une route secondaire, non un cinquième onglet. Une fiche d'événement astrologique s'ouvre inline après la liste et n'est pas transformée en modale ; les éditeurs d'événements personnels restent des dialogues natifs avec `aria-labelledby`. Les réglages et contrôles avancés sont progressifs. Les états hover, focus, selected, invalid, dark et reduced-motion doivent tous fonctionner sans déplacer la géométrie de la roue ou casser le ruban solaire.
+
+### P3 — Contrastes, focus, lecture assistée et responsive
+
+Le dernier niveau CSS `astra-p3-accessibility.css` corrige les conflits de cascade des précédentes étapes, sans transformer les rubans de fond continus en cartes. Contrastes WCAG AA de texte ordinaire (minimum 4,5:1) vérifiés sur les couples de fond/encre prioritaires, états focus visibles au clavier, libellés complets des sept jours, régions et groupes déjà sémantisés conservés, modales natives avec annulation Escape, réduction des animations et media queries mobiles/paysage. Les contrôles et les annonces doivent rester vérifiables sur Android avec TalkBack et clavier physique.
