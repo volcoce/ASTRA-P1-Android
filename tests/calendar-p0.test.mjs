@@ -58,7 +58,7 @@ test('Calendar: date buttons announce exact astronomical and personal counts',()
   const markup=calendar();
   assert.match(markup,/aria-current="date" aria-label="vendredi 20 novembre 2026/);
   assert.match(markup,/événement\(s\) personnel\(s\)/);
-  assert.match(markup,/Soleil en/);
+  assert.match(markup,/Position solaire indisponible/);
 });
 
 test('Calendar: date inspector and personal editor use modal dialogs',()=>{
