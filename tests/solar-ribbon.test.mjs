@@ -14,6 +14,7 @@ for(let d=1;d<=30;d++){
   };
 }
 const ctx={result:{days},state:{profile:{timezone:'Europe/Paris'}},zodiacNames:names,
+  zodiacSymbols:['♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓'],
   selected:'2026-11-21',detectedZone:'Europe/Paris',
   pad:n=>String(n).padStart(2,'0'),safe:x=>String(x)};
 function solarModule(){
