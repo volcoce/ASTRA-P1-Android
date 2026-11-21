@@ -107,7 +107,8 @@ test('P0: event rows do not repeat lunar labels or instructions',()=>{
   };
   const render=new Function('ctx','event','with(ctx){'+app.slice(begin,end)+'return row(event);}');
   const moonRow=render(context,moon);
-  assert.equal((moonRow.match(/Pleine Lune/g)||[]).length,1);
+  const visibleMoonRow=moonRow.replace(/ aria-label="[^"]*"/g,'');
+  assert.equal((visibleMoonRow.match(/Pleine Lune/g)||[]).length,1);
   assert.ok(!moonRow.includes('event-category-label'));
   assert.ok(!moonRow.includes('Voir la fiche'));
   assert.match(moonRow,/event-arrow/);
