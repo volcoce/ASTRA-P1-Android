@@ -246,8 +246,10 @@ export function calculateMonth(profile,year,month,mode='tropical',orb='auto',opt
     let mid;
     try{mid=localToUtc(day,'12:00',zone);}catch{mid=new Date(Date.UTC(year,month-1,d,12));}
     const active=[];
+    let sunLongitudeAtNoon=null;
     for(const body of BODIES) {
       const lng=longitude(body,mid,mode);
+      if(body==='Sun')sunLongitudeAtNoon=lng;
       for(const native of usableNatal){const nLng=natal[native];const separation=angularDistance(lng,nLng);
         const best=ASPECTS.map(a=>({...a,delta:Math.abs(separation-a.angle)})).sort((a,b)=>a.delta-b.delta)[0];
         const allowedOrb=orb==='auto'?automaticTransitOrb(body,best.angle):orb;
@@ -259,6 +261,7 @@ export function calculateMonth(profile,year,month,mode='tropical',orb='auto',opt
     const moonPhaseAtNoon=moonPhase(mid);
     active.sort((a,b)=>a.delta-b.delta);
     days[day]={date:day,active,exact:[],sky:[],
+      sunLongitudeAtNoon:Number.isFinite(sunLongitudeAtNoon)?+sunLongitudeAtNoon.toFixed(6):null,
       moonPhaseAtNoon:+moonPhaseAtNoon.toFixed(5)};
   }
   function addMoment(array,object){const day=isoDay(new Date(object.at),zone);if(day.slice(0,7)===`${year}-${String(month).padStart(2,'0')}`){array.push(object);days[day]?.[array===exact?'exact':'sky'].push(object);}}
