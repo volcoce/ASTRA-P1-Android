@@ -58,6 +58,8 @@ window.ASTRA_ENGINE = {
      days[k]={active:[{type:'active',body:'Sun',natal:'Moon',aspect:'Trigone',angle:120,delta:.43,orb:1.7}],
        exact:[{type:'exact',body:[5,9,20,23].includes(d)?'Sun':'Mercury',natal:'Moon',aspect:'Trigone',at:k+'T11:30:00Z'}],
        sunLongitudeAtNoon:d<19?235:250,
+       sunIngress:d===19?{at:k+'T06:24:00Z',fromIndex:7,toIndex:8,
+         fromSign:'Scorpion',toSign:'Sagittaire',mode}:null,
        moonPhaseAtNoon:d===5?5:d===20?180:d<9?65:d<18?128:d<24?225:315,
        sky:d===5?[{type:'moon',name:'Nouvelle Lune',at:k+'T14:00:00Z',moonLongitude:11}]:d===20?[{type:'moon',name:'Pleine Lune',at:k+'T14:00:00Z',moonLongitude:61}]:[]};
    }
@@ -649,14 +651,26 @@ if __name__ == '__main__':
             solar_sc = page.locator('.astra-calendar-range-event[data-calendar-range-index="7"]')
             solar_sa = page.locator('.astra-calendar-range-event[data-calendar-range-index="8"]')
             assert solar_sc.count()==4 and solar_sa.count()==3
-            assert '18 jours à midi (60 % du mois)' in solar_sc.first.get_attribute('aria-label')
-            assert '12 jours à midi (40 % du mois)' in solar_sa.first.get_attribute('aria-label')
+            assert '18,5 jours visuels (62 % du mois)' in solar_sc.first.get_attribute('aria-label')
+            assert '11,5 jours visuels (38 % du mois)' in solar_sa.first.get_attribute('aria-label')
+            before=page.locator('.astra-calendar-range-event.ends-at-ingress')
+            after=page.locator('.astra-calendar-range-event.starts-after-ingress')
+            assert before.count()==1 and after.count()==1
+            assert 'grid-column:1 / span 7' in before.get_attribute('style')
+            assert 'grid-column:8 / span 7' in after.get_attribute('style')
+            assert '07:24' in after.get_attribute('aria-label')
+            assert 'moitié-moitié' in after.get_attribute('aria-label')
             assert 'Signe le plus présent' in page.locator('.astra-calendar-solar-note').inner_text()
             assert 'Scorpion' in page.locator('.astra-calendar-solar-note').inner_text()
             solar_sa.first.click()
             assert page.locator('#calendarDayDialog[open]').count()==1
             assert 'Soleil en Sagittaire' in page.locator('.astra-calendar-sheet-solar').inner_text()
             assert 'du 19 au 30' in page.locator('.astra-calendar-sheet-solar').inner_text()
+            page.locator('[data-calendar-sheet-close]').click()
+            page.locator('.calendar .day[data-day$="-19"]').click()
+            assert page.locator('#calendarDayDialog[open]').count()==1
+            assert '07:24' in page.locator('.astra-calendar-sheet-solar').inner_text()
+            assert 'moitié-moitié' in page.locator('.astra-calendar-sheet-solar').inner_text()
             page.locator('[data-calendar-sheet-close]').click()
             page.locator('.calendar .day[data-day$="-20"]').click()
             assert page.locator('#calendarDayDialog[open]').count()==1
