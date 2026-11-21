@@ -2050,14 +2050,14 @@
       calendarSheet=false;personalEditor=a.personalEdit;render();
       $('personalTitle')?.focus({preventScroll:true});return;
     }
-    if(a.personalClose){personalEditor=null;render();return;}
+    if(a.personalClose){personalEditor=null;pendingDayFocus=selected;render();return;}
     if(a.personalDelete){
       const item=state.calendarEvents.find(e=>e.id===a.personalDelete);
       if(!item||!confirm('Supprimer « '+item.title+' » ?'))return;
       state.calendarEvents=state.calendarEvents.filter(e=>e.id!==item.id);
       persist();personalEditor=null;render();show('Événement supprimé');return;
     }
-    if(a.calendarSheetClose){calendarSheet=false;calendarInterval=null;render();return;}
+    if(a.calendarSheetClose){calendarSheet=false;calendarInterval=null;pendingDayFocus=selected;render();return;}
     if(a.goto){go(a.goto);return;}
     if(a.calendarOpenDay){
       calendarSheet=false;personalEditor=null;
@@ -2089,7 +2089,7 @@
       });
       return;
     }
-    if(a.close){openDetail=null;render();return;}
+    if(a.close){const closing=openDetail;openDetail=null;render();const index=renderedEvents.indexOf(closing);if(index>=0)$('app').querySelector('[data-event="'+index+'"]')?.focus({preventScroll:true});return;}
     if(a.prompt){journalDraft=null;initDraft();journalDraft.note=[journalDraft.note,a.prompt+'\n'].filter(Boolean).join('\n').trimStart();go('journal');return;}
     if(a.mood){captureDraft();journalDraft.mood=Number(a.mood);render();return;}
     if(a.tag){captureDraft();const index=journalDraft.tags.indexOf(a.tag);if(index<0)journalDraft.tags.push(a.tag);else journalDraft.tags.splice(index,1);render();return;}
@@ -2101,10 +2101,10 @@
   });
   $('app').addEventListener('cancel',event=>{
     if(event.target.id==='personalEventDialog'){
-      event.preventDefault();personalEditor=null;render();return;
+      event.preventDefault();personalEditor=null;pendingDayFocus=selected;render();return;
     }
     if(event.target.id==='calendarDayDialog'){
-      event.preventDefault();calendarSheet=false;calendarInterval=null;render();return;
+      event.preventDefault();calendarSheet=false;calendarInterval=null;pendingDayFocus=selected;render();return;
     }
     if(event.target.matches('dialog.natal-focus')){
       event.preventDefault();
@@ -2113,10 +2113,10 @@
   },true);
   $('app').addEventListener('keydown',event=>{
     if(event.key==='Escape'&&personalEditor!==null){
-      event.preventDefault();personalEditor=null;render();return;
+      event.preventDefault();personalEditor=null;pendingDayFocus=selected;render();return;
     }
     if(event.key==='Escape'&&calendarSheet){
-      event.preventDefault();calendarSheet=false;calendarInterval=null;render();return;
+      event.preventDefault();calendarSheet=false;calendarInterval=null;pendingDayFocus=selected;render();return;
     }
     if(activeTab==='profile'&&profileScreen==='focus'&&event.key==='Tab'){
       const dialog=$('natalChart');
