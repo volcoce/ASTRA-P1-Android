@@ -125,3 +125,10 @@ Les tests automatisés de `tests/design-p3.test.mjs` vérifient les associations
 ## P4 — Roue astrologique Retro Pop Celestial
 
 `astra-p4-wheel.css` est chargé après les autres styles. Les douze secteurs zodiacaux affichent les quatre couleurs élémentaires adoucies (Feu, Terre, Air, Eau), sans changer la géométrie ni les longitudes. Les maisons utilisent le crème et le beige ; les planètes Soleil et Lune ont des disques jaune et bleu ; en double roue, les planètes natales restent vert pétrole et les transits rouge rétro. La roue conserve son fond crème en thème sombre pour préserver les contrastes. Les exports SVG/PNG intègrent les couleurs de la nouvelle direction artistique.
+
+
+### Calendrier — continuité inter-mois
+
+Le ruban solaire couvre les **semaines visibles entières**, y compris les dates du mois précédent et suivant. Les jours adjacents conservent leur signe solaire et leur phase lunaire à midi local, obtenus par `dailySky` et `sunSignIngress` (cache léger), mais leurs couleurs sont atténuées avec `--solar-{fire,earth,air,water}-muted`. Le changement de saturation à la frontière d'un mois **ne crée jamais d'arrondi artificiel**. Les coins ne s'arrondissent que lors d'un véritable changement de signe; le partage 50/50 reste une convention visuelle de la journée de transit. Terre passe à un olive chaud (`#D9D6B8`), Eau à un bleu aquatique (`#BDD7E3`), également dans la roue zodiacale et les exports.
+
+Le bouton « + Événement » au-dessus de la grille a été supprimé : sélectionner une date ouvre sa fiche, qui conserve « Ajouter un événement ». Les données et sauvegardes personnelles ne changent pas.
