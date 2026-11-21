@@ -11,8 +11,8 @@ android {
         applicationId = "org.astra.publicapp"
         minSdk = 26
         targetSdk = 37
-        versionCode = 813
-        versionName = "0.8.13"
+        versionCode = 814
+        versionName = "0.8.14"
         manifestPlaceholders["appDisplayName"] = "ASTRA"
     }
 
