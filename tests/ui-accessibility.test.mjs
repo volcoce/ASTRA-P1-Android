@@ -17,6 +17,11 @@ test('P0: calendar announces the selected date and current date', () => {
     weekday:'long', day:'numeric', month:'long', year:'numeric', timeZone:'UTC'
   }).format(new Date(day + 'T12:00:00Z'));
   const context = {
+    // Stabilise l'horloge : aria-current="date" doit pointer sur le jour actuel,
+    // pas sur une date historique aléatoire lors de l'exécution de la CI.
+    Date: class FixedCalendarDate extends Date {
+      constructor(...args){super(...(args.length?args:['2026-11-20T12:00:00Z']));}
+    },
     state: {profile:{timezone:'Europe/Paris'},journal:{}},
     month: new Date(2026,10,1),
     selected: '2026-11-20',
