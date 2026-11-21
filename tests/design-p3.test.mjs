@@ -34,7 +34,9 @@ test('P3 light and dark text plus solar element ribbon pairings reach AA',()=>{
 });
 test('P3 preserves full weekday names and readable navigation labels',()=>{
   assert.match(app,/Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche/);
-  assert.match(app,/class="weekday" aria-label=/);
+  assert.match(app,/class="astra-sr-only"/);
+  assert.match(app,/aria-hidden="true"/);
+  assert.match(css,/\.astra-sr-only/);
   for(const name of ['Ce jour','Ce mois','Calendrier','Mon ciel'])assert.ok(html.includes('aria-label="'+name+'"'));
   assert.match(app,/role="group" aria-label="Évaluer son humeur/);
 });
