@@ -14,7 +14,7 @@
 | --- | --- |
 | **Ce jour** | Ciel à la date sélectionnée, Lune et phase à midi local, changements lunaires horodatés, événements et accès au journal. |
 | **Ce mois** | Synthèse mensuelle, phases et événements du mois. |
-| **Calendrier** | Grille mensuelle, nouvelles et pleines lunes, fonds de cases colorés selon les signes solaires, fonds partagés 50/50 aux dates de transition, événements personnels sur plusieurs jours et consultation d'une date. |
+| **Calendrier** | Grille mensuelle, nouvelles et pleines lunes, rubans continus sur plusieurs jours colorés selon l'élément (Feu, Terre, Air, Eau), partagés 50/50 aux dates de transition, événements personnels sur plusieurs jours et consultation d'une date. |
 | **Mon ciel** | Thème natal, roue interactive, positions et aspects, exploration, transits en double roue, systèmes de maisons et export d'images. |
 
 En complément : modes **tropical** et **sidéral** (Lahiri approximatif), fiches pédagogiques, journal local, import/export JSON, thèmes visuels et adaptation aux petits écrans.
