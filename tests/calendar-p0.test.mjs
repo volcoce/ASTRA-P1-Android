@@ -114,7 +114,7 @@ test('P0: event rows do not repeat lunar labels or instructions',()=>{
   const solarRow=render(context,exact);
   assert.equal((solarRow.match(/Aspect solaire exact/g)||[]).length,1);
   assert.match(solarRow,/event-category-label/);
-  assert.match(css,/\\.event-button \\.event-body \\.event-category-label\\{/);
+  assert.match(css,/\.event-button \.event-body \.event-category-label\{/);
 });
 
 test('P0: Category coding and event detail facts remain available',()=>{
