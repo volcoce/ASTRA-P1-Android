@@ -1,0 +1,57 @@
+/* ASTRA P4 — Calendar visual QA refinements.
+   Dates from adjacent months are contextual, not part of the solar ribbon.
+   The two major lunar phases receive round badges behind the actual moon SVG. */
+.calendar.astra-calendar-board .astra-calendar-date-week .astra-adjacent-day{
+  position:relative;z-index:1;min-width:0;min-height:55px;height:55px;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+  padding:7px 0 0;gap:2px;
+  border:0;border-radius:0;background:transparent;
+  color:#74888A;font-size:14px;font-weight:500;
+  opacity:.74;cursor:pointer;
+}
+.calendar.astra-calendar-board .astra-calendar-date-week .astra-adjacent-day:hover{
+  color:var(--astra-ink);background:var(--astra-secondary-surface);
+  border-radius:var(--astra-radius-md);opacity:1;
+}
+.calendar.astra-calendar-board .astra-calendar-date-week .astra-adjacent-day:focus-visible{
+  outline:3px solid var(--astra-focus)!important;outline-offset:-3px!important;
+  border-radius:var(--astra-radius-sm);opacity:1
+}
+:root[data-astra-theme="dark"] .calendar.astra-calendar-board .astra-calendar-date-week .astra-adjacent-day{
+  color:#B7C6CB;opacity:.78
+}
+@media(min-width:700px){
+  .calendar.astra-calendar-board .astra-calendar-date-week .astra-adjacent-day{
+    min-height:62px;height:62px;padding-top:8px
+  }
+}
+/* Keep the real solar ribbon as a full uninterrupted background. */
+.calendar.astra-calendar-board .astra-calendar-date-week .day.moon-new .moon-phase-badge,
+.calendar.astra-calendar-board .astra-calendar-date-week .day.moon-full .moon-phase-badge{
+  width:29px;height:29px;display:grid;place-items:center;
+  padding:3px;box-sizing:border-box;border-radius:50%!important;
+  background:#DDD6F4!important;border:1px solid #927CB0!important;
+  box-shadow:0 0 0 1px #FFF9EA88!important;z-index:2;
+}
+.calendar.astra-calendar-board .astra-calendar-date-week .day.moon-full .moon-phase-badge{
+  background:#F5DBA2!important;border-color:#AD742B!important;
+}
+.calendar.astra-calendar-board .astra-calendar-date-week .day.moon-new .moon-phase-badge svg,
+.calendar.astra-calendar-board .astra-calendar-date-week .day.moon-full .moon-phase-badge svg{
+  width:19px;height:19px
+}
+:root[data-astra-theme="dark"] .calendar.astra-calendar-board .astra-calendar-date-week .day.moon-new .moon-phase-badge{
+  background:#C7B9E5!important;border-color:#F1DDFE!important;
+}
+:root[data-astra-theme="dark"] .calendar.astra-calendar-board .astra-calendar-date-week .day.moon-full .moon-phase-badge{
+  background:#EEC983!important;border-color:#FFF1CB!important;
+}
+@media(max-width:360px){
+  .calendar.astra-calendar-board .astra-calendar-date-week .astra-adjacent-day{
+    height:53px;min-height:53px;font-size:13px
+  }
+  .calendar.astra-calendar-board .astra-calendar-date-week .day.moon-new .moon-phase-badge,
+  .calendar.astra-calendar-board .astra-calendar-date-week .day.moon-full .moon-phase-badge{
+    width:26px;height:26px;padding:2px
+  }
+}
