@@ -748,7 +748,7 @@ if __name__ == '__main__':
             assert page.locator('#detailPanel').count()==1
             assert 'Lecture astrologique' in page.locator('#detailPanel').inner_text()
             assert page.locator('#detailPanel .astra-event-facts').count()==1
-            assert 'Référence horaire' in page.locator('#detailPanel').inner_text()
+            assert 'Référence horaire' in page.locator('#detailPanel').text_content()
             assert page.evaluate('document.activeElement.id')=='detailPanel'
             assert page.locator('[data-detail-step]').count()==0
             page.get_by_role('button',name='Répondre dans mon journal').click()
