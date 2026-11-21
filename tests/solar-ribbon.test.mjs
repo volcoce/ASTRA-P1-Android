@@ -38,6 +38,9 @@ test('calendar paints continuous element backgrounds without extra solar row',()
   assert.match(css,/--solar-air-bg/);
   assert.match(css,/--solar-water-bg/);
   assert.match(css,/column-gap:0/);
+  assert.match(css,/\.calendar \.day\.astra-solar-cell:not\(\.solar-continues-before\)/);
+  assert.match(css,/\.calendar \.day\.astra-solar-cell:not\(\.solar-continues-after\)/);
+  assert.match(css,/moon-phase-badge/);
   assert.ok(!css.includes('.astra-solar-calendar-week'));
 });
 test('daily solar label and unknown position remain supported',()=>{
