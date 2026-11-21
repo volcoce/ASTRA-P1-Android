@@ -321,7 +321,7 @@ if __name__ == '__main__':
                 assert page.locator('.wheel-zodiac-sector.zodiac-element-'+element).count()==3
             assert page.locator('.natal-home .wheel-zodiac-sector.zodiac-element-fire').first.evaluate(
                 'el => getComputedStyle(el).fill'
-            )=='rgb(246, 213, 179)'
+            )=='rgb(244, 199, 143)'
             assert page.locator('.wheel-house-sector').count()==12
             # The true degree markers never move; labels use the actual solver.
             labels=page.locator('.natal-planet-hit').evaluate_all("""items => items.map(e => ({
@@ -695,7 +695,7 @@ if __name__ == '__main__':
             assert page.locator('.calendar .astra-calendar-date-week').first.locator('.astra-solar-ribbon-segment').count()>=2
             assert page.locator('.calendar .astra-solar-ribbon-segment.is-outside-month').first.evaluate(
                 "el => getComputedStyle(el).backgroundColor"
-            )=='rgb(224, 233, 237)'
+            )=='rgb(183, 210, 207)'
             assert page.locator('.calendar .astra-adjacent-day[data-day="2026-10-26"]').count()==1
             assert page.locator('.calendar .astra-adjacent-day[data-day="2026-12-06"]').count()==1
             assert page.locator('.calendar .astra-adjacent-day').first.get_attribute('aria-label').__contains__('hors du mois affiché')
