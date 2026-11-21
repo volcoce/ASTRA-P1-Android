@@ -110,6 +110,7 @@ if __name__ == '__main__':
             page.add_style_tag(content=(ROOT/'wheel-ui.css').read_text(encoding='utf-8'))
             page.add_style_tag(content=(ROOT/'solar-ribbon.css').read_text(encoding='utf-8'))
             page.add_style_tag(content=(ROOT/'calendar-p0.css').read_text(encoding='utf-8'))
+            page.add_style_tag(content=(ROOT/'personal-calendar.css').read_text(encoding='utf-8'))
             page.add_script_tag(content=(ROOT/'app.js').read_text(encoding='utf-8'))
             # P0 design regression: verify computed font sizes and flat surfaces.
             px=lambda selector: page.locator(selector).first.evaluate(
