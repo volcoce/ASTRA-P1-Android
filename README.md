@@ -1,4 +1,14 @@
-# ASTRA Public — Preview 0.8.13
+# ASTRA Public — Preview 0.8.14
+
+## Parcours du Soleil — occupation par signe (Preview 0.8.14)
+
+- La frise du calendrier affiche **la part de chaque signe dans le mois** : nombre de jours, pourcentage et plage de dates, représentés par des bandes de largeur proportionnelle à leur durée.
+- Sous la frise, un résumé désigne le **signe le plus présent du mois**, ou les signes à égalité ; le repère de la journée sélectionnée demeure visible.
+- Les chiffres sont des **jours calendaires échantillonnés à midi local** (zodiaque tropical ou sidéral selon le mode), non des durées astronomiques exactes à la minute. Une entrée dans un signe en cours de journée peut donc différer de cette approximation.
+- Les jours indisponibles sont distingués visuellement ; aucun temps manquant n'est attribué artificiellement à un signe.
+- Tests automatisés sur les proportions, égalités, dates manquantes et affichage mobile à 320 px.
+
+# ASTRA Public — Preview 0.8.13 (historique)
 
 ## Simplification UI — Suppression des fonctions en double (0.8.13)
 
