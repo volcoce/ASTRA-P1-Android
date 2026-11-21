@@ -850,7 +850,7 @@
     const cells=[];
     const periods=state.profile?solarMonthPeriods(year,m,count):null;
     const weekCount=Math.ceil((weekday+count)/7);
-    const visiblePeriods=state.profile?solarVisiblePeriods(year,m,weekday,weekCount):null;
+    const visiblePeriods=state.profile&&result?solarVisiblePeriods(year,m,weekday,weekCount):null;
     const todayKey=isoDay(new Date());
     for(let d=1;d<=count;d++){
       const day=`${year}-${pad(m+1)}-${pad(d)}`,entry=classify(result?.days?.[day]);
