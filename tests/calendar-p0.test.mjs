@@ -32,7 +32,8 @@ const context={
   personalCalendarWeek:()=>'',calendarDayInspector:()=>'',personalEventEditor:()=>'',
   solarSignIndex:n=>Number.isFinite(n)?Math.floor(n/30):null,
   zodiacNames:['Bélier','Taureau','Gémeaux','Cancer','Lion','Vierge',
-    'Balance','Scorpion','Sagittaire','Capricorne','Verseau','Poissons']
+    'Balance','Scorpion','Sagittaire','Capricorne','Verseau','Poissons'],
+  zodiacSymbols:['♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓']
 };
 function calendar(){
   const begin=app.indexOf('  function calendar() {'),end=app.indexOf('  function initDraft()',begin);
