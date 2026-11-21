@@ -888,7 +888,7 @@
           // Context dates complete the Monday–Sunday grid, but never extend
           // the current month's solar ribbon or duplicate its calculations.
           const adjacent=isoDay(new Date(year,m,number));
-          const outsideSky=visiblePeriods?.days[week*7+c]?.sky;
+          const outsideSky=visiblePeriods?.days?.[week*7+c]?.sky;
           const outsidePhase=outsideSky?.moonPhaseAtNoon;
           const outsideMoon=Number.isFinite(outsidePhase)?
             '<span class="moon-phase-badge" aria-hidden="true">'+moonPhaseIcon(outsidePhase)+'</span>':'';
