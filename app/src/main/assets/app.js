@@ -818,8 +818,8 @@
         '<span class="moon-phase-badge" aria-hidden="true">'+moonPhaseIcon(phaseAngle)+'</span>':'';
       cells.push(`<button type="button" class="day ${day===selected?'selected':''} ${day===isoDay(new Date())?'today':''} ${phase?'moon-'+phase:''}${solarClass}"${solarStyle} data-day="${day}" aria-pressed="${day===selected}" ${day===todayKey?'aria-current="date"':''} aria-label="${safe(displayDate(day))}, ${total} événement(s) exact(s), ${personalCount} événement(s) personnel(s), ${entry.active.length} aspect(s) actif(s)${Number.isFinite(phaseAngle)?', '+phaseName+' à midi':''}${phase?', '+phaseLabel:''}, ${solarName}${sunIngressLabel}">${d}<span class="count">${total?total+' ✦':entry.active.length?entry.active.length+' ~':''}</span>${moonIndicator}${state.journal[day]?'<span class="pinhole"></span>':''}</button>`);
     }
-    // Each week contains its multi-day event lane and then seven date cells.
-    // Calendar bars live INSIDE the same grid, exactly like all-day ranges.
+    // Only personal multi-day events use separate grid lanes; the solar sign
+    // is drawn behind each date tile, never in its own calendar row.
     const weeks=[];
     for(let week=0;week<Math.ceil((weekday+count)/7);week++){
       const first=1-weekday+7*week;
