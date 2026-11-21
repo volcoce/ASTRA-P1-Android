@@ -211,7 +211,7 @@ if __name__ == '__main__':
             assert page.locator('h1.page-title').count()==1
             assert page.locator('.natal-home-header .card-title').inner_text()=='Ta carte de naissance'
             assert page.locator('.natal-home-actions button').count()==2
-            assert 'Comprendre mon thème' in page.locator('.natal-main-action').inner_text()
+            assert 'Explorer les positions' in page.locator('.natal-main-action').inner_text()
             assert 'Comparer deux dates' in page.locator('.natal-secondary-action').inner_text()
             assert page.locator('.natal-summary-item').first.get_attribute('aria-label')=='Soleil en Bélier'
             assert page.locator('.natal-overview-tabs button').count()==3
