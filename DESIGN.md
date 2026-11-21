@@ -142,3 +142,12 @@ Reject a change when it introduces any of the following without a specific ASTRA
 **Current layered implementation:** legacy `style.css`, `atlas-ui.css`, `theme.css` and feature styles remain for layout/compatibility. The approved P0 foundation loads `astra-tokens.css` then `astra-components.css` last. New shared visual decisions belong in those two files; gradually remove obsolete legacy declarations rather than adding more parallel overrides. Preserve the natal wheel geometry and continuous solar backdrop.
 
 Last updated: 2026-11-20.
+
+### P1 — Application aux quatre écrans
+
+- **Ce jour** : date/semainier, Lune à midi, chronologie lunaire indépendante, journal, événements calculés, aspects en cours repliés.
+- **Ce mois** : navigation, résumé, phases majeures avant métriques secondaires, premiers événements, lien calendrier.
+- **Calendrier** : grille lisible, ruban solaire **en fond continu hebdomadaire** (jamais une carte par jour), éléments zodiacaux, partage visuel 50/50, arrondis aux changements de signe, événements personnels multi-jours au-dessus.
+- **Mon ciel** : résumé Soleil/Lune/Ascendant, une action principale d’exploration, onglets d’analyse et roue accessible, outils avancés secondaires.
+
+Styles P1 dans `astra-p1-screens.css`, après `astra-components.css`. Ne modifier ni la géométrie des roues, ni les éphémérides pour appliquer cette identité.
