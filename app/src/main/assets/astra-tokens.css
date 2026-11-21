@@ -82,9 +82,13 @@
   --element-air:#82AAC7;
   --element-water:#34685C;
   --solar-fire-bg:#FAD7B0;
-  --solar-earth-bg:#DFE3B4;
+  --solar-earth-bg:#D9D6B8;
   --solar-air-bg:#D1E4F0;
-  --solar-water-bg:#C9DDD5;
+  --solar-water-bg:#BDD7E3;
+  --solar-fire-muted:#F1E4D6;
+  --solar-earth-muted:#E8E6DA;
+  --solar-air-muted:#E5EDF1;
+  --solar-water-muted:#E0E9ED;
 }
 :root[data-astra-theme="dark"] {
   color-scheme:dark;
@@ -114,9 +118,13 @@
   --astra-shadow-pop:3px 3px 0 #050E14;
   --astra-shadow-soft:0 6px 20px #00000040;
   --solar-fire-bg:#74452E;
-  --solar-earth-bg:#4B5333;
+  --solar-earth-bg:#57533B;
   --solar-air-bg:#31566D;
-  --solar-water-bg:#31574F;
+  --solar-water-bg:#294F68;
+  --solar-fire-muted:#3F3732;
+  --solar-earth-muted:#3C3D36;
+  --solar-air-muted:#303F48;
+  --solar-water-muted:#2B3D49;
   --atlas-night:#101F2A;
   --atlas-sea:#82AAC7;
   --atlas-gold:#F0BE57;
