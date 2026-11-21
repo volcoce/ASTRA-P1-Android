@@ -390,30 +390,48 @@
       if(prev&&prev.index===index)prev.end=d;
       else segments.push({index,start:d,end:d});
     }
-    if(segments.every(x=>x.index===null))
+    const knownDays=indices.filter(index=>index!==null).length;
+    if(!knownDays)
       return '<p class="astra-solar-unavailable">Positions solaires indisponibles pour ce mois.</p>';
     const label=new Intl.DateTimeFormat('fr-FR',{month:'long',year:'numeric'}).format(new Date(year,monthIndex,1));
     const zone=state.profile?.timezone||detectedZone;
     const dayNumber=selected.startsWith(prefix)?Number(selected.slice(8)):null;
     const chosen=dayNumber&&dayNumber<=dayCount?indices[dayNumber-1]:null;
     const pin=dayNumber&&dayNumber<=dayCount?
-      '<span class="astra-solar-track-pin" style="left:'+(((dayNumber-.5)/dayCount)*100).toFixed(3)+'%" aria-hidden="true"></span>':'';
+      '<span class="astra-solar-track-pin" style="left:'+(((dayNumber-.5)/dayCount)*100).toFixed(3)+
+      '%" role="img" aria-label="'+safe('Jour sélectionné : '+dayNumber+' '+label+
+      (chosen===null?' · signe inconnu':' · Soleil en '+zodiacNames[chosen]+' à midi'))+'"></span>':'';
+    // Counts are day-at-noon samples, not exact elapsed astronomical durations.
+    // A sign may occupy two disjoint segments in a month near a data gap.
+    const totals=Array(12).fill(0);
+    indices.forEach(index=>{if(index!==null)totals[index]++;});
+    const maximum=Math.max(...totals);
+    const leading=totals.map((n,index)=>n===maximum?index:null).filter(index=>index!==null);
     const band=segments.map(seg=>{
       const name=seg.index===null?'Signe indisponible':zodiacNames[seg.index];
       const glyph=seg.index===null?'?':zodiacSymbols[seg.index];
+      const duration=seg.end-seg.start+1;
+      const proportion=Math.round(duration/dayCount*100);
       const days=seg.start===seg.end?'le '+seg.start:'du '+seg.start+' au '+seg.end;
+      const range=seg.start===seg.end?String(seg.start):seg.start+'–'+seg.end;
       return '<span class="astra-solar-track-piece '+(seg.index===null?'is-unknown':'solar-sign-'+seg.index)+
-        (seg.end-seg.start<4?' is-short':'')+'" style="flex-grow:'+(seg.end-seg.start+1)+
-        '" role="img" aria-label="'+safe(name+', '+days+' '+label+', Soleil à midi')+'">'+
+        (duration<5?' is-short':'')+'" style="flex-grow:'+duration+
+        '" role="img" aria-label="'+safe(name+', '+days+' '+label+', '+duration+
+        ' jour'+(duration>1?'s':'')+' sur '+dayCount+' ('+proportion+' %), position solaire à midi')+'">'+
         '<span class="astra-solar-track-label" aria-hidden="true">'+glyph+' <b>'+safe(name)+'</b></span>'+
-        '<small aria-hidden="true">'+(seg.start===seg.end?seg.start:seg.start+'–'+seg.end)+'</small></span>';
+        '<small aria-hidden="true">'+range+'</small>'+
+        '<strong class="astra-solar-track-share" aria-hidden="true">'+duration+' j · '+proportion+' %</strong></span>';
     }).join('');
-    return '<section class="astra-solar-ribbon" aria-label="Parcours du Soleil en '+safe(label)+'">'+
+    const allKnown=knownDays===dayCount;
+    const winner=leading.map(i=>zodiacNames[i]).join(' et ');
+    const winnerPercent=Math.round(maximum/dayCount*100);
+    return '<section class="astra-solar-ribbon" aria-label="Occupation mensuelle du Soleil par signe en '+safe(label)+'">'+
       '<div class="astra-solar-ribbon-heading"><h3>☉ Parcours du Soleil</h3>'+
       '<span>À midi · '+safe(zone)+' · '+(state.mode==='sidereal'?'sidéral':'tropical')+'</span></div>'+
-      '<div class="astra-solar-track" role="group" aria-label="Frise des signes solaires">'+band+pin+'</div>'+
-      '<p class="astra-solar-ribbon-note">'+(dayNumber?'Date sélectionnée · '+(chosen===null?'Position solaire indisponible':'Soleil en '+zodiacNames[chosen]):'Choisis une date de ce mois')+
-      '<span> · Le signe peut changer dans la journée.</span></p></section>';
+      '<div class="astra-solar-track" role="group" aria-label="Proportion de jours par signe solaire">'+band+pin+'</div>'+
+      '<p class="astra-solar-ribbon-note"><b>'+(leading.length>1?'Signes à égalité':'Signe le plus présent')+
+      ' : '+safe(winner)+'</b> · '+maximum+' j sur '+dayCount+' ('+winnerPercent+' %)'+
+      '<span> · Répartition selon le Soleil à midi'+(allKnown?'; un changement de signe peut survenir dans la journée.':'; données manquantes certains jours.')+'</span></p></section>';
   }
   function solarDayBand(longitude){
     const index=solarSignIndex(longitude);
