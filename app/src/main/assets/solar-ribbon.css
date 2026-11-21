@@ -28,8 +28,39 @@
   border-radius:7px;
   border:0;
 }
-.calendar .day.astra-solar-cell.solar-continues-before{border-top-left-radius:0;border-bottom-left-radius:0}
-.calendar .day.astra-solar-cell.solar-continues-after{border-top-right-radius:0;border-bottom-right-radius:0}
+/* A period is one continuous rectangular background across adjacent dates.
+   Only the start and end of a visible weekly segment are rounded. */
+.calendar .day.astra-solar-cell{border-radius:0}
+.calendar .day.astra-solar-cell:not(.solar-continues-before){
+  border-top-left-radius:9px;border-bottom-left-radius:9px
+}
+.calendar .day.astra-solar-cell:not(.solar-continues-after){
+  border-top-right-radius:9px;border-bottom-right-radius:9px
+}
+/* All-day event rows can continue above without covering the solar background. */
+.calendar .day.astra-solar-cell .moon-phase-badge,
+:root[data-astra-theme="dark"] .calendar .day.astra-solar-cell .moon-phase-badge{
+  background:transparent!important;border:0!important;box-shadow:none!important;
+  border-radius:0!important;padding:0!important
+}
+.calendar .day.astra-solar-cell .astra-phase-graphic{
+  display:block;background:transparent!important;border:0;box-shadow:none
+}
+/* Fixed, readable month calendar on wider displays; no stretched giant tiles. */
+.astra-calendar-month-head,
+.calendar-options,
+.calendar,
+.calendar ~ .astra-calendar-day-dialog{max-width:840px;margin-left:auto;margin-right:auto}
+.calendar .cal-grid{column-gap:0!important;row-gap:5px}
+@media(min-width:700px){
+  .calendar .day{height:62px;min-height:62px}
+  .calendar{padding:16px 14px 18px}
+}
+@media(max-width:699px){
+  .calendar .day{height:55px;min-height:55px}
+  .calendar{padding:10px 6px 14px}
+}
+
 .calendar .day.astra-solar-cell.selected,
 :root[data-astra-theme="dark"] .calendar .day.astra-solar-cell.selected{
   color:#172637;
@@ -57,3 +88,11 @@
 .astra-solar-daily-glyph{flex:none;font:700 22px/1 Georgia,serif}
 .astra-solar-daily-degree{margin-left:auto;flex:none;font-size:12px;font-weight:750}
 .astra-solar-daily-band.is-unknown{background:#e8edf1;color:#405566}
+
+/* The Moon illustration is transparent even when the user has no natal profile. */
+.calendar .day .moon-phase-badge,
+:root[data-astra-theme="dark"] .calendar .day .moon-phase-badge{
+  background:transparent!important;border:0!important;box-shadow:none!important;
+  border-radius:0!important
+}
+.calendar .day .astra-phase-graphic{background:transparent!important}
