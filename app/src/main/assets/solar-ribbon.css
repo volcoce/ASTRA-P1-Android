@@ -1,20 +1,20 @@
 /* ASTRA solar periods: continuous bands inside the calendar grid.
    Each civil date has two half columns to represent an ingress 50/50. */
-.solar-sign-0,.solar-sign-4,.solar-sign-8{--solar-bg:#ffdbad;--solar-ink:#713c20}
-.solar-sign-1,.solar-sign-5,.solar-sign-9{--solar-bg:#d9eab7;--solar-ink:#36542b}
-.solar-sign-2,.solar-sign-6,.solar-sign-10{--solar-bg:#cbe5fa;--solar-ink:#274f73}
-.solar-sign-3,.solar-sign-7,.solar-sign-11{--solar-bg:#d9d1f6;--solar-ink:#51417a}
+.solar-sign-0,.solar-sign-4,.solar-sign-8{--solar-bg:var(--solar-fire-bg);--solar-ink:var(--solar-fire-ink)}
+.solar-sign-1,.solar-sign-5,.solar-sign-9{--solar-bg:var(--solar-earth-bg);--solar-ink:var(--solar-earth-ink)}
+.solar-sign-2,.solar-sign-6,.solar-sign-10{--solar-bg:var(--solar-air-bg);--solar-ink:var(--solar-air-ink)}
+.solar-sign-3,.solar-sign-7,.solar-sign-11{--solar-bg:var(--solar-water-bg);--solar-ink:var(--solar-water-ink)}
 
 /* One actual ribbon beneath the whole week, not rounded date cards.
    Solar spans use half-day columns so ingress days show two colours 50/50. */
 :root{
-  --solar-fire-bg:#FAD7B0;--solar-earth-bg:#D9D6B8;
-  --solar-air-bg:#D1E4F0;--solar-water-bg:#BDD7E3;
+  --solar-fire-bg:#F4C78F;--solar-earth-bg:#C8C36A;
+  --solar-air-bg:#8FB9D6;--solar-water-bg:#5FA3A3;
 }
-.solar-element-fire{--solar-bg:var(--solar-fire-bg);--solar-muted-bg:var(--solar-fire-muted)}
-.solar-element-earth{--solar-bg:var(--solar-earth-bg);--solar-muted-bg:var(--solar-earth-muted)}
-.solar-element-air{--solar-bg:var(--solar-air-bg);--solar-muted-bg:var(--solar-air-muted)}
-.solar-element-water{--solar-bg:var(--solar-water-bg);--solar-muted-bg:var(--solar-water-muted)}
+.solar-element-fire{--solar-bg:var(--solar-fire-bg);--solar-muted-bg:var(--solar-fire-muted);--solar-ink:var(--solar-fire-ink)}
+.solar-element-earth{--solar-bg:var(--solar-earth-bg);--solar-muted-bg:var(--solar-earth-muted);--solar-ink:var(--solar-earth-ink)}
+.solar-element-air{--solar-bg:var(--solar-air-bg);--solar-muted-bg:var(--solar-air-muted);--solar-ink:var(--solar-air-ink)}
+.solar-element-water{--solar-bg:var(--solar-water-bg);--solar-muted-bg:var(--solar-water-muted);--solar-ink:var(--solar-water-ink)}
 .solar-element-unknown{--solar-bg:transparent}
 .calendar .cal-grid{grid-auto-flow:row;column-gap:0!important;row-gap:7px}
 .calendar .astra-calendar-date-week{
