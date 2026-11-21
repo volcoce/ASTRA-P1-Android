@@ -730,7 +730,7 @@ if __name__ == '__main__':
             assert page.locator('.calendar .day .moon-phase-badge').count()==month_days
             page.locator('.calendar-options > summary').click()
             page.locator('#eventFilter').select_option('moon')
-            assert page.locator('.calendar .day.solar-split').count()==1
+            assert page.locator('.calendar .astra-solar-ribbon-segment.starts-at-ingress').count()==1
             assert page.locator('.calendar .day .moon-phase-badge').count()==month_days
             # Calendar filters cannot erase the unfiltred daily summary.
             page.locator('[data-tab="today"]').click()
