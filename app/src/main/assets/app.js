@@ -415,46 +415,73 @@
   // Multi-day calendar event model, sampled at local noon. Solar sign periods
   // occupy a range of civil days; they must be drawn WITHIN the calendar grid.
   function solarMonthPeriods(year,monthIndex,dayCount){
-    const prefix=year+'-'+pad(monthIndex+1)+'-',segments=[],indices=[],totals=Array(12).fill(0);
+    const prefix=year+'-'+pad(monthIndex+1)+'-',segments=[],indices=[];
+    const halves=[],totals=Array(12).fill(0),ingresses=[];
     for(let d=1;d<=dayCount;d++){
-      const index=solarSignIndex(solarDayLongitude(prefix+pad(d)));
+      const day=prefix+pad(d),index=solarSignIndex(solarDayLongitude(day));
+      const ingress=result?.days?.[day]?.sunIngress;
+      const valid=ingress&&Number.isInteger(ingress.fromIndex)&&
+        Number.isInteger(ingress.toIndex)&&ingress.fromIndex>=0&&ingress.fromIndex<12&&
+        ingress.toIndex>=0&&ingress.toIndex<12&&ingress.fromIndex!==ingress.toIndex;
       indices.push(index);
-      if(index!==null)totals[index]++;
-      const prev=segments[segments.length-1];
-      if(prev&&prev.index===index)prev.end=d;
-      else segments.push({start:d,end:d,index});
+      if(valid){
+        // A 50/50 VISUAL convention for the civil ingress day, regardless
+        // of its exact astronomical hour. Other days keep their noon sign.
+        halves.push(ingress.fromIndex,ingress.toIndex);
+        ingresses.push({day,...ingress});
+      }else halves.push(index,index);
+    }
+    for(let h=0;h<halves.length;h++){
+      const index=halves[h],half=h+1;
+      if(index!==null)totals[index]+=.5;
+      const previous=segments[segments.length-1];
+      if(previous&&previous.index===index){
+        previous.endHalf=half;previous.end=Math.ceil(half/2);
+      }else segments.push({index,start:Math.ceil(half/2),end:Math.ceil(half/2),
+        startHalf:half,endHalf:half});
     }
     const max=Math.max(...totals);
     const mostPresent=max?totals.flatMap((days,index)=>days===max?[index]:[]):[];
-    return {segments,indices,totals,mostPresent,dayCount,max};
+    return {segments,indices,totals,mostPresent,dayCount,max,ingresses};
   }
-  // Reusable week-span lane: events spanning several days are split at the
-  // visual week boundary but retain their underlying start/end dates.
+  // Fourteen half-day columns allow TWO zodiac colors within the ingress
+  // calendar date, without a second calendar or a separate event row.
   function solarCalendarWeek(year,monthIndex,firstWeekday,week,periods){
     const first=1-firstWeekday+7*week,last=first+6;
     const from=Math.max(1,first),to=Math.min(periods.dayCount,last);
+    const firstHalf=2*from-1,lastHalf=2*to;
     const label=new Intl.DateTimeFormat('fr-FR',{month:'long',year:'numeric'}).format(new Date(year,monthIndex,1));
-    const items=periods.segments.filter(seg=>seg.end>=from&&seg.start<=to).map(seg=>{
-      const visibleStart=Math.max(from,seg.start),visibleEnd=Math.min(to,seg.end);
-      const cols=visibleEnd-visibleStart+1,startColumn=visibleStart-first+1;
+    const zone=state.profile?.timezone||detectedZone;
+    const number=new Intl.NumberFormat('fr-FR',{maximumFractionDigits:1});
+    const items=periods.segments.filter(seg=>seg.endHalf>=firstHalf&&seg.startHalf<=lastHalf).map(seg=>{
+      const visibleStart=Math.max(firstHalf,seg.startHalf),visibleEnd=Math.min(lastHalf,seg.endHalf);
+      const cols=visibleEnd-visibleStart+1,startColumn=visibleStart-2*(first-1);
       const name=seg.index===null?'Position solaire indisponible':'Soleil en '+zodiacNames[seg.index];
       const symbol=seg.index===null?'?':zodiacSymbols[seg.index];
       const total=seg.index===null?0:periods.totals[seg.index];
       const pct=Math.round(total/periods.dayCount*100);
       const dayRange=seg.start===seg.end?String(seg.start):seg.start+'–'+seg.end;
+      const entry=seg.startHalf%2===0?periods.ingresses.find(x=>Number(x.day.slice(8))===seg.start):null;
+      const exit=seg.endHalf%2===1?periods.ingresses.find(x=>Number(x.day.slice(8))===seg.end):null;
+      const ingress=entry||exit;
+      const changed=ingress?', passage de '+ingress.fromSign+' à '+ingress.toSign+
+        ' à '+new Intl.DateTimeFormat('fr-FR',{hour:'2-digit',minute:'2-digit',timeZone:zone}).format(new Date(ingress.at))+
+        ' (jour partagé moitié-moitié à titre visuel)':'';
       const aria=seg.index===null?name+', du '+seg.start+' au '+seg.end+' '+label:
-        name+', du '+seg.start+' au '+seg.end+' '+label+', '+total+' jours à midi ('+pct+' % du mois)';
+        name+', du '+seg.start+' au '+seg.end+' '+label+', '+number.format(total)+
+        ' jours visuels ('+pct+' % du mois)'+changed;
       return '<button type="button" class="astra-calendar-range-event '+
         (seg.index===null?'is-unknown':'solar-sign-'+seg.index)+
-        (cols<2?' is-narrow':'')+(visibleStart>seg.start?' continues-before':'')+
-        (visibleEnd<seg.end?' continues-after':'')+
+        (cols<4?' is-narrow':'')+(visibleStart>seg.startHalf?' continues-before':'')+
+        (visibleEnd<seg.endHalf?' continues-after':'')+
+        (entry?' starts-after-ingress':'')+(exit?' ends-at-ingress':'')+
         '" style="grid-column:'+startColumn+' / span '+cols+
         '" data-calendar-range-start="'+seg.start+'" data-calendar-range-end="'+seg.end+
         '" data-calendar-range-index="'+(seg.index===null?'':seg.index)+
         '" aria-label="'+safe(aria)+'" title="'+safe(aria)+'">'+
         '<span class="astra-calendar-range-icon" aria-hidden="true">'+symbol+'</span>'+
         '<span class="astra-calendar-range-label" aria-hidden="true">'+safe(name)+'</span>'+
-        (cols>3?'<small aria-hidden="true">'+dayRange+'</small>':'')+
+        (cols>6?'<small aria-hidden="true">'+dayRange+'</small>':'')+
         '</button>';
     }).join('');
     return '<div class="astra-calendar-week-events" role="group" aria-label="Périodes solaires de la semaine">'+items+'</div>';
