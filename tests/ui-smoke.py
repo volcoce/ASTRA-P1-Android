@@ -542,8 +542,9 @@ if __name__ == '__main__':
                     assert px('.weekday')>=12
                     assert page.locator('.astra-month-hero').count()==0
                     assert page.locator('.astra-lunar-milestone').count()==0
-                    assert page.locator('.astra-calendar-day-summary').count()==1
-                    assert page.locator('.astra-calendar-day-sky').count()==0
+                    assert page.locator('.astra-calendar-day-summary').count()==0
+                    assert page.locator('.astra-personal-create').count()==1
+                    assert page.locator('#calendarDayDialog').count()==0
                     assert page.locator('[data-calendar-view]').count()==0
                 elif tab=='profile':
                     assert px('.natal-home-subtitle')>=14
@@ -652,10 +653,14 @@ if __name__ == '__main__':
             assert 'Signe le plus présent' in page.locator('.astra-calendar-solar-note').inner_text()
             assert 'Scorpion' in page.locator('.astra-calendar-solar-note').inner_text()
             solar_sa.first.click()
-            assert 'Soleil en Sagittaire' in page.locator('#calendarIntervalInfo').inner_text()
-            assert 'Du 19 au 30' in page.locator('#calendarIntervalInfo').inner_text()
+            assert page.locator('#calendarDayDialog[open]').count()==1
+            assert 'Soleil en Sagittaire' in page.locator('.astra-calendar-sheet-solar').inner_text()
+            assert 'du 19 au 30' in page.locator('.astra-calendar-sheet-solar').inner_text()
+            page.locator('[data-calendar-sheet-close]').click()
             page.locator('.calendar .day[data-day$="-20"]').click()
-            assert page.locator('#calendarIntervalInfo').count()==0
+            assert page.locator('#calendarDayDialog[open]').count()==1
+            assert page.locator('.astra-calendar-sheet-solar').count()==0
+            page.locator('[data-calendar-sheet-close]').click()
             # Calculated phase icon for every day; New/Full highlighted
             # separately. Only the 4 mock solar exact contacts are underlined.
             new_moon=page.locator('.calendar .day.moon-new')
@@ -730,30 +735,84 @@ if __name__ == '__main__':
             page.locator('.calendar-options > summary').click()
             page.locator('#eventFilter').select_option('all')
             capture('calendar-320')
-            # Calendar offers a concise monthly preview, not a second full day view.
-            assert page.locator('.astra-calendar-day-summary').count()==1
+            # Personal events belong IN each week of the grid, never in a list below.
+            assert page.locator('.astra-calendar-day-summary').count()==0
+            assert page.locator('.astra-personal-create').count()==1
             assert page.locator('[data-calendar-view]').count()==0
-            assert page.locator('.astra-calendar-day-sky').count()==0
-            assert page.locator('.astra-lunar-milestone').count()==0
-            assert page.locator('.astra-calendar-day-events .event-button').count()<=3
-            assert page.locator('[data-calendar-open-day]').count()==1
-            # Open a Full Moon date, then verify the one detailed daily screen
-            # preserves the selected day without incorrectly jumping to today.
+            page.locator('.astra-personal-create').click()
+            assert page.locator('#personalEventDialog[open]').count()==1
+            page.locator('#personalTitle').fill('Séjour sur trois jours')
+            page.locator('#personalStart').fill('2026-11-23')
+            page.locator('#personalEnd').fill('2026-11-25')
+            assert page.locator('#personalAllDay').is_checked()
+            page.locator('#personalEventForm button[type="submit"]').click()
+            assert page.locator('#personalEventDialog').count()==0
+            assert page.locator('.astra-personal-calendar-event[aria-label*="Séjour sur trois jours"]').count()==1
+            assert 'grid-column:1 / span 3' in page.locator(
+                '.astra-personal-calendar-event[aria-label*="Séjour sur trois jours"]').get_attribute('style')
+            stored=page.evaluate("JSON.parse(localStorage.getItem('astra-public-v1'))")
+            assert stored['calendarEvents'][0]['start']=='2026-11-23'
+            assert stored['calendarEvents'][0]['end']=='2026-11-25'
+
+            # Crosses both a week boundary and November -> December.
+            page.locator('[data-personal-new]').click()
+            page.locator('#personalTitle').fill('Voyage fin novembre')
+            page.locator('#personalStart').fill('2026-11-27')
+            page.locator('#personalEnd').fill('2026-12-04')
+            page.locator('#personalEventForm button[type="submit"]').click()
+            assert page.locator('.astra-personal-calendar-event[aria-label*="Voyage fin novembre"]').count()==2
+            page.locator('.calendar .day[data-day="2026-11-29"]').click()
+            assert 'Voyage fin novembre' in page.locator('#calendarDayDialog').inner_text()
+            page.locator('[data-calendar-sheet-close]').click()
+            page.locator('.month-head [data-month="1"]').click()
+            page.wait_for_timeout(120)
+            assert page.locator('.astra-personal-calendar-event[aria-label*="Voyage fin novembre"]').count()>=1
+            assert 'continues-before' in page.locator(
+                '.astra-personal-calendar-event[aria-label*="Voyage fin novembre"]').first.get_attribute('class')
+            page.locator('.month-head [data-month="-1"]').click()
+            page.wait_for_timeout(120)
+
+            # A timed one-day appointment uses the same calendar grid.
+            page.locator('[data-personal-new]').click()
+            page.locator('#personalTitle').fill('Consultation')
+            page.locator('#personalStart').fill('2026-11-24')
+            page.locator('#personalEnd').fill('2026-11-24')
+            page.locator('#personalAllDay').uncheck()
+            assert page.locator('#personalTimeFields').is_visible()
+            page.locator('#personalStartTime').fill('13:30')
+            page.locator('#personalEndTime').fill('15:00')
+            page.locator('#personalEventForm button[type="submit"]').click()
+            personal_button=page.locator('.astra-personal-calendar-event[aria-label*="Consultation"]')
+            assert personal_button.count()==1
+            assert '13:30' in personal_button.inner_text()
+            personal_button.click()
+            assert page.locator('#personalEventDialog[open]').count()==1
+            assert page.locator('#personalAllDay').is_checked() is False
+            page.locator('#personalTitle').fill('Consultation modifiée')
+            page.locator('#personalEventForm button[type="submit"]').click()
+            assert page.locator('.astra-personal-calendar-event[aria-label*="Consultation modifiée"]').count()==1
+            page.locator('.astra-personal-calendar-event[aria-label*="Consultation modifiée"]').click()
+            page.once('dialog', lambda dialog: dialog.accept())
+            page.locator('[data-personal-delete]').click()
+            assert page.locator('.astra-personal-calendar-event[aria-label*="Consultation modifiée"]').count()==0
+            saved=page.evaluate("JSON.parse(localStorage.getItem('astra-public-v1'))")
+            assert len(saved['calendarEvents'])==2
+
+            # Selected date opens a contextual dialog, not a separate page section.
             chosen=page.locator('.calendar .day.moon-full').get_attribute('data-day')
             page.locator('.calendar .day.moon-full').click()
+            assert page.locator('#calendarDayDialog[open]').count()==1
             assert page.locator('.calendar .day.selected').get_attribute('data-day')==chosen
-            assert 'Pleine Lune' in page.locator('.astra-calendar-day-summary').inner_text()
+            assert 'Pleine Lune' in page.locator('#calendarDayDialog').inner_text()
             assert page.evaluate('document.documentElement.scrollWidth')<=322
-            capture('calendar-compact-320')
+            capture('calendar-embedded-320')
             page.locator('[data-calendar-open-day]').click()
             assert page.locator('[data-tab="today"]').get_attribute('aria-current')=='page'
             assert page.locator('.astra-week-day.is-selected').get_attribute('data-day')==chosen
             assert page.locator('.astra-day-hero').count()==1
-            assert page.locator('.astra-day-journal-link').count()==1
-            # Event details still work directly from the compact calendar.
             page.locator('[data-tab="calendar"]').click()
-            assert page.locator('.calendar .day.selected').get_attribute('data-day')==chosen
-            page.locator('[data-event]').first.click(timeout=2000)
+            page.locator('.calendar .day.moon-full').click()
+            page.locator('#calendarDayDialog [data-event]').first.click(timeout=2000)
             assert page.locator('#detailPanel').count()==1
             assert 'Lecture astrologique' in page.locator('#detailPanel').inner_text()
             assert page.locator('#detailPanel .astra-event-facts').count()==1
