@@ -591,7 +591,7 @@
     const differentPhaseSign=sky&&day.sky.some(event=>event.type==='moon'&&
       Number.isFinite(event.moonLongitude)&&zodiacSignAt(event.moonLongitude)!==moonSign);
     const dailyLunarMoments=timeline.length?
-      '<section class="astra-day-moon-moments" aria-label="Événements lunaires de la journée">'+
+      '<section class="astra-day-moon-moments" aria-label="Chronologie lunaire de la journée">'+
       '<h3>Évolution de la Lune dans la journée</h3>'+
       '<div class="astra-day-moon-moment-list">'+timeline.map(event=>
         '<div class="astra-day-moon-moment '+event.kind+'"><time datetime="'+safe(event.at)+'">'+
@@ -612,11 +612,12 @@
         '<div><h2 class="astra-moon-title">'+(sky?'Lune en '+safe(moonSign):'Position lunaire indisponible')+'</h2>'+
         '<p class="astra-moon-phase">'+safe(moonStage)+'</p></div></div>'+
         '<p class="astra-sky-reference">Position à 12 h · '+safe(zone)+' · '+(state.mode==='sidereal'?'sidéral':'tropical')+'</p>'+
-        solarDayBand(sky?.sunLongitude)+dailyLunarMoments+
+        solarDayBand(sky?.sunLongitude)+
         '<div class="astra-hero-stat"><strong>'+count+'</strong><span>'+(
           count===1?'événement calculé':'événements calculés')+' pour cette date</span></div></div>'+
         '<button type="button" class="astra-hero-link" data-scroll-to="todayEvents">Voir les événements <span aria-hidden="true">↓</span></button>'+
       '</section>'+status()+
+      dailyLunarMoments+
       '<button type="button" class="astra-day-journal-link" data-goto="journal">'+
         '<span aria-hidden="true">✎</span> '+(entry?'Relire mes notes':'Noter cette journée')+
         '<span aria-hidden="true">›</span></button>'+
@@ -659,22 +660,18 @@
     const featured=exactEvents.slice(0,5);
     const dayLabel=day=>new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'short',timeZone:'UTC'})
       .format(new Date(day+'T12:00:00Z'));
-    return header('Ce mois','Les événements du ciel et les grandes phases lunaires de '+safe(monthLabel)+'.')+
+    return header('Ce mois','Les phases lunaires et les événements astronomiques de '+safe(monthLabel)+'.')+
       '<div class="month-head astra-month-navigation" aria-label="Choisir un mois">'+
         '<button type="button" class="arrow" data-month="-1" aria-label="Mois précédent">‹</button>'+
         '<h2>'+safe(monthLabel)+'</h2>'+
         '<button type="button" class="arrow" data-month="1" aria-label="Mois suivant">›</button></div>'+
       birthTimeWarning()+
       '<section class="astra-month-hero" aria-label="Résumé des événements du mois">'+
-        '<p class="astra-month-kicker">RÉSUMÉ DU MOIS</p>'+
+        '<p class="astra-month-kicker">VUE D’ENSEMBLE</p>'+
         '<div class="astra-month-headline"><strong>'+exactEvents.length+'</strong>'+
         '<span>événement'+(exactEvents.length===1?'':'s')+' calculé'+(exactEvents.length===1?'':'s')+'</span></div>'+
         '<p>Pour '+safe(monthLabel)+' · aspects exacts et événements du ciel</p>'+
       '</section>'+status()+
-      '<section class="astra-month-metrics" aria-label="Indicateurs mensuels">'+
-        '<div><strong>'+daysWithEvents+'</strong><span>jours avec événements</span></div>'+
-        '<button type="button" data-goto="journal"><strong>'+journalDays+'</strong><span>jour'+(journalDays===1?'':'s')+' noté'+(journalDays===1?'':'s')+' · ouvrir le journal</span></button>'+
-      '</section>'+
       '<section class="astra-month-section" aria-labelledby="monthMoonTitle">'+
         '<div class="astra-section-head"><h2 id="monthMoonTitle">Phases majeures</h2><span>Ce mois uniquement</span></div>'+
         '<div class="astra-month-phases">'+(lunar.map(({day,event})=>{
@@ -687,7 +684,10 @@
             '</small></span><span aria-hidden="true">›</span></button>';
         }).join('')||'<p class="astra-empty">Aucune Nouvelle ou Pleine Lune calculée pour ce mois.</p>')+'</div>'+
         '<p class="astra-section-help">Les horaires sont ceux du fuseau de naissance enregistré. Choisis une phase pour voir sa date dans le calendrier.</p></section>'+
-      '<section class="astra-month-section" aria-labelledby="monthEventsTitle">'+
+      '<section class="astra-month-metrics" aria-label="Indicateurs mensuels">'+
+        '<div><strong>'+daysWithEvents+'</strong><span>jours avec événements</span></div>'+
+        '<button type="button" data-goto="journal"><strong>'+journalDays+'</strong><span>jour'+(journalDays===1?'':'s')+' noté'+(journalDays===1?'':'s')+' · ouvrir le journal</span></button>'+
+      '</section>'+      '<section class="astra-month-section" aria-labelledby="monthEventsTitle">'+
         '<div class="astra-section-head"><h2 id="monthEventsTitle">Premiers événements du mois</h2><span>'+exactEvents.length+' au total</span></div>'+
         '<div class="astra-month-events">'+(featured.map(({day,event})=>
           '<button type="button" data-month-open-day="'+day+'" class="astra-month-event">'+
@@ -858,7 +858,7 @@
       '<button type="button" class="arrow" data-month="1" aria-label="Mois suivant">›</button></div>'+
       '<button type="button" class="astra-personal-create" data-personal-new="1">+ Événement</button>'+
       (state.profile?'<details class="calendar-options"><summary>Options d’affichage</summary>'+switcher()+filters()+'</details>':'')+
-      '<div class="calendar"><div class="cal-grid">'+['L','M','M','J','V','S','D'].map(x=>
+      '<div class="calendar astra-calendar-board"><div class="cal-grid">'+['L','M','M','J','V','S','D'].map(x=>
       '<span class="weekday">'+x+'</span>').join('')+weeks.join('')+'</div>'+
       (periods?solarMonthSummary(periods):'')+
       (state.profile?'<div class="calendar-phase-legend" aria-label="Légende des marqueurs du calendrier">'+
@@ -1512,7 +1512,7 @@
         '<button type="button" class="natal-settings-link" data-profile-screen="settings">Réglages</button></div>'+
         (uncertain?notice:'')+
         '<div class="natal-primary-cards'+(h?'':' natal-primary-cards--two')+'" role="group" aria-label="Soleil, Lune et Ascendant en signes astrologiques">'+quickCards+'</div>'+
-        '<div class="natal-home-actions natal-home-actions--primary"><button type="button" class="natal-main-action" data-profile-screen="explore"><span class="action-label"><strong>Comprendre mon thème</strong><small>Planètes, signes et maisons</small></span><span class="action-arrow" aria-hidden="true">→</span></button></div>'+
+        '<div class="natal-home-actions natal-home-actions--primary"><button type="button" class="natal-main-action" data-profile-screen="explore"><span class="action-label"><strong>Explorer les positions</strong><small>Planètes, signes et maisons</small></span><span class="action-arrow" aria-hidden="true">→</span></button></div>'+
         viewTabs+overviewContent+contextSheet+glossary+
         '<div class="natal-home-actions natal-home-actions--secondary"><button type="button" class="natal-secondary-action" data-explore-transits="1"><span class="action-label"><strong>Comparer deux dates</strong><small>Le ciel d’un autre jour</small></span><span class="action-arrow" aria-hidden="true">→</span></button></div>'+
         '<details class="natal-extras"><summary>Outils astrologiques avancés</summary>'+
