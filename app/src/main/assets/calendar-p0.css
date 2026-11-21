@@ -1,105 +1,61 @@
-/* Calendar P0 — temporal navigation + event semantics.
-   Enhances the existing month grid; does not alter astronomical calculations. */
-.astra-calendar-toolbar{
-  display:flex;align-items:center;justify-content:space-between;
-  gap:10px;margin:9px 0 11px;min-width:0;
-}
-.astra-calendar-view-switch{
-  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:3px;padding:3px;border:1px solid #d4e0e7;border-radius:12px;
-  background:#edf3f6;min-width:0;max-width:265px;flex:1;
-}
-.astra-calendar-view-switch button{
-  min-height:42px;padding:8px 12px;border:0;border-radius:9px;
-  background:transparent;color:#405d70;
-  font:750 13px/1.35 system-ui,sans-serif;cursor:pointer;
-}
-.astra-calendar-view-switch button.is-selected{
-  background:#fff;color:#214b65;box-shadow:0 1px 4px #123f5824;
-}
-.astra-calendar-today{
-  flex:none;min-height:44px;padding:8px 12px;border-radius:10px;
-  background:#fff;border:1px solid #cad9e1;color:#245770;
-  font:750 12px/1.35 system-ui,sans-serif;cursor:pointer;
-}
-.astra-calendar-today:disabled{opacity:.55;cursor:default}
+/* ASTRA 0.8.13 — calendar shows the month and a concise selected-day preview.
+   Detailed daily sky and complete event lists live exclusively in "Ce jour". */
 .astra-calendar-month-head{margin:10px 0 13px}
-.astra-calendar-day-heading{
-  display:grid;grid-template-columns:44px minmax(0,1fr) 44px;
-  gap:9px;align-items:center;margin:9px 0 14px;
-}
-.astra-calendar-day-heading button{
-  width:44px;height:44px;border:1px solid #cbdde5;
-  background:#fff;border-radius:12px;color:#285d75;
-  font:650 25px/1 system-ui,sans-serif;cursor:pointer;
-}
-.astra-calendar-day-heading h2{
-  margin:0;text-align:center;
-  font:750 17px/1.3 system-ui,sans-serif;color:#23475d;
-  text-transform:capitalize;overflow-wrap:anywhere;
-}
-.astra-calendar-day-sky{
-  margin:0 0 10px;padding:13px;border:1px solid #d7e5eb;
-  border-radius:16px;background:#f7fafc;
-}
-.astra-calendar-day-sky-moon{
-  display:flex;align-items:center;gap:10px;color:#2e5065;
-}
-.astra-calendar-day-sky-moon .astra-phase-graphic{width:39px;height:39px;flex:none}
-.astra-calendar-day-sky-moon>div{
-  min-width:0;display:flex;flex-direction:column;gap:2px;
-}
-.astra-calendar-day-sky-moon b{font:750 15px/1.4 system-ui,sans-serif}
-.astra-calendar-day-sky-moon span{font:500 12px/1.4 system-ui,sans-serif;color:#5d7380}
-.astra-calendar-day-sky .astra-solar-daily-band{margin:10px 0 0}
 .astra-calendar-day-summary{
-  margin-top:12px!important;padding:17px 15px!important;
-  border-color:#d6e2e8!important;box-shadow:none!important;
+  margin-top:13px!important;
+  padding:16px 14px!important;
+  border-color:#d6e2e8!important;
+  box-shadow:none!important;
 }
 .astra-calendar-selected-head{
-  display:flex;align-items:flex-start;justify-content:space-between;
-  flex-wrap:wrap;gap:9px;margin:0 0 10px;
-}
-.astra-calendar-overline{
-  margin:0 0 3px;color:#657c8a;
-  font:800 10px/1.4 system-ui,sans-serif;letter-spacing:.08em;
+  display:flex;align-items:baseline;justify-content:space-between;
+  flex-wrap:wrap;gap:6px 10px;margin:0 0 11px;
 }
 .astra-calendar-selected-head h2{
   margin:0;color:#27475d;
-  font:750 18px/1.35 system-ui,sans-serif;text-transform:capitalize;
+  font:750 18px/1.35 system-ui,sans-serif;
+  text-transform:capitalize;
+}
+.astra-calendar-selected-count{
+  color:#536f80;font:700 12px/1.4 system-ui,sans-serif;
+  white-space:nowrap;
+}
+.astra-calendar-day-events{border-top:1px solid #e4ebef}
+.astra-calendar-day-events .event-button{padding:10px 2px;min-height:66px}
+.astra-calendar-day-events .event-button:first-child{border-top:0}
+.astra-calendar-day-events .event-more{display:none}
+.astra-calendar-day-events .event-glyph{width:35px;height:35px}
+.astra-calendar-day-events .event-category-label{margin-bottom:2px}
+.astra-calendar-empty{margin:13px 2px;color:#657887;font-size:13px;line-height:1.6}
+.astra-calendar-more{
+  margin:9px 2px 0;color:#536f80;
+  font:650 12px/1.5 system-ui,sans-serif;
 }
 .astra-calendar-open-day{
-  padding:8px 11px;border:1px solid #bdd2dd;
-  border-radius:10px;background:#f0f6fa;color:#245770;
-  font:750 12px/1.35 system-ui,sans-serif;cursor:pointer;
-  min-height:39px;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:10px;margin:13px 0 0;width:100%;
+  min-height:45px;padding:11px 13px;
+  border:1px solid #bfd4e1;border-radius:11px;
+  background:#edf5fa;color:#235c7a;
+  font:750 13px/1.4 system-ui,sans-serif;
+  text-align:left;cursor:pointer;
 }
-.astra-calendar-day-counts{
-  display:flex;flex-wrap:wrap;gap:8px;margin:9px 0 12px;
+.astra-calendar-open-day span{font-size:20px;line-height:1}
+.astra-calendar-open-day:focus-visible,
+.astra-day-journal-link:focus-visible{
+  outline:3px solid #3b82a2;outline-offset:2px;
 }
-.astra-calendar-day-counts>span{
-  display:inline-flex;align-items:center;gap:5px;
-  border-radius:99px;padding:5px 9px;background:#eff4f7;color:#3c586b;
-  font:600 11px/1.3 system-ui,sans-serif;
+.astra-day-journal-link{
+  display:flex;align-items:center;gap:10px;
+  width:100%;min-height:45px;padding:11px 14px;
+  border:1px solid #dfd4c6;border-radius:12px;
+  background:#f8f1e8;color:#765333;
+  font:750 13px/1.4 system-ui,sans-serif;
+  cursor:pointer;text-align:left;margin:-7px 0 21px;
 }
-.astra-calendar-day-counts b{font:800 12px/1 system-ui,sans-serif;color:#1f4b64}
-.astra-calendar-day-events{border-top:1px solid #e4ebef}
-.astra-calendar-day-events .event-button{padding:13px 2px;min-height:78px}
-.astra-calendar-day-events .event-button:first-child{border-top:0}
-.astra-calendar-empty{margin:16px 2px;color:#657887;font-size:13px;line-height:1.6}
-.astra-calendar-active{
-  margin:9px 0 1px;border-top:1px solid #dde7ed;
-}
-.astra-calendar-active>summary{
-  min-height:46px;display:flex;justify-content:space-between;
-  align-items:center;gap:10px;font-size:13px;font-weight:750;
-  color:#315f78;cursor:pointer;
-}
-.astra-calendar-active>summary span{color:#607b8c}
-.astra-calendar-active>p{font:500 12px/1.5 system-ui,sans-serif;color:#607888}
-.astra-calendar-active .event-button{width:100%;min-height:75px;padding:11px 2px}
-.astra-calendar-active .event-button:first-of-type{border-top:0}
-/* Category palette: the text category always remains visible, independent of hue. */
+.astra-day-journal-link span:first-child{font-size:19px;line-height:1}
+.astra-day-journal-link span:last-child{margin-left:auto;font-size:21px;line-height:1}
+/* Every category has a readable text label; colors are only a secondary cue. */
 .event-kind-moon-new{--event-bg:#eee9f8;--event-ink:#67528c;--event-edge:#ab9acc}
 .event-kind-moon-full{--event-bg:#fff1d9;--event-ink:#89612c;--event-edge:#d5ad69}
 .event-kind-moon-quarter{--event-bg:#e8eefb;--event-ink:#4b6596;--event-edge:#94aad5}
@@ -114,8 +70,8 @@
 }
 .event-category-label{
   display:block;margin:0 0 3px;color:var(--event-ink,#46677c)!important;
-  font:800 10px/1.3 system-ui,sans-serif;letter-spacing:.04em;
-  text-transform:uppercase;
+  font:800 10px/1.3 system-ui,sans-serif;
+  letter-spacing:.04em;text-transform:uppercase;
 }
 .event-button[class*="event-kind-"]:hover{background:#f6f9fb}
 .event-button[class*="event-kind-"]:focus-visible{
@@ -125,8 +81,7 @@
   border-left:4px solid var(--event-edge,#a2b7c5)!important;
 }
 .astra-event-detail .detail-head .tag{
-  background:var(--event-bg,#eaf1f4);
-  color:var(--event-ink,#31586c);
+  background:var(--event-bg,#eaf1f4);color:var(--event-ink,#31586c);
 }
 .astra-event-facts{
   display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
@@ -138,7 +93,8 @@
 }
 .astra-event-facts>div:last-child{grid-column:1/-1}
 .astra-event-facts span{
-  display:block;color:#647889;font:700 10px/1.5 system-ui,sans-serif;
+  display:block;color:#647889;
+  font:700 10px/1.5 system-ui,sans-serif;
   text-transform:uppercase;letter-spacing:.04em;
 }
 .astra-event-facts strong{
@@ -147,47 +103,28 @@
   overflow-wrap:anywhere;
 }
 .astra-event-facts time{font:inherit;color:inherit}
-:root[data-astra-theme="dark"] .astra-calendar-view-switch{
-  background:#20394a;border-color:#56798e;
-}
-:root[data-astra-theme="dark"] .astra-calendar-view-switch button{color:#d4e8f1}
-:root[data-astra-theme="dark"] .astra-calendar-view-switch button.is-selected{
-  color:#173c56;background:#cce7f5;
-}
-:root[data-astra-theme="dark"] .astra-calendar-today,
-:root[data-astra-theme="dark"] .astra-calendar-day-heading button{
-  background:#234457;border-color:#7396a8;color:#e0f0f7;
-}
-:root[data-astra-theme="dark"] .astra-calendar-day-heading h2,
-:root[data-astra-theme="dark"] .astra-calendar-selected-head h2{color:#e0f1f8}
-:root[data-astra-theme="dark"] .astra-calendar-day-sky{
-  background:#1a3242;border-color:#53778a;
-}
-:root[data-astra-theme="dark"] .astra-calendar-day-sky-moon,
-:root[data-astra-theme="dark"] .astra-calendar-day-sky-moon span{color:#d1e4ec}
 :root[data-astra-theme="dark"] .astra-calendar-day-summary{
   background:#182d3d!important;border-color:#52788d!important;
 }
-:root[data-astra-theme="dark"] .astra-calendar-day-counts>span{
-  background:#24465b;color:#e0edf5;
+:root[data-astra-theme="dark"] .astra-calendar-selected-head h2{color:#e0f1f8}
+:root[data-astra-theme="dark"] .astra-calendar-selected-count,
+:root[data-astra-theme="dark"] .astra-calendar-more,
+:root[data-astra-theme="dark"] .astra-calendar-empty{color:#c0d8e5}
+:root[data-astra-theme="dark"] .astra-calendar-open-day{
+  background:#234b61;border-color:#709ab0;color:#e2f2fa;
 }
-:root[data-astra-theme="dark"] .astra-calendar-day-counts b,
-:root[data-astra-theme="dark"] .astra-calendar-active>summary{color:#d1ecfa}
-:root[data-astra-theme="dark"] .astra-calendar-overline,
-:root[data-astra-theme="dark"] .astra-calendar-empty{color:#c3d5df}
+:root[data-astra-theme="dark"] .astra-day-journal-link{
+  background:#443a31;border-color:#7a6552;color:#f4ddc3;
+}
 :root[data-astra-theme="dark"] .astra-event-facts>div{
   background:#223d4e;border-color:#56788b;
 }
 :root[data-astra-theme="dark"] .astra-event-facts span,
 :root[data-astra-theme="dark"] .astra-event-facts strong{color:#e0edf5}
-:root[data-astra-theme="dark"] .event-button[class*="event-kind-"]:hover{
-  background:#264759;
-}
+:root[data-astra-theme="dark"] .event-button[class*="event-kind-"]:hover{background:#264759}
 @media(max-width:360px){
-  .astra-calendar-toolbar{gap:6px}
-  .astra-calendar-today{padding:8px 9px}
-  .astra-calendar-day-heading{gap:5px}
-  .astra-calendar-day-heading h2{font-size:15px}
+  .astra-calendar-day-summary{padding:13px 10px!important}
+  .astra-calendar-selected-head h2{font-size:16px}
   .astra-event-facts{grid-template-columns:1fr}
   .astra-event-facts>div:last-child{grid-column:auto}
 }
