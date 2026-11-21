@@ -78,6 +78,9 @@ test('Solar intervals: date ranges render WITHIN calendar weeks as contiguous ba
   assert.match(changingWeek,/8,5 jours visuels \(28 % du mois\)/);
   assert.match(changingWeek,/data-calendar-range-start="22" data-calendar-range-end="30"/);
   assert.ok(!changingWeek.includes('astra-solar-ribbon'));
+  const weeks=Array.from({length:6},(_,i)=>solarCalendarWeek(2026,10,weekday,i,model));
+  assert.equal((weeks.join('').match(/ends-at-ingress/g)||[]).length,1);
+  assert.equal((weeks.join('').match(/starts-after-ingress/g)||[]).length,1);
 });
 
 test('Solar intervals: month leader stays a compact caption under the same grid',()=>{
