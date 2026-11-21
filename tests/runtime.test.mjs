@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {natalChart,transitSnapshot,calculateMonth,moonPhase,automaticTransitOrb,upcomingMoonPhases,transitContactWindow,secondaryProgressions,compositeMidpoints,dailySky,moonSignChanges,longitude,tropicalLongitude} from '../astro/runtime.mjs';
+import {natalChart,transitSnapshot,calculateMonth,moonPhase,automaticTransitOrb,upcomingMoonPhases,transitContactWindow,secondaryProgressions,compositeMidpoints,dailySky,sunSignIngress,moonSignChanges,longitude,tropicalLongitude} from '../astro/runtime.mjs';
 const p={date:'1994-05-12',time:'18:40',timezone:'Europe/Paris',latitude:48.85,longitude:2.35,fold:null};
 test('dynamic natal uses input rather than static ephemeris',()=>{const a=natalChart(p,'tropical');const b=natalChart({...p,date:'1985-05-12'},'tropical');assert.notEqual(a.positions.Moon,b.positions.Moon);assert.equal(Object.keys(a.positions).length,10);assert.equal(a.houses.system,'Placidus');assert.equal(a.houses.cusps.length,12);});
 test('lunar phase is calculated at runtime',()=>assert.ok(moonPhase(new Date('2026-11-19T12:00:00Z'))>=0));
@@ -26,6 +26,29 @@ test('daily sky uses real local noon, both zodiac modes and no natal-data depend
 });
 
 test('dynamic month for user date, both zodiac modes',()=>{const t=calculateMonth(p,2026,11,'tropical','auto');const s=calculateMonth(p,2026,11,'sidereal','auto');assert.equal(Object.keys(t.days).length,30);assert.equal(Object.keys(s.days).length,30);assert.ok(t.phases>=4);assert.ok(t.days['2026-11-19'].active.length>=0);assert.notEqual(t.chart.positions.Sun,s.chart.positions.Sun);});
+
+test('solar ingress is timed astronomically on the actual local day, even when noon differs',()=>{
+  const month=calculateMonth(p,2026,11,'tropical');
+  const entries=Object.entries(month.days).filter(([,value])=>value.sunIngress);
+  assert.equal(entries.length,1);
+  const [day,record]=entries[0],change=record.sunIngress;
+  assert.equal(change.fromIndex,7); // Scorpion
+  assert.equal(change.toIndex,8);   // Sagittaire
+  assert.equal(change.fromSign,'Scorpion');
+  assert.equal(change.toSign,'Sagittaire');
+  assert.equal(change.mode,'tropical');
+  assert.deepEqual(change,sunSignIngress(day,'Europe/Paris','tropical'));
+  const instant=new Date(change.at),before=new Date(instant.getTime()-60000);
+  const after=new Date(instant.getTime()+60000);
+  assert.equal(Math.floor(longitude('Sun',before,'tropical')/30),7);
+  assert.equal(Math.floor(longitude('Sun',after,'tropical')/30),8);
+  assert.equal(new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Paris',year:'numeric',
+    month:'2-digit',day:'2-digit'}).format(instant),day);
+  assert.equal(sunSignIngress('2026-11-10','Europe/Paris','tropical'),null);
+  assert.equal(sunSignIngress('2026-03-29','Europe/Paris','tropical'),null);
+  assert.throws(()=>sunSignIngress('2026/11/22','Europe/Paris','tropical'));
+  assert.throws(()=>sunSignIngress(day,'Europe/Paris','unsupported'));
+});
 
 test('automatic transit orbs depend on body and aspect',()=>{
   assert.equal(automaticTransitOrb('Moon',0),1);
