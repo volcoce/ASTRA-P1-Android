@@ -644,6 +644,9 @@ if __name__ == '__main__':
             assert page.locator('.astra-solar-track-piece').count()==2
             assert 'Scorpion' in page.locator('.astra-solar-track-piece').first.inner_text()
             assert 'Sagittaire' in page.locator('.astra-solar-track-piece').last.inner_text()
+            assert '18 j · 60 %' in page.locator('.astra-solar-track-piece').first.inner_text()
+            assert '12 j · 40 %' in page.locator('.astra-solar-track-piece').last.inner_text()
+            assert 'Signe le plus présent : Scorpion' in page.locator('.astra-solar-ribbon-note').inner_text()
             assert page.locator('.astra-solar-track-pin').count()==1
             assert 'À midi' in page.locator('.astra-solar-ribbon-heading').inner_text()
             # Calculated phase icon for every day; New/Full highlighted
