@@ -19,6 +19,18 @@ test('P1 daily lunar timeline is separate from the hero and precedes the journal
   assert.match(p1,/\.astra-day-moon-moments/);
   assert.match(p1,/\.astra-day-hero/);
 });
+test('P1 distinguishes Moon sign ingress from exact lunar phases',()=>{
+  const today=slice('  function today() {','  function monthOverview() {');
+  assert.match(today,/CHANGEMENT DE SIGNE LUNAIRE/);
+  assert.match(today,/Lune en '\+safe\(entry\.fromSign\)/);
+  assert.match(today,/safe\(entry\.toSign\)/);
+  assert.match(today,/Phase lunaire/);
+  assert.match(today,/moonPhaseIcon\(lunarPhaseAngles\[event.name\],'cell'\)/);
+  assert.match(today,/exactLunarPhases=day\.sky\.filter/);
+  assert.doesNotMatch(today,/Évolution de la Lune dans la journée|differentPhaseSign/);
+  assert.match(p1,/\.astra-lunar-change-title/);
+  assert.match(p1,/\.astra-lunar-phase-summary/);
+});
 test('P1 monthly phases lead before secondary metrics and events',()=>{
   const month=slice('  function monthOverview() {','  function personalCalendarWeek(');
   const order=['monthMoonTitle','astra-month-metrics','monthEventsTitle'].map(s=>month.indexOf(s));

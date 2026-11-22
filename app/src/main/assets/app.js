@@ -647,23 +647,39 @@
     const moonStage=sky?lunarLabel(sky.moonPhase):'Phase indisponible';
     const atTime=at=>new Intl.DateTimeFormat('fr-FR',
       {hour:'2-digit',minute:'2-digit',timeZone:zone}).format(new Date(at));
-    const timeline=[
-      ...(moonChanges||[]).map(entry=>({at:entry.at,
-        title:'La Lune entre en '+entry.toSign,kind:'ingress'})),
-      ...day.sky.filter(event=>event.type==='moon').map(event=>({at:event.at,
-        title:eventTitle(event),kind:'phase'}))
-    ].sort((a,b)=>a.at.localeCompare(b.at));
-    const differentPhaseSign=sky&&day.sky.some(event=>event.type==='moon'&&
-      Number.isFinite(event.moonLongitude)&&zodiacSignAt(event.moonLongitude)!==moonSign);
-    const dailyLunarMoments=timeline.length?
-      '<section class="astra-day-moon-moments" aria-label="Chronologie lunaire de la journée">'+
-      '<h3>Évolution de la Lune dans la journée</h3>'+
-      '<div class="astra-day-moon-moment-list">'+timeline.map(event=>
-        '<div class="astra-day-moon-moment '+event.kind+'"><time datetime="'+safe(event.at)+'">'+
-        safe(atTime(event.at))+'</time><span>'+safe(event.title)+'</span></div>').join('')+
-      '</div>'+
-      (differentPhaseSign?'<p class="astra-day-moon-explanation">Le signe de midi et celui de cette phase lunaire diffèrent parce que la Lune a changé de signe entre les deux horaires.</p>':'')+
-      '</section>':'';
+    // Zodiac ingress and exact lunar phase are independent astronomical facts.
+    // Keep the noon Moon snapshot in the hero; do not conflate it with
+    // the sign at the instant of a major phase later that day.
+    const lunarIngresses=(moonChanges||[]).slice().sort((a,b)=>a.at.localeCompare(b.at));
+    const exactLunarPhases=day.sky.filter(event=>event.type==='moon')
+      .slice().sort((a,b)=>a.at.localeCompare(b.at));
+    const lunarPhaseAngles={'Nouvelle Lune':0,'Premier quartier':90,
+      'Pleine Lune':180,'Dernier quartier':270};
+    const ingressMarkup=lunarIngresses.map(entry=>
+      '<div class="astra-lunar-ingress">'+
+        '<p class="astra-lunar-kicker">CHANGEMENT DE SIGNE LUNAIRE</p>'+
+        '<div class="astra-lunar-change-line">'+
+          '<h3 class="astra-lunar-change-title">Lune en '+safe(entry.fromSign)+
+          ' <span class="astra-lunar-arrow" aria-hidden="true">→</span> '+
+          safe(entry.toSign)+'</h3>'+
+          '<time class="astra-lunar-change-time" datetime="'+safe(entry.at)+'">'+
+            safe(atTime(entry.at))+'</time>'+
+        '</div>'+
+      '</div>').join('');
+    const phaseMarkup=exactLunarPhases.map(event=>
+      '<div class="astra-lunar-phase-summary">'+
+        '<span class="astra-lunar-phase-icon" aria-hidden="true">'+
+          moonPhaseIcon(lunarPhaseAngles[event.name],'cell')+'</span>'+
+        '<div class="astra-lunar-phase-copy">'+
+          '<p class="astra-lunar-phase-title">Phase lunaire</p>'+
+          '<p class="astra-lunar-phase-detail">'+safe(event.name)+
+            ' à <time datetime="'+safe(event.at)+'">'+safe(atTime(event.at))+
+            '</time></p>'+
+        '</div>'+
+      '</div>').join('');
+    const dailyLunarMoments=ingressMarkup||phaseMarkup?
+      '<section class="astra-day-moon-moments" aria-label="Changements lunaires du jour">'+
+        ingressMarkup+phaseMarkup+'</section>':'';
     const entry=state.journal[selected];
     const todayKey=isoDay(new Date()),isCurrent=selected===todayKey;
     const count=events.length;
