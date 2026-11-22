@@ -897,10 +897,12 @@ if __name__ == '__main__':
             assert page.locator('#detailPanel').count()==1
             assert 'Lecture astrologique' in page.locator('#detailPanel').inner_text()
             assert page.locator('#detailPanel .astra-event-facts').count()==1
+            assert page.locator('#detailPanel .astra-event-technical').count()==1
+            assert page.locator('#detailPanel .astra-event-technical').get_attribute('open') is None
             assert 'Référence horaire' in page.locator('#detailPanel').text_content()
             assert page.evaluate('document.activeElement.id')=='detailPanel'
             assert page.locator('[data-detail-step]').count()==0
-            page.get_by_role('button',name='Répondre dans mon journal').click()
+            page.get_by_role('button',name='Noter dans mon journal').click()
             assert page.locator('#journalNote').count()==1
             assert 'Quelle observation' in page.locator('#journalNote').input_value()
             page.locator('[data-mood="5"]').click()
