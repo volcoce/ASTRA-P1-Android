@@ -161,3 +161,50 @@ html,body,.app-shell,.main{min-width:0;max-width:100%}
     transition:none!important;
   }
 }
+
+/* Event-feed WCAG contrast — the legacy atlas palette used ink blue on dark blue.
+   Keep pastel glyph icons intact; category text gets its own contrast token. */
+.astra-event-feed .event-button .event-body b{
+  color:var(--astra-ink);
+  font-size:15px;line-height:1.4;
+}
+.astra-event-feed .event-button .event-body .event-category-label{
+  font-size:11px;line-height:1.4;
+}
+.astra-event-feed .event-button .event-arrow{
+  color:var(--astra-muted);
+}
+:root[data-astra-theme="dark"] .event-button.event-kind-moon-new{--event-label-ink:#DAD0FB}
+:root[data-astra-theme="dark"] .event-button.event-kind-moon-full{--event-label-ink:#F5D59C}
+:root[data-astra-theme="dark"] .event-button.event-kind-moon-quarter{--event-label-ink:#BFD5FB}
+:root[data-astra-theme="dark"] .event-button.event-kind-station{--event-label-ink:#ACDFD1}
+:root[data-astra-theme="dark"] .event-button.event-kind-exact-aspect{--event-label-ink:#B7DFFC}
+:root[data-astra-theme="dark"] .event-button.event-kind-active{--event-label-ink:#CADAE7}
+:root[data-astra-theme="dark"] .event-button .event-body .event-category-label{
+  color:var(--event-label-ink,var(--astra-muted))!important;
+}
+:root[data-astra-theme="dark"] .event-button .event-body b{
+  color:var(--astra-ink);
+}
+:root[data-astra-theme="dark"] .event-button .event-arrow,
+:root[data-astra-theme="dark"] .astra-active-panel>summary>span:last-child{
+  color:var(--astra-muted);
+}
+/* An unobtrusive disclosure instead of a full-width slab under the list. */
+.astra-more-events>summary{
+  width:max-content;max-width:100%;min-height:44px;
+  margin:12px auto;padding:9px 15px;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  border:1px solid var(--astra-divider);border-radius:12px;
+  background:var(--astra-secondary-surface);color:var(--astra-ink);
+  font-size:13px;line-height:1.4;font-weight:750;
+  list-style:none;
+}
+.astra-more-events>summary::-webkit-details-marker{display:none}
+.astra-more-events>summary::after{content:'⌄';font-size:18px;line-height:1;flex:none}
+.astra-more-events[open]>summary::after{content:'⌃'}
+:root[data-astra-theme="dark"] .astra-more-events>summary{
+  border-color:var(--astra-border);
+  background:var(--astra-secondary-surface);
+  color:var(--astra-ink);
+}
