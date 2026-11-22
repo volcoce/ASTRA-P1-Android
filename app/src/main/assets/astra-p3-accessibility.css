@@ -208,3 +208,64 @@ html,body,.app-shell,.main{min-width:0;max-width:100%}
   background:var(--astra-secondary-surface);
   color:var(--astra-ink);
 }
+
+/* Natal reading sheet: contrast and nav clearance.
+   The legacy light theme used white cards with dark ink; dark mode cannot
+   merely recolor the text while keeping those white backgrounds. */
+:root[data-astra-theme="dark"] .natal-context-sheet{
+  background:var(--astra-surface);
+  border-color:var(--astra-border);
+  color:var(--astra-ink);
+}
+:root[data-astra-theme="dark"] .natal-context-sheet .natal-context-bar{
+  background:var(--astra-secondary-surface);
+  border-bottom:1px solid var(--astra-divider);
+}
+:root[data-astra-theme="dark"] .natal-context-sheet .natal-context-bar h2{
+  color:var(--astra-ink);
+}
+:root[data-astra-theme="dark"] .natal-context-sheet .natal-context-bar button{
+  background:var(--astra-surface);
+  border-color:var(--astra-border);
+  color:var(--astra-ink);
+}
+:root[data-astra-theme="dark"] .natal-context-sheet .natal-context-content :is(.natal-fact,.natal-symbolic,.natal-reflection){
+  background:var(--astra-secondary-surface);
+  color:var(--astra-ink);
+  border-radius:0 9px 9px 0;
+}
+:root[data-astra-theme="dark"] .natal-context-sheet :is(.natal-detail-body h3,.natal-fact>b,.natal-symbolic>b,.natal-reflection>b){
+  color:var(--astra-ink);
+}
+:root[data-astra-theme="dark"] .natal-context-sheet :is(.natal-detail-body p,.natal-detail-body li,.natal-detail-body .natal-value){
+  color:var(--astra-ink);
+}
+:root[data-astra-theme="dark"] .natal-context-sheet .natal-detail-body .natal-disclaimer{
+  color:var(--astra-muted)!important;
+}
+:root[data-astra-theme="dark"] .natal-context-sheet .natal-related button{
+  background:var(--astra-surface);
+  color:var(--astra-ink);
+  border-color:var(--astra-border);
+}
+:root[data-astra-theme="dark"] .natal-context-sheet .natal-related button:focus-visible,
+:root[data-astra-theme="dark"] .natal-context-sheet .natal-context-bar button:focus-visible{
+  outline-color:var(--astra-focus)!important;
+}
+/* The chart reading stays clear of the fixed four-tab navigation. */
+.natal-context-sheet{
+  bottom:calc(var(--astra-nav-clearance) + var(--astra-safe-bottom) + 8px);
+}
+@media(min-width:800px){
+  .natal-context-sheet{
+    bottom:auto;
+    width:min(430px,42vw);
+    max-height:min(70dvh,calc(100dvh - 110px - var(--astra-nav-clearance) - var(--astra-safe-bottom) - 16px));
+  }
+}
+@media(max-height:500px) and (orientation:landscape){
+  .natal-context-sheet{
+    bottom:calc(58px + var(--astra-safe-bottom));
+    max-height:calc(100dvh - 70px);
+  }
+}
