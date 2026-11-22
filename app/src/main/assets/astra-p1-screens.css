@@ -71,6 +71,9 @@
   border-radius:var(--astra-radius-lg);
   color:var(--color-deep-ocean)
 }
+.astra-lunar-highlight.is-full{
+  background:#FFF4D7;border-color:#B36C32
+}
 .astra-lunar-highlight.is-new{
   background:#EEE5F5;border-color:#745394
 }
