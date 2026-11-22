@@ -2,6 +2,8 @@
  * ASTRA editorial layer (fr-FR). No ephemeris, private birth data, or causal
  * claims are stored here. These are symbolic prompts, not predictions.
  */
+import {describeAspectPair} from './aspect-readings.mjs';
+
 export const PLANET_THEMES = Object.freeze({
   Sun:{name:'Soleil',theme:'identité et expression',question:'Qu’est-ce que je souhaite affirmer ou rendre visible ?'},
   Moon:{name:'Lune',theme:'besoins émotionnels et rythmes',question:'Quel besoin mérite aujourd’hui mon attention ?'},
@@ -43,13 +45,14 @@ export function describeEvent(event){
   }
   const natal=PLANET_THEMES[event.natal],aspect=ASPECT_THEMES[event.aspect];
   if(!natal||!aspect)throw new RangeError('Aspect ou planète natale inconnue');
+  const reading=describeAspectPair(event.body,event.natal,event.aspect,{context:'transit'});
   return {
     kind:event.type==='active'?'Aspect dans l’orbe':'Contact exact',
     title:`${transit.name} ${event.aspect.toLowerCase()} ${natal.name} natal`,
     tone:aspect.tone,
     astronomy:event.type==='active'?'Écart angulaire mesuré à midi local, dans l’orbe automatique.'+(event.approximateNatal?' Heure de naissance inconnue : position natale indicative à midi ; ce relevé ne représente pas un contact exact.':''):'Instant calculé de l’aspect géocentrique exact.',
-    interpretation:`${aspect.description} Ici, la tradition met en relation ${transit.theme} (planète en transit) et ${natal.theme} (planète natale).`,
-    question:`${transit.question} Et comment cela s’articule-t-il avec ${natal.theme} ?`,
+    interpretation:reading.summary,
+    question:reading.question,
     disclaimer:DISCLAIMER
   };
 }
