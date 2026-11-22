@@ -627,7 +627,32 @@ if __name__ == '__main__':
             capture('natal-reading-dark-desktop-1280')
             page.set_viewport_size({'width':393,'height':844})
             page.locator('[data-close-natal-detail]').click()
-            page.locator('[data-profile-screen="settings"]').click()
+            # The old pale accordion still leaked into dark Mon ciel.
+            overview_colors=page.evaluate("""() => {
+              const items=['.natal-home .natal-glossary','.natal-home .natal-extras'];
+              return items.map(s=>{
+                const e=document.querySelector(s);
+                const x=getComputedStyle(e);
+                const label=getComputedStyle(e.querySelector('summary'));
+                return {background:x.backgroundColor,text:label.color};
+              });
+            }""")
+            assert all(item['background']!='rgb(255, 255, 255)' for item in overview_colors),overview_colors
+            page.locator('[data-profile-screen="explore"]').click()
+            assert page.locator('.natal-explore-toolbar .natal-settings-link').count()==1
+            explore_colors=page.evaluate("""() => {
+              const selectors=['.natal-explore .natal-position','.natal-explore .natal-explore-tabs','.natal-explore .natal-aspects'];
+              return selectors.map(s=>{
+                const e=document.querySelector(s);
+                if(!e)return null;
+                const style=getComputedStyle(e);
+                return {background:style.backgroundColor,text:style.color};
+              }).filter(Boolean);
+            }""")
+            assert len(explore_colors)>=2,explore_colors
+            assert all(item['background']!='rgb(255, 255, 255)' for item in explore_colors),explore_colors
+            capture('explore-dark-393')
+            page.locator('.natal-explore-toolbar .natal-settings-link').click()
             page.locator('[data-tab="calendar"]').click()
             capture('calendar-dark-393')
             assert page.evaluate("""() => {
