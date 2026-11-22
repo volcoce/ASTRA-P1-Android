@@ -306,7 +306,12 @@ if __name__ == '__main__':
                   bottom:el.getBoundingClientRect().bottom,
                   window:innerHeight
                 })""")
-                assert nav['top']>=0 and nav['bottom']<=height+2,(width,height,nav)
+                if width>=800:
+                    assert page.locator('.bottom-nav').evaluate("el => getComputedStyle(el).position")=='static'
+                    assert nav['top']>=page.locator('.natal-home').bounding_box()['y']+page.locator('.natal-home').bounding_box()['height'],(width,height,nav)
+                else:
+                    assert page.locator('.bottom-nav').evaluate("el => getComputedStyle(el).position")=='fixed'
+                    assert nav['top']>=0 and nav['bottom']<=height+2,(width,height,nav)
                 if (width,height) in ((320,700),(360,780),(360,620),(393,844),(412,915),(768,1024),(1280,800)):
                     capture('overview-'+str(width)+'x'+str(height))
             page.set_viewport_size({'width':360,'height':780})
