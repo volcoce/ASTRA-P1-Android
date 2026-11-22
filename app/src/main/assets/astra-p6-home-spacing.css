@@ -32,6 +32,7 @@
    At large widths both use the centered 680px reading column. */
 @media(max-width:1099px){
   #app:has(>.natal-home)>.screen-intro{
+    max-width:840px;
     padding-inline:var(--astra-natal-home-gutter);
   }
 }
