@@ -215,6 +215,29 @@ if __name__ == '__main__':
             assert page.locator('.natal-summary-value').all_text_contents()==['Bélier','Bélier','Vierge']
             assert page.locator('h1.page-title').count()==1
             assert page.locator('.natal-home-header .card-title').inner_text()=='Ta carte de naissance'
+            # The heading and subtitle must align with the centered summary and
+            # primary action at both mobile and desktop breakpoints.
+            def assert_birth_heading_alignment():
+                geometry=page.evaluate("""() => {
+                  const box=q=>document.querySelector(q).getBoundingClientRect();
+                  return {
+                    title:box('.natal-home-header .card-title').left,
+                    subtitle:box('.natal-home-header .natal-home-subtitle').left,
+                    heading:box('.natal-home-header').left,
+                    summary:box('.natal-home .natal-primary-cards').left,
+                    action:box('.natal-home .natal-home-actions--primary').left,
+                    viewport:document.documentElement.clientWidth,
+                    scroll:document.documentElement.scrollWidth
+                  };
+                }""")
+                for k in ('title','subtitle','summary','action'):
+                    assert abs(geometry[k]-geometry['heading'])<=3,geometry
+                assert geometry['scroll']<=geometry['viewport']+2,geometry
+            assert_birth_heading_alignment()
+            page.set_viewport_size({'width':1280,'height':800})
+            assert_birth_heading_alignment()
+            capture('natal-heading-aligned-desktop-1280')
+            page.set_viewport_size({'width':393,'height':844})
             assert page.locator('.natal-home-actions button').count()==2
             assert 'Explorer les positions' in page.locator('.natal-main-action').inner_text()
             assert 'Comparer deux dates' in page.locator('.natal-secondary-action').inner_text()
