@@ -28,6 +28,7 @@ const context={
   switcher:()=>'',filters:()=>'',moonPhaseIcon:()=>'<svg></svg>',lunarLabel:()=> 'Pleine lune',
   solarMonthPeriods:()=>({segments:[],indices:[],totals:[],mostPresent:[],dayCount:30,max:0}),
   solarMonthSummary:()=>'<p class="astra-calendar-solar-note"></p>',
+  solarCalendarExplanation:()=>'<details class="calendar-help"><summary>Comprendre le calendrier</summary></details>',
   solarVisiblePeriods:()=>({days:[]}),
   solarCalendarBackdropWeek:()=>'<div class="astra-solar-ribbon-backdrop"></div>',
   personalCalendarWeek:()=>'',calendarDayInspector:()=>'',personalEventEditor:()=>'',
