@@ -23,14 +23,17 @@ const ctx={
 function solarModule(){
   const a=app.indexOf('  const solarSignIndex='),b=app.indexOf('  function eventTitle(',a);
   return new Function('ctx','with(ctx){'+app.slice(a,b)+
-    ';return {solarSignIndex,solarMonthPeriods,solarMonthSummary,solarDayBand,solarVisiblePeriods,solarCalendarBackdropWeek,solarVisibleMajorPhases};}')(ctx);
+    ';return {solarSignIndex,solarMonthPeriods,solarMonthSummary,solarCalendarExplanation,solarDayBand,solarVisiblePeriods,solarCalendarBackdropWeek,solarVisibleMajorPhases};}')(ctx);
 }
 test('solar month preserves real sign intervals and 50/50 ingress',()=>{
-  const {solarMonthPeriods,solarMonthSummary}=solarModule();
+  const {solarMonthPeriods,solarMonthSummary,solarCalendarExplanation}=solarModule();
   const p=solarMonthPeriods(2026,10,30);
   assert.equal(p.totals[7],21.5);
   assert.equal(p.totals[8],8.5);
-  assert.match(solarMonthSummary(p),/50\/50/);
+  assert.match(solarMonthSummary(p),/Soleil dominant/);
+  assert.doesNotMatch(solarMonthSummary(p),/50\\/50/);
+  assert.match(solarCalendarExplanation(p),/50\\/50/);
+  assert.match(solarCalendarExplanation(p),/21,5 jours/);
 });
 test('solar ribbon remains full-width across adjacent months and has true ingress corners',()=>{
   const {solarVisiblePeriods,solarCalendarBackdropWeek}=solarModule();
