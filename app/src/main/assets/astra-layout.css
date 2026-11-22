@@ -1,0 +1,52 @@
+/* ASTRA — single global shell & navigation contract.
+   Applies identically to Ce jour, Ce mois, Calendrier, Journal, Mon ciel and
+   its sub-pages. CSS geometry never depends on which route is open. */
+.app-shell{
+  width:100%;max-width:1000px;min-width:0;min-height:100dvh;
+  margin-inline:auto;
+  padding-bottom:calc(var(--astra-nav-clearance) + var(--astra-safe-bottom) + 24px);
+  background:var(--astra-bg);
+}
+.main{
+  width:100%;min-width:0;
+  padding-inline:clamp(10px,3vw,32px);
+}
+.main>.screen-intro{
+  width:calc(100% - 2 * var(--astra-card-gutter));
+  max-width:var(--astra-reading-width);
+  margin:0 auto 14px;
+  padding:24px 0 2px;
+  box-sizing:border-box;
+}
+.card.astra-reading-card{
+  width:100%;max-width:calc(var(--astra-reading-width) + 2 * var(--astra-card-gutter));
+  min-width:0;margin:0 auto 24px;
+  padding:var(--astra-card-gutter);
+  box-sizing:border-box;
+  background:var(--astra-surface);color:var(--astra-ink);
+  border:1px solid var(--astra-border);
+  border-radius:var(--astra-radius-xl);
+  box-shadow:none;
+}
+.bottom-nav{
+  position:fixed;z-index:40;
+  bottom:0;left:50%;right:auto;
+  transform:translateX(-50%);
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:3px;width:100%;max-width:var(--astra-nav-width);
+  margin:0;padding:9px 9px max(11px,var(--astra-safe-bottom));
+  box-sizing:border-box;
+  border:1px solid var(--astra-divider);
+  border-bottom:0;border-radius:15px 15px 0 0;
+  background:var(--astra-surface);color:var(--astra-ink);
+  box-shadow:0 -4px 22px #101F2A19;
+}
+.natal-context-sheet{
+  bottom:calc(var(--astra-nav-clearance) + var(--astra-safe-bottom) + 8px);
+}
+@media(max-width:480px){
+  .main>.screen-intro{padding-top:21px}
+}
+@media(max-height:500px) and (orientation:landscape){
+  :root{--astra-nav-clearance:68px}
+}

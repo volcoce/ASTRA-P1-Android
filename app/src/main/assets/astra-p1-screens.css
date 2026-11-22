@@ -223,60 +223,7 @@
   color:var(--color-cream)
 }
 
-/* MON CIEL — readable natal triptych, one primary action, progressive wheel
-   and comparison/advanced tools. SVG/geometry remains unchanged. */
-.natal-home.card{max-width:840px;margin:0 auto}
-/* Align the natal card heading to the actual content column, not the
-   wider outer wrapper. The three summary cards and primary action are 650px. */
-.natal-home .natal-home-header{
-  width:100%;
-  max-width:650px;
-  margin:0 auto 17px;
-  padding:0 1px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  box-sizing:border-box;
-}
-.natal-home .natal-home-header>div{min-width:0;flex:1 1 auto}
-.natal-home .natal-home-header .card-title,
-.natal-home .natal-home-header .natal-home-subtitle{
-  text-align:left;
-  margin-left:0;
-  margin-right:0;
-}
-.natal-home .natal-home-header .natal-settings-link{flex:none}
-.natal-home .natal-primary-cards{
-  background:var(--astra-surface);border:1px solid var(--astra-divider);
-  border-radius:var(--astra-radius-lg);padding:8px 6px;max-width:650px
-}
-.natal-home .natal-summary-item{background:transparent;border-color:var(--astra-divider)}
-.natal-home .natal-summary-value{color:var(--astra-ink)}
-.natal-home .natal-summary-sign{color:var(--astra-brand-strong)}
-.natal-home .natal-home-actions--primary{max-width:650px;margin:0 auto 18px}
-.natal-home .natal-home-actions--primary button{
-  min-height:64px;background:var(--astra-primary);color:var(--astra-primary-ink);
-  border:2px solid var(--astra-primary-ink);border-radius:var(--astra-radius-lg)
-}
-.natal-home .natal-home-actions--primary button :is(strong,small){color:var(--astra-primary-ink)}
-.natal-home .natal-overview-tabs,.natal-home .natal-extras,
-.natal-home .natal-glossary{max-width:750px;margin-left:auto;margin-right:auto}
-.natal-home .natal-overview-panel{border-color:var(--astra-divider);background:var(--astra-surface)}
-.natal-home .natal-home-actions--secondary{margin-top:20px}
-.natal-home .natal-secondary-action{
-  background:var(--astra-secondary-surface);border:1px solid var(--astra-divider);
-  color:var(--astra-ink);border-radius:var(--astra-radius-lg)
-}
-.natal-home .natal-secondary-action :is(strong,small){color:var(--astra-ink)}
-.natal-home .natal-wheel-viewport{background:#FFF9EA}
-:root[data-astra-theme="dark"] .natal-home .natal-primary-cards{
-  background:var(--astra-surface);border-color:var(--astra-border)
-}
-:root[data-astra-theme="dark"] .natal-home .natal-summary-sign{color:var(--color-cornflower)}
-:root[data-astra-theme="dark"] .natal-home .natal-home-actions--primary button{
-  background:var(--astra-primary);color:var(--astra-primary-ink)
-}
+/* Mon ciel components live in astra-natal.css. */
 /* Spacing/stack behavior across mobile devices */
 @media(max-width:480px){
   .astra-day-hero{padding:20px 17px}

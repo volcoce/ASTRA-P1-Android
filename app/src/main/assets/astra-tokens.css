@@ -13,6 +13,11 @@
   --color-peach:#E9BD96;
   --color-coral:#F59A80;
 
+  /* Global geometry tokens, shared across every screen. */
+  --astra-reading-width:680px;
+  --astra-card-gutter:clamp(14px,2.5vw,26px);
+  --astra-nav-width:650px;
+  --astra-nav-clearance:108px;
   --astra-bg:#F8EFD5;
   --astra-surface:#FFF9EA;
   --astra-surface-alt:#F1DFBE;

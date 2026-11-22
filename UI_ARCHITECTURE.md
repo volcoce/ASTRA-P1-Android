@@ -93,8 +93,8 @@ La navigation doit toujours afficher **icône + texte**. L'état actif se distin
 | --- | --- | --- |
 | 320–479 px | Barre basse 4 destinations | Une colonne, widgets secondaires en rail horizontal |
 | 480–767 px | Barre basse | Colonne principale plus aérée, rail 2 cartes visibles |
-| 768–1023 px | Barre basse conservée | Largeur de lecture plafonnée, 2 colonnes seulement pour des cartes indépendantes |
-| >=1024 px | Navigation latérale *possible après test*, pas obligatoire | Zone centrale 640–760 px + panneau secondaire discret, jamais tableau de bord « cockpit » |
+| 768–1023 px | Barre basse fixe conservée | Colonne centrale plafonnée, 2 colonnes seulement pour des cartes indépendantes |
+| >=1024 px | Barre basse fixe conservée, aucune exception par page | Colonne centrale de lecture partagée, jamais tableau de bord « cockpit » |
 
 Ne jamais afficher une barre latérale **et** une barre basse concurrentes ; il doit exister une seule navigation principale.
 

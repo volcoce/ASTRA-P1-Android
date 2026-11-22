@@ -45,9 +45,7 @@ button{font-family:inherit}
   color:var(--atlas-night);border-radius:12px;font-weight:700}
 button:focus-visible,[role="button"]:focus-visible,summary:focus-visible,input:focus-visible,
 textarea:focus-visible,select:focus-visible{outline:3px solid #237b99;outline-offset:3px}
-.bottom-nav{z-index:40;border-top:1px solid #dce4e8;background:#fff;
-  padding:9px 9px max(11px,var(--astra-safe-bottom));gap:3px;box-shadow:0 -5px 22px #172b3e0b;
-  grid-template-columns:minmax(0,.9fr) minmax(0,.9fr) minmax(0,1.3fr) minmax(0,.9fr)}
+
 .bottom-nav .nav{color:#60707e;border-radius:13px;min-height:58px;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   gap:4px;line-height:1.25;font-size:12px;font-weight:650;padding:7px 1px;
@@ -63,103 +61,6 @@ textarea:focus-visible,select:focus-visible{outline:3px solid #237b99;outline-of
 .tag-outline{border:1px solid #d1dfe5;background:#fff}
 .section-row{margin-bottom:8px}
 .section-row .card-title{margin:0}
-
-/* Home: one readable chart, three explicit signs, two clear paths. */
-.natal-home.card{background:transparent;border:0;box-shadow:none;padding:0;margin-top:0}
-.natal-home-header{align-items:center;gap:12px;margin:0 0 12px}
-.natal-home-header .card-title{font:750 18px/1.3 system-ui,sans-serif;
-  color:var(--ink);letter-spacing:-.02em}
-.natal-home-subtitle{font-size:14px;color:var(--secondary);line-height:1.5}
-.natal-settings-link{font-size:13px;min-width:0;min-height:43px;
-  padding:8px 12px;border-radius:11px}
-.natal-home .natal-primary-cards{
-  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;
-  gap:8px;padding:0;border:0;background:transparent;border-radius:0;
-  max-width:none;width:100%;margin:0 0 14px
-}
-.natal-home .natal-summary-item{
-  min-width:0;min-height:122px;display:flex;flex-direction:column;justify-content:center;
-  align-items:center;gap:3px;padding:10px 4px 9px;white-space:normal;
-  background:#fff;border:1px solid #d7e1e6;border-radius:14px;
-  color:var(--ink);font-family:inherit;box-sizing:border-box
-}
-.natal-home .natal-summary-item[aria-pressed="true"]{
-  background:#e3eff3;border-color:#315e79;box-shadow:inset 0 0 0 1px #315e79;
-  outline:none
-}
-.natal-home .natal-summary-icon{display:none}
-.natal-home .natal-summary-name{position:static!important;clip:auto!important;overflow:visible!important;
-  width:auto!important;height:auto!important;margin:0!important;white-space:normal!important;
-  font:750 12px/1.3 system-ui,sans-serif;color:#627281}
-.natal-home .natal-summary-sign{font:500 29px/1.15 Georgia,serif;color:#295a72}
-.natal-home .natal-summary-value{font:750 13px/1.3 system-ui,sans-serif;color:var(--ink);
-  overflow-wrap:anywhere;text-align:center}
-.natal-home .natal-summary-approx{font-size:12px}
-.natal-glyph-separator{display:none}
-.natal-home .natal-wheel-viewport{margin:0;max-width:none;border-radius:20px;
-  border:1px solid #d7e1e7;padding:11px;background:#fff;box-shadow:0 2px 0 #e1e9ed}
-.natal-home .natal-wheel-viewport .natal-wheel{margin:0 auto;max-width:none}
-.natal-wheel .zodiac-symbol{fill:#375f83;font-size:18px}
-.natal-wheel .house-number{fill:#486b85;font-weight:700}
-.natal-wheel .natal-planet{fill:#20384c;font-weight:800}
-.natal-wheel .angle-label{fill:#265674}
-.wheel-core-title{fill:#31556c;font:bold 13px system-ui,sans-serif;letter-spacing:1px}
-.wheel-core-sub{fill:#6b8390;font-size:8px}
-.natal-home-hint{font-size:13px;color:#506474;line-height:1.5;
-  text-align:center;margin:9px 2px 2px}
-.natal-focus-launch{margin:0 0 18px}
-.natal-focus-launch button{font:650 13px/1.4 system-ui,sans-serif;
-  background:transparent;color:#315c74;border:0;border-radius:10px;min-height:42px;padding:8px 12px}
-.natal-focus-launch button:hover{background:#e9f0f3}
-.natal-home-actions{gap:10px;margin:0 0 24px}
-.natal-home-actions button{display:flex;gap:14px;align-items:center;min-height:76px;
-  padding:15px 16px;text-align:left;border-radius:15px;font-size:16px;
-  justify-content:space-between}
-.natal-home-actions .action-label{display:flex;flex-direction:column;align-items:flex-start;gap:4px;
-  font:inherit;line-height:1.35;min-width:0}
-.action-label strong{font-size:16px;font-weight:750;line-height:1.25}
-.action-label small{font-size:12px;line-height:1.45;font-weight:450;opacity:.86;white-space:normal}
-.natal-main-action .action-label small{color:#dae6ee}
-.natal-secondary-action .action-label small{color:#506474}
-.natal-home-actions button .action-arrow{font:400 25px/1 system-ui,sans-serif;flex:none}
-.natal-main-action{background:var(--atlas-night);color:#fff}
-.natal-secondary-action{background:#fff;color:var(--atlas-night);border:1px solid #bdccd4}
-
-/* Explore: no second title, clearly scoped choices. */
-.natal-explore.card,.natal-compare.card,.natal-settings.card{border-color:var(--astra-rule);
-  margin-top:0;padding:18px;background:#fff;box-shadow:none}
-.natal-subpage-heading{margin:0 0 18px;gap:6px}
-.natal-subpage-heading .card-title{font:700 18px/1.3 system-ui,sans-serif}
-.natal-subpage-heading .natal-section-lead{font-size:14px;line-height:1.5;color:var(--secondary)}
-.natal-back{padding:7px 0;min-height:39px;font-weight:650;color:#315e79}
-.natal-explore-tabs{display:grid;gap:5px;border-radius:12px;padding:4px;
-  background:#edf3f5;border:0;margin:12px 0 22px}
-.natal-explore-tabs button{font:700 13px/1.3 system-ui,sans-serif;
-  min-height:46px;border-radius:9px;color:#486275}
-.natal-explore-tabs button.selected{background:var(--atlas-night);color:#fff;border:0;
-  box-shadow:none}
-.natal-explore-list h3,.natal-contact-section h3{font:750 20px/1.3 system-ui,sans-serif;
-  color:var(--ink);letter-spacing:-.025em;margin-bottom:6px}
-.natal-explore-list>p,.natal-contact-section>p{font-size:14px;color:var(--secondary);line-height:1.5}
-.natal-position,.natal-explore-list .natal-position,.natal-house-chip,
-.natal-explore-list .natal-aspect{background:#fff;border-bottom:1px solid var(--astra-rule);
-  font:600 14px/1.4 system-ui,sans-serif;color:var(--ink);min-height:59px}
-.natal-position .position-planet{font:650 14px/1.4 system-ui,sans-serif;color:#243c4f}
-.natal-position .position-value{font-size:12px;color:#506779}
-.natal-position .position-house{font-size:12px;color:#657988}
-.natal-positions,.natal-aspects{border-color:var(--astra-rule);border-radius:13px}
-.natal-house-chip[aria-pressed="true"],.natal-position[aria-pressed="true"],
-.natal-aspect[aria-pressed="true"]{background:#eaf3f6;color:#17455b}
-.natal-related button{min-height:42px}
-.natal-detail-body h3{font:750 21px/1.2 system-ui,sans-serif;color:#1f3545}
-.natal-detail-body p{font-size:14px;line-height:1.55}
-.natal-context-sheet{border:1px solid #b6cbd5;background:#fff;box-shadow:0 12px 40px #162c4040;
-  border-radius:17px}
-.natal-context-bar{background:#f3f7f9;border-bottom:1px solid #dae4e9}
-.natal-matrix-disclosure,.natal-explore-wheel,.natal-preview-disclosure{background:#f7f9fa;
-  border-color:var(--astra-rule)}
-.natal-matrix-disclosure>summary,.natal-explore-wheel>summary,
-.natal-preview-disclosure>summary{font:700 14px/1.4 system-ui,sans-serif;color:#234e66}
 
 /* Compare: the date picker should precede the technical figure. */
 .natal-compare .natal-transit-time{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
@@ -257,24 +158,24 @@ textarea:focus-visible,select:focus-visible{outline:3px solid #237b99;outline-of
   .top{padding-left:28px;padding-right:28px}
   .screen-intro{padding-top:30px}
   .main{padding:0 28px}
-  .natal-home .natal-primary-cards{max-width:680px;margin-left:auto;margin-right:auto}
-  .natal-home .natal-wheel-viewport{max-width:670px;margin-left:auto;margin-right:auto}
-  .natal-home .natal-home-actions{max-width:670px;margin-left:auto;margin-right:auto;grid-template-columns:repeat(2,minmax(0,1fr))}
+  
+  
+  
 }
 @media(max-width:480px){
   .top{padding:14px 16px;min-height:69px}
   .main{padding:0 14px}
   .screen-intro{padding:21px 0 1px;margin-bottom:16px}
   .card{padding:16px}
-  .natal-home.card{padding:0}
-  .natal-home .natal-primary-cards{gap:7px}
+  
+  
   .natal-home .natal-summary-item{min-height:114px;padding:10px 3px}
   .natal-home .natal-summary-name{font-size:12px}
   .natal-home .natal-summary-sign{font-size:28px}
-  .natal-home .natal-wheel-viewport{padding:8px}
+  
   .natal-compare .natal-transit-time{grid-template-columns:minmax(0,1fr)}
   .natal-settings.card,.natal-explore.card,.natal-compare.card{padding:16px}
-  .bottom-nav{padding-left:5px;padding-right:5px}
+  
 }
 @media(max-width:360px){
   .main{padding:0 10px}
@@ -744,8 +645,7 @@ html,body{font-size:100%;min-width:0}
 
 @media(min-width:700px){
   .app-shell{max-width:min(720px,calc(100% - 32px))}
-  .bottom-nav{max-width:min(650px,calc(100% - 32px));border-radius:15px 15px 0 0;
-    box-shadow:0 -3px 20px #172b3e19}
+  
   .main{padding-left:clamp(22px,4vw,35px);padding-right:clamp(22px,4vw,35px)}
   .astra-lunar-track{grid-template-columns:repeat(4,minmax(0,1fr))}
 }
@@ -753,8 +653,8 @@ html,body{font-size:100%;min-width:0}
   .app-shell{max-width:min(1000px,calc(100% - 48px))}
   .main{max-width:940px;margin-inline:auto;padding:0 32px}
   .top{padding-inline:40px}
-  .natal-home .natal-wheel-viewport{max-width:720px}
-  .natal-home .natal-primary-cards,.natal-home .natal-home-actions{max-width:720px}
+  
+  .natal-home .natal-primary-cards,
   .astra-day-hero,.astra-week,.astra-today-insights,.astra-feed,
   .astra-active-panel,.astra-lunar-timeline{max-width:820px;margin-inline:auto}
   .astra-day-hero-copy{max-width:65ch}
@@ -770,7 +670,7 @@ html,body{font-size:100%;min-width:0}
   .astra-lunar-track{gap:7px}
   .calendar .cal-grid{column-gap:1px}
   .calendar .day{min-height:53px;height:53px}
-  .bottom-nav{padding-inline:3px;gap:0}
+  
 }
 @media(prefers-reduced-motion:reduce){
   html:focus-within{scroll-behavior:auto}

@@ -1,0 +1,512 @@
+/* ASTRA — Natal UI component module.
+   Overview, planet explorer, aspects, and natal disclosures share the same
+   semantic tokens and the same reading-column contract. Screen-specific
+   geometry belongs here; app shell and navigation belong in astra-layout.css.
+   No page-dependent navigation, :has() hacks, or theme-specific patches. */
+
+/* Home: one readable chart, three explicit signs, two clear paths. */
+.natal-home.card{background:transparent;border:0;box-shadow:none;padding:0;margin-top:0}
+.natal-home-header{align-items:center;gap:12px;margin:0 0 12px}
+.natal-home-header .card-title{font:750 18px/1.3 system-ui,sans-serif;
+  color:var(--ink);letter-spacing:-.02em}
+.natal-home-subtitle{font-size:14px;color:var(--secondary);line-height:1.5}
+.natal-settings-link{font-size:13px;min-width:0;min-height:43px;
+  padding:8px 12px;border-radius:11px}
+.natal-home .natal-primary-cards{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;
+  gap:8px;padding:0;border:0;background:transparent;border-radius:0;
+  max-width:none;width:100%;margin:0 0 14px
+}
+.natal-home .natal-summary-item{
+  min-width:0;min-height:122px;display:flex;flex-direction:column;justify-content:center;
+  align-items:center;gap:3px;padding:10px 4px 9px;white-space:normal;
+  background:#fff;border:1px solid #d7e1e6;border-radius:14px;
+  color:var(--ink);font-family:inherit;box-sizing:border-box
+}
+.natal-home .natal-summary-item[aria-pressed="true"]{
+  background:#e3eff3;border-color:#315e79;box-shadow:inset 0 0 0 1px #315e79;
+  outline:none
+}
+.natal-home .natal-summary-icon{display:none}
+.natal-home .natal-summary-name{position:static!important;clip:auto!important;overflow:visible!important;
+  width:auto!important;height:auto!important;margin:0!important;white-space:normal!important;
+  font:750 12px/1.3 system-ui,sans-serif;color:#627281}
+.natal-home .natal-summary-sign{font:500 29px/1.15 Georgia,serif;color:#295a72}
+.natal-home .natal-summary-value{font:750 13px/1.3 system-ui,sans-serif;color:var(--ink);
+  overflow-wrap:anywhere;text-align:center}
+.natal-home .natal-summary-approx{font-size:12px}
+.natal-glyph-separator{display:none}
+.natal-home .natal-wheel-viewport{margin:0;max-width:none;border-radius:20px;
+  border:1px solid #d7e1e7;padding:11px;background:#fff;box-shadow:0 2px 0 #e1e9ed}
+.natal-home .natal-wheel-viewport .natal-wheel{margin:0 auto;max-width:none}
+.natal-wheel .zodiac-symbol{fill:#375f83;font-size:18px}
+.natal-wheel .house-number{fill:#486b85;font-weight:700}
+.natal-wheel .natal-planet{fill:#20384c;font-weight:800}
+.natal-wheel .angle-label{fill:#265674}
+.wheel-core-title{fill:#31556c;font:bold 13px system-ui,sans-serif;letter-spacing:1px}
+.wheel-core-sub{fill:#6b8390;font-size:8px}
+.natal-home-hint{font-size:13px;color:#506474;line-height:1.5;
+  text-align:center;margin:9px 2px 2px}
+.natal-focus-launch{margin:0 0 18px}
+.natal-focus-launch button{font:650 13px/1.4 system-ui,sans-serif;
+  background:transparent;color:#315c74;border:0;border-radius:10px;min-height:42px;padding:8px 12px}
+.natal-focus-launch button:hover{background:#e9f0f3}
+.natal-home-actions{gap:10px;margin:0 0 24px}
+.natal-home-actions button{display:flex;gap:14px;align-items:center;min-height:76px;
+  padding:15px 16px;text-align:left;border-radius:15px;font-size:16px;
+  justify-content:space-between}
+.natal-home-actions .action-label{display:flex;flex-direction:column;align-items:flex-start;gap:4px;
+  font:inherit;line-height:1.35;min-width:0}
+.action-label strong{font-size:16px;font-weight:750;line-height:1.25}
+.action-label small{font-size:12px;line-height:1.45;font-weight:450;opacity:.86;white-space:normal}
+.natal-main-action .action-label small{color:#dae6ee}
+.natal-secondary-action .action-label small{color:#506474}
+.natal-home-actions button .action-arrow{font:400 25px/1 system-ui,sans-serif;flex:none}
+.natal-main-action{background:var(--atlas-night);color:#fff}
+.natal-secondary-action{background:#fff;color:var(--atlas-night);border:1px solid #bdccd4}
+
+/* Explore: no second title, clearly scoped choices. */
+.natal-explore.card,.natal-compare.card,.natal-settings.card{border-color:var(--astra-rule);
+  margin-top:0;padding:18px;background:#fff;box-shadow:none}
+.natal-subpage-heading{margin:0 0 18px;gap:6px}
+.natal-subpage-heading .card-title{font:700 18px/1.3 system-ui,sans-serif}
+.natal-subpage-heading .natal-section-lead{font-size:14px;line-height:1.5;color:var(--secondary)}
+.natal-back{padding:7px 0;min-height:39px;font-weight:650;color:#315e79}
+.natal-explore-tabs{display:grid;gap:5px;border-radius:12px;padding:4px;
+  background:#edf3f5;border:0;margin:12px 0 22px}
+.natal-explore-tabs button{font:700 13px/1.3 system-ui,sans-serif;
+  min-height:46px;border-radius:9px;color:#486275}
+.natal-explore-tabs button.selected{background:var(--atlas-night);color:#fff;border:0;
+  box-shadow:none}
+.natal-explore-list h3,.natal-contact-section h3{font:750 20px/1.3 system-ui,sans-serif;
+  color:var(--ink);letter-spacing:-.025em;margin-bottom:6px}
+.natal-explore-list>p,.natal-contact-section>p{font-size:14px;color:var(--secondary);line-height:1.5}
+.natal-position,.natal-explore-list .natal-position,.natal-house-chip,
+.natal-explore-list .natal-aspect{background:#fff;border-bottom:1px solid var(--astra-rule);
+  font:600 14px/1.4 system-ui,sans-serif;color:var(--ink);min-height:59px}
+.natal-position .position-planet{font:650 14px/1.4 system-ui,sans-serif;color:#243c4f}
+.natal-position .position-value{font-size:12px;color:#506779}
+.natal-position .position-house{font-size:12px;color:#657988}
+.natal-positions,.natal-aspects{border-color:var(--astra-rule);border-radius:13px}
+.natal-house-chip[aria-pressed="true"],.natal-position[aria-pressed="true"],
+.natal-aspect[aria-pressed="true"]{background:#eaf3f6;color:#17455b}
+.natal-related button{min-height:42px}
+.natal-detail-body h3{font:750 21px/1.2 system-ui,sans-serif;color:#1f3545}
+.natal-detail-body p{font-size:14px;line-height:1.55}
+.natal-context-sheet{border:1px solid #b6cbd5;background:#fff;box-shadow:0 12px 40px #162c4040;
+  border-radius:17px}
+.natal-context-bar{background:#f3f7f9;border-bottom:1px solid #dae4e9}
+.natal-matrix-disclosure,.natal-explore-wheel,.natal-preview-disclosure{background:#f7f9fa;
+  border-color:var(--astra-rule)}
+.natal-matrix-disclosure>summary,.natal-explore-wheel>summary,
+.natal-preview-disclosure>summary{font:700 14px/1.4 system-ui,sans-serif;color:#234e66}
+
+
+
+/* MON CIEL — readable natal triptych, one primary action, progressive wheel
+   and comparison/advanced tools. SVG/geometry remains unchanged. */
+
+/* Align the natal card heading to the actual content column, not the
+   wider outer wrapper. The three summary cards and primary action are 650px. */
+.natal-home .natal-home-header{
+  width:100%;
+  max-width:650px;
+  margin:0 auto 17px;
+  padding:0 1px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  box-sizing:border-box;
+}
+.natal-home .natal-home-header>div{min-width:0;flex:1 1 auto}
+.natal-home .natal-home-header .card-title,
+.natal-home .natal-home-header .natal-home-subtitle{
+  text-align:left;
+  margin-left:0;
+  margin-right:0;
+}
+.natal-home .natal-home-header .natal-settings-link{flex:none}
+.natal-home .natal-primary-cards{
+  background:var(--astra-surface);border:1px solid var(--astra-divider);
+  border-radius:var(--astra-radius-lg);padding:8px 6px;max-width:650px
+}
+.natal-home .natal-summary-item{background:transparent;border-color:var(--astra-divider)}
+.natal-home .natal-summary-value{color:var(--astra-ink)}
+.natal-home .natal-summary-sign{color:var(--astra-brand-strong)}
+.natal-home .natal-home-actions--primary{max-width:650px;margin:0 auto 18px}
+.natal-home .natal-home-actions--primary button{
+  min-height:64px;background:var(--astra-primary);color:var(--astra-primary-ink);
+  border:2px solid var(--astra-primary-ink);border-radius:var(--astra-radius-lg)
+}
+.natal-home .natal-home-actions--primary button :is(strong,small){color:var(--astra-primary-ink)}
+.natal-home .natal-overview-tabs,.natal-home .natal-extras,
+.natal-home .natal-glossary{max-width:750px;margin-left:auto;margin-right:auto}
+.natal-home .natal-overview-panel{border-color:var(--astra-divider);background:var(--astra-surface)}
+.natal-home .natal-home-actions--secondary{margin-top:20px}
+.natal-home .natal-secondary-action{
+  background:var(--astra-secondary-surface);border:1px solid var(--astra-divider);
+  color:var(--astra-ink);border-radius:var(--astra-radius-lg)
+}
+.natal-home .natal-secondary-action :is(strong,small){color:var(--astra-ink)}
+.natal-home .natal-wheel-viewport{background:#FFF9EA}
+:root[data-astra-theme="dark"] .natal-home .natal-primary-cards{
+  background:var(--astra-surface);border-color:var(--astra-border)
+}
+:root[data-astra-theme="dark"] .natal-home .natal-summary-sign{color:var(--color-cornflower)}
+:root[data-astra-theme="dark"] .natal-home .natal-home-actions--primary button{
+  background:var(--astra-primary);color:var(--astra-primary-ink)
+}
+
+
+/* ASTRA P5 — Mon ciel / Comprendre mon thème.
+ * Single reading column, responsive planet rows and dark-mode surfaces.
+ * Scope the main layout to .natal-explore to avoid perturbing calendar/wheel.
+ * This layer loads after earlier responsive and theme styles. */
+
+.natal-explore :is(.natal-explore-toolbar,.natal-explore-intro,
+  .natal-explore-tabs,.natal-explorer-panel,.natal-explore-wheel,
+  .natal-matrix-disclosure,.natal-warning){
+  width:100%;max-width:var(--astra-reading-width);min-width:0;
+  margin-left:auto;margin-right:auto;box-sizing:border-box;
+}
+.natal-explore .natal-explore-toolbar{
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;
+  gap:10px;margin-bottom:14px;
+}
+.natal-explore .natal-explore-toolbar :is(.natal-back,.natal-settings-link){
+  display:inline-flex;align-items:center;justify-content:center;
+  flex:0 0 auto;min-height:44px;padding:10px 14px;
+  margin:0;border:1px solid var(--astra-border);
+  border-radius:var(--astra-radius-md);
+  background:var(--astra-secondary-surface);
+  color:var(--astra-ink);font:750 14px/1.35 var(--astra-font-body);
+}
+.natal-explore .natal-explore-intro{
+  margin-top:0;margin-bottom:17px;
+  color:var(--astra-muted);font-size:14px;line-height:1.5;
+}
+.natal-explore .natal-explore-tabs{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  align-items:stretch;gap:5px;padding:5px;
+  margin-top:0;margin-bottom:20px;
+  border:1px solid var(--astra-divider);
+  border-radius:var(--astra-radius-lg);
+  background:var(--astra-secondary-surface);
+}
+.natal-explore .natal-explore-tabs>button{
+  min-width:0;min-height:46px;padding:9px 12px;
+  border:0;border-radius:var(--astra-radius-md);
+  background:transparent;color:var(--astra-muted);
+  font:750 14px/1.35 var(--astra-font-body);
+  overflow-wrap:normal;white-space:normal;
+}
+.natal-explore .natal-explore-tabs>button[aria-pressed="true"]{
+  background:var(--astra-surface);
+  color:var(--astra-ink);
+  box-shadow:inset 0 0 0 1px var(--astra-selected-border);
+}
+.natal-explore .natal-explore-tabs>button[aria-pressed="false"]:hover{
+  background:var(--astra-surface);
+  color:var(--astra-ink);
+}
+.natal-explore .natal-explorer-panel{
+  width:100%;max-width:var(--astra-reading-width);min-width:0;
+}
+.natal-explore .natal-explore-list{
+  width:100%;max-width:none;min-width:0;
+}
+.natal-explore .natal-explore-list :is(h3,p){max-width:100%}
+.natal-explore .natal-explore-list h3{
+  margin:0 0 5px;color:var(--astra-ink);
+  font:800 clamp(18px,2.5vw,21px)/1.3 var(--astra-font-body);
+}
+.natal-explore .natal-explore-list>p{
+  color:var(--astra-muted);margin:0 0 15px;
+  font-size:14px;line-height:1.55;
+}
+.natal-explore :is(.natal-positions,.natal-aspects,.natal-houses){
+  min-width:0;width:100%;box-sizing:border-box;
+}
+.natal-explore :is(.natal-positions,.natal-aspects){
+  padding:0;overflow:hidden;
+  border:1px solid var(--astra-divider);
+  border-radius:var(--astra-radius-lg);
+  background:var(--astra-surface);
+  margin:0 0 16px;
+}
+.natal-explore .natal-position{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,auto) minmax(36px,auto);
+  align-items:center;column-gap:12px;row-gap:4px;
+  min-width:0;width:100%;min-height:58px;
+  padding:12px 15px;box-sizing:border-box;
+  text-align:left;background:var(--astra-surface);
+  color:var(--astra-ink);border:0;border-radius:0;
+  border-bottom:1px solid var(--astra-divider);
+  font:600 14px/1.4 var(--astra-font-body);
+}
+.natal-explore .natal-position:last-child{border-bottom:0}
+.natal-explore .natal-position .position-planet{
+  min-width:0;display:flex;align-items:center;gap:10px;
+  color:var(--astra-ink);font:750 14px/1.4 var(--astra-font-body);
+  overflow-wrap:anywhere;
+}
+.natal-explore .natal-position .position-planet>span{
+  flex:0 0 24px;min-width:24px;text-align:center;
+  font-size:20px;color:var(--astra-brand);line-height:1.1;
+}
+.natal-explore .natal-position .position-value{
+  min-width:0;text-align:right;color:var(--astra-ink);
+  font-size:13px;font-weight:600;
+  font-variant-numeric:tabular-nums;overflow-wrap:normal;
+}
+.natal-explore .natal-position .position-house{
+  min-width:36px;text-align:right;color:var(--astra-muted);
+  font-size:13px;font-weight:650;white-space:nowrap;
+}
+.natal-explore .natal-position[aria-pressed="true"],
+.natal-explore :is(.natal-house-chip,.natal-aspect)[aria-pressed="true"]{
+  background:var(--astra-selected);color:var(--astra-ink);
+}
+.natal-explore .natal-position:hover:not([aria-pressed="true"]),
+.natal-explore :is(.natal-house-chip,.natal-aspect):hover:not([aria-pressed="true"]){
+  background:var(--astra-secondary-surface);
+}
+.natal-explore .natal-aspect{
+  min-width:0;min-height:56px;width:100%;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:8px 16px;padding:12px 15px;
+  background:var(--astra-surface);color:var(--astra-ink);
+  border:0;border-bottom:1px solid var(--astra-divider);
+  font:650 14px/1.45 var(--astra-font-body);
+  flex-wrap:wrap;text-align:left;
+}
+.natal-explore .natal-aspect:last-child{border-bottom:0}
+.natal-explore .natal-aspect>span{min-width:0;color:var(--astra-ink)}
+.natal-explore .natal-aspect>span:last-child{
+  color:var(--astra-muted);font-size:13px;text-align:right;
+  white-space:normal;overflow-wrap:anywhere;
+}
+.natal-explore .natal-houses{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;
+}
+.natal-explore .natal-house-chip{
+  min-width:0;min-height:72px;padding:12px;
+  border:1px solid var(--astra-divider);
+  background:var(--astra-surface);color:var(--astra-ink);
+  border-radius:var(--astra-radius-md);font-size:14px;
+}
+.natal-explore .natal-house-chip small{
+  font-size:12px;line-height:1.45;color:var(--astra-muted);
+  overflow-wrap:anywhere;
+}
+.natal-explore .natal-filter-items{gap:7px}
+.natal-explore .natal-filter-items button{
+  min-height:44px;color:var(--astra-ink);
+  border:1px solid var(--astra-divider);
+  background:var(--astra-secondary-surface);
+  font-size:13px;border-radius:var(--astra-radius-md);
+}
+.natal-explore .natal-filter-items button.selected{
+  color:var(--astra-primary-ink);
+  border-color:var(--astra-primary);
+  background:var(--astra-primary);
+}
+.natal-explore .natal-filter-items button.selected span{color:inherit}
+.natal-explore .natal-explore-wheel,
+.natal-explore .natal-matrix-disclosure{
+  margin-top:18px;margin-bottom:14px;
+  border:1px solid var(--astra-divider);
+  border-radius:var(--astra-radius-lg);
+  background:var(--astra-secondary-surface);
+  overflow:hidden;color:var(--astra-ink);
+}
+.natal-explore :is(.natal-explore-wheel,.natal-matrix-disclosure)>summary{
+  min-height:48px;padding:14px 16px;
+  color:var(--astra-ink);font:750 14px/1.4 var(--astra-font-body);
+  cursor:pointer;
+}
+.natal-explore .natal-explore-wheel .natal-wheel-viewport{
+  min-width:0;max-width:100%;
+  margin:10px auto;padding:8px;
+  background:#FFF9EA;
+  border-radius:var(--astra-radius-md);
+}
+.natal-explore .natal-explore-list .natal-contact-empty{
+  color:var(--astra-muted);
+}
+.natal-explore>.tiny{max-width:var(--astra-reading-width);margin:10px auto;color:var(--astra-muted)}
+
+/* On the birth-chart overview, the lower tools should use the same column and
+ * semantic surfaces. This also fixes white advanced-tool menus in dark mode. */
+.natal-home :is(.natal-glossary,.natal-extras,.natal-home-actions--secondary){
+  width:100%;max-width:650px;min-width:0;
+  margin-left:auto;margin-right:auto;box-sizing:border-box;
+}
+:is(.natal-home,.natal-explore) :is(.natal-glossary,.natal-extras){
+  background:var(--astra-secondary-surface);
+  border:1px solid var(--astra-divider);
+  border-radius:var(--astra-radius-lg);
+  color:var(--astra-ink);overflow:hidden;
+}
+:is(.natal-home,.natal-explore) :is(.natal-glossary,.natal-extras)>summary{
+  min-height:52px;display:flex;align-items:center;gap:10px;
+  padding:13px 16px;cursor:pointer;list-style:none;
+  color:var(--astra-ink);font:750 14px/1.4 var(--astra-font-body);
+}
+:is(.natal-home,.natal-explore) :is(.natal-glossary,.natal-extras)>summary::-webkit-details-marker{
+  display:none;
+}
+:is(.natal-home,.natal-explore) :is(.natal-glossary,.natal-extras)>summary::after{
+  content:'+';font-size:20px;line-height:1;margin-left:auto;
+}
+:is(.natal-home,.natal-explore) :is(.natal-glossary,.natal-extras)[open]>summary::after{content:'−'}
+:is(.natal-home,.natal-explore) .natal-glossary :is(dt,dd,.tiny){color:var(--astra-ink)}
+:is(.natal-home,.natal-explore) .natal-glossary dd{color:var(--astra-muted)}
+:is(.natal-home,.natal-explore) .natal-extras>button{
+  width:100%;min-height:48px;padding:12px 16px;
+  text-align:left;background:var(--astra-surface);
+  border:0;border-top:1px solid var(--astra-divider);
+  color:var(--astra-ink);font:650 14px/1.4 var(--astra-font-body);
+}
+:is(.natal-home,.natal-explore) .natal-extras>button:hover{background:var(--astra-secondary-surface)}
+.natal-home :is(.natal-overview-panel,.natal-positions,.natal-aspects){min-width:0}
+.natal-home .natal-overview-panel .natal-position,
+.natal-home .natal-overview-panel .natal-aspect{
+  background:var(--astra-surface);color:var(--astra-ink);
+  border-color:var(--astra-divider);
+}
+.natal-home .natal-overview-panel .natal-position .position-planet,
+.natal-home .natal-overview-panel .natal-position .position-value,
+.natal-home .natal-overview-panel .natal-aspect>span{color:var(--astra-ink)}
+.natal-home .natal-overview-panel .natal-position .position-house{
+  color:var(--astra-muted);
+}
+.natal-home .natal-overview-panel .natal-position[aria-pressed="true"],
+.natal-home .natal-overview-panel .natal-aspect[aria-pressed="true"]{
+  background:var(--astra-selected);
+}
+
+@media(max-width:600px){
+  
+  .natal-explore .natal-explore-tabs{gap:4px;padding:4px}
+  .natal-explore .natal-explore-tabs>button{min-height:44px;padding:8px 5px;font-size:13px}
+  .natal-explore .natal-position{
+    grid-template-columns:minmax(0,1fr) auto;
+    row-gap:3px;min-height:66px;padding:11px 12px;
+  }
+  .natal-explore .natal-position .position-planet{grid-column:1/-1;grid-row:1;min-width:0}
+  .natal-explore .natal-position .position-value{
+    grid-column:1;grid-row:2;text-align:left;
+    padding-left:34px;font-size:12px;overflow-wrap:anywhere;
+  }
+  .natal-explore .natal-position .position-house{
+    grid-column:2;grid-row:2;text-align:right;font-size:12px;
+  }
+  .natal-explore .natal-houses{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .natal-explore .natal-aspect{padding:12px;flex-direction:column;align-items:flex-start}
+  .natal-explore .natal-aspect>span:last-child{text-align:left}
+  .natal-explore .natal-explore-toolbar :is(.natal-back,.natal-settings-link){
+    padding:9px 11px;font-size:13px;
+  }
+}
+@media(max-width:360px){
+  
+  .natal-explore .natal-explore-toolbar{gap:6px}
+}
+@media(prefers-reduced-motion:reduce){
+  .natal-explore :is(button,summary){transition:none!important}
+}
+
+/* P6 — Mon ciel overview: one layout grid for every section.
+ * Older layers used 510, 590, 650, 670, 680, 720 and 750px caps at different
+ * breakpoints, and applied a 2-column grid to single CTA buttons on desktop.
+ * This single scoped layer removes those conflicting gutters without changing
+ * SVG positions, event handlers, the explorer or other screens. */
+/* Restore the missing outer card rather than decorating each nested item. */
+/* At narrower widths the title stays aligned to the card's inner gutter.
+   At large widths both use the centered 680px reading column. */
+.natal-home> :is(
+  .natal-home-header,.natal-primary-cards,
+  .natal-home-actions--primary,.natal-overview-tabs,
+  .natal-wheel-viewport,.natal-overview-panel,
+  .natal-home-hint,.natal-focus-launch,
+  .natal-glossary,.natal-home-actions--secondary,
+  .natal-extras,.natal-warning,.notice
+){
+  width:100%;max-width:var(--astra-reading-width);
+  min-width:0;margin-left:auto;margin-right:auto;box-sizing:border-box
+}
+.natal-home>.natal-home-header{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;flex-wrap:wrap;padding:0;
+  margin-top:0;margin-bottom:16px
+}
+.natal-home>.natal-home-header>div{flex:1 1 160px;min-width:0}
+.natal-home>.natal-home-header .card-title,
+.natal-home>.natal-home-header .natal-home-subtitle{
+  padding:0;margin-left:0;margin-right:0;text-align:left
+}
+.natal-home>.natal-home-header .natal-settings-link{
+  flex:none;min-height:44px
+}
+.natal-home>.natal-primary-cards{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  margin-top:0;margin-bottom:14px;padding:8px;
+  gap:8px
+}
+.natal-home>.natal-primary-cards--two{
+  grid-template-columns:repeat(2,minmax(0,1fr))
+}
+.natal-home>.natal-home-actions--primary,
+.natal-home>.natal-home-actions--secondary{
+  display:grid;grid-template-columns:minmax(0,1fr);
+  gap:0
+}
+.natal-home>.natal-home-actions--primary{
+  margin-top:0;margin-bottom:18px
+}
+.natal-home>.natal-home-actions--secondary{
+  margin-top:18px;margin-bottom:16px
+}
+.natal-home :is(.natal-main-action,.natal-secondary-action){
+  width:100%;min-width:0;box-sizing:border-box;
+  justify-self:stretch
+}
+.natal-home>.natal-overview-tabs{
+  margin-top:0;margin-bottom:12px;
+}
+.natal-home>.natal-wheel-viewport{
+  margin-top:0;margin-bottom:0;
+  overflow-x:hidden;scrollbar-gutter:auto;
+}
+.natal-home>.natal-overview-panel{
+  margin-top:0;margin-bottom:12px;min-width:0
+}
+.natal-home>.natal-home-hint{
+  margin-top:10px;margin-bottom:4px;
+  padding:0 8px;text-align:center
+}
+.natal-home>.natal-focus-launch{
+  display:flex;justify-content:center;
+  margin-top:0;margin-bottom:18px
+}
+.natal-home>.natal-glossary{
+  margin-top:14px;margin-bottom:14px
+}
+.natal-home>.natal-extras{
+  margin-top:0;margin-bottom:12px
+}
+@media(max-width:480px){
+  .natal-home>.natal-home-header{gap:9px;margin-bottom:12px}
+  .natal-home>.natal-primary-cards{padding:6px 4px;gap:5px}
+  .natal-home>.natal-primary-cards .natal-summary-item{min-width:0}
+  .natal-home>.natal-home-actions--primary{margin-bottom:15px}
+  .natal-home>.natal-overview-tabs{margin-bottom:10px}
+  .natal-home>.natal-home-hint{margin-top:9px;padding:0 4px}
+}
+@media(max-width:350px){
+  .natal-home>.natal-home-header .natal-settings-link{padding:8px 10px}
+  .natal-home>.natal-primary-cards{padding:5px 3px;gap:4px}
+}

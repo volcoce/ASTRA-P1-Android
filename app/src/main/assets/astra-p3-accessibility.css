@@ -252,20 +252,10 @@ html,body,.app-shell,.main{min-width:0;max-width:100%}
 :root[data-astra-theme="dark"] .natal-context-sheet .natal-context-bar button:focus-visible{
   outline-color:var(--astra-focus)!important;
 }
-/* The chart reading stays clear of the fixed four-tab navigation. */
-.natal-context-sheet{
-  bottom:calc(var(--astra-nav-clearance) + var(--astra-safe-bottom) + 8px);
-}
+/* Context-sheet size adapts to available space; bottom offset is global. */
 @media(min-width:800px){
   .natal-context-sheet{
-    bottom:auto;
     width:min(430px,42vw);
-    max-height:min(70dvh,calc(100dvh - 110px - var(--astra-nav-clearance) - var(--astra-safe-bottom) - 16px));
-  }
-}
-@media(max-height:500px) and (orientation:landscape){
-  .natal-context-sheet{
-    bottom:calc(58px + var(--astra-safe-bottom));
-    max-height:calc(100dvh - 70px);
+    max-height:min(70dvh,calc(100dvh - var(--astra-nav-clearance) - 40px));
   }
 }

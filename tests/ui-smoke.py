@@ -104,8 +104,8 @@ if __name__ == '__main__':
             html=html.replace('<link rel="stylesheet" href="astra-p3-accessibility.css">','')
             html=html.replace('<link rel="stylesheet" href="astra-p4-calendar.css">','')
             html=html.replace('<link rel="stylesheet" href="astra-p4-wheel.css">','')
-            html=html.replace('<link rel="stylesheet" href="astra-p5-explore-responsive.css">','')
-            html=html.replace('<link rel="stylesheet" href="astra-p6-home-spacing.css">','')
+            html=html.replace('<link rel="stylesheet" href="astra-natal.css">','')
+            html=html.replace('<link rel="stylesheet" href="astra-layout.css">','')
             html=html.replace('<script src="theme-bootstrap.js"></script>','')
             page.goto('about:blank')
             page.add_script_tag(content=JS)
@@ -130,8 +130,8 @@ if __name__ == '__main__':
             page.add_style_tag(content=(ROOT/'astra-p3-accessibility.css').read_text(encoding='utf-8'))
             page.add_style_tag(content=(ROOT/'astra-p4-calendar.css').read_text(encoding='utf-8'))
             page.add_style_tag(content=(ROOT/'astra-p4-wheel.css').read_text(encoding='utf-8'))
-            page.add_style_tag(content=(ROOT/'astra-p5-explore-responsive.css').read_text(encoding='utf-8'))
-            page.add_style_tag(content=(ROOT/'astra-p6-home-spacing.css').read_text(encoding='utf-8'))
+            page.add_style_tag(content=(ROOT/'astra-natal.css').read_text(encoding='utf-8'))
+            page.add_style_tag(content=(ROOT/'astra-layout.css').read_text(encoding='utf-8'))
             page.add_script_tag(content=(ROOT/'app.js').read_text(encoding='utf-8'))
             # P0 design regression: verify computed font sizes and flat surfaces.
             px=lambda selector: page.locator(selector).first.evaluate(
@@ -331,12 +331,8 @@ if __name__ == '__main__':
                   bottom:el.getBoundingClientRect().bottom,
                   window:innerHeight
                 })""")
-                if width>=800:
-                    assert page.locator('.bottom-nav').evaluate("el => getComputedStyle(el).position")=='static'
-                    assert nav['top']>=page.locator('.natal-home').bounding_box()['y']+page.locator('.natal-home').bounding_box()['height'],(width,height,nav)
-                else:
-                    assert page.locator('.bottom-nav').evaluate("el => getComputedStyle(el).position")=='fixed'
-                    assert nav['top']>=0 and nav['bottom']<=height+2,(width,height,nav)
+                assert page.locator('.bottom-nav').evaluate("el => getComputedStyle(el).position")=='fixed',(width,height,nav)
+                assert nav['top']>=0 and nav['bottom']<=height+2,(width,height,nav)
                 if (width,height) in ((320,700),(360,780),(360,620),(393,844),(412,915),(768,1024),(1280,800)):
                     capture('overview-'+str(width)+'x'+str(height))
             page.set_viewport_size({'width':360,'height':780})
@@ -468,11 +464,7 @@ if __name__ == '__main__':
                 assert all(abs(row['left']-cols[0]['left'])<=3 for row in cols),(width,bounds)
                 assert all(abs(row['right']-cols[0]['right'])<=3 for row in cols),(width,bounds)
                 assert all(row['left']>=bounds['card']['left'] and row['right']<=bounds['card']['right']+2 for row in cols),(width,bounds)
-                if width>=800:
-                    assert bounds['navPosition']=='static',bounds
-                    assert bounds['nav']>=bounds['cardBottom'],bounds
-                else:
-                    assert bounds['navPosition']=='fixed',bounds
+                assert bounds['navPosition']=='fixed',bounds
                 if width in (320,1280):
                     capture(f'explore-layout-{width}')
             page.set_viewport_size({'width':393,'height':844})

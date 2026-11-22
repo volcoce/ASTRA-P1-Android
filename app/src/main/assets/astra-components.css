@@ -110,3 +110,16 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
   :is(.primary,.natal-main-action,.astra-month-calendar-link,.astra-personal-save){transition:none!important}
   :is(.primary,.natal-main-action,.astra-month-calendar-link,.astra-personal-save):hover{transform:none}
 }
+
+/* One disclosure component for all screens; variants carry content, not shell. */
+.astra-disclosure{
+  min-width:0;overflow:hidden;border:1px solid var(--astra-divider);
+  border-radius:var(--astra-radius-lg);
+  background:var(--astra-secondary-surface);color:var(--astra-ink);
+}
+.astra-disclosure>summary{
+  min-height:48px;padding:13px 16px;cursor:pointer;
+  color:var(--astra-ink);font-weight:750;
+}
+.astra-disclosure[open]>summary{border-bottom:1px solid var(--astra-divider)}
+.astra-disclosure>summary:focus-visible{outline:3px solid var(--astra-focus);outline-offset:-3px}

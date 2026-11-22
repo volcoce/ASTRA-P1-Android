@@ -151,6 +151,7 @@
   let selected = isoDay(new Date());
   let month = new Date(new Date().getFullYear(),new Date().getMonth(),1);
   let calendarSheet=false;
+  let calendarOptionsOpen=false;
   let personalEditor=null; // 'new' or a saved event ID
 
   // Browser-only deep links. The Android shell keeps its native back handler.
@@ -573,7 +574,7 @@
       (periods.ingresses.length?'Le jour d’entrée dans un nouveau signe est partagé visuellement en deux moitiés (50/50), quelle que soit l’heure réelle du passage. ':'')+
       (complete?'':'Certaines positions ne sont pas disponibles. '):
       'Positions solaires indisponibles pour ce mois.';
-    return '<details class="calendar-help"><summary>Comprendre le calendrier</summary>'+
+    return '<details class="calendar-help astra-disclosure"><summary>Comprendre le calendrier</summary>'+
       '<div class="calendar-help-body"><p><strong>Couleurs solaires</strong> · '+sunText+'</p>'+
       '<p><strong>Icônes lunaires</strong> · Chaque disque représente la phase de la Lune à midi ; les Nouvelles Lunes et Pleines Lunes exactes sont mises en évidence.</p>'+
       '<p><strong>Repères</strong> · ✦ aspect exact · ~ aspect en cours · point rose : note du journal.</p>'+
@@ -661,7 +662,7 @@
       '<section class="astra-event-meaning detail-group"><h3>Lecture astrologique</h3>'+
       '<p class="astra-event-keypoint">'+safe(d.interpretation)+'</p></section>';
     const more=reading?
-      '<details class="astra-event-disclosure"><summary>Approfondir cette interprétation</summary>'+
+      '<details class="astra-event-disclosure astra-disclosure"><summary>Approfondir cette interprétation</summary>'+
       '<div class="astra-event-disclosure-body"><p>'+safe(d.interpretation)+'</p>'+
       '<p>'+safe(reading.interaction)+'</p></div></details>':'';
     const measure=raw.type==='active'&&Number.isFinite(raw.delta)?
@@ -679,7 +680,7 @@
       idea+more+
       '<section class="astra-event-reflection"><h3>Pour réfléchir</h3><p>'+safe(d.question)+'</p>'+
       '<button type="button" class="ghost" data-prompt="'+safe(d.question)+'">Noter dans mon journal</button></section>'+
-      '<details class="astra-event-disclosure astra-event-technical"><summary>Voir les données astronomiques</summary>'+
+      '<details class="astra-event-disclosure astra-disclosure astra-event-technical"><summary>Voir les données astronomiques</summary>'+
       '<div class="astra-event-disclosure-body">'+
       '<div class="astra-event-facts"><div><span>Date et heure</span><strong>'+timing+'</strong></div>'+
       '<div><span>Référence horaire</span><strong>'+safe(zone)+' · '+(state.mode==='sidereal'?'Sidéral':'Tropical')+'</strong></div>'+
@@ -788,7 +789,7 @@
         (remaining.length?'<details class="astra-more-events"'+(todayExpanded?' open':'')+'><summary>Voir les '+remaining.length+' autres événements</summary>'+
           '<div class="astra-event-feed">'+remaining.map(row).join('')+'</div></details>':'')+
       '</section>'+
-      '<details class="astra-active-panel"><summary><span>Aspects en cours</span><span>'+day.active.length+' <span aria-hidden="true">⌄</span></span></summary>'+
+      '<details class="astra-active-panel astra-disclosure"><summary><span>Aspects en cours</span><span>'+day.active.length+' <span aria-hidden="true">⌄</span></span></summary>'+
         '<p>Angles entre les planètes présents à midi, sans événement nécessairement exact.</p>'+
         '<div class="astra-event-feed">'+(active.map(e=>row({...e,type:'active'})).join('')||'<p class="astra-empty">Aucun aspect calculé à midi.</p>')+'</div>'+
         (day.active.length>8?'<p class="tiny">Huit aspects affichés sur '+day.active.length+'. Consulte le calendrier pour les autres.</p>':'')+
@@ -1043,7 +1044,7 @@
       '<span class="cal-legend-item"><span class="moon-phase-legend-dot full" aria-hidden="true">'+moonPhaseIcon(180)+'</span> Pleine Lune</span>'+
       '</div>':'')+
       (state.profile?solarCalendarExplanation(periods):'')+'</div>'+
-      (state.profile?'<details class="calendar-options"><summary>Options d’affichage</summary>'+switcher()+filters()+'</details>':'')+
+      (state.profile?'<details class="calendar-options astra-disclosure"'+(calendarOptionsOpen?' open':'')+'><summary>Options d’affichage</summary>'+switcher()+filters()+'</details>':'')+
       status()+calendarDayInspector()+personalEventEditor()+detailView();
   }
   function initDraft() {
@@ -1682,7 +1683,7 @@
           '<button type="button" class="natal-more-link" data-profile-screen="explore">Explorer les aspects en détail →</button></section>'
         :'<div class="natal-wheel-viewport" role="region" tabindex="0" aria-label="Roue natale interactive">'+homeSvg+'</div>'+
           shortCaption+focusLaunch;
-      const glossary='<details class="natal-glossary"><summary>Comprendre les mots astrologiques</summary>'+
+      const glossary='<details class="natal-glossary astra-disclosure"><summary>Comprendre les mots astrologiques</summary>'+
         '<dl><dt>Planète</dt><dd>Corps céleste représenté à sa position dans le zodiaque.</dd>'+
         '<dt>Signe</dt><dd>L’un des douze secteurs de 30° du zodiaque utilisé.</dd>'+
         '<dt>Maison</dt><dd>Division de la carte selon l’heure et le lieu de naissance.</dd>'+
@@ -1690,7 +1691,7 @@
         '<dt>Orbe</dt><dd>Écart entre un angle exact et l’angle mesuré.</dd>'+
         '<dt>Transit</dt><dd>Position planétaire à une autre date, comparée à ta naissance.</dd>'+
         '</dl><p class="tiny">Les interprétations astrologiques sont symboliques, non scientifiquement prédictives.</p></details>';
-      return '<section class="card natal-card natal-home" id="natalChart">'+
+      return '<section class="card natal-card astra-reading-card natal-home" id="natalChart">'+
         '<div class="natal-home-header"><div><h2 class="card-title">Ta carte de naissance</h2>'+
         '<p class="natal-home-subtitle">Positions à ta naissance · '+(isTropical?'Tropical':'Sidéral')+'</p></div>'+
         '<button type="button" class="natal-settings-link" data-profile-screen="settings">Réglages</button></div>'+
@@ -1699,19 +1700,19 @@
         '<div class="natal-home-actions natal-home-actions--primary"><button type="button" class="natal-main-action" data-profile-screen="explore"><span class="action-label"><strong>Explorer les positions</strong><small>Planètes, signes et maisons</small></span><span class="action-arrow" aria-hidden="true">→</span></button></div>'+
         viewTabs+overviewContent+contextSheet+glossary+
         '<div class="natal-home-actions natal-home-actions--secondary"><button type="button" class="natal-secondary-action" data-explore-transits="1"><span class="action-label"><strong>Comparer deux dates</strong><small>Le ciel d’un autre jour</small></span><span class="action-arrow" aria-hidden="true">→</span></button></div>'+
-        '<details class="natal-extras"><summary>Outils astrologiques avancés</summary>'+
+        '<details class="natal-extras astra-disclosure"><summary>Outils astrologiques avancés</summary>'+
         '<button type="button" data-profile-screen="progressions">Progressions secondaires →</button>'+
         '<button type="button" data-profile-screen="composite">Carte composite →</button></details>'+
         (h?.polarFallback?'<p class="notice">Maisons égales utilisées à cette latitude.</p>':'')+
         '</section>';
     }
     if(isSettings){
-      return '<section class="card natal-card natal-settings" id="natalChart">'+
+      return '<section class="card natal-card astra-reading-card natal-settings" id="natalChart">'+
         '<div class="natal-subpage-heading">'+pageBack+'<h2 class="card-title">Personnaliser la carte</h2>'+
         '<p class="natal-section-lead">Choisis ton affichage. Tes informations de naissance sont plus bas.</p></div>'+
         '<div class="natal-settings-controls">'+controls+
-        '<details class="natal-more-options"'+(settingsAdvancedOpen?' open':'')+'><summary>Options avancées</summary>'+advancedControls+'</details></div>'+
-        '<details class="natal-preview-disclosure"'+(settingsPreviewOpen?' open':'')+'><summary>Aperçu de la carte et export graphique</summary>'+
+        '<details class="natal-more-options astra-disclosure"'+(settingsAdvancedOpen?' open':'')+'><summary>Options avancées</summary>'+advancedControls+'</details></div>'+
+        '<details class="natal-preview-disclosure astra-disclosure"'+(settingsPreviewOpen?' open':'')+'><summary>Aperçu de la carte et export graphique</summary>'+
         '<div class="natal-wheel-viewport" role="region" tabindex="0" aria-label="Aperçu de la carte astrologique">'+resized+'</div>'+
         '<p class="natal-home-hint">Les exports SVG et PNG correspondent à cette carte.</p>'+focusLaunch+'</details>'+
         (transitError?'<p class="notice" role="alert">'+safe(transitError)+'</p>':'')+
@@ -1723,7 +1724,7 @@
         const target=E.localToUtc(progressionDay,'12:00',detectedZone);
         prog=E.secondaryProgressions(state.profile,target,state.natalZodiac);
       }catch(error){err=error?.message||'Calcul des progressions impossible';}
-      return '<section class="card natal-card natal-progressions" id="natalChart">'+
+      return '<section class="card natal-card astra-reading-card natal-progressions" id="natalChart">'+
         '<div class="natal-subpage-heading">'+pageBack+'<h2 class="card-title">Progressions secondaires</h2>'+
         '<p class="natal-section-lead">Convention astrologique : un jour d’éphéméride après la naissance représente une année de vie. Ce n’est pas une prévision scientifique.</p></div>'+
         '<div class="natal-progress-controls"><label for="progressionDay">Date à étudier</label>'+
@@ -1743,7 +1744,7 @@
       const suggestions=compositeSearch.options.map((p,i)=>
         '<button type="button" class="city-choice" data-composite-place="'+i+'"><strong>'+safe(p.name)+'</strong>'+
         '<span>'+safe([p.admin1,p.country].filter(Boolean).join(' · '))+'</span></button>').join('');
-      return '<section class="card natal-card natal-composite" id="natalChart">'+
+      return '<section class="card natal-card astra-reading-card natal-composite" id="natalChart">'+
         '<div class="natal-subpage-heading">'+pageBack+'<h2 class="card-title">Carte composite</h2>'+
         '<p class="natal-section-lead">Milieux zodiacaux calculés entre deux thèmes de naissance. Les positions composites sont conventionnelles : ce n’est pas une carte du ciel à un instant réel.</p></div>'+
         '<form id="compositeForm" novalidate><h3 class="natal-subtitle">Seconde personne</h3>'+
@@ -1793,7 +1794,7 @@
         }).join('')+'</div>':'<p class="natal-contact-empty">Aucun contact dans cette catégorie à cet instant.</p>')+
         (shownContacts.length>16?'<p class="tiny">16 contacts sur '+shownContacts.length+' affichés. Affine le filtre ou sélectionne une planète sur la roue.</p>':'')+
         '</section>':'';
-      return '<section class="card natal-card natal-compare" id="natalChart">'+
+      return '<section class="card natal-card astra-reading-card natal-compare" id="natalChart">'+
         '<div class="natal-subpage-heading">'+pageBack+
         '<h2 class="card-title">Deux ciels, une seule carte</h2>'+
         '<p class="natal-section-lead">Au centre : ton ciel de naissance. À l’extérieur : les planètes à la date choisie.</p>'+
@@ -1812,7 +1813,7 @@
       sections.map(([id,label])=>
         '<button type="button" data-explore-section="'+id+'" aria-pressed="'+(choice===id)+'" class="'+(choice===id?'selected':'')+'">'+label+'</button>').join('')+
       '</div>';
-    const matrixDetails='<details class="natal-matrix-disclosure"'+(aspectMatrixOpen?' open':'')+'>'+
+    const matrixDetails='<details class="natal-matrix-disclosure astra-disclosure"'+(aspectMatrixOpen?' open':'')+'>'+
       '<summary>Comparer les aspects dans un tableau</summary>'+renderAspectMatrix(chart)+'</details>';
     const aspectsList='<section class="natal-explore-list"><h3>Aspects natals</h3>'+
       '<p>Les aspects sont les angles entre les planètes à ta naissance.</p>'+
@@ -1825,12 +1826,12 @@
       '<p>Ce sont les douze secteurs de ta carte. Leur position dépend de l’heure de naissance.</p>'+
       '<div class="natal-houses">'+houseButtons+'</div></section>';
     const contents=choice==='aspects'?aspectsList:choice==='houses'?housesList:planetList;
-    return '<section class="card natal-card natal-explore" id="natalChart">'+
+    return '<section class="card natal-card astra-reading-card natal-explore" id="natalChart">'+
       '<div class="natal-explore-toolbar" role="group" aria-label="Navigation et réglages du thème">'+pageBack+
       '<button type="button" class="natal-settings-link" data-profile-screen="settings">Réglages</button></div>'+
       '<p class="natal-section-lead natal-explore-intro">Choisis une rubrique, puis un élément pour découvrir sa signification.</p>'+
       notice+selector+'<div id="natalExplorerPanel" class="natal-explorer-panel">'+contents+'</div>'+
-      '<details class="natal-explore-wheel"'+(exploreWheelOpen?' open':'')+'>'+
+      '<details class="natal-explore-wheel astra-disclosure"'+(exploreWheelOpen?' open':'')+'>'+
       '<summary>Voir aussi la carte du ciel</summary>'+
       '<div class="natal-wheel-viewport" role="region" tabindex="0" aria-label="Roue natale interactive">'+resized+'</div>'+
       '<p class="natal-home-hint">Les petites marques montrent les positions exactes. Appuie sur un symbole pour en savoir plus.</p>'+focusLaunch+
@@ -1917,10 +1918,10 @@
       `${validationMessage('birthCity',birthCityError)}`+
       `${suggestions?`<div class="city-results" aria-label="Villes trouvées">${suggestions}</div>`:''}`+
       `${place?`<div class="city-confirmed" role="status"><b>Ville confirmée · ${safe(place.label)}</b><details class="city-technical"><summary>Voir le fuseau et les coordonnées</summary><p>${safe(offsetDescription(d,place))}</p><small>Coordonnées calculées · ${place.latitude.toFixed(4)}°, ${place.longitude.toFixed(4)}°</small></details></div>`:'<p class="city-unselected">Sélectionne une ville pour continuer.</p>'}`+
-      `${foldPicker}<details class="calculation-details"><summary>Comment les calculs fonctionnent-ils ?</summary><p class="field-help"><strong>Orbes automatiques.</strong> ASTRA adapte la marge à la planète et à l’aspect. Les instants exacts sont calculés séparément dans le calendrier.</p></details><button class="primary full" type="submit">Calculer mon thème natal</button></form>`+
+      `${foldPicker}<details class="calculation-details astra-disclosure"><summary>Comment les calculs fonctionnent-ils ?</summary><p class="field-help"><strong>Orbes automatiques.</strong> ASTRA adapte la marge à la planète et à l’aspect. Les instants exacts sont calculés séparément dans le calendrier.</p></details><button class="primary full" type="submit">Calculer mon thème natal</button></form>`+
       `<p class="tiny">Recherche de villes fournie par <a href="https://open-meteo.com/" rel="noopener noreferrer">Open-Meteo / GeoNames</a>. Seul le nom de ville recherché est transmis. Ensuite, les calculs restent sur ton appareil, même hors connexion. Les règles historiques sont celles de la base de fuseaux disponible sur l’appareil.</p></section>`+
       appearancePanel()+diagnosticsPanel()+`<section class="card astra-privacy-settings"><h2 class="card-title">Confidentialité et sauvegarde</h2><p class="tiny">Les dates et heures de naissance, coordonnées et notes sont stockées uniquement sur l’appareil. Une désinstallation peut les supprimer. Protège le fichier JSON exporté.</p><div class="actions"><button class="ghost" data-export="1">Exporter JSON</button><button class="ghost" data-import="1">Importer JSON</button></div><input id="importFile" type="file" accept="application/json" hidden><button class="subnav danger" data-clear="1">Effacer les données locales</button></section>`+
-      `<details class="calculation-details"><summary>Limites et précision des calculs</summary><p>Vérifie les villes homonymes et les frontières historiques. Les dates très anciennes dépendent de la qualité des archives IANA du téléphone. Lahiri sidéral reste approximatif. Le thème tropical calcule l’Ascendant et les maisons Placidus ; près des pôles, des maisons égales les remplacent.</p></details>`:'');
+      `<details class="calculation-details astra-disclosure"><summary>Limites et précision des calculs</summary><p>Vérifie les villes homonymes et les frontières historiques. Les dates très anciennes dépendent de la qualité des archives IANA du téléphone. Lahiri sidéral reste approximatif. Le thème tropical calcule l’Ascendant et les maisons Placidus ; près des pôles, des maisons égales les remplacent.</p></details>`:'');
   }
   function render() {
     const renderStart=diagnosticsEnabled?perfClock():0;
@@ -2060,6 +2061,8 @@
     window.requestAnimationFrame(()=>recordPerformance('Interaction · prochaine frame',perfClock()-start));
   },true);
   $('app').addEventListener('click',event=>{
+    const calendarOptionsSummary=event.target.closest('.calendar-options > summary');
+    if(calendarOptionsSummary){calendarOptionsOpen=!calendarOptionsSummary.parentElement.open;return;}
     const wheelSummary=event.target.closest('.natal-explore-wheel > summary');
     if(wheelSummary){exploreWheelOpen=!wheelSummary.parentElement.open;return;}
     const matrixSummary=event.target.closest('.natal-matrix-disclosure > summary');
