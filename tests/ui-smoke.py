@@ -1035,7 +1035,8 @@ if __name__ == '__main__':
             assert page.locator('.calendar .day.moon-full').count()==1
             assert page.locator('.calendar .astra-solar-ribbon-backdrop').count()>0
             assert page.locator('.calendar .day .moon-phase-badge').count()==month_days
-            page.locator('.calendar-options > summary').click()
+            # The menu stays open across filter-triggered re-renders.
+            assert page.locator('.calendar-options').get_attribute('open') is not None
             page.locator('#eventFilter').select_option('moon')
             assert page.locator('.calendar .astra-solar-ribbon-segment.starts-at-ingress').count()==1
             assert page.locator('.calendar .day .moon-phase-badge').count()==month_days
@@ -1045,7 +1046,7 @@ if __name__ == '__main__':
             expected=2 if int(day_key[-2:]) in (5,20) else 1
             assert page.locator('.astra-day-hero .astra-hero-stat strong').inner_text()==str(expected)
             page.locator('[data-tab="calendar"]').click()
-            page.locator('.calendar-options > summary').click()
+            assert page.locator('.calendar-options').get_attribute('open') is not None
             page.locator('#eventFilter').select_option('all')
             capture('calendar-320')
             # Personal events belong IN each week of the grid, never in a list below.
