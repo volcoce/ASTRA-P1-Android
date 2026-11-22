@@ -3,15 +3,37 @@
  * breakpoints, and applied a 2-column grid to single CTA buttons on desktop.
  * This single scoped layer removes those conflicting gutters without changing
  * SVG positions, event handlers, the explorer or other screens. */
-:root{--astra-natal-home-column:680px}
+:root{
+  --astra-natal-home-column:680px;
+  --astra-natal-home-gutter:clamp(14px,2.5vw,26px);
+}
 #app:has(>.natal-home)>.screen-intro{
   width:100%;max-width:var(--astra-natal-home-column);
   margin-left:auto;margin-right:auto;box-sizing:border-box
 }
+/* Restore the missing outer card rather than decorating each nested item. */
 .natal-home.card{
   width:100%;max-width:840px;min-width:0;
-  margin-left:auto;margin-right:auto;
-  padding:0;box-sizing:border-box
+  margin:0 auto 22px;
+  padding:var(--astra-natal-home-gutter);
+  box-sizing:border-box;
+  border:1px solid var(--astra-border);
+  border-radius:var(--astra-radius-xl);
+  background:var(--astra-surface);
+  color:var(--astra-ink);
+  box-shadow:none;
+}
+:root[data-astra-theme="dark"] .natal-home.card{
+  border:1px solid var(--astra-border);
+  background:var(--astra-surface);
+  color:var(--astra-ink);
+}
+/* At narrower widths the title stays aligned to the card's inner gutter.
+   At large widths both use the centered 680px reading column. */
+@media(max-width:1099px){
+  #app:has(>.natal-home)>.screen-intro{
+    padding-inline:var(--astra-natal-home-gutter);
+  }
 }
 .natal-home> :is(
   .natal-home-header,.natal-primary-cards,
