@@ -105,6 +105,7 @@ if __name__ == '__main__':
             html=html.replace('<link rel="stylesheet" href="astra-p4-calendar.css">','')
             html=html.replace('<link rel="stylesheet" href="astra-p4-wheel.css">','')
             html=html.replace('<link rel="stylesheet" href="astra-p5-explore-responsive.css">','')
+            html=html.replace('<link rel="stylesheet" href="astra-p6-home-spacing.css">','')
             html=html.replace('<script src="theme-bootstrap.js"></script>','')
             page.goto('about:blank')
             page.add_script_tag(content=JS)
@@ -130,6 +131,7 @@ if __name__ == '__main__':
             page.add_style_tag(content=(ROOT/'astra-p4-calendar.css').read_text(encoding='utf-8'))
             page.add_style_tag(content=(ROOT/'astra-p4-wheel.css').read_text(encoding='utf-8'))
             page.add_style_tag(content=(ROOT/'astra-p5-explore-responsive.css').read_text(encoding='utf-8'))
+            page.add_style_tag(content=(ROOT/'astra-p6-home-spacing.css').read_text(encoding='utf-8'))
             page.add_script_tag(content=(ROOT/'app.js').read_text(encoding='utf-8'))
             # P0 design regression: verify computed font sizes and flat surfaces.
             px=lambda selector: page.locator(selector).first.evaluate(
@@ -269,6 +271,30 @@ if __name__ == '__main__':
                                  (768,1024),(1280,800)):
                 page.set_viewport_size({'width':width,'height':height})
                 assert page.evaluate('document.documentElement.scrollWidth')<=width+2,(width,height)
+                # Every major item in Mon ciel uses the SAME horizontal gutter,
+                # even when the selected tab switches away from the wheel.
+                geometry=page.evaluate("""() => {
+                  const box=s=>document.querySelector(s).getBoundingClientRect();
+                  const intro=box('.screen-intro'),header=box('.natal-home-header');
+                  const selectors=[
+                    '.natal-primary-cards','.natal-home-actions--primary',
+                    '.natal-overview-tabs','.natal-wheel-viewport',
+                    '.natal-home-hint','.natal-focus-launch',
+                    '.natal-glossary','.natal-home-actions--secondary',
+                    '.natal-extras'];
+                  return {intro:{left:intro.left,right:intro.right},
+                    header:{left:header.left,right:header.right},
+                    regions:selectors.map(selector=>{
+                      const r=box('.natal-home>'+selector);
+                      return {selector,left:r.left,right:r.right};
+                    }),
+                    actions:['.natal-main-action','.natal-secondary-action'].map(s=>({
+                      selector:s,left:box(s).left,right:box(s).right
+                    }))};
+                }""")
+                for item in [geometry['intro'],*geometry['regions'],*geometry['actions']]:
+                    assert abs(item['left']-geometry['header']['left'])<=2,(width,item,geometry)
+                    assert abs(item['right']-geometry['header']['right'])<=2,(width,item,geometry)
                 metrics=page.locator('.natal-home .natal-wheel-viewport').evaluate("""el=>({
                   client:el.clientWidth,scroll:el.scrollWidth,
                   svg:el.querySelector('svg').getBoundingClientRect().width
