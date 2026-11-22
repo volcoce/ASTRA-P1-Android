@@ -19,41 +19,24 @@
 
   // Angle = geometrical relation, never a physical alteration of either planet.
   // Keep this short reading in one place for natal, daily and transit details.
-  const planetAngleRoles=Object.freeze({
-    Sun:'identité, volonté et expression personnelle',
-    Moon:'émotions, besoins et sécurité intérieure',
-    Mercury:'pensée, parole et apprentissage',
-    Venus:'affection, relations, plaisir et valeurs',
-    Mars:'action, désir, affirmation et conflit',
-    Jupiter:'croissance, confiance, convictions et ouverture',
-    Saturn:'limites, responsabilité, discipline et durée',
-    Uranus:'indépendance, rupture des habitudes et changement',
-    Neptune:'imaginaire, idéal, sensibilité et flou',
-    Pluto:'transformation, contrôle et remises en question'
-  });
-  const aspectAngleRoles=Object.freeze({
-    Conjonction:{degree:0,verb:'Fusion',meaning:'Les deux fonctions sont rapprochées : elles se combinent et se renforcent parfois, mais peuvent aussi se gêner.'},
-    Sextile:{degree:60,verb:'Coopération',meaning:'Les deux fonctions peuvent se soutenir. La tradition y voit une facilité à mobiliser, plutôt qu’un résultat automatique.'},
-    Carré:{degree:90,verb:'Friction',meaning:'Les deux fonctions sont en tension : leurs exigences peuvent se heurter et demander un ajustement.'},
-    Trigone:{degree:120,verb:'Fluidité',meaning:'Les deux fonctions sont décrites comme compatibles et faciles à articuler, sans garantir un effet bénéfique.'},
-    Opposition:{degree:180,verb:'Polarité',meaning:'Les deux fonctions se font face : il s’agit de reconnaître les deux pôles et de chercher leur équilibre.'}
-  });
-  function angleReading(body,natal,aspectName,{transit=false,delta=null,allowedOrb=null}={}){
-    const rule=aspectAngleRoles[aspectName],first=planetAngleRoles[body],second=planetAngleRoles[natal];
-    if(!rule||!first||!second)return '';
-    const context=transit
-      ? 'La première planète est observée à la date choisie ; la seconde est comparée à sa position de naissance.'
-      : 'Les deux positions sont celles du thème natal : cet aspect décrit un lien symbolique de naissance.';
+  // Explain only the selected combination: no 725-item lookup table in the UI.
+  function angleReading(body,natal,aspectName,{transit=false,delta=null,allowedOrb=null,summary=false}={}){
+    let reading;
+    try{reading=E.describeAspectPair(body,natal,aspectName,{context:transit?'transit':'natal'});}
+    catch{return '';}
+    const first=E.PLANET_ROLES?.[body],second=E.PLANET_ROLES?.[natal];
+    if(!first||!second)return '';
     const deviation=Number.isFinite(delta)&&delta>=0?
       '<p class="astra-angle-measure"><b>Précision de l’aspect</b> · écart à l’angle exact : '+safe(E.formatOrbExact(delta))+
       (Number.isFinite(allowedOrb)&&allowedOrb>0?' · orbe admis : '+safe(E.formatOrbExact(allowedOrb)):'')+
-      '. Plus cet écart est proche de 0°, plus la figure est géométriquement exacte.</p>':'';
+      '. Plus cet écart est proche de 0°, plus l’aspect est géométriquement exact.</p>':'';
     return '<div class="astra-angle-reading">'+
-      '<p class="astra-angle-intro"><strong>'+safe(aspectName)+' · '+rule.degree+'° · '+safe(rule.verb)+'</strong><span>'+safe(rule.meaning)+'</span></p>'+
-      '<dl class="astra-angle-roles"><div><dt>'+safe(planets[body])+(transit?' (en transit)':'')+'</dt><dd>'+safe(first)+'</dd></div>'+
-      '<div><dt>'+safe(planets[natal])+(transit?' (natal)':'')+'</dt><dd>'+safe(second)+'</dd></div></dl>'+
-      '<p class="astra-angle-context">'+safe(context)+'</p>'+deviation+
-      '<p class="astra-angle-note">L’angle ne modifie pas physiquement les astres : il relie les thèmes qui leur sont attribués dans la tradition astrologique.</p>'+
+      '<p class="astra-angle-intro"><strong>'+safe(aspectName)+' · '+reading.angle+'°</strong></p>'+
+      (summary?'<p>'+safe(reading.summary)+'</p>':'')+
+      '<dl class="astra-angle-roles"><div><dt>'+safe(first.name)+(transit?' (en transit)':'')+'</dt><dd>'+safe(transit?first.moving:first.focus)+'</dd></div>'+
+      '<div><dt>'+safe(second.name)+(transit?' (natal)':'')+'</dt><dd>'+safe(transit?second.natal:second.focus)+'</dd></div></dl>'+
+      '<p class="astra-angle-context">'+safe(reading.interaction)+'</p>'+deviation+
+      '<p class="astra-angle-note">Lecture symbolique traditionnelle : l’angle ne modifie pas physiquement les astres.</p>'+
       '</div>';
   }
   const filtersMap = {all:'Tous',exact:'Aspects exacts',slow:'Transits lents',fast:'Transits rapides',moon:'Phases lunaires',station:'Stations'};
@@ -1371,7 +1354,7 @@
         '<div class="natal-fact"><b>Évolution du contact</b><p>'+safe(trendLabels[contact.trend]||'Sens non disponible')+'</p></div>'+
         '<div class="natal-fact"><b>Période dans l’orbe automatique (estimation)</b>'+range+
         '<p>Durée approchée entre l’entrée et la sortie de l’orbe retenu, hors éventuels retours rétrogrades.</p></div>'+
-        '<div class="natal-symbolic"><b>Comprendre cet aspect</b>'+angleReading(contact.body,contact.natal,contact.aspect,{transit:true,delta:contact.delta,allowedOrb:contact.orb})+'</div>'+
+        '<div class="natal-symbolic"><b>Comprendre cet aspect</b>'+angleReading(contact.body,contact.natal,contact.aspect,{transit:true,delta:contact.delta,allowedOrb:contact.orb,summary:true})+'</div>'+
         '<p class="natal-disclaimer">Conventions astrologiques, pas de prédiction scientifique.</p></article>';
     }
     if(selected?.kind!=='transit')return natalDetail(snapshot.chart);
