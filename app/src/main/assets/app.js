@@ -1826,9 +1826,9 @@
       '<div class="natal-houses">'+houseButtons+'</div></section>';
     const contents=choice==='aspects'?aspectsList:choice==='houses'?housesList:planetList;
     return '<section class="card natal-card natal-explore" id="natalChart">'+
-      '<div class="natal-subpage-heading">'+pageBack+
-      '<p class="natal-section-lead">Choisis une rubrique, puis appuie sur un élément pour le découvrir.</p>'+
+      '<div class="natal-explore-toolbar" role="group" aria-label="Navigation et réglages du thème">'+pageBack+
       '<button type="button" class="natal-settings-link" data-profile-screen="settings">Réglages</button></div>'+
+      '<p class="natal-section-lead natal-explore-intro">Choisis une rubrique, puis un élément pour découvrir sa signification.</p>'+
       notice+selector+'<div id="natalExplorerPanel" class="natal-explorer-panel">'+contents+'</div>'+
       '<details class="natal-explore-wheel"'+(exploreWheelOpen?' open':'')+'>'+
       '<summary>Voir aussi la carte du ciel</summary>'+
