@@ -558,15 +558,26 @@
   }
   function solarMonthSummary(periods){
     if(!periods.mostPresent.length)
-      return '<p class="astra-calendar-solar-note">☉ Positions solaires à midi indisponibles pour ce mois.</p>';
+      return '<p class="astra-calendar-solar-note">☉ Signe solaire indisponible</p>';
     const names=periods.mostPresent.map(i=>zodiacNames[i]).join(' et ');
-    const pct=Math.round(periods.max/periods.dayCount*100);
-    const complete=periods.indices.every(index=>index!==null);
-    const days=new Intl.NumberFormat('fr-FR',{maximumFractionDigits:1}).format(periods.max);
-    const visual=periods.ingresses.length?' · Jour du passage partagé 50/50 (repère visuel)':'';
-    return '<p class="astra-calendar-solar-note">☉ '+(periods.mostPresent.length>1?'Signes les plus présents':'Signe le plus présent')+
-      ' : <b>'+safe(names)+'</b> · '+days+' j ('+pct+' %)'+
-      '<span> · Selon la position du Soleil à midi'+visual+(complete?'':' · données partielles')+'</span></p>';
+    return '<p class="astra-calendar-solar-note">☉ <span>Soleil dominant</span> <strong>'+safe(names)+'</strong></p>';
+  }
+  function solarCalendarExplanation(periods){
+    const hasData=periods?.mostPresent?.length;
+    const names=hasData?periods.mostPresent.map(i=>zodiacNames[i]).join(' et '):'';
+    const pct=hasData?Math.round(periods.max/periods.dayCount*100):0;
+    const days=hasData?new Intl.NumberFormat('fr-FR',{maximumFractionDigits:1}).format(periods.max):'';
+    const complete=hasData&&periods.indices.every(index=>index!==null);
+    const sunText=hasData?
+      'Signe solaire le plus présent : '+safe(names)+' · '+days+' jours ('+pct+' %). Le calcul repose sur la position du Soleil à midi, pour le mois affiché. '+
+      (periods.ingresses.length?'Le jour d’entrée dans un nouveau signe est partagé visuellement en deux moitiés (50/50), quelle que soit l’heure réelle du passage. ':'')+
+      (complete?'':'Certaines positions ne sont pas disponibles. '):
+      'Positions solaires indisponibles pour ce mois.';
+    return '<details class="calendar-help"><summary>Comprendre le calendrier</summary>'+
+      '<div class="calendar-help-body"><p><strong>Couleurs solaires</strong> · '+sunText+'</p>'+
+      '<p><strong>Icônes lunaires</strong> · Chaque disque représente la phase de la Lune à midi ; les Nouvelles Lunes et Pleines Lunes exactes sont mises en évidence.</p>'+
+      '<p><strong>Repères</strong> · ✦ aspect exact · ~ aspect en cours · point rose : note du journal.</p>'+
+      '</div></details>';
   }
   function solarDayBand(longitude){
     const index=solarSignIndex(longitude);
@@ -1024,14 +1035,15 @@
       '<h2>'+safe(new Intl.DateTimeFormat('fr-FR',{month:'long',year:'numeric'}).format(month))+'</h2>'+
       '<button type="button" class="arrow" data-month="1" aria-label="Mois suivant">›</button></div>'+
 
-      (state.profile?'<details class="calendar-options"><summary>Options d’affichage</summary>'+switcher()+filters()+'</details>':'')+
       '<div class="calendar astra-calendar-board"><div class="cal-grid">'+['L','M','M','J','V','S','D'].map((x,i)=>
       '<span class="weekday"><span aria-hidden="true">'+x+'</span><span class="astra-sr-only">'+['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'][i]+'</span></span>').join('')+weeks.join('')+'</div>'+
       (periods?solarMonthSummary(periods):'')+
       (state.profile?'<div class="calendar-phase-legend" aria-label="Légende des marqueurs du calendrier">'+
       '<span class="cal-legend-item"><span class="moon-phase-legend-dot new" aria-hidden="true">'+moonPhaseIcon(0)+'</span> Nouvelle Lune</span>'+
       '<span class="cal-legend-item"><span class="moon-phase-legend-dot full" aria-hidden="true">'+moonPhaseIcon(180)+'</span> Pleine Lune</span>'+
-      '</div><p class="tiny">Icône lunaire : phase à midi · ✦ contact exact · ~ aspect actif · point rose : journal</p>':'')+'</div>'+
+      '</div>':'')+
+      (state.profile?solarCalendarExplanation(periods):'')+'</div>'+
+      (state.profile?'<details class="calendar-options"><summary>Options d’affichage</summary>'+switcher()+filters()+'</details>':'')+
       status()+calendarDayInspector()+personalEventEditor()+detailView();
   }
   function initDraft() {
