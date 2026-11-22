@@ -68,11 +68,11 @@ const PAIR_TOPICS=Object.freeze({
   'Neptune-Pluto':'les idéaux collectifs et les remises en question radicales'
 });
 export const ASPECT_MODES=Object.freeze({
-  Conjonction:{angle:0,label:'la conjonction',action:'concentre les deux fonctions autour de',nuance:'L’association peut intensifier une qualité, mais aussi rendre plus difficile la prise de recul.',question:'Comment relier ces deux registres sans que l’un absorbe l’autre ?'},
-  Sextile:{angle:60,label:'le sextile',action:'offre une possibilité de coopération autour de',nuance:'Cette facilité demande généralement une initiative pour devenir une ressource.',question:'Quel geste concret aiderait ces deux registres à coopérer ?'},
-  Carré:{angle:90,label:'le carré',action:'fait apparaître une friction concernant',nuance:'La tension n’est pas une fatalité : elle demande d’identifier des besoins différents et un ajustement.',question:'Quelle contradiction apparaît, et quel ajustement serait possible ?'},
-  Trigone:{angle:120,label:'le trigone',action:'suggère une circulation plus fluide dans',nuance:'Une aisance symbolique n’équivaut pas à un résultat automatique : elle peut aussi installer des habitudes.',question:'Quelle ressource semble naturelle, et comment l’utiliser consciemment ?'},
-  Opposition:{angle:180,label:'l’opposition',action:'met en regard deux pôles de',nuance:'La recherche d’équilibre importe plus que le choix d’un camp ; chaque fonction peut éclairer l’autre.',question:'Comment donner une place aux deux pôles sans les confondre ?'}
+  Conjonction:{angle:0,label:'la conjonction',action:'fait converger les fonctions des deux astres',nuance:'L’association peut intensifier une qualité, mais aussi rendre plus difficile la prise de recul.',question:'Comment relier ces deux registres sans que l’un absorbe l’autre ?'},
+  Sextile:{angle:60,label:'le sextile',action:'ouvre une possibilité de coopération',nuance:'Cette facilité demande généralement une initiative pour devenir une ressource.',question:'Quel geste concret aiderait ces deux registres à coopérer ?'},
+  Carré:{angle:90,label:'le carré',action:'fait apparaître une friction entre deux fonctions',nuance:'La tension n’est pas une fatalité : elle demande d’identifier des besoins différents et un ajustement.',question:'Quelle contradiction apparaît, et quel ajustement serait possible ?'},
+  Trigone:{angle:120,label:'le trigone',action:'suggère une circulation plus fluide entre les fonctions',nuance:'Une aisance symbolique n’équivaut pas à un résultat automatique : elle peut aussi installer des habitudes.',question:'Quelle ressource semble naturelle, et comment l’utiliser consciemment ?'},
+  Opposition:{angle:180,label:'l’opposition',action:'met en regard deux pôles symboliques',nuance:'La recherche d’équilibre importe plus que le choix d’un camp ; chaque fonction peut éclairer l’autre.',question:'Comment donner une place aux deux pôles sans les confondre ?'}
 });
 
 function pairKey(a,b){
@@ -94,10 +94,10 @@ export function describeAspectPair(moving,natal,name,{context='natal'}={}){
   const from=PLANET_ROLES[moving],to=PLANET_ROLES[natal],mode=ASPECT_MODES[name];
   const topic=moving===natal?from.focus+' à deux moments différents':PAIR_TOPICS[pairKey(moving,natal)];
   if(!topic)throw new RangeError('Axe astrologique non défini');
-  const summary='Dans la tradition astrologique, '+mode.label+' ('+mode.angle+'°) '+mode.action+' '+topic+'. '+mode.nuance;
+  const summary='Dans la tradition astrologique, '+mode.label+' ('+mode.angle+'°) '+mode.action+'. L’axe concerné réunit '+topic+'. '+mode.nuance;
   const interaction=context==='transit'?
     'À la date choisie, '+from.name+' en transit symbolise '+from.moving+
-    ' ; il entre en relation avec '+to.name+' natal, associé à '+to.natal+
+    ' ; sa position est comparée à celle de '+to.name+' natal, associée à '+to.natal+
     '. Le sens de lecture va du mouvement actuel vers ce repère de naissance.':
     'Dans le thème natal, '+from.name+' renvoie à '+from.focus+
     ' et '+to.name+' à '+to.focus+
@@ -105,6 +105,6 @@ export function describeAspectPair(moving,natal,name,{context='natal'}={}){
   return Object.freeze({
     title:from.name+' '+name.toLowerCase()+' '+to.name+(context==='transit'?' natal':''),
     context,angle:mode.angle,axis:topic,summary,interaction,
-    question:mode.question+' Réfléchis notamment à '+topic+'.'
+    question:mode.question+' L’axe à examiner concerne '+topic+'.'
   });
 }
