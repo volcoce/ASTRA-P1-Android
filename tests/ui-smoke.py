@@ -518,6 +518,57 @@ if __name__ == '__main__':
                 "getComputedStyle(document.documentElement).getPropertyValue('--astra-calendar-ink').trim()"
             )=='#F8EFD5'
             capture('settings-dark-393')
+            # Regression: the natal reading must not use pale text on white cards.
+            page.locator('[data-profile-screen="overview"]').click()
+            page.locator('.natal-wheel [data-natal-body="Sun"]').click()
+            assert page.locator('#natalSelectionInfo').is_visible()
+            reading=page.evaluate("""() => {
+              const sheet=document.querySelector('#natalSelectionInfo');
+              const nav=document.querySelector('.bottom-nav');
+              const rgb=x=>(x.match(/[\\d.]+/g)||[]).slice(0,3).map(Number);
+              const lum=x=>rgb(x).map(v=>{
+                v/=255;return v<=0.04045?v/12.92:((v+0.055)/1.055)**2.4;
+              }).reduce((a,b,i)=>a+b*[.2126,.7152,.0722][i],0);
+              const ratio=(a,b)=>{
+                const x=lum(a),y=lum(b);
+                return (Math.max(x,y)+.05)/(Math.min(x,y)+.05);
+              };
+              const selectors=[
+                ['sheet-title','.natal-context-bar h2','.natal-context-bar'],
+                ['close','.natal-context-bar button','.natal-context-bar button'],
+                ['planet','.natal-detail-body h3','.natal-context-sheet'],
+                ['fact-heading','.natal-fact>b','.natal-fact'],
+                ['fact-text','.natal-fact p','.natal-fact'],
+                ['symbolic-heading','.natal-symbolic>b','.natal-symbolic'],
+                ['symbolic-text','.natal-symbolic p','.natal-symbolic'],
+                ['reflection-heading','.natal-reflection>b','.natal-reflection'],
+                ['reflection-text','.natal-reflection p','.natal-reflection']
+              ];
+              const values=Object.fromEntries(selectors.map(([name,selector,bg])=>{
+                const el=sheet.querySelector(selector);
+                const surface=sheet.querySelector(bg)||sheet;
+                return [name,ratio(getComputedStyle(el).color,
+                                  getComputedStyle(surface).backgroundColor)];
+              }));
+              const sr=sheet.getBoundingClientRect(),nr=nav.getBoundingClientRect();
+              return {values,bottomGap:nr.top-sr.bottom,
+                surface:getComputedStyle(sheet.querySelector('.natal-fact')).backgroundColor};
+            }""")
+            assert all(value>=4.5 for value in reading['values'].values()),reading
+            assert reading['bottomGap']>=7,reading
+            assert reading['surface']!='rgb(255, 255, 255)',reading
+            capture('natal-reading-dark-393')
+            page.set_viewport_size({'width':1280,'height':800})
+            desktop_gap=page.evaluate("""() => {
+              const sheet=document.querySelector('#natalSelectionInfo').getBoundingClientRect();
+              const nav=document.querySelector('.bottom-nav').getBoundingClientRect();
+              return nav.top-sheet.bottom;
+            }""")
+            assert desktop_gap>=7,desktop_gap
+            capture('natal-reading-dark-desktop-1280')
+            page.set_viewport_size({'width':393,'height':844})
+            page.locator('[data-close-natal-detail]').click()
+            page.locator('[data-profile-screen="settings"]').click()
             page.locator('[data-tab="calendar"]').click()
             capture('calendar-dark-393')
             assert page.evaluate("""() => {
