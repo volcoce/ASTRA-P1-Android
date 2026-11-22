@@ -535,7 +535,6 @@ html{background:#f5f1ee}
 .natal-wheel [role="button"]:focus-visible>circle{
   stroke:var(--astra-focus-ring);stroke-width:3
 }
-body.astra-focus-open .top,body.astra-focus-open 
 @media(hover:hover) and (pointer:fine){
   .ghost:not(:disabled):hover,.natal-settings-link:hover,
   .natal-back:hover,.natal-focus-launch button:hover,.natal-focus-close:hover{
@@ -589,7 +588,6 @@ html,body{width:100%;min-width:0;max-width:100%}
   width:min(100%,max(240px,calc(100dvh - 260px)));max-height:none;
   overflow:auto;flex:0 1 auto
 }
-body.astra-input-active 
 body.astra-input-active .app-shell{padding-bottom:20px}
 .field input,.field select,.field textarea,.natal-transit-time input{max-width:100%}
 .field-grid{grid-template-columns:repeat(2,minmax(0,1fr))}

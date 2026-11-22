@@ -50,3 +50,10 @@
 @media(max-height:500px) and (orientation:landscape){
   :root{--astra-nav-clearance:68px}
 }
+
+/* These are global interaction states, not route-specific exceptions. */
+body.astra-focus-open .top,
+body.astra-focus-open .bottom-nav{visibility:hidden}
+body.astra-input-active .bottom-nav{
+  visibility:hidden;pointer-events:none
+}
