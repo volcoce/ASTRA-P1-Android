@@ -655,31 +655,41 @@
       .slice().sort((a,b)=>a.at.localeCompare(b.at));
     const lunarPhaseAngles={'Nouvelle Lune':0,'Premier quartier':90,
       'Pleine Lune':180,'Dernier quartier':270};
-    const ingressMarkup=lunarIngresses.map(entry=>
-      '<div class="astra-lunar-ingress">'+
-        '<p class="astra-lunar-kicker">CHANGEMENT DE SIGNE LUNAIRE</p>'+
-        '<div class="astra-lunar-change-line">'+
-          '<h3 class="astra-lunar-change-title">Lune en '+safe(entry.fromSign)+
-          ' <span class="astra-lunar-arrow" aria-hidden="true">→</span> '+
-          safe(entry.toSign)+'</h3>'+
-          '<time class="astra-lunar-change-time" datetime="'+safe(entry.at)+'">'+
-            safe(atTime(entry.at))+'</time>'+
-        '</div>'+
-      '</div>').join('');
-    const phaseMarkup=exactLunarPhases.map(event=>
-      '<div class="astra-lunar-phase-summary">'+
-        '<span class="astra-lunar-phase-icon" aria-hidden="true">'+
+    // The heading describes the whole civil day, unlike the icon at noon.
+    const firstIngress=lunarIngresses[0];
+    const moonHeading=firstIngress?
+      safe(firstIngress.fromSign)+' <span class="astra-lunar-arrow" aria-hidden="true">→</span> '+
+      safe(firstIngress.toSign):
+      (sky?'Lune en '+safe(moonSign):'Position lunaire indisponible');
+    const moonHeadingLabel=firstIngress?
+      'Lune en '+firstIngress.fromSign+' puis '+firstIngress.toSign:
+      (sky?'Lune en '+moonSign:'Position lunaire indisponible');
+    const moonSubtitle=firstIngress?
+      '☾ Lune · Changement à <time datetime="'+safe(firstIngress.at)+'">'+
+        safe(atTime(firstIngress.at))+'</time>':
+      (exactLunarPhases.length?'☾ Lune · Position à midi':safe(moonStage));
+    const furtherIngresses=lunarIngresses.slice(1).map(entry=>
+      '<p class="astra-lunar-additional-ingress">Puis '+safe(entry.fromSign)+
+      ' → '+safe(entry.toSign)+' à <time datetime="'+safe(entry.at)+'">'+
+      safe(atTime(entry.at))+'</time></p>').join('');
+    // Only exact events are highlighted; the noon phase is never mistaken for
+    // the phase/sign at the event's own instant.
+    const phaseHighlights=exactLunarPhases.map(event=>{
+      const major=event.name==='Pleine Lune'||event.name==='Nouvelle Lune';
+      const kind=event.name==='Pleine Lune'?'is-full':
+        event.name==='Nouvelle Lune'?'is-new':'is-quarter';
+      return '<div class="astra-lunar-highlight '+kind+'">'+
+        '<span class="astra-lunar-highlight-icon" aria-hidden="true">'+
           moonPhaseIcon(lunarPhaseAngles[event.name],'cell')+'</span>'+
-        '<div class="astra-lunar-phase-copy">'+
-          '<p class="astra-lunar-phase-title">Phase lunaire</p>'+
-          '<p class="astra-lunar-phase-detail">'+safe(event.name)+
-            ' à <time datetime="'+safe(event.at)+'">'+safe(atTime(event.at))+
-            '</time></p>'+
+        '<div class="astra-lunar-highlight-copy">'+
+          '<p class="astra-lunar-highlight-kicker">'+
+            (major?'ÉVÉNEMENT LUNAIRE MAJEUR':'PHASE LUNAIRE EXACTE')+'</p>'+
+          '<h3 class="astra-lunar-highlight-title">'+safe(eventTitle(event))+'</h3>'+
+          '<time class="astra-lunar-highlight-time" datetime="'+safe(event.at)+'">'+
+            safe(atTime(event.at))+'</time>'+
         '</div>'+
-      '</div>').join('');
-    const dailyLunarMoments=ingressMarkup||phaseMarkup?
-      '<section class="astra-day-moon-moments" aria-label="Changements lunaires du jour">'+
-        ingressMarkup+phaseMarkup+'</section>':'';
+      '</div>';
+    }).join('');
     const entry=state.journal[selected];
     const todayKey=isoDay(new Date()),isCurrent=selected===todayKey;
     const count=events.length;
@@ -690,15 +700,15 @@
       '<section class="astra-day-hero" aria-label="Lune et événements pour cette date">'+
         '<div class="astra-day-hero-copy"><p class="astra-hero-kicker">LE CIEL DU '+safe(new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'long',timeZone:'UTC'}).format(new Date(selected+'T12:00:00Z')).toLocaleUpperCase('fr-FR'))+'</p>'+
         '<div class="astra-hero-moon"><span class="astra-hero-moon-icon" aria-hidden="true">'+moonPhaseIcon(sky?.moonPhase,'hero')+'</span>'+
-        '<div><h2 class="astra-moon-title">'+(sky?'Lune en '+safe(moonSign):'Position lunaire indisponible')+'</h2>'+
-        '<p class="astra-moon-phase">'+safe(moonStage)+'</p></div></div>'+
+        '<div class="astra-hero-moon-copy"><h2 class="astra-moon-title" aria-label="'+safe(moonHeadingLabel)+'">'+moonHeading+'</h2>'+
+        '<p class="astra-moon-phase">'+moonSubtitle+'</p></div></div>'+
         '<p class="astra-sky-reference">Position à 12 h · '+safe(zone)+' · '+(state.mode==='sidereal'?'sidéral':'tropical')+'</p>'+
+        furtherIngresses+phaseHighlights+
         solarDayBand(sky?.sunLongitude)+
         '<div class="astra-hero-stat"><strong>'+count+'</strong><span>'+(
           count===1?'événement calculé':'événements calculés')+' pour cette date</span></div></div>'+
         '<button type="button" class="astra-hero-link" data-scroll-to="todayEvents">Voir les événements <span aria-hidden="true">↓</span></button>'+
       '</section>'+status()+
-      dailyLunarMoments+
       '<button type="button" class="astra-day-journal-link" data-goto="journal">'+
         '<span aria-hidden="true">✎</span> '+(entry?'Relire mes notes':'Noter cette journée')+
         '<span aria-hidden="true">›</span></button>'+

@@ -12,7 +12,7 @@ Do not reproduce Flo's visual branding. The reusable information architecture is
 
 **Ce jour** must present:
 1. Select a day from a week strip (Monday–Sunday) with previous/next week accessible.
-2. One hero showing **Moon zodiac sign and an illustrated lunar-phase icon calculated at local noon**, with timezone and zodiac system stated; when the Moon changes sign or a lunar quarter occurs that civil day, display the precise chronological events and explain any sign difference. Do not imply a noon Moon sign applies all day. The count of exact events is secondary; never invent a prediction or sentiment.
+2. One hero showing **Moon zodiac sign and an illustrated lunar-phase icon calculated at local noon**, with timezone and zodiac system stated; on days with lunar ingress, show the sign path (e.g. Taureau → Gémeaux) in the hero heading and the exact ingress hour below it. Show any exact major lunar phase in a distinct inset WITHIN that same hero, using the zodiac sign at the phase instant and its exact hour. Keep the original noon-phase icon beside the heading. Do not imply a noon Moon sign applies all day. The count of exact events is secondary; never invent a prediction or sentiment.
 3. A compact horizontally scrollable set of **secondary** widgets: Sun sign at that same local noon, journal entry, natal chart. Do not duplicate the Moon phase in a second card.
 4. A vertically scrolling feed of first events with explicit expansion for the remainder.
 5. Secondary in-orb aspects under an accessible disclosure. Ensure no user loses the underlying astronomical data.
@@ -145,7 +145,7 @@ Last updated: 2026-11-20.
 
 ### P1 — Application aux quatre écrans
 
-- **Ce jour** : date/semainier, Lune à midi, chronologie lunaire indépendante, journal, événements calculés, aspects en cours repliés.
+- **Ce jour** : date/semainier, Lune à midi et parcours de signe dans une carte unique, encart de phase exacte dans cette même carte, journal, événements calculés, aspects en cours repliés.
 - **Ce mois** : navigation, résumé, phases majeures avant métriques secondaires, premiers événements, lien calendrier.
 - **Calendrier** : grille lisible, ruban solaire **en fond continu hebdomadaire** (jamais une carte par jour), éléments zodiacaux, partage visuel 50/50, arrondis aux changements de signe, événements personnels multi-jours au-dessus.
 - **Mon ciel** : résumé Soleil/Lune/Ascendant, une action principale d’exploration, onglets d’analyse et roue accessible, outils avancés secondaires.

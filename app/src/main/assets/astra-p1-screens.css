@@ -47,53 +47,76 @@
   background:var(--color-cream);color:var(--color-deep-ocean);
   border:1px solid var(--color-deep-ocean);border-radius:var(--astra-radius-md)
 }
-.astra-day-moon-moments{
-  max-width:840px;margin:0 auto 16px;padding:17px 19px;
-  border:1px solid var(--astra-divider);border-radius:var(--astra-radius-lg);
-  background:var(--astra-surface);color:var(--astra-ink);
-  display:grid;gap:14px
+/* Lunar path and exact phases are integrated into the only daily hero.
+   The noon phase icon is retained; event-phase icons show exact moments. */
+.astra-hero-moon-copy{flex:1;min-width:0}
+.astra-day-hero .astra-moon-title{overflow-wrap:normal;word-break:normal}
+.astra-day-hero .astra-lunar-arrow{
+  color:var(--color-deep-ocean);font:700 .9em/1 var(--astra-font-body);
+  white-space:nowrap
 }
-.astra-lunar-ingress+.astra-lunar-ingress{
-  border-top:1px solid var(--astra-divider);padding-top:14px
+.astra-day-hero .astra-moon-phase{margin-top:7px;line-height:1.45}
+.astra-day-hero .astra-moon-phase time,
+.astra-lunar-highlight-time,.astra-lunar-additional-ingress time{
+  font-variant-numeric:tabular-nums
 }
-.astra-lunar-kicker{
-  margin:0 0 8px;color:var(--astra-muted);font-size:.75rem;line-height:1.4;
-  font-weight:800;letter-spacing:.075em
+.astra-lunar-additional-ingress{
+  margin:10px 0 0;color:var(--color-deep-ocean);
+  font-size:.875rem;line-height:1.45
 }
-.astra-lunar-change-line{
-  display:flex;align-items:center;justify-content:space-between;
-  flex-wrap:wrap;gap:8px 12px;min-width:0
-}
-.astra-day-moon-moments h3.astra-lunar-change-title{
-  margin:0;color:var(--astra-ink);font-family:var(--astra-font-display);
-  font-size:clamp(1.125rem,4vw,1.375rem);font-weight:700;line-height:1.3;
-  overflow-wrap:break-word;flex:1 1 180px;min-width:0
-}
-.astra-lunar-arrow{color:var(--color-copper);margin:0 .08em;font-family:var(--astra-font-body)}
-.astra-lunar-change-time{
-  white-space:nowrap;font-weight:750;font-size:.875rem;line-height:1.4;
-  font-variant-numeric:tabular-nums;color:var(--astra-ink);
-  background:var(--astra-secondary-surface);padding:5px 10px;
-  border-radius:var(--astra-radius-pill)
-}
-.astra-lunar-phase-summary{
+.astra-lunar-highlight{
   display:flex;align-items:center;gap:12px;min-width:0;
-  border-top:1px solid var(--astra-divider);padding-top:14px
+  margin-top:16px;padding:13px 14px;
+  background:#FFF4D7;border:2px solid #B36C32;
+  border-radius:var(--astra-radius-lg);
+  color:var(--color-deep-ocean)
 }
-.astra-lunar-phase-summary:first-child{border-top:0;padding-top:0}
-.astra-lunar-phase-icon{
-  flex:none;display:grid;place-items:center;width:41px;height:41px;
-  border-radius:50%;background:var(--astra-secondary-surface)
+.astra-lunar-highlight.is-new{
+  background:#EEE5F5;border-color:#745394
 }
-.astra-lunar-phase-icon .astra-phase-graphic{width:27px;height:27px}
-.astra-lunar-phase-copy{min-width:0}
-.astra-lunar-phase-title{
-  margin:0 0 3px;font-weight:750;font-size:.9375rem;line-height:1.35;color:var(--astra-ink)
+.astra-lunar-highlight.is-quarter{
+  background:var(--color-cream);border-color:var(--color-deep-ocean)
 }
-.astra-lunar-phase-detail{
-  margin:0;color:var(--astra-muted);font-size:.875rem;line-height:1.45
+.astra-lunar-highlight-icon{
+  flex:none;display:grid;place-items:center;width:51px;height:51px;
+  border-radius:50%;background:#F5E3B8
 }
-.astra-lunar-phase-detail time{font-variant-numeric:tabular-nums}
+.astra-lunar-highlight.is-new .astra-lunar-highlight-icon{background:#DCD1EB}
+.astra-lunar-highlight.is-quarter .astra-lunar-highlight-icon{background:#E3DFD5}
+.astra-lunar-highlight-icon .astra-phase-graphic{width:39px;height:39px}
+.astra-lunar-highlight-copy{min-width:0}
+.astra-lunar-highlight-kicker{
+  margin:0 0 4px;color:#805029;font-size:.6875rem;
+  line-height:1.4;font-weight:800;letter-spacing:.045em
+}
+.astra-lunar-highlight.is-new .astra-lunar-highlight-kicker{color:#60467C}
+.astra-lunar-highlight.is-quarter .astra-lunar-highlight-kicker{color:#425E68}
+.astra-day-hero h3.astra-lunar-highlight-title{
+  margin:0 0 4px;color:var(--color-deep-ocean);
+  font:700 clamp(1.0625rem,3.8vw,1.25rem)/1.3 var(--astra-font-display);
+  overflow-wrap:break-word
+}
+.astra-lunar-highlight-time{
+  display:block;color:var(--color-deep-ocean);
+  font-size:.875rem;line-height:1.4;font-weight:750
+}
+:root[data-astra-theme="dark"] .astra-day-hero .astra-lunar-arrow,
+:root[data-astra-theme="dark"] .astra-day-hero .astra-lunar-additional-ingress{
+  color:var(--color-cream)
+}
+:root[data-astra-theme="dark"] .astra-lunar-highlight{
+  background:#5A442F;border-color:#DFA86B
+}
+:root[data-astra-theme="dark"] .astra-lunar-highlight.is-new{
+  background:#433553;border-color:#BB9FD2
+}
+:root[data-astra-theme="dark"] .astra-lunar-highlight.is-quarter{
+  background:#314A55;border-color:#9FBAC6
+}
+:root[data-astra-theme="dark"] .astra-lunar-highlight :is(.astra-lunar-highlight-title,
+  .astra-lunar-highlight-time,.astra-lunar-highlight-kicker){
+  color:var(--color-cream)
+}
 .astra-day-journal-link{
   max-width:840px;width:100%;margin:0 auto 23px;
   background:var(--astra-surface-alt);color:var(--astra-ink);
@@ -112,7 +135,6 @@
   background:var(--color-dandelion);color:var(--color-deep-ocean)
 }
 :root[data-astra-theme="dark"] .astra-hero-stat{border-color:#FFFFFF55}
-:root[data-astra-theme="dark"] .astra-day-moon-moments{background:var(--astra-surface);border-color:var(--astra-border)}
 
 /* CE MOIS — month navigation, summary, major phases, supporting metrics,
    then first chronological events and calendar entry */
@@ -237,6 +259,9 @@
   .astra-day-hero{padding:20px 17px}
   .astra-hero-moon-icon{width:51px;height:51px}
   .astra-hero-moon-icon .astra-phase-graphic{width:34px;height:34px}
+  .astra-lunar-highlight{padding:11px 12px;gap:10px}
+  .astra-lunar-highlight-icon{width:43px;height:43px}
+  .astra-lunar-highlight-icon .astra-phase-graphic{width:32px;height:32px}
   .astra-month-phases{grid-template-columns:1fr}
   .astra-month-phase{min-height:70px}
   .astra-month-headline{gap:10px}

@@ -11,25 +11,23 @@ test('P1 theme layer loads last after P0 semantic tokens and components',()=>{
   assert.ok(indices.every(n=>n>=0));
   assert.ok(indices[0]<indices[1]&&indices[1]<indices[2]);
 });
-test('P1 daily lunar timeline is separate from the hero and precedes the journal',()=>{
+test('P1 daily Moon transition and exact phase share one hero',()=>{
   const today=slice('  function today() {','  function monthOverview() {');
   assert.match(today,/solarDayBand\(sky\?\.sunLongitude\)/);
-  assert.match(today,/dailyLunarMoments\+\s*'<button type="button" class="astra-day-journal-link"/);
-  assert.match(today,/astra-event-feed/);
-  assert.match(p1,/\.astra-day-moon-moments/);
-  assert.match(p1,/\.astra-day-hero/);
-});
-test('P1 distinguishes Moon sign ingress from exact lunar phases',()=>{
-  const today=slice('  function today() {','  function monthOverview() {');
-  assert.match(today,/CHANGEMENT DE SIGNE LUNAIRE/);
-  assert.match(today,/Lune en '\+safe\(entry\.fromSign\)/);
-  assert.match(today,/safe\(entry\.toSign\)/);
-  assert.match(today,/Phase lunaire/);
+  assert.match(today,/firstIngress\?\s*safe\(firstIngress.fromSign\)/);
+  assert.match(today,/safe\(firstIngress.toSign\)/);
+  assert.match(today,/Changement à <time/);
+  assert.match(today,/moonPhaseIcon\(sky\?\.moonPhase,'hero'\)/);
+  assert.match(today,/astra-lunar-highlight/);
   assert.match(today,/moonPhaseIcon\(lunarPhaseAngles\[event.name\],'cell'\)/);
-  assert.match(today,/exactLunarPhases=day\.sky\.filter/);
-  assert.doesNotMatch(today,/Évolution de la Lune dans la journée|differentPhaseSign/);
-  assert.match(p1,/\.astra-lunar-change-title/);
-  assert.match(p1,/\.astra-lunar-phase-summary/);
+  assert.match(today,/eventTitle\(event\)/);
+  assert.match(today,/phaseHighlights\+\s*solarDayBand/);
+  assert.match(today,/astra-hero-link/);
+  assert.match(today,/astra-day-journal-link/);
+  assert.doesNotMatch(today,/dailyLunarMoments|astra-day-moon-moments|Évolution de la Lune dans la journée/);
+  assert.match(p1,/\.astra-day-hero/);
+  assert.match(p1,/\.astra-lunar-highlight\.is-full/);
+  assert.match(p1,/\.astra-lunar-highlight\.is-new/);
 });
 test('P1 monthly phases lead before secondary metrics and events',()=>{
   const month=slice('  function monthOverview() {','  function personalCalendarWeek(');

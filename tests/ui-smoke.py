@@ -565,6 +565,7 @@ if __name__ == '__main__':
                     assert page.locator('.astra-week-day').count()==7
                     assert page.locator('.astra-week-day[aria-pressed="true"]').count()==1
                     assert page.locator('.astra-day-hero').count()==1
+                    assert page.locator('.astra-day-moon-moments').count()==0
                     assert page.locator('.astra-moon-title').inner_text()=='Lune en Bélier'
                     assert page.locator('.astra-hero-moon-icon .astra-phase-graphic').count()==1
                     assert page.locator('.astra-hero-moon-icon .astra-phase-graphic.astra-phase-3').count()==1
@@ -650,22 +651,24 @@ if __name__ == '__main__':
             assert page.locator(f'.astra-week-day[data-day="{target}"]').count()==1
             page.evaluate('window.__moonScenario=true')
             page.locator(f'.astra-week-day[data-day="{target}"]').click()
-            assert page.locator('.astra-moon-title').inner_text()=='Lune en Taureau'
+            assert page.locator('.astra-day-hero').count()==1
+            assert page.locator('.astra-day-moon-moments').count()==0
+            assert page.locator('.astra-moon-title').inner_text()=='Taureau → Gémeaux'
+            assert page.locator('.astra-moon-title').get_attribute('aria-label')=='Lune en Taureau puis Gémeaux'
+            assert 'Changement à' in page.locator('.astra-moon-phase').inner_text()
+            assert page.locator('.astra-moon-phase time').count()==1
             assert 'Position à 12 h' in page.locator('.astra-sky-reference').inner_text()
-            # One clearly labelled zodiac change, independent from the
-            # phase reached later that day. Each retains its exact time.
-            assert page.locator('.astra-lunar-ingress').count()==1
-            assert page.locator('.astra-lunar-kicker').inner_text()=='CHANGEMENT DE SIGNE LUNAIRE'
-            assert page.locator('.astra-lunar-change-title').inner_text()=='Lune en Taureau → Gémeaux'
-            assert page.locator('.astra-lunar-change-time').count()==1
-            assert page.locator('.astra-lunar-phase-summary').count()==1
-            assert page.locator('.astra-lunar-phase-title').inner_text()=='Phase lunaire'
-            assert 'Pleine Lune à' in page.locator('.astra-lunar-phase-detail').inner_text()
-            assert page.locator('.astra-lunar-phase-icon .astra-phase-graphic').count()==1
-            times=page.locator('.astra-day-moon-moments time').all_text_contents()
+            # The noon Moon icon is preserved and the full-moon inset uses
+            # its own exact phase icon and zodiac position at the event.
+            assert page.locator('.astra-hero-moon-icon .astra-phase-graphic').count()==1
+            assert page.locator('.astra-day-hero .astra-lunar-highlight.is-full').count()==1
+            assert page.locator('.astra-lunar-highlight-kicker').inner_text()=='ÉVÉNEMENT LUNAIRE MAJEUR'
+            assert page.locator('.astra-lunar-highlight-title').inner_text()=='Pleine Lune en Gémeaux'
+            assert page.locator('.astra-lunar-highlight-time').count()==1
+            assert page.locator('.astra-lunar-highlight-icon .astra-phase-graphic.astra-phase-4').count()==1
+            times=page.locator('.astra-day-hero time').all_text_contents()
             assert len(times)==2
             assert all(time.strip() for time in times)
-            assert page.locator('.astra-day-moon-explanation').count()==0
             assert page.locator('.astra-lunar-milestone').count()==0
             page.evaluate('window.__moonScenario=false')
             page.locator('[data-tab="today"]').click()
