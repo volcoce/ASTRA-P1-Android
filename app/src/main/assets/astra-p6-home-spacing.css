@@ -1,0 +1,98 @@
+/* P6 — Mon ciel overview: one layout grid for every section.
+ * Older layers used 510, 590, 650, 670, 680, 720 and 750px caps at different
+ * breakpoints, and applied a 2-column grid to single CTA buttons on desktop.
+ * This single scoped layer removes those conflicting gutters without changing
+ * SVG positions, event handlers, the explorer or other screens. */
+:root{--astra-natal-home-column:680px}
+#app:has(>.natal-home)>.screen-intro{
+  width:100%;max-width:var(--astra-natal-home-column);
+  margin-left:auto;margin-right:auto;box-sizing:border-box
+}
+.natal-home.card{
+  width:100%;max-width:840px;min-width:0;
+  margin-left:auto;margin-right:auto;
+  padding:0;box-sizing:border-box
+}
+.natal-home> :is(
+  .natal-home-header,.natal-primary-cards,
+  .natal-home-actions--primary,.natal-overview-tabs,
+  .natal-wheel-viewport,.natal-overview-panel,
+  .natal-home-hint,.natal-focus-launch,
+  .natal-glossary,.natal-home-actions--secondary,
+  .natal-extras,.natal-warning,.notice
+){
+  width:100%;max-width:var(--astra-natal-home-column);
+  min-width:0;margin-left:auto;margin-right:auto;box-sizing:border-box
+}
+.natal-home>.natal-home-header{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;flex-wrap:wrap;padding:0;
+  margin-top:0;margin-bottom:16px
+}
+.natal-home>.natal-home-header>div{flex:1 1 160px;min-width:0}
+.natal-home>.natal-home-header .card-title,
+.natal-home>.natal-home-header .natal-home-subtitle{
+  padding:0;margin-left:0;margin-right:0;text-align:left
+}
+.natal-home>.natal-home-header .natal-settings-link{
+  flex:none;min-height:44px
+}
+.natal-home>.natal-primary-cards{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  margin-top:0;margin-bottom:14px;padding:8px;
+  gap:8px
+}
+.natal-home>.natal-primary-cards--two{
+  grid-template-columns:repeat(2,minmax(0,1fr))
+}
+.natal-home>.natal-home-actions--primary,
+.natal-home>.natal-home-actions--secondary{
+  display:grid;grid-template-columns:minmax(0,1fr);
+  gap:0
+}
+.natal-home>.natal-home-actions--primary{
+  margin-top:0;margin-bottom:18px
+}
+.natal-home>.natal-home-actions--secondary{
+  margin-top:18px;margin-bottom:16px
+}
+.natal-home :is(.natal-main-action,.natal-secondary-action){
+  width:100%;min-width:0;box-sizing:border-box;
+  justify-self:stretch
+}
+.natal-home>.natal-overview-tabs{
+  margin-top:0;margin-bottom:12px;
+}
+.natal-home>.natal-wheel-viewport{
+  margin-top:0;margin-bottom:0;
+  overflow-x:hidden;scrollbar-gutter:auto;
+}
+.natal-home>.natal-overview-panel{
+  margin-top:0;margin-bottom:12px;min-width:0
+}
+.natal-home>.natal-home-hint{
+  margin-top:10px;margin-bottom:4px;
+  padding:0 8px;text-align:center
+}
+.natal-home>.natal-focus-launch{
+  display:flex;justify-content:center;
+  margin-top:0;margin-bottom:18px
+}
+.natal-home>.natal-glossary{
+  margin-top:14px;margin-bottom:14px
+}
+.natal-home>.natal-extras{
+  margin-top:0;margin-bottom:12px
+}
+@media(max-width:480px){
+  .natal-home>.natal-home-header{gap:9px;margin-bottom:12px}
+  .natal-home>.natal-primary-cards{padding:6px 4px;gap:5px}
+  .natal-home>.natal-primary-cards .natal-summary-item{min-width:0}
+  .natal-home>.natal-home-actions--primary{margin-bottom:15px}
+  .natal-home>.natal-overview-tabs{margin-bottom:10px}
+  .natal-home>.natal-home-hint{margin-top:9px;padding:0 4px}
+}
+@media(max-width:350px){
+  .natal-home>.natal-home-header .natal-settings-link{padding:8px 10px}
+  .natal-home>.natal-primary-cards{padding:5px 3px;gap:4px}
+}
