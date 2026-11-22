@@ -31,8 +31,8 @@ test('solar month preserves real sign intervals and 50/50 ingress',()=>{
   assert.equal(p.totals[7],21.5);
   assert.equal(p.totals[8],8.5);
   assert.match(solarMonthSummary(p),/Soleil dominant/);
-  assert.doesNotMatch(solarMonthSummary(p),/50\\/50/);
-  assert.match(solarCalendarExplanation(p),/50\\/50/);
+  assert.doesNotMatch(solarMonthSummary(p),new RegExp('50/50'));
+  assert.match(solarCalendarExplanation(p),new RegExp('50/50'));
   assert.match(solarCalendarExplanation(p),/21,5 jours/);
 });
 test('solar ribbon remains full-width across adjacent months and has true ingress corners',()=>{
