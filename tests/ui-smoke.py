@@ -709,6 +709,13 @@ if __name__ == '__main__':
             page.locator('[data-tab="calendar"]').click()
             assert page.locator('.calendar-options').count()==1
             assert page.locator('.calendar-options').get_attribute('open') is None
+            assert page.locator('.calendar-help').count()==1
+            assert page.locator('.calendar-help').get_attribute('open') is None
+            assert page.evaluate("""() => {
+              const calendar=document.querySelector('.astra-calendar-board');
+              const options=document.querySelector('.calendar-options');
+              return !!calendar&&!!options&&Boolean(calendar.compareDocumentPosition(options)&Node.DOCUMENT_POSITION_FOLLOWING);
+            }"""), 'Options should be positioned after the calendar board'
             assert page.locator('h1.page-title').inner_text()=='Calendrier'
             # A single ribbon layer spans the seven date cells of each week.
             assert page.locator('.calendar .astra-calendar-date-week').count()>0
@@ -734,7 +741,13 @@ if __name__ == '__main__':
             assert page.locator('.calendar .day.astra-solar-cell').count()==0
             assert page.locator('.calendar .day[data-day$="-19"]').count()==1
             assert '50/50' in page.locator('.calendar .day[data-day$="-19"]').get_attribute('aria-label')
-            assert 'Signe le plus présent' in page.locator('.astra-calendar-solar-note').inner_text()
+            assert 'Soleil dominant' in page.locator('.astra-calendar-solar-note').inner_text()
+            assert 'Scorpion' in page.locator('.astra-calendar-solar-note').inner_text()
+            assert '72 %' not in page.locator('.astra-calendar-solar-note').inner_text()
+            page.locator('.calendar-help > summary').click()
+            assert 'Signe solaire le plus présent' in page.locator('.calendar-help-body').inner_text()
+            assert '50/50' in page.locator('.calendar-help-body').inner_text()
+            page.locator('.calendar-help > summary').click()
             page.locator('.calendar .day[data-day$="-19"]').click()
             assert page.locator('#calendarDayDialog[open]').count()==1
             assert 'moitié-moitié' in page.locator('.astra-calendar-sheet-solar').inner_text()
