@@ -208,3 +208,44 @@
   .astra-personal-dialog{padding:17px 12px max(18px,var(--astra-safe-bottom,18px))}
   .astra-personal-date-fields,.astra-personal-time-fields{gap:7px}
 }
+
+/* Reading an aspect: meaning first, planet roles second, measurement last. */
+.astra-angle-help{
+  margin-top:14px;border-top:1px solid var(--astra-divider);padding-top:6px;
+}
+.astra-angle-help>summary{
+  cursor:pointer;min-height:44px;padding:10px 0;
+  font-size:15px;font-weight:750;color:var(--astra-brand-strong);
+}
+.astra-angle-help>summary:focus-visible{
+  outline:3px solid var(--astra-focus);outline-offset:2px;border-radius:var(--astra-radius-sm);
+}
+.astra-angle-reading{
+  display:grid;gap:12px;margin-top:12px;min-width:0;
+  color:var(--astra-ink);font-size:15px;line-height:1.5;
+}
+.astra-angle-reading p{margin:0!important;font-size:15px!important;line-height:1.5!important;color:var(--astra-ink)!important}
+.astra-angle-intro strong{display:block;font-size:17px;line-height:1.35;color:var(--astra-ink)}
+.astra-angle-intro span{display:block;margin-top:6px}
+.astra-angle-roles{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0;
+}
+.astra-angle-roles>div{
+  padding:11px 12px;background:var(--astra-secondary-surface);
+  border:1px solid var(--astra-divider);border-radius:var(--astra-radius-md);min-width:0;
+}
+.astra-angle-roles dt{font-size:14px;font-weight:800;color:var(--astra-ink)}
+.astra-angle-roles dd{margin:5px 0 0;font-size:14px;color:var(--astra-muted);line-height:1.45}
+.astra-angle-reading .astra-angle-measure{
+  padding-top:10px;border-top:1px solid var(--astra-divider);
+  font-variant-numeric:tabular-nums;
+}
+.astra-angle-reading .astra-angle-note{
+  color:var(--astra-muted)!important;font-size:13px!important;
+}
+@media(max-width:390px){
+  .astra-angle-roles{grid-template-columns:1fr}
+}
+@media(prefers-contrast:more){
+  .astra-angle-roles>div{border-width:2px}
+}
