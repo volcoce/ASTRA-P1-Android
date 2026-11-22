@@ -1,11 +1,12 @@
 import * as Astronomy from 'astronomy-engine';
 import {describeEvent, DISCLAIMER} from './interpretations.mjs';
+import {describeAspectPair,PLANET_ROLES} from './aspect-readings.mjs';
 import {searchCities, normalizePlace} from './places.mjs';
 import {tropicalHouses,selectHouseSystem,HOUSE_SYSTEMS,houseOf,natalAspects} from './natal.mjs';
 import {layoutPlanetLabels,MIN_LABEL_SPACING_DEGREES} from './chart-layout.mjs';
 import {formatSignExact,formatOrbExact,filterNatalAspects,describeNatalPlanet,describeNatalHouse,describeNatalAspect,NATAL_ASPECT_FILTERS} from './natal-learning.mjs';
 import {ASPECTS,TARGETS,mod,signed,angularDistance,zodiacLongitude,lahiriApprox,formatSign,signNames,localToUtc,isoDay,validateProfile} from './core.mjs';
-export {ASPECTS,formatSign,localToUtc,validateProfile,describeEvent,DISCLAIMER,searchCities,normalizePlace,houseOf,layoutPlanetLabels,MIN_LABEL_SPACING_DEGREES,formatSignExact,formatOrbExact,filterNatalAspects,describeNatalPlanet,describeNatalHouse,describeNatalAspect,NATAL_ASPECT_FILTERS,selectHouseSystem,HOUSE_SYSTEMS};
+export {ASPECTS,formatSign,localToUtc,validateProfile,describeEvent,describeAspectPair,PLANET_ROLES,DISCLAIMER,searchCities,normalizePlace,houseOf,layoutPlanetLabels,MIN_LABEL_SPACING_DEGREES,formatSignExact,formatOrbExact,filterNatalAspects,describeNatalPlanet,describeNatalHouse,describeNatalAspect,NATAL_ASPECT_FILTERS,selectHouseSystem,HOUSE_SYSTEMS};
 export const BODIES=['Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto'];
 export const BODY_FR={Sun:'Soleil',Moon:'Lune',Mercury:'Mercure',Venus:'Vénus',Mars:'Mars',Jupiter:'Jupiter',Saturn:'Saturne',Uranus:'Uranus',Neptune:'Neptune',Pluto:'Pluton'};
 /* Automatic transit orbs: editorial astrological conventions, not astronomical constants. */
@@ -339,4 +340,4 @@ export function calculateMonth(profile,year,month,mode='tropical',orb='auto',opt
   return {year,month,mode,orb,chart,days,exact:exact.length,stations:stations.length,phases:phases.length,
     approximateNatal:!chart.timeKnown,calculatedAt:new Date().toISOString()};
 }
-if(typeof window!=='undefined')window.ASTRA_ENGINE={BODIES,BODY_FR,natalChart,calculateMonth,moonPhase,dailySky,sunSignIngress,moonSignChanges,upcomingMoonPhases,transitContactWindow,secondaryProgressions,compositeMidpoints,formatSign,validateProfile,localToUtc,describeEvent,DISCLAIMER,searchCities,normalizePlace,houseOf,layoutPlanetLabels,MIN_LABEL_SPACING_DEGREES,formatSignExact,formatOrbExact,filterNatalAspects,describeNatalPlanet,describeNatalHouse,describeNatalAspect,NATAL_ASPECT_FILTERS,transitSnapshot,HOUSE_SYSTEMS};
+if(typeof window!=='undefined')window.ASTRA_ENGINE={BODIES,BODY_FR,describeAspectPair,PLANET_ROLES,natalChart,calculateMonth,moonPhase,dailySky,sunSignIngress,moonSignChanges,upcomingMoonPhases,transitContactWindow,secondaryProgressions,compositeMidpoints,formatSign,validateProfile,localToUtc,describeEvent,DISCLAIMER,searchCities,normalizePlace,houseOf,layoutPlanetLabels,MIN_LABEL_SPACING_DEGREES,formatSignExact,formatOrbExact,filterNatalAspects,describeNatalPlanet,describeNatalHouse,describeNatalAspect,NATAL_ASPECT_FILTERS,transitSnapshot,HOUSE_SYSTEMS};
