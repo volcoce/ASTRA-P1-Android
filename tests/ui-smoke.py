@@ -219,6 +219,15 @@ if __name__ == '__main__':
             assert page.locator('.natal-summary-value').all_text_contents()==['Bélier','Bélier','Vierge']
             assert page.locator('h1.page-title').count()==1
             assert page.locator('.natal-home-header .card-title').inner_text()=='Ta carte de naissance'
+            # Mon ciel must remain a visible, padded, bordered card in both themes.
+            surface=page.locator('.natal-home.card').evaluate("""el=>{
+              const css=getComputedStyle(el);
+              return {border:parseFloat(css.borderTopWidth),
+                padding:parseFloat(css.paddingLeft),background:css.backgroundColor};
+            }""")
+            assert surface['border']>=1,surface
+            assert surface['padding']>=14,surface
+            assert surface['background'] not in ('rgba(0, 0, 0, 0)','transparent'),surface
             # The heading and subtitle must align with the centered summary and
             # primary action at both mobile and desktop breakpoints.
             def assert_birth_heading_alignment():
@@ -230,6 +239,8 @@ if __name__ == '__main__':
                     heading:box('.natal-home-header').left,
                     summary:box('.natal-home .natal-primary-cards').left,
                     action:box('.natal-home .natal-home-actions--primary').left,
+                    cardBorder:parseFloat(getComputedStyle(document.querySelector('.natal-home')).borderTopWidth),
+                    cardPadding:parseFloat(getComputedStyle(document.querySelector('.natal-home')).paddingLeft),
                     viewport:document.documentElement.clientWidth,
                     scroll:document.documentElement.scrollWidth
                   };
@@ -276,13 +287,23 @@ if __name__ == '__main__':
                 geometry=page.evaluate("""() => {
                   const box=s=>document.querySelector(s).getBoundingClientRect();
                   const intro=box('.screen-intro'),header=box('.natal-home-header');
+                  const introEl=document.querySelector('.screen-intro');
+                  const introStyle=getComputedStyle(introEl);
+                  const card=box('.natal-home');
+                  const cardStyle=getComputedStyle(document.querySelector('.natal-home'));
                   const selectors=[
                     '.natal-primary-cards','.natal-home-actions--primary',
                     '.natal-overview-tabs','.natal-wheel-viewport',
                     '.natal-home-hint','.natal-focus-launch',
                     '.natal-glossary','.natal-home-actions--secondary',
                     '.natal-extras'];
-                  return {intro:{left:intro.left,right:intro.right},
+                  return {
+                    intro:{left:intro.left+parseFloat(introStyle.paddingLeft),
+                      right:intro.right-parseFloat(introStyle.paddingRight)},
+                    card:{left:card.left,right:card.right,
+                      border:parseFloat(cardStyle.borderTopWidth),
+                      padding:parseFloat(cardStyle.paddingLeft),
+                      background:cardStyle.backgroundColor},
                     header:{left:header.left,right:header.right},
                     regions:selectors.map(selector=>{
                       const r=box('.natal-home>'+selector);
@@ -292,9 +313,13 @@ if __name__ == '__main__':
                       selector:s,left:box(s).left,right:box(s).right
                     }))};
                 }""")
+                assert geometry['card']['border']>=1,(width,geometry)
+                assert geometry['card']['padding']>=14,(width,geometry)
+                assert geometry['card']['background'] not in ('rgba(0, 0, 0, 0)','transparent'),(width,geometry)
                 for item in [geometry['intro'],*geometry['regions'],*geometry['actions']]:
                     assert abs(item['left']-geometry['header']['left'])<=2,(width,item,geometry)
                     assert abs(item['right']-geometry['header']['right'])<=2,(width,item,geometry)
+                assert geometry['header']['left']>=geometry['card']['left']+geometry['card']['padding'],(width,geometry)
                 metrics=page.locator('.natal-home .natal-wheel-viewport').evaluate("""el=>({
                   client:el.clientWidth,scroll:el.scrollWidth,
                   svg:el.querySelector('svg').getBoundingClientRect().width
