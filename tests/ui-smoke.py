@@ -529,6 +529,46 @@ if __name__ == '__main__':
             assert page.locator('.calendar .day').first.evaluate(
                 "el => getComputedStyle(el).color"
             )=='rgb(248, 239, 213)'
+            # Aspect text, category and disclosure must meet contrast in dark mode.
+            # The pastel glyph uses independent ink, never recolour the glyph itself.
+            page.locator('[data-tab="today"]').click()
+            assert page.locator('.astra-event-feed .event-button').count()>0
+            contrast=page.evaluate("""() => {
+              const feed=document.querySelector('.astra-event-feed');
+              const first=feed?.querySelector('.event-button');
+              const title=first?.querySelector('.event-body b');
+              const category=first?.querySelector('.event-category-label');
+              const arrow=first?.querySelector('.event-arrow');
+              const rgb=value=>(value.match(/[\\d.]+/g)||[]).slice(0,3).map(Number);
+              const luminance=value=>{
+                const channels=rgb(value).map(x=>{
+                  x/=255;return x<=0.04045?x/12.92:((x+0.055)/1.055)**2.4;
+                });
+                return channels[0]*.2126+channels[1]*.7152+channels[2]*.0722;
+              };
+              const contrast=(text,bg)=>{
+                const a=luminance(text),b=luminance(bg);
+                return (Math.max(a,b)+.05)/(Math.min(a,b)+.05);
+              };
+              const bg=getComputedStyle(feed).backgroundColor;
+              return {
+                title:contrast(getComputedStyle(title).color,bg),
+                category:category?contrast(getComputedStyle(category).color,bg):null,
+                arrow:contrast(getComputedStyle(arrow).color,bg),
+                buttonLabel:getComputedStyle(first).color,
+                moreWidth:(()=>{
+                  const more=document.querySelector('.astra-more-events>summary');
+                  return more?more.getBoundingClientRect().width:null;
+                })()
+              };
+            }""")
+            assert contrast['title']>=4.5,contrast
+            if contrast['category'] is not None:
+                assert contrast['category']>=4.5,contrast
+            assert contrast['arrow']>=3,contrast
+            if contrast['moreWidth'] is not None:
+                assert contrast['moreWidth']<=390,contrast
+            capture('today-dark-readable-events-393')
             page.locator('[data-tab="profile"]').click()
             page.locator('[data-profile-screen="settings"]').click()
             page.emulate_media(reduced_motion='reduce')
