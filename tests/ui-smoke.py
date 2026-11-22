@@ -652,12 +652,20 @@ if __name__ == '__main__':
             page.locator(f'.astra-week-day[data-day="{target}"]').click()
             assert page.locator('.astra-moon-title').inner_text()=='Lune en Taureau'
             assert 'Position à 12 h' in page.locator('.astra-sky-reference').inner_text()
-            assert page.locator('.astra-day-moon-moment.ingress').count()==1
-            assert 'La Lune entre en Gémeaux' in page.locator('.astra-day-moon-moment.ingress').inner_text()
-            assert page.locator('.astra-day-moon-moment.phase').count()==1
-            assert 'Pleine Lune en Gémeaux' in page.locator('.astra-day-moon-moment.phase').inner_text()
-            timeline=page.locator('.astra-day-moon-moment time').all_text_contents()
-            assert len(timeline)==2
+            # One clearly labelled zodiac change, independent from the
+            # phase reached later that day. Each retains its exact time.
+            assert page.locator('.astra-lunar-ingress').count()==1
+            assert page.locator('.astra-lunar-kicker').inner_text()=='CHANGEMENT DE SIGNE LUNAIRE'
+            assert page.locator('.astra-lunar-change-title').inner_text()=='Lune en Taureau → Gémeaux'
+            assert page.locator('.astra-lunar-change-time').count()==1
+            assert page.locator('.astra-lunar-phase-summary').count()==1
+            assert page.locator('.astra-lunar-phase-title').inner_text()=='Phase lunaire'
+            assert 'Pleine Lune à' in page.locator('.astra-lunar-phase-detail').inner_text()
+            assert page.locator('.astra-lunar-phase-icon .astra-phase-graphic').count()==1
+            times=page.locator('.astra-day-moon-moments time').all_text_contents()
+            assert len(times)==2
+            assert all(time.strip() for time in times)
+            assert page.locator('.astra-day-moon-explanation').count()==0
             assert page.locator('.astra-lunar-milestone').count()==0
             page.evaluate('window.__moonScenario=false')
             page.locator('[data-tab="today"]').click()
