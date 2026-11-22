@@ -5,6 +5,7 @@
  */
 import {mod,signNames} from './core.mjs';
 import {PLANET_THEMES,ASPECT_THEMES,DISCLAIMER} from './interpretations.mjs';
+import {describeAspectPair} from './aspect-readings.mjs';
 
 export const NATAL_ASPECT_FILTERS=Object.freeze(['all','Conjonction','Sextile','Carré','Trigone','Opposition']);
 const SIGNS=Object.freeze([
@@ -72,11 +73,12 @@ export function describeNatalHouse(number,longitude,occupants=[]){
 }
 export function describeNatalAspect(aspect){
   if(!aspect||!PLANET_THEMES[aspect.a]||!PLANET_THEMES[aspect.b]||!ASPECT_THEMES[aspect.aspect]||!Number.isFinite(aspect.orb))throw Error('Aspect natal inconnu');
-  const a=PLANET_THEMES[aspect.a],b=PLANET_THEMES[aspect.b],rule=ASPECT_THEMES[aspect.aspect];
+  const a=PLANET_THEMES[aspect.a],b=PLANET_THEMES[aspect.b];
+  const reading=describeAspectPair(aspect.a,aspect.b,aspect.aspect,{context:'natal'});
   return {
     title:a.name+' — '+aspect.aspect.toLowerCase()+' — '+b.name,kind:'Aspect natal',
     astronomy:'Écart à l’angle exact : '+formatOrbExact(aspect.orb)+'.',
-    convention:rule.description+' Cet aspect rapproche les thèmes de '+a.theme+' et de '+b.theme+'.',
-    question:'Comment ces deux dimensions pourraient-elles interagir dans ton vécu ?',disclaimer:DISCLAIMER
+    convention:reading.summary,
+    question:reading.question,disclaimer:DISCLAIMER
   };
 }
