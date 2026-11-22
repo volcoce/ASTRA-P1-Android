@@ -62,7 +62,7 @@
 }
 .natal-explore .natal-explorer-panel,
 .natal-explore .natal-explore-list{
-  min-width:0;
+  width:100%;max-width:none;min-width:0;
 }
 .natal-explore .natal-explore-list :is(h3,p){max-width:100%}
 .natal-explore .natal-explore-list h3{
