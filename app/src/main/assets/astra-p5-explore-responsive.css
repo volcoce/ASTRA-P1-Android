@@ -60,7 +60,9 @@
   background:var(--astra-surface);
   color:var(--astra-ink);
 }
-.natal-explore .natal-explorer-panel,
+.natal-explore .natal-explorer-panel{
+  width:100%;max-width:760px;min-width:0;
+}
 .natal-explore .natal-explore-list{
   width:100%;max-width:none;min-width:0;
 }
