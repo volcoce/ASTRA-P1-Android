@@ -104,6 +104,7 @@ if __name__ == '__main__':
             html=html.replace('<link rel="stylesheet" href="astra-p3-accessibility.css">','')
             html=html.replace('<link rel="stylesheet" href="astra-p4-calendar.css">','')
             html=html.replace('<link rel="stylesheet" href="astra-p4-wheel.css">','')
+            html=html.replace('<link rel="stylesheet" href="astra-p5-explore-responsive.css">','')
             html=html.replace('<script src="theme-bootstrap.js"></script>','')
             page.goto('about:blank')
             page.add_script_tag(content=JS)
@@ -128,6 +129,7 @@ if __name__ == '__main__':
             page.add_style_tag(content=(ROOT/'astra-p3-accessibility.css').read_text(encoding='utf-8'))
             page.add_style_tag(content=(ROOT/'astra-p4-calendar.css').read_text(encoding='utf-8'))
             page.add_style_tag(content=(ROOT/'astra-p4-wheel.css').read_text(encoding='utf-8'))
+            page.add_style_tag(content=(ROOT/'astra-p5-explore-responsive.css').read_text(encoding='utf-8'))
             page.add_script_tag(content=(ROOT/'app.js').read_text(encoding='utf-8'))
             # P0 design regression: verify computed font sizes and flat surfaces.
             px=lambda selector: page.locator(selector).first.evaluate(
@@ -384,6 +386,40 @@ if __name__ == '__main__':
             assert page.locator('h1.page-title').inner_text()=='Comprendre mon thème'
             assert page.locator('.natal-explore .card-title').filter(has_text='Explorer mon thème').count()==0
             capture('explore-393')
+            assert page.locator('.natal-explore-toolbar .natal-back').count()==1
+            assert page.locator('.natal-explore-toolbar .natal-settings-link').count()==1
+            assert page.locator('.natal-explore-intro').count()==1
+            # Same centered content column at 320, 393, 768 and 1280 px.
+            for width in (320,393,768,1280):
+                page.set_viewport_size({'width':width,'height':800})
+                bounds=page.evaluate("""() => {
+                  const rect=x=>document.querySelector(x).getBoundingClientRect();
+                  const card=rect('.natal-explore');
+                  const toolbar=rect('.natal-explore-toolbar');
+                  const tabs=rect('.natal-explore-tabs');
+                  const panel=rect('.natal-explorer-panel');
+                  const list=rect('.natal-positions');
+                  const nav=rect('.bottom-nav');
+                  return {page:document.documentElement.scrollWidth,
+                    viewport:document.documentElement.clientWidth,
+                    columns:[toolbar,tabs,panel,list].map(x=>({left:x.left,right:x.right})),
+                    card:{left:card.left,right:card.right},
+                    nav:nav.top,cardBottom:card.bottom,
+                    navPosition:getComputedStyle(document.querySelector('.bottom-nav')).position};
+                }""")
+                assert bounds['page']<=bounds['viewport']+2,(width,bounds)
+                cols=bounds['columns']
+                assert all(abs(row['left']-cols[0]['left'])<=3 for row in cols),(width,bounds)
+                assert all(abs(row['right']-cols[0]['right'])<=3 for row in cols),(width,bounds)
+                assert all(row['left']>=bounds['card']['left'] and row['right']<=bounds['card']['right']+2 for row in cols),(width,bounds)
+                if width>=800:
+                    assert bounds['navPosition']=='static',bounds
+                    assert bounds['nav']>=bounds['cardBottom'],bounds
+                else:
+                    assert bounds['navPosition']=='fixed',bounds
+                if width in (320,1280):
+                    capture(f'explore-layout-{width}')
+            page.set_viewport_size({'width':393,'height':844})
             assert page.locator('.natal-control-stack').count()==0
             assert page.locator('#birthForm').count()==0
             assert page.locator('.natal-explore-tabs button').count()==3
