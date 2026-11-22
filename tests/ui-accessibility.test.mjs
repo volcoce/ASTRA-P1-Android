@@ -26,6 +26,7 @@ test('P0: calendar announces the selected date and current date', () => {
     month: new Date(2026,10,1),
     selected: '2026-11-20',
     calendarInterval: null,
+    calendarOptionsOpen: false,
     calendarView: 'month',
     classify: () => ({exact:[],sky:[],active:[]}),
     result: null,

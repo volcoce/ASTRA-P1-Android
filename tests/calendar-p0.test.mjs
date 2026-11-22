@@ -13,7 +13,7 @@ const dateString=day=>new Intl.DateTimeFormat('fr-FR',{
   weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'UTC'
 }).format(new Date(day+'T12:00:00Z'));
 const context={
-  selected:'2026-11-20',calendarInterval:null,
+  selected:'2026-11-20',calendarInterval:null,calendarOptionsOpen:false,
   month:new Date(2026,10,1),
   state:{profile:{timezone:'Europe/Paris'},mode:'tropical',journal:{},calendarEvents:[]},
   result:{days:{'2026-11-20':{active:[],sky:[moon],exact:[exact]}}},
