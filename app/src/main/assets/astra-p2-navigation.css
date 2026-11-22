@@ -249,3 +249,127 @@
 @media(prefers-contrast:more){
   .astra-angle-roles>div{border-width:2px}
 }
+
+/* P5 — compact aspect sheet. No card-in-card, technical-first hierarchy or duplicate titles. */
+.astra-event-detail--compact{
+  padding:18px 16px 22px;
+  border:1px solid var(--astra-divider);
+  border-radius:var(--astra-radius-xl);
+  background:var(--astra-surface);
+  max-width:650px;
+}
+.astra-event-detail--compact .astra-event-compact-top{margin-bottom:10px;align-items:center}
+.astra-event-detail--compact .astra-event-kicker{
+  font-size:13px;font-weight:750;letter-spacing:.01em;color:var(--astra-muted);
+}
+.astra-event-detail--compact .close-detail{
+  background:transparent;border:1px solid var(--astra-divider);
+  color:var(--astra-ink);padding:8px 12px;min-height:44px;font-size:14px;
+}
+.astra-event-detail--compact .card-title{
+  margin:0 0 10px;font:800 clamp(21px,5.6vw,27px)/1.22 var(--astra-font-body);
+  letter-spacing:-.02em;color:var(--astra-ink);
+}
+.astra-event-detail--compact .astra-event-context{
+  display:flex;align-items:center;gap:6px 13px;flex-wrap:wrap;
+  color:var(--astra-muted);font-size:13px;line-height:1.5;
+}
+.astra-event-detail--compact .astra-event-geometry{
+  display:inline-flex;align-items:center;gap:4px;
+  font-variant-numeric:tabular-nums;font-weight:750;color:var(--astra-brand-strong);
+}
+.astra-event-detail--compact .astra-event-meaning{
+  margin:18px 0 0;padding:17px 0 0;border-top:1px solid var(--astra-divider);
+  background:none;
+}
+.astra-event-detail--compact .astra-event-meaning h3,
+.astra-event-detail--compact .astra-event-reflection h3{
+  color:var(--astra-muted);font-size:13px;line-height:1.4;
+  font-weight:750;margin:0 0 6px;
+}
+.astra-event-detail--compact .astra-event-axis{
+  color:var(--astra-ink)!important;font-size:20px!important;
+  line-height:1.32!important;font-weight:800;margin:0 0 9px!important;
+}
+.astra-event-detail--compact .astra-event-keypoint{
+  color:var(--astra-ink)!important;font-size:15px!important;
+  line-height:1.5!important;margin:0!important;
+}
+.astra-event-role-list{
+  margin:16px 0 0;display:grid;gap:0;
+  border-top:1px solid var(--astra-divider);
+}
+.astra-event-role-list>div{
+  display:grid;grid-template-columns:minmax(105px,36%) minmax(0,1fr);
+  align-items:baseline;gap:8px;padding:11px 0;
+  border-bottom:1px solid var(--astra-divider);
+  min-width:0;font-size:14px;line-height:1.4;
+}
+.astra-event-role-list .astra-event-role-name{
+  font-weight:800;color:var(--astra-ink);min-width:0;
+}
+.astra-event-role-list .astra-event-role-name small{
+  display:block;font-size:12px;font-weight:500;color:var(--astra-muted);
+}
+.astra-event-role-list>div>span:last-child{color:var(--astra-muted)}
+.astra-event-detail--compact .astra-event-disclosure{
+  border-top:1px solid var(--astra-divider);
+  margin-top:14px;
+}
+.astra-event-detail--compact .astra-event-disclosure>summary{
+  min-height:48px;padding:13px 0;cursor:pointer;list-style:none;
+  display:flex;justify-content:space-between;gap:12px;align-items:center;
+  color:var(--astra-brand-strong);font-size:14px;font-weight:750;
+}
+.astra-event-detail--compact .astra-event-disclosure>summary::-webkit-details-marker{display:none}
+.astra-event-detail--compact .astra-event-disclosure>summary::after{
+  content:'+';font-weight:700;font-size:20px;line-height:1;flex:none;
+}
+.astra-event-detail--compact .astra-event-disclosure[open]>summary::after{content:'−'}
+.astra-event-detail--compact .astra-event-disclosure>summary:focus-visible{
+  outline:3px solid var(--astra-focus);outline-offset:2px;border-radius:var(--astra-radius-sm);
+}
+.astra-event-detail--compact .astra-event-disclosure-body{
+  display:grid;gap:10px;padding:0 0 14px;
+}
+.astra-event-detail--compact .astra-event-disclosure-body p{
+  margin:0!important;font-size:14px!important;line-height:1.55!important;
+  color:var(--astra-muted)!important;
+}
+.astra-event-detail--compact .astra-event-reflection{
+  display:flex;align-items:flex-start;flex-wrap:wrap;gap:8px 12px;
+  border-top:1px solid var(--astra-divider);margin-top:0;padding:15px 0 0;
+}
+.astra-event-detail--compact .astra-event-reflection h3{width:100%;margin:0}
+.astra-event-detail--compact .astra-event-reflection p{
+  margin:0!important;flex:1 1 190px;
+  color:var(--astra-ink)!important;font-size:14px!important;line-height:1.45!important;
+}
+.astra-event-detail--compact .astra-event-reflection button{
+  min-height:42px;background:transparent;color:var(--astra-brand-strong);
+  padding:8px 12px;font-size:13px;
+}
+.astra-event-detail--compact .astra-event-facts{
+  margin:4px 0 10px;box-shadow:none;border-radius:var(--astra-radius-md);
+  background:var(--astra-secondary-surface);
+}
+.astra-event-detail--compact .astra-event-data-note{
+  font-size:12px!important;color:var(--astra-muted)!important;
+}
+.astra-angle-reading .astra-angle-roles{
+  display:block;margin:4px 0;border-top:1px solid var(--astra-divider);
+}
+.astra-angle-reading .astra-angle-roles>div{
+  display:grid;grid-template-columns:minmax(95px,35%) minmax(0,1fr);gap:8px;
+  padding:10px 0;border:0;border-bottom:1px solid var(--astra-divider);
+  border-radius:0;background:none;
+}
+.astra-angle-reading .astra-angle-roles dd{margin:0}
+@media(max-width:370px){
+  .astra-event-detail--compact{padding:16px 12px 20px}
+  .astra-event-role-list>div{grid-template-columns:minmax(92px,38%) minmax(0,1fr)}
+  .astra-event-detail--compact .astra-event-axis{font-size:19px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  .astra-event-detail--compact *{scroll-behavior:auto!important}
+}
