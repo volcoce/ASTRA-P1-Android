@@ -96,3 +96,24 @@
   .natal-home>.natal-home-header .natal-settings-link{padding:8px 10px}
   .natal-home>.natal-primary-cards{padding:5px 3px;gap:4px}
 }
+
+/* Nav clearance on the overview: on desktop navigation belongs below the
+   chart, not floating across its bottom third. Mobile keeps fixed navigation. */
+@media(min-width:800px){
+  body:has(.natal-home) .bottom-nav{
+    position:static;left:auto;right:auto;bottom:auto;
+    transform:none;
+    width:min(var(--astra-natal-home-column),calc(100% - 36px));
+    max-width:var(--astra-natal-home-column);
+    margin:24px auto 0;
+    border:1px solid var(--astra-divider);
+    border-radius:var(--astra-radius-lg);
+    box-shadow:none
+  }
+  .app-shell:has(.natal-home){padding-bottom:28px}
+}
+@media(max-width:799px){
+  .app-shell:has(.natal-home){
+    padding-bottom:calc(var(--astra-nav-clearance) + var(--astra-safe-bottom) + 24px)
+  }
+}
