@@ -25,7 +25,9 @@ test('Event details preserve inline article, data and journal action',()=>{
   assert.match(detail,/id="detailPanel"/);
   assert.match(detail,/data-close="1"/);
   assert.match(detail,/data-prompt=/);
-  assert.match(detail,/Calcul astronomique/);
+  assert.match(detail,/Voir les données astronomiques/);
+  assert.match(detail,/astra-event-technical/);
+  assert.match(detail,/astra-event-role-list/);
   assert.match(detail,/Lecture astrologique/);
   assert.match(p2,/\.astra-event-detail/);
 });
