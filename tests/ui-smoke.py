@@ -222,6 +222,11 @@ if __name__ == '__main__':
             html=html.replace('<script src="theme-bootstrap.js"></script>','')
             page.goto('about:blank')
             page.add_script_tag(content=JS)
+            # Use the production circular layout rather than a mock approximation.
+            layout=(ROOT.parents[3] / 'astro/chart-layout.mjs').read_text(encoding='utf-8')
+            layout=layout.replace("import {mod} from './core.mjs';", "const mod=(x,n=360)=>((x%n)+n)%n;")
+            layout=layout.replace('export const ', 'const ').replace('export function ', 'function ')
+            page.add_script_tag(content=layout + "\nwindow.ASTRA_ENGINE.layoutPlanetLabels=layoutPlanetLabels;")
             page.set_content(html)
             page.add_script_tag(content=(ROOT/'theme-bootstrap.js').read_text(encoding='utf-8'))
             page.add_style_tag(content=(ROOT/'astra.bundle.css').read_text(encoding='utf-8'))
@@ -610,7 +615,7 @@ if __name__ == '__main__':
             assert page.locator('.natal-home .wheel-aspect-line').first.get_attribute('data-aspect-kind')=='Carré'
             assert page.locator('.natal-home .zodiac-symbol').count()==12
             assert all(text.endswith('\ufe0e') for text in page.locator('.natal-home .zodiac-symbol').all_text_contents())
-            # Every glyph uses its own longitude and the same radius.
+            # Minimal glyph spacing; exact astronomical anchors and fixed ring radius.
             labels=page.locator('.natal-planet-hit').evaluate_all("""items => items.map(e => ({
               body:e.dataset.natalBody, actual:Number(e.dataset.trueLongitude),
               label:Number(e.dataset.labelLongitude), radius:Number(e.dataset.wheelRadius)
@@ -620,7 +625,15 @@ if __name__ == '__main__':
                       'Jupiter':123,'Saturn':141,'Uranus':175,'Neptune':203,'Pluto':270}
             for item in labels:
                 assert abs(item['actual']-expected[item['body']])<1e-5
-            assert all(abs(x['label']-x['actual'])<1e-6 for x in labels),labels
+            # Only the close Moon/Mercury pair needs a small displacement.
+            for item in labels:
+                shift=abs((item['label']-item['actual']+180)%360-180)
+                if item['body'] in ('Moon','Mercury'):
+                    assert 0<shift<1, item
+                else:
+                    assert shift<1e-5,item
+            assert page.locator('.natal-home .wheel-planet-leader').count()==2
+            assert page.locator('.natal-home .wheel-true-anchor').count()==10
             assert len({x['radius'] for x in labels})==1,labels
             assert page.locator('.wheel-cluster-hit').count()==0
             assert page.locator('#natalChart .natal-position').count()==0  # essential hides detailed tables
