@@ -1273,7 +1273,7 @@
   }
   // Reuse the same precise glyph/degree treatment in known-hour and date-only
   // wheels. All offsets belong to the LABEL, never the real position marker.
-  function wheelPlanetLabel(body,lng,placed,asc,{center=210,glyphRadius=149,degreeRadius=130,anchorRadius=165,precise=false,dateOnly=false}={}){
+  function wheelPlanetLabel(body,lng,placed,asc,{center=210,glyphRadius=153,degreeRadius=128,anchorRadius=165,precise=false,dateOnly=false}={}){
     const item=placed[body],active=natalSelection?.kind==='planet'&&natalSelection.id===body;
     const coord=(longitude,r)=>{
       const angle=(180-(longitude-asc))*Math.PI/180;
