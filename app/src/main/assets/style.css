@@ -487,9 +487,6 @@ html{background:#f5f1ee}
    Sizes are CSS pixels, not device hardware pixels. System display/text scaling
    must remain enabled. The native Activity owns bar/IME insets on Android. */
 
-html.astra-native-webview{
-  --astra-safe-top:0px;--astra-safe-bottom:0px;
-}
 html,body{width:100%;min-width:0;max-width:100%}
 
 .card,.natal-stage,.natal-stage-wheel,.natal-stage-side,.natal-home,
