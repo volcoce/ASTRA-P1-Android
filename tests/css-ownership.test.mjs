@@ -457,3 +457,11 @@ test('Advanced astrological tools are absent from natal navigation and renderer'
  assert.match(app,/Explorer les positions/);
  for(const file of CSS_SOURCES)assert.doesNotMatch(read(file),/natal-extras|natal-progressions|natal-composite/);
 });
+
+test('Natal planet rows use a shared column layout and a saved degree preference',()=>{
+ const app=read('app.js'),css=read('astra-natal.css');
+ for(const token of ['showNatalDegrees:false','showNatalDegrees:raw.showNatalDegrees===true','data-natal-degrees','position-retrograde','chart.retrogrades','roman[houseNumber]'])assert.ok(app.includes(token),token);
+ assert.ok(css.includes('grid-template-columns:var(--position-columns)'));
+ assert.ok(css.includes('.natal-position-table.has-degrees.has-houses'));
+ for(const file of CSS_SOURCES.filter(file=>file!=='astra-natal.css'))assert.ok(!read(file).includes('.natal-position-table'),file);
+});
