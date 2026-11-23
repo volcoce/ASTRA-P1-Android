@@ -387,3 +387,40 @@ test('Mon ciel back button and birth editor have no duplicate exports',()=>{
   assert.doesNotMatch(read(css),/natal-downloads/,css+' contains orphaned wheel export styles');
  }
 });
+
+test('City autocomplete is shared, keyboard-operable and removes manual search',()=>{
+ const app=read('app.js'),css=postcss.parse(read('astra-components.css'),{from:'astra-components.css'});
+ for(const id of ['birthCity','secondCity']){
+  assert.ok(app.includes('id="'+id+'"'),'Missing city input '+id);
+  assert.ok(app.includes('id="'+id+'Options" role="listbox"'),'Missing listbox for '+id);
+  assert.ok(app.includes('aria-controls="'+id+'Options"'),'Missing combobox relationship');
+  assert.ok(app.includes('role="combobox" aria-autocomplete="list"'),'Missing autocomplete semantics');
+ }
+ for(const text of [
+  'function queueCityLookup(kind,immediate=false)',
+  'function runCityLookup(kind,query,requestId)',
+  'function chooseCity(kind,place)',
+  'function chooseCityPreset(kind,name)',
+  'function moveCityActive(kind,delta)',
+  'data-city-preset="',
+  'data-city-choice="',
+  'event.key===\'ArrowDown\'',
+  'event.key===\'Escape\''
+ ])assert.ok(app.includes(text),'City picker lost behavior '+text);
+ for(const legacy of [
+  'data-search-place="1"','data-search-composite-place="1"',
+  'class="city-results"','data-place="','data-composite-place="'
+ ])assert.ok(!app.includes(legacy),'Obsolete manual city UI: '+legacy);
+ const selectors=[];
+ css.walkRules(rule=>selectors.push(rule.selector));
+ for(const selector of [
+  '.astra-city-picker','.astra-city-menu','.astra-city-menu[hidden]',
+  '.astra-city-option','.astra-city-status'
+ ])assert.ok(selectors.includes(selector),'Missing shared city style: '+selector);
+ for(const filename of CSS_SOURCES.filter(f=>f!=='astra-components.css')){
+  postcss.parse(read(filename),{from:filename}).walkRules(rule=>{
+   assert.ok(!rule.selector.includes('.astra-city-menu'),
+    filename+' duplicates the shared city menu geometry');
+  });
+ }
+});
