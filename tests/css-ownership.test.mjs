@@ -197,3 +197,28 @@ test('Monthly event summaries are grouped by day before applying the five-row li
    });
  }
 });
+
+test('Week, month and calendar chevrons share one global arrow component',()=>{
+ const app=read('app.js');
+ const components=read('astra-components.css');
+ const week=app.slice(app.indexOf('function weekStrip()'),app.indexOf('function moonPhaseIcon('));
+ assert.match(week,/class="arrow" data-week-shift="-7" aria-label="Semaine précédente"/);
+ assert.match(week,/class="arrow" data-week-shift="7" aria-label="Semaine suivante"/);
+ for(const shift of ['-1','1'])assert.match(app,new RegExp('class="arrow" data-month="'+shift+'"'));
+ const stylesheet=postcss.parse(components,{from:'astra-components.css'});
+ const shared=[];
+ stylesheet.walkRules(rule=>{if(rule.selector==='.arrow')shared.push(rule)});
+ assert.equal(shared.length,1,'Arrow geometry must be owned by the global component');
+ const declarations=new Map();
+ shared[0].walkDecls(d=>declarations.set(d.prop,d.value));
+ for(const prop of ['width','height','min-width','min-height'])assert.equal(declarations.get(prop),'var(--astra-control-min)');
+ for(const filename of CSS_SOURCES.filter(f=>f!=='astra-components.css')){
+  postcss.parse(read(filename),{from:filename}).walkRules(rule=>{
+   assert.notEqual(rule.selector,'.arrow',filename+' defines a duplicate arrow');
+   assert.ok(!rule.selector.includes('.astra-week-controls button'),
+     filename+' overrides shared week navigation chevrons');
+   assert.ok(!rule.selector.includes('.month-head .arrow'),
+     filename+' overrides shared month navigation chevrons');
+  });
+ }
+});
