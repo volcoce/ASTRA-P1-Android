@@ -1208,6 +1208,7 @@ if __name__ == '__main__':
             assert page.locator('#detailPanel .astra-event-facts').count()==1
             assert page.locator('#detailPanel .astra-event-technical').count()==1
             assert page.locator('#detailPanel .astra-event-technical').get_attribute('open') is None
+            assert page.evaluate('document.activeElement.id')=='detailPanel'
             # Regression: opening an event disclosure must retain inner gutters.
             page.locator('#detailPanel .astra-event-technical > summary').click()
             for width in (320,393,1280):
@@ -1236,7 +1237,6 @@ if __name__ == '__main__':
             page.set_viewport_size({'width':320,'height':730})
             page.locator('#detailPanel .astra-event-technical > summary').click()
             assert 'Référence horaire' in page.locator('#detailPanel').text_content()
-            assert page.evaluate('document.activeElement.id')=='detailPanel'
             assert page.locator('[data-detail-step]').count()==0
             page.get_by_role('button',name='Noter dans mon journal').click()
             assert page.locator('#journalNote').count()==1
