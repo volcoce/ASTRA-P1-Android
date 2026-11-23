@@ -270,6 +270,12 @@ if __name__ == '__main__':
             assert page.locator('.bottom-nav .nav').count()==5
             assert page.locator('#settingsButton').get_attribute('aria-haspopup')=='dialog'
             assert page.locator('.bottom-nav .nav').last.get_attribute('id')=='settingsButton'
+            # The five-item navigation keeps full-size touch areas, not just large icons.
+            nav_targets=page.locator('.bottom-nav .nav').evaluate_all("""items=>items.map(el=>{
+              const r=el.getBoundingClientRect();return {width:r.width,height:r.height};
+            })""")
+            assert all(x['width']>=48 and x['height']>=48 for x in nav_targets),nav_targets
+            assert page.locator('.bottom-nav').evaluate('e=>parseFloat(getComputedStyle(e).gap)')==8
             assert page.locator('[data-tab="month"]').get_attribute('aria-label')=='Ce mois'
             assert page.locator('[data-tab="calendar"]').get_attribute('aria-label')=='Calendrier'
             assert page.locator('.bottom-nav [data-tab="journal"]').count()==0
@@ -680,9 +686,14 @@ if __name__ == '__main__':
             assert audit_disclosures('natal-settings')>=1
             assert page.locator('#birthForm').count()==1
             assert page.locator('.natal-primary-cards').count()==0
+            assert page.locator('#birthDate').evaluate('e=>e.getBoundingClientRect().height')>=48
             page.locator('#settingsButton').click()
             assert page.locator('#astraSettingsDialog[open]').count()==1
             assert page.locator('#settingsButton').get_attribute('aria-expanded')=='true'
+            modal_targets=page.locator('#astraSettingsDialog [role="tab"], #astraSettingsDialog .astra-settings-close').evaluate_all(
+                """els=>els.map(e=>{const r=e.getBoundingClientRect();return [r.width,r.height]})""")
+            assert all(w>=48 and h>=48 for w,h in modal_targets),modal_targets
+            assert page.locator('.astra-settings-tabs').evaluate('e=>parseFloat(getComputedStyle(e).gap)')==8
             assert page.locator('[data-settings-section="astrology"]').get_attribute('aria-selected')=='true'
             page.locator('[data-house-system="whole"]').focus()
             page.keyboard.press('Enter')
@@ -693,6 +704,9 @@ if __name__ == '__main__':
             assert page.locator('[data-house-system="equal"]').get_attribute('aria-pressed')=='true'
             page.locator('[data-house-system="placidus"]').click()
             page.locator('[data-settings-close]').click()
+            zoom_targets=page.locator('.natal-zoom button').evaluate_all(
+                """els=>els.map(e=>{const r=e.getBoundingClientRect();return [r.width,r.height]})""")
+            assert all(w>=48 and h>=48 for w,h in zoom_targets),zoom_targets
             page.locator('[data-natal-zoom="0.25"]').click()
             assert '125 %' in page.locator('.natal-zoom').inner_text()
             page.locator('[data-natal-zoom="reset"]').click()
