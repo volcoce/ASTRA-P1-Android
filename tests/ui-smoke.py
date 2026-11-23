@@ -44,7 +44,7 @@ window.ASTRA_ENGINE = {
  },
  transitContactWindow(p,at,body,natal,angle){return {body,natal,angle,orb:2,start:new Date(new Date(at).getTime()-2*86400000).toISOString(),end:new Date(new Date(at).getTime()+2*86400000).toISOString(),limited:false}},
 
- natalChart(profile,mode,houseSystem='placidus'){const known=profile?.timeKnown!==false;const asc=151.5,mc=53.1,start=houseSystem==='whole'?150:asc;return {timeKnown:known,approximateNoon:!known,positions:{Sun:7,Moon:23,Mercury:32,Venus:55,Mars:91,Jupiter:123,Saturn:141,Uranus:175,Neptune:203,Pluto:270},houses:known?{ascendant:asc,midheaven:mc,system:houseSystem==='whole'?'Signes entiers':houseSystem==='equal'?'Maisons égales':'Placidus',cusps:houseSystem==='placidus'?[151.5,172,199,233,270,304,331.5,352,19,53.1,90,124]:Array.from({length:12},(_,i)=>(start+i*30)%360),polarFallback:false}:null,aspects:[{a:'Sun',b:'Mars',aspect:'Carré',glyph:'□',orb:1}]}},
+ natalChart(profile,mode,houseSystem='placidus'){const known=profile?.timeKnown!==false;const asc=151.5,mc=53.1,start=houseSystem==='whole'?150:asc;return {timeKnown:known,approximateNoon:!known,retrogrades:{Mercury:true,Uranus:true,Neptune:true,Pluto:true},positions:{Sun:7,Moon:23,Mercury:32,Venus:55,Mars:91,Jupiter:123,Saturn:141,Uranus:175,Neptune:203,Pluto:270},houses:known?{ascendant:asc,midheaven:mc,system:houseSystem==='whole'?'Signes entiers':houseSystem==='equal'?'Maisons égales':'Placidus',cusps:houseSystem==='placidus'?[151.5,172,199,233,270,304,331.5,352,19,53.1,90,124]:Array.from({length:12},(_,i)=>(start+i*30)%360),polarFallback:false}:null,aspects:[{a:'Sun',b:'Mars',aspect:'Carré',glyph:'□',orb:1}]}},
  transitSnapshot(profile,instant,mode,houseSystem){
    return {at:new Date(instant).toISOString(),mode,houseSystem,
      chart:this.natalChart(profile,mode,houseSystem),
@@ -445,6 +445,32 @@ if __name__ == '__main__':
             assert page.locator('.natal-overview-tabs button').count()==3
             page.locator('[data-overview-pane="planets"]').click()
             assert page.locator('.natal-home .natal-position').count()==10
+            assert page.locator('.natal-home .position-retrograde').count()==10
+            assert page.locator('.natal-home [data-natal-body="Mercury"].natal-position .position-retrograde').inner_text()=='R'
+            assert page.locator('.natal-home [data-natal-body="Sun"].natal-position .position-retrograde').inner_text()==''
+            assert page.locator('.natal-home .position-degree').count()==0
+            page.locator('#settingsButton').click()
+            page.locator('[data-settings-section="astrology"]').click()
+            page.locator('[data-natal-degrees="on"]').click()
+            assert page.locator('[data-natal-degrees="on"]').get_attribute('aria-pressed')=='true'
+            page.locator('[data-settings-close]').click()
+            assert page.locator('.natal-home .position-degree').count()==10
+            assert page.locator('.natal-home .position-degree').first.inner_text()=='07°00'
+            for width in (320,393,1280):
+                page.set_viewport_size({'width':width,'height':844})
+                aligned=page.locator('.natal-position-table').evaluate("""e=>{
+                    const rows=[...e.children];
+                    const first=[...rows[0].children].map(c=>c.getBoundingClientRect().left);
+                    return rows.every(r=>[...r.children].every((c,i)=>Math.abs(c.getBoundingClientRect().left-first[i])<=1))
+                        && document.documentElement.scrollWidth<=innerWidth+2;
+                }""")
+                assert aligned, width
+            page.set_viewport_size({'width':393,'height':844})
+            page.locator('#settingsButton').click()
+            page.locator('[data-settings-section="astrology"]').click()
+            page.locator('[data-natal-degrees="off"]').click()
+            page.locator('[data-settings-close]').click()
+            assert page.locator('.natal-home .position-degree').count()==0
             assert page.locator('.natal-home .natal-wheel').count()==0
             page.locator('[data-overview-pane="aspects"]').click()
             assert page.locator('.natal-home .natal-aspect').count()==1
@@ -695,7 +721,8 @@ if __name__ == '__main__':
             assert page.locator('[data-explore-section="planets"]').get_attribute('aria-pressed')=='true'
             assert page.locator('#natalChart .natal-position').count()==10
             assert page.locator('#natalChart .natal-aspect').count()==0
-            assert '07°00′00″' in page.locator('#natalChart .natal-positions').inner_text()
+            assert page.locator('#natalChart .position-degree').count()==0
+            assert page.locator('#natalChart .position-retrograde').count()==10
             page.locator('[data-explore-section="houses"]').click()
             assert page.locator('#natalChart .natal-house-chip').count()==12
             assert page.locator('#natalChart .natal-position').count()==0
