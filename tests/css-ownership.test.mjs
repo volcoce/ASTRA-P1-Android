@@ -251,7 +251,8 @@ test('Global settings have one responsive dialog and single owners for shared pr
   if(rule.selector==='.astra-settings-dialog')dialogRule++;
   if(rule.selector==='.top .astra-settings-trigger')triggerRule++;
  });
- assert.equal(dialogRule,1);assert.equal(triggerRule,1);
+ assert.equal(dialogRule,2,'One base dialog rule and one responsive adjustment');
+ assert.equal(triggerRule,1);
  for(const filename of CSS_SOURCES.filter(f=>f!=='astra-components.css')){
   postcss.parse(read(filename),{from:filename}).walkRules(rule=>{
    assert.ok(!rule.selector.includes('.astra-settings-dialog'),
