@@ -5,6 +5,10 @@
 .app-shell{
   width:100%;max-width:1000px;min-width:0;min-height:100dvh;
   margin-inline:auto;
+  /* Background bleeds to the hardware edge; meaningful content stays safe. */
+  padding-top:var(--astra-safe-top);
+  padding-inline-start:var(--astra-safe-left);
+  padding-inline-end:var(--astra-safe-right);
   padding-bottom:calc(var(--astra-nav-clearance) + var(--astra-safe-bottom) + 24px);
   background:var(--astra-bg);
 }
@@ -41,7 +45,12 @@
   transform:translateX(-50%);
   display:grid;grid-template-columns:repeat(5,minmax(0,1fr));
   gap:var(--astra-touch-gap);width:100%;max-width:var(--astra-nav-width);
-  margin:0;padding:9px 9px max(11px,var(--astra-safe-bottom));
+  margin:0;
+  /* Surface extends under three-button navigation; buttons sit above it. */
+  padding-top:9px;
+  padding-inline-start:calc(9px + var(--astra-safe-left));
+  padding-inline-end:calc(9px + var(--astra-safe-right));
+  padding-bottom:calc(11px + var(--astra-safe-bottom));
   box-sizing:border-box;
   border:1px solid var(--astra-divider);
   border-bottom:0;border-radius:15px 15px 0 0;
