@@ -210,7 +210,6 @@
 .calendar.astra-calendar-board .cal-grid{row-gap:8px}
 .calendar.astra-calendar-board .weekday{color:var(--astra-muted);font-size:12px}
 .calendar.astra-calendar-board .astra-calendar-date-week{gap:0}
-.calendar.astra-calendar-board .astra-solar-ribbon-backdrop{border-radius:11px}
 .calendar.astra-calendar-board .astra-calendar-date-week .day{
   background:transparent!important;box-shadow:none!important;border-radius:0!important
 }
@@ -238,7 +237,6 @@
   .astra-month-headline{gap:10px}
   .calendar.astra-calendar-board{padding:10px 6px 13px}
   .calendar.astra-calendar-board .cal-grid{row-gap:6px}
-  .natal-home .natal-primary-cards{padding-inline:3px}
 }
 @media(prefers-reduced-motion:reduce){
   .astra-day-hero,.astra-month-hero{transition:none!important}

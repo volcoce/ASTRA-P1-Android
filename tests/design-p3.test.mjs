@@ -58,8 +58,8 @@ test('P3 supports focus, reduced motion, high contrast and small layouts',()=>{
   assert.match(app,/addEventListener\('cancel'/);
 });
 test('P3 does not replace solar ribbon with separately painted day cards',()=>{
-  assert.match(css,/\.astra-solar-ribbon-segment\.ends-at-ingress/);
-  assert.match(css,/\.astra-solar-ribbon-segment\.starts-at-ingress/);
+  assert.match(read('solar-ribbon.css'),/\.astra-solar-ribbon-segment\.ends-at-ingress/);
+  assert.match(read('solar-ribbon.css'),/\.astra-solar-ribbon-segment\.starts-at-ingress/);
   assert.match(css,/\.astra-calendar-date-week \.day/);
   assert.ok(!css.includes('grid-template-columns:repeat(14'));
   assert.match(read('astra-p4-wheel.css'),/zodiac-element-fire/);

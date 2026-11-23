@@ -10,8 +10,8 @@
   --astra-calendar-focus:#F0BE57;
 }
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
-html,body,.app-shell,.main{min-width:0;max-width:100%}
-.main{overflow-wrap:break-word}
+html,body{min-width:0;max-width:100%}
+/* The shell's gutters and widths are defined by astra-layout.css only. */
 :is(button,a,input,select,textarea,summary,[role="button"]):focus-visible{
   outline:3px solid var(--astra-focus)!important;
   .outline-offset:2px!important;
@@ -21,7 +21,7 @@ html,body,.app-shell,.main{min-width:0;max-width:100%}
   outline-offset:-3px!important;
   border-radius:calc(var(--astra-radius-lg) - 1px);
 }
-:is(.calendar .day,.astra-week-day,.bottom-nav .nav):focus-visible{
+:is(.calendar .day,.astra-week-day):focus-visible{
   outline:3px solid var(--astra-calendar-focus)!important;
   outline-offset:-3px!important;z-index:3;
 }
@@ -76,16 +76,6 @@ html,body,.app-shell,.main{min-width:0;max-width:100%}
 .calendar.astra-calendar-board .astra-calendar-date-week .day .moon-phase-badge{
   background:transparent!important;border:0!important;box-shadow:none!important;
 }
-/* Preserve the whole week as a SINGLE ribbon, with rounded zodiac boundaries. */
-.calendar.astra-calendar-board .astra-solar-ribbon-backdrop{
-  pointer-events:none;position:absolute;
-}
-.calendar.astra-calendar-board .astra-solar-ribbon-segment.ends-at-ingress{
-  border-top-right-radius:11px;border-bottom-right-radius:11px
-}
-.calendar.astra-calendar-board .astra-solar-ribbon-segment.starts-at-ingress{
-  border-top-left-radius:11px;border-bottom-left-radius:11px
-}
 .calendar-phase-legend{color:var(--astra-ink)}
 .calendar-phase-legend .cal-legend-item{min-width:0}
 .calendar .astra-calendar-solar-note,.calendar .astra-calendar-solar-note span{
@@ -110,10 +100,6 @@ html,body,.app-shell,.main{min-width:0;max-width:100%}
 :root[data-astra-theme="dark"] .natal-home .natal-summary-item{
   color:var(--astra-ink)
 }
-:root[data-astra-theme="dark"] .bottom-nav .nav.active,
-:root[data-astra-theme="dark"] .bottom-nav .nav.active .nav-label{
-  color:var(--astra-primary-ink)
-}
 /* Full weekday names and hidden control hints remain accessible DOM text. */
 .astra-sr-only{
   position:absolute!important;width:1px!important;height:1px!important;
@@ -135,15 +121,12 @@ html,body,.app-shell,.main{min-width:0;max-width:100%}
 @media(max-width:360px){
   .calendar.astra-calendar-board{padding-inline:3px}
   .calendar.astra-calendar-board .weekday{font-size:12px}
-  .bottom-nav .nav{min-height:52px;padding-inline:1px}
-  .bottom-nav .nav-label{font-size:10px;line-height:1.25}
   .astra-personal-date-fields,.astra-personal-time-fields{
     grid-template-columns:repeat(2,minmax(0,1fr))
   }
 }
 @media(orientation:landscape) and (max-height:500px){
   .astra-personal-dialog{max-height:95dvh}
-  .bottom-nav .nav{min-height:46px}
 }
 @media(prefers-contrast:more){
   :root{--astra-border:#1E404F;--astra-muted:#294C57;--astra-focus:#C03A22}
@@ -160,8 +143,7 @@ html,body,.app-shell,.main{min-width:0;max-width:100%}
 @media(prefers-reduced-motion:reduce){
   html:focus-within{scroll-behavior:auto}
   .astra-personal-dialog[open],.astra-event-detail{animation:none!important}
-  .bottom-nav .nav,.astra-personal-dialog,
-  .astra-journal-editor .mood,.astra-event-feed .event-button{
+  .astra-personal-dialog,.astra-journal-editor .mood,.astra-event-feed .event-button{
     transition:none!important;
   }
 }

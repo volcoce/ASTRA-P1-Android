@@ -30,7 +30,8 @@ test('P0 common components expose accessible visual states',()=>{
   assert.match(components,/\.bottom-nav \.nav.active/);
   assert.match(components,/\.field input/);
   assert.match(components,/\.primary/);
-  assert.match(components,/\.calendar \.astra-solar-ribbon-segment/);
+  assert.doesNotMatch(components,/\.calendar \.astra-solar-ribbon-segment/);
+  assert.match(solar,/\.calendar \.astra-solar-ribbon-segment/);
   assert.match(solar,/\.astra-solar-ribbon-segment\.ends-at-ingress/);
   assert.match(solar,/\.astra-solar-ribbon-segment\.starts-at-ingress/);
 });

@@ -1,7 +1,6 @@
 /* ASTRA P0 — Common component contract, layered after legacy CSS.
    Avoid altering astronomical SVG geometry or functional calendar ribbons. */
 html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--astra-font-body);line-height:var(--astra-line-height)}
-.app-shell{background:var(--astra-bg);box-shadow:none}
 .top{background:var(--color-deep-ocean);color:var(--color-cream)}
 .top .emblem{background:var(--color-dandelion);color:var(--color-deep-ocean);border:2px solid var(--color-cream);border-radius:var(--astra-radius-md)}
 .top .brand{color:var(--color-cream);font-family:var(--astra-font-display);font-weight:800;letter-spacing:.08em}
@@ -53,11 +52,34 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
 .switch{background:var(--astra-secondary-surface);border:1px solid var(--astra-divider);border-radius:var(--astra-radius-lg)}
 .switch button{color:var(--astra-muted);border-radius:var(--astra-radius-md)}
 .switch button.on{background:var(--astra-surface);color:var(--astra-ink);box-shadow:0 1px 3px #00000016}
-.bottom-nav{background:var(--astra-surface);border-color:var(--astra-divider)}
-.bottom-nav .nav{color:var(--astra-muted);border-radius:var(--astra-radius-md)}
-.bottom-nav .nav.active{color:var(--astra-primary-ink);background:var(--astra-primary);font-weight:800}
+/* BottomNavigation visuals and states; astra-layout.css owns its shell geometry. */
+.bottom-nav .nav{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-width:0;min-height:56px;gap:4px;padding:7px 1px;
+  background:transparent;border:0;border-radius:var(--astra-radius-md);
+  color:var(--astra-muted);font-size:.8125rem;font-weight:650;line-height:1.2;
+  white-space:normal;overflow-wrap:normal;word-break:normal;text-align:center;
+  transition:background-color var(--astra-motion),color var(--astra-motion)
+}
+.bottom-nav .nav-label{
+  display:block;max-width:100%;line-height:1.22;white-space:normal;
+  overflow-wrap:anywhere;hyphens:auto;text-align:center
+}
+.bottom-nav .nav-ico{
+  width:23px;height:23px;display:grid;place-items:center;line-height:1;flex:none
+}
+.bottom-nav .nav-ico svg{
+  width:23px;height:23px;display:block;stroke:currentColor;fill:none;
+  stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round
+}
+.bottom-nav .nav.active{
+  color:var(--astra-primary-ink);background:var(--astra-primary);
+  font-weight:800;box-shadow:inset 0 0 0 1px #1E404F24
+}
 .bottom-nav .nav.active .nav-ico{color:inherit}
-:root[data-astra-theme="dark"] .bottom-nav{background:var(--astra-surface);border-color:var(--astra-divider)}
+.bottom-nav .nav:focus-visible{
+  outline:3px solid var(--astra-focus)!important;outline-offset:-2px!important
+}
 :root[data-astra-theme="dark"] .bottom-nav .nav{color:var(--astra-muted)}
 :root[data-astra-theme="dark"] .bottom-nav .nav.active{background:var(--astra-primary);color:var(--astra-primary-ink)}
 :root[data-astra-theme="dark"] :is(.primary,.natal-main-action,.astra-month-calendar-link){
@@ -102,11 +124,16 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
   background:transparent!important;border:0!important;box-shadow:none!important
 }
 .calendar .astra-calendar-date-week .day{background:transparent!important}
-.calendar .astra-solar-ribbon-segment{background:var(--solar-bg)}
 :root[data-astra-theme="dark"] .calendar .astra-calendar-date-week .day{color:#F8EFD5}
 :root[data-astra-theme="dark"] .calendar .astra-calendar-date-week .day.selected{color:#F8EFD5}
 @media(max-width:370px){.bottom-nav .nav-label{font-size:10px}}
+@media(max-width:360px){.bottom-nav .nav{min-height:52px;padding-inline:1px}}
+@media(orientation:landscape) and (max-height:500px){
+  .bottom-nav .nav{min-height:46px;gap:1px}
+  .bottom-nav .nav-ico,.bottom-nav .nav-ico svg{width:19px;height:19px}
+}
 @media(prefers-reduced-motion:reduce){
+  .bottom-nav .nav{transition:none!important}
   :is(.primary,.natal-main-action,.astra-month-calendar-link,.astra-personal-save){transition:none!important}
   :is(.primary,.natal-main-action,.astra-month-calendar-link,.astra-personal-save):hover{transform:none}
 }

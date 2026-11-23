@@ -16,6 +16,7 @@
   margin-inline:auto;
   padding-inline:var(--astra-card-gutter);
   box-sizing:border-box;
+  overflow-wrap:break-word;
 }
 .main>.screen-intro{
   width:100%;
@@ -65,3 +66,4 @@ body.astra-focus-open .bottom-nav{visibility:hidden}
 body.astra-input-active .bottom-nav{
   visibility:hidden;pointer-events:none
 }
+body.astra-input-active .app-shell{padding-bottom:20px}

@@ -7,18 +7,6 @@
 }
 :root[data-astra-theme="dark"]{--astra-p2-shadow:0 18px 40px #0009}
 
-/* Navigation: a restrained, unmistakable active state and keyboard focus. */
-.bottom-nav{border-top:1px solid var(--astra-divider);box-shadow:0 -4px 22px #1E404F0D}
-.bottom-nav .nav{
-  min-width:0;min-height:56px;
-  transition:background-color var(--astra-p2-duration) var(--astra-p2-ease),
-    color var(--astra-p2-duration) var(--astra-p2-ease)
-}
-.bottom-nav .nav.active{border-radius:var(--astra-radius-md);box-shadow:inset 0 0 0 1px #1E404F24}
-.bottom-nav .nav:focus-visible{
-  outline:3px solid var(--astra-focus)!important;outline-offset:-2px!important
-}
-.bottom-nav .nav .nav-label{overflow-wrap:normal;word-break:normal}
 .astra-journal-back,.natal-back,.astra-back-today{
   display:inline-flex;align-items:center;justify-content:center;
   min-height:44px;gap:8px;padding:10px 14px;
@@ -33,7 +21,7 @@
 
 /* Journal: the editor is the primary task; statistics and history are secondary. */
 .astra-journal-editor,.astra-journal-summary,.astra-journal-history{
-  max-width:840px;margin:0 auto 16px;background:var(--astra-surface);
+  margin:0 0 16px;background:var(--astra-surface);
   border:1px solid var(--astra-divider);border-radius:var(--astra-radius-xl);
   box-shadow:none
 }
@@ -195,7 +183,7 @@
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{scroll-behavior:auto!important}
   .astra-personal-dialog[open],.astra-event-detail{animation:none!important}
-  .bottom-nav .nav,.astra-journal-editor .mood,
+  .astra-journal-editor .mood,
   .astra-event-feed .event-button,.astra-month-event{transition:none!important}
 }
 @media(max-width:370px){
