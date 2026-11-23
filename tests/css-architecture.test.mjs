@@ -14,6 +14,15 @@ test('Navigation is owned by the global layout, not natal routes',()=>{
  assert.ok(!natal.includes('body:has('));
  assert.ok(!natal.includes('#app:has('));
 });
+test('Birth and settings cards share the global reading-column gutters',()=>{
+ const app=read('app.js'),layout=read('astra-layout.css'),navigation=read('astra-p2-navigation.css');
+ for(const component of ['astra-birth-settings','astra-privacy-settings',
+   'astra-preferences astra-settings-section','astra-performance astra-settings-section']){
+   assert.ok(app.includes('class="card astra-reading-card '+component+'"'),component);
+ }
+ assert.match(layout,/\.card\.astra-reading-card\s*\{[^}]*max-width:/s);
+ assert.doesNotMatch(navigation,/\.astra-settings-section,.astra-birth-settings,.astra-privacy-settings\s*\{[^}]*\b(?:max-width|margin)\s*:/s);
+});
 test('Reading surfaces and disclosures reuse global component classes',()=>{
  const app=read('app.js');
  assert.match(app,/astra-reading-card natal-home/);

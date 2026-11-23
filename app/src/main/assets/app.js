@@ -1844,7 +1844,7 @@
   function appearancePanel(){
     const mode=state.appearance;
     const choices=[['system','Système'],['light','Clair'],['dark','Sombre']];
-    return '<section class="card astra-preferences astra-settings-section" aria-labelledby="astraAppearanceTitle">'+
+    return '<section class="card astra-reading-card astra-preferences astra-settings-section" aria-labelledby="astraAppearanceTitle">'+
       '<h2 id="astraAppearanceTitle" class="card-title">Apparence</h2>'+
       '<p class="tiny">Choisis l’apparence de l’interface. Le mode Système suit les réglages de ton appareil.</p>'+
       '<div class="astra-appearance-options" role="group" aria-label="Thème visuel">'+
@@ -1855,7 +1855,7 @@
   function diagnosticsPanel(){
     const rows=performanceReport();
     const format=n=>new Intl.NumberFormat('fr-FR',{maximumFractionDigits:1}).format(n);
-    return '<section class="card astra-performance astra-settings-section" aria-labelledby="astraPerformanceTitle">'+
+    return '<section class="card astra-reading-card astra-performance astra-settings-section" aria-labelledby="astraPerformanceTitle">'+
       '<h2 id="astraPerformanceTitle" class="card-title">Diagnostics de performances</h2>'+
       '<p class="tiny">Mesures locales facultatives, conservées uniquement pendant cette session. Aucune donnée personnelle transmise.</p>'+
       '<div class="actions"><button type="button" class="ghost" data-diagnostics-toggle="1" aria-pressed="'+diagnosticsEnabled+'">'+
@@ -1912,7 +1912,7 @@
           profileScreen==='composite'?'Comparer les positions de deux cartes.':'Ton thème de naissance, en clair.'))+
       (chart?renderNatalChart(chart):'')+
       (showSettings?
-      `<section class="card astra-birth-settings"><h2 class="card-title">Tes informations de naissance</h2><form id="birthForm" novalidate><div class="field-grid"><div class="field"><label for="birthDate">Date de naissance</label><input required type="date" id="birthDate" name="date" min="1900-01-01" max="2100-12-31" value="${safe(d.date)}"${validationAttrs('birthDate',birthValidation)}>${validationMessage('birthDate',birthValidation)}</div><div class="field"><label for="birthTime">Heure de naissance</label><input ${d.timeKnown?'required':''} type="time" id="birthTime" name="time" value="${safe(d.time)}" ${d.timeKnown?'':'disabled'}${validationAttrs('birthTime',birthValidation)}>${validationMessage('birthTime',birthValidation)}</div></div>`+
+      `<section class="card astra-reading-card astra-birth-settings"><h2 class="card-title">Tes informations de naissance</h2><form id="birthForm" novalidate><div class="field-grid"><div class="field"><label for="birthDate">Date de naissance</label><input required type="date" id="birthDate" name="date" min="1900-01-01" max="2100-12-31" value="${safe(d.date)}"${validationAttrs('birthDate',birthValidation)}>${validationMessage('birthDate',birthValidation)}</div><div class="field"><label for="birthTime">Heure de naissance</label><input ${d.timeKnown?'required':''} type="time" id="birthTime" name="time" value="${safe(d.time)}" ${d.timeKnown?'':'disabled'}${validationAttrs('birthTime',birthValidation)}>${validationMessage('birthTime',birthValidation)}</div></div>`+
       `<label class="unknown-time-toggle" for="unknownBirthTime"><input type="checkbox" id="unknownBirthTime" name="unknownBirthTime" ${d.timeKnown?'':'checked'}> Je ne connais pas l’heure</label><p class="field-help">Sans heure, ASTRA ne calcule pas l’Ascendant ni les maisons. Tu peux continuer.</p>`+
       `<div class="field"><label for="birthCity">Ville de naissance</label><div class="city-search"><input required autocomplete="off" id="birthCity" name="city" placeholder="Ex. Paris, Montréal, Tokyo…" value="${safe(d.city)}"${validationAttrs('birthCity',birthCityError)}><button type="button" class="ghost" data-search-place="1" ${placeSearch.loading?'disabled':''}>${placeSearch.loading?'Recherche…':'Rechercher'}</button></div><p class="field-help">Recherche avec Internet, puis sélectionne le bon résultat. La position et le fuseau sont déduits de la ville, pas du téléphone.</p></div>`+
       `${validationMessage('birthCity',birthCityError)}`+
@@ -1920,7 +1920,7 @@
       `${place?`<div class="city-confirmed" role="status"><b>Ville confirmée · ${safe(place.label)}</b><details class="city-technical"><summary>Voir le fuseau et les coordonnées</summary><p>${safe(offsetDescription(d,place))}</p><small>Coordonnées calculées · ${place.latitude.toFixed(4)}°, ${place.longitude.toFixed(4)}°</small></details></div>`:'<p class="city-unselected">Sélectionne une ville pour continuer.</p>'}`+
       `${foldPicker}<details class="calculation-details astra-disclosure"><summary>Comment les calculs fonctionnent-ils ?</summary><p class="field-help"><strong>Orbes automatiques.</strong> ASTRA adapte la marge à la planète et à l’aspect. Les instants exacts sont calculés séparément dans le calendrier.</p></details><button class="primary full" type="submit">Calculer mon thème natal</button></form>`+
       `<p class="tiny">Recherche de villes fournie par <a href="https://open-meteo.com/" rel="noopener noreferrer">Open-Meteo / GeoNames</a>. Seul le nom de ville recherché est transmis. Ensuite, les calculs restent sur ton appareil, même hors connexion. Les règles historiques sont celles de la base de fuseaux disponible sur l’appareil.</p></section>`+
-      appearancePanel()+diagnosticsPanel()+`<section class="card astra-privacy-settings"><h2 class="card-title">Confidentialité et sauvegarde</h2><p class="tiny">Les dates et heures de naissance, coordonnées et notes sont stockées uniquement sur l’appareil. Une désinstallation peut les supprimer. Protège le fichier JSON exporté.</p><div class="actions"><button class="ghost" data-export="1">Exporter JSON</button><button class="ghost" data-import="1">Importer JSON</button></div><input id="importFile" type="file" accept="application/json" hidden><button class="subnav danger" data-clear="1">Effacer les données locales</button></section>`+
+      appearancePanel()+diagnosticsPanel()+`<section class="card astra-reading-card astra-privacy-settings"><h2 class="card-title">Confidentialité et sauvegarde</h2><p class="tiny">Les dates et heures de naissance, coordonnées et notes sont stockées uniquement sur l’appareil. Une désinstallation peut les supprimer. Protège le fichier JSON exporté.</p><div class="actions"><button class="ghost" data-export="1">Exporter JSON</button><button class="ghost" data-import="1">Importer JSON</button></div><input id="importFile" type="file" accept="application/json" hidden><button class="subnav danger" data-clear="1">Effacer les données locales</button></section>`+
       `<details class="calculation-details astra-disclosure"><summary>Limites et précision des calculs</summary><p>Vérifie les villes homonymes et les frontières historiques. Les dates très anciennes dépendent de la qualité des archives IANA du téléphone. Lahiri sidéral reste approximatif. Le thème tropical calcule l’Ascendant et les maisons Placidus ; près des pôles, des maisons égales les remplacent.</p></details>`:'');
   }
   function render() {

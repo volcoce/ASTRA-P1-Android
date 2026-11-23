@@ -108,10 +108,7 @@
 .astra-event-facts :is(span,strong){color:var(--astra-ink)}
 
 /* Secondary screens: settings, natal exploration and diagnostic panels. */
-.astra-settings-section,.astra-birth-settings,.astra-privacy-settings{
-  max-width:840px;margin:0 auto 16px;background:var(--astra-surface);
-  border:1px solid var(--astra-divider);border-radius:var(--astra-radius-xl)
-}
+/* Settings cards use the shared .astra-reading-card geometry from astra-layout.css. */
 .astra-settings-section .card-title,.astra-birth-settings .card-title,
 .astra-privacy-settings .card-title{font-family:var(--astra-font-display)}
 .astra-appearance-options{gap:8px}
