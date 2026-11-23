@@ -265,8 +265,11 @@ if __name__ == '__main__':
             assert page.locator('[data-tab="today"] .nav-label').inner_text()=='Ce jour'
             assert page.locator('.bottom-nav [data-tab]').count()==4
             assert page.locator('.bottom-nav .nav-label').all_text_contents()==[
-                'Ce jour','Ce mois','Calendrier','Mon ciel'
+                'Ce jour','Ce mois','Calendrier','Mon ciel','Paramètres'
             ]
+            assert page.locator('.bottom-nav .nav').count()==5
+            assert page.locator('#settingsButton').get_attribute('aria-haspopup')=='dialog'
+            assert page.locator('.bottom-nav .nav').last.get_attribute('id')=='settingsButton'
             assert page.locator('[data-tab="month"]').get_attribute('aria-label')=='Ce mois'
             assert page.locator('[data-tab="calendar"]').get_attribute('aria-label')=='Calendrier'
             assert page.locator('.bottom-nav [data-tab="journal"]').count()==0
@@ -607,7 +610,7 @@ if __name__ == '__main__':
             assert page.locator('.natal-explore .card-title').filter(has_text='Explorer mon thème').count()==0
             capture('explore-393')
             assert page.locator('.natal-explore-toolbar .natal-back').count()==1
-            assert page.locator('.natal-explore-toolbar .natal-settings-link').count()==1
+            assert page.locator('.natal-explore-toolbar .natal-settings-link').count()==0
             assert page.locator('.natal-explore-intro').count()==1
             # Same centered content column at 320, 393, 768 and 1280 px.
             for width in (320,393,768,1280):
@@ -667,7 +670,8 @@ if __name__ == '__main__':
             assert 'Aspect natal' in page.locator('#natalSelectionInfo').inner_text()
             assert page.locator('.natal-matrix button').first.get_attribute('aria-pressed')=='true'
             page.locator('[data-close-natal-detail]').click()
-            page.locator('[data-profile-screen="settings"]').click()
+            page.locator('#settingsButton').click()
+            page.locator('[data-settings-birth]').click()
             assert page.locator('.natal-settings').count()==1
             assert page.locator('.natal-more-options').get_attribute('open') is None
             capture('settings-393')
@@ -678,6 +682,7 @@ if __name__ == '__main__':
             assert page.locator('.natal-primary-cards').count()==0
             page.locator('#settingsButton').click()
             assert page.locator('#astraSettingsDialog[open]').count()==1
+            assert page.locator('#settingsButton').get_attribute('aria-expanded')=='true'
             assert page.locator('[data-settings-section="astrology"]').get_attribute('aria-selected')=='true'
             page.locator('[data-house-system="whole"]').focus()
             page.keyboard.press('Enter')
@@ -749,7 +754,8 @@ if __name__ == '__main__':
             assert page.locator('.natal-composite-result').count()==1
             assert page.locator('.natal-composite-result .natal-progression-row').count()==10
             page.locator('[data-profile-screen="overview"]').click()
-            page.locator('[data-profile-screen="settings"]').click()
+            page.locator('#settingsButton').click()
+            page.locator('[data-settings-birth]').click()
             # Native settings hold export tools, preview wheel remains available.
             page.locator('.natal-preview-disclosure summary').click()
             assert audit_disclosures('natal-preview')>=1
@@ -781,7 +787,8 @@ if __name__ == '__main__':
             assert 'Maison 2' in page.locator('#natalSelectionInfo').inner_text()
             page.keyboard.press('Escape')
             assert page.locator('#natalSelectionInfo').count()==0
-            page.locator('[data-profile-screen="settings"]').click()
+            page.locator('#settingsButton').click()
+            page.locator('[data-settings-birth]').click()
             page.locator('#settingsButton').click()
             page.locator('[data-settings-section="astrology"]').click()
             page.locator('[data-natal-zodiac="sidereal"]').click()
@@ -789,7 +796,8 @@ if __name__ == '__main__':
             page.locator('[data-settings-close]').click()
             page.locator('[data-profile-screen="overview"]').click()
             assert 'Sidéral' in page.locator('#natalChart').inner_text()
-            page.locator('[data-profile-screen="settings"]').click()
+            page.locator('#settingsButton').click()
+            page.locator('[data-settings-birth]').click()
             page.locator('#settingsButton').click()
             page.locator('[data-settings-section="astrology"]').click()
             page.locator('[data-natal-zodiac="tropical"]').click()
@@ -801,7 +809,8 @@ if __name__ == '__main__':
             # Compare the two reference palettes on the SAME natal wheel and
             # calendar geometry. Persisted choices must affect live CSS & export.
             page.set_viewport_size({'width':393,'height':844})
-            page.locator('[data-profile-screen="settings"]').click()
+            page.locator('#settingsButton').click()
+            page.locator('[data-settings-birth]').click()
             page.locator('#settingsButton').click()
             assert page.locator('#astraSettingsDialog[open]').count()==1
             assert page.locator('#astraSettingsDialog [role="tab"]').count()==4
@@ -837,6 +846,7 @@ if __name__ == '__main__':
                 capture('palette-'+palette+'-settings-light-393')
                 page.locator('[data-settings-close]').click()
                 assert page.locator('#astraSettingsDialog[open]').count()==0
+                assert page.locator('#settingsButton').get_attribute('aria-expanded')=='false'
                 page.locator('[data-profile-screen="overview"]').click()
                 for element,colour in hues.items():
                     expected_fill='rgb('+', '.join(str(int(colour[i:i+2],16)) for i in (1,3,5))+')'
@@ -848,7 +858,8 @@ if __name__ == '__main__':
                 page.locator('[data-tab="calendar"]').click()
                 capture_element('palette-'+palette+'-calendar-light-393','.astra-calendar-board')
                 page.locator('[data-tab="profile"]').click()
-                page.locator('[data-profile-screen="settings"]').click()
+                page.locator('#settingsButton').click()
+                page.locator('[data-settings-birth]').click()
                 page.locator('#settingsButton').click()
                 page.locator('[data-settings-section="appearance"]').click()
             # P3: both appearance modes, readable ribbon ink and reduced motion.
@@ -874,7 +885,8 @@ if __name__ == '__main__':
             page.locator('[data-tab="calendar"]').click()
             capture_element('palette-classic-calendar-dark-393','.astra-calendar-board')
             page.locator('[data-tab="profile"]').click()
-            page.locator('[data-profile-screen="settings"]').click()
+            page.locator('#settingsButton').click()
+            page.locator('[data-settings-birth]').click()
             page.locator('#settingsButton').click()
             page.locator('[data-settings-section="appearance"]').click()
             page.locator('[data-element-palette="vivid"]').click()
@@ -885,7 +897,8 @@ if __name__ == '__main__':
             page.locator('[data-tab="calendar"]').click()
             capture_element('palette-vivid-calendar-dark-393','.astra-calendar-board')
             page.locator('[data-tab="profile"]').click()
-            page.locator('[data-profile-screen="settings"]').click()
+            page.locator('#settingsButton').click()
+            page.locator('[data-settings-birth]').click()
             page.locator('#settingsButton').click()
             page.locator('[data-settings-section="appearance"]').click()
             assert page.evaluate('document.documentElement.dataset.astraPalette')=='vivid'
@@ -956,7 +969,7 @@ if __name__ == '__main__':
             }""")
             assert all(item['background']!='rgb(255, 255, 255)' for item in overview_colors),overview_colors
             page.locator('[data-profile-screen="explore"]').click()
-            assert page.locator('.natal-explore-toolbar .natal-settings-link').count()==1
+            assert page.locator('.natal-explore-toolbar .natal-settings-link').count()==0
             explore_colors=page.evaluate("""() => {
               const selectors=['.natal-explore .natal-position','.natal-explore .natal-explore-tabs','.natal-explore .natal-aspects'];
               return selectors.map(s=>{
@@ -969,7 +982,7 @@ if __name__ == '__main__':
             assert len(explore_colors)>=2,explore_colors
             assert all(item['background']!='rgb(255, 255, 255)' for item in explore_colors),explore_colors
             capture('explore-dark-393')
-            page.locator('.natal-explore-toolbar .natal-settings-link').click()
+            assert page.locator('.natal-explore-toolbar .natal-settings-link').count()==0
             page.locator('[data-tab="calendar"]').click()
             capture('calendar-dark-393')
             assert page.evaluate("""() => {
@@ -1023,7 +1036,8 @@ if __name__ == '__main__':
                 assert contrast['moreWidth']<=390,contrast
             capture('today-dark-readable-events-393')
             page.locator('[data-tab="profile"]').click()
-            page.locator('[data-profile-screen="settings"]').click()
+            page.locator('#settingsButton').click()
+            page.locator('[data-settings-birth]').click()
             page.locator('#settingsButton').click()
             page.locator('[data-settings-section="appearance"]').click()
             page.emulate_media(reduced_motion='reduce')
@@ -1239,7 +1253,8 @@ if __name__ == '__main__':
             page.set_viewport_size({'width':320,'height':730})
             # Return to Mon ciel after exercising the daily home widgets.
             page.locator('[data-tab="profile"]').click()
-            page.locator('[data-profile-screen="settings"]').click()
+            page.locator('#settingsButton').click()
+            page.locator('[data-settings-birth]').click()
             assert page.locator('.calculation-details').first.get_attribute('open') is None
             page.locator('.calculation-details summary').first.click()
             assert 'Orbes automatiques' in page.locator('#birthForm').inner_text()
@@ -1573,7 +1588,8 @@ if __name__ == '__main__':
             # P1: unknown birth hour should not invent an Ascendant or houses.
             page.locator('[data-tab="profile"]').click()
             assert page.locator('#birthForm').count()==0
-            page.locator('[data-profile-screen="settings"]').click()
+            page.locator('#settingsButton').click()
+            page.locator('[data-settings-birth]').click()
             page.locator('#unknownBirthTime').check()
             assert page.locator('#birthTime').is_disabled()
             page.get_by_role('button',name='Calculer mon thème natal').click()
