@@ -128,15 +128,8 @@
   margin:14px 0 0;border-top:1px solid var(--astra-divider);
 }
 .calendar.astra-calendar-board .calendar-help>summary{
-  min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:12px;
-  cursor:pointer;list-style:none;color:var(--astra-brand-strong);
-  padding:11px 14px;font-size:14px;font-weight:750;
+  color:var(--astra-brand-strong)
 }
-.calendar.astra-calendar-board .calendar-help>summary::-webkit-details-marker{display:none}
-.calendar.astra-calendar-board .calendar-help>summary::after{
-  content:'+';font-size:20px;font-weight:500;line-height:1;flex:none;
-}
-.calendar.astra-calendar-board .calendar-help[open]>summary::after{content:'−'}
 .calendar.astra-calendar-board .calendar-help-body{
   display:grid;gap:9px;
 }
@@ -147,23 +140,7 @@
   color:var(--astra-ink);
 }
 /* Options are secondary actions BELOW the month board, never before it. */
-.calendar-options{
-  margin:12px 0 0;
-  padding:0 14px;
-  border-radius:var(--astra-radius-lg);
-  background:var(--astra-surface);
-  border:1px solid var(--astra-divider);
-}
-.calendar-options>summary{
-  min-height:48px;display:flex;align-items:center;justify-content:space-between;
-  gap:12px;cursor:pointer;list-style:none;font-size:14px;font-weight:750;
-  padding:12px 0;color:var(--astra-ink);
-}
-.calendar-options>summary::-webkit-details-marker{display:none}
-.calendar-options>summary::after{
-  content:'+';font-size:20px;line-height:1;font-weight:500;flex:none;
-}
-.calendar-options[open]>summary::after{content:'−'}
+.calendar-options{margin:12px 0 0}
 @media(max-width:360px){
   .calendar.astra-calendar-board .astra-calendar-solar-note{font-size:13px}
   .calendar.astra-calendar-board .calendar-help-body p{font-size:13px}

@@ -109,8 +109,6 @@ textarea:focus-visible,select:focus-visible{outline:3px solid #237b99;outline-of
 .day .pinhole{background:#d99965}
 .calendar .tiny{font-size:12px;color:#687988;margin:11px 0 0}
 .calendar-options{margin:8px 0 14px}
-.calendar-options>summary{cursor:pointer;min-height:44px;display:flex;align-items:center;
-  font-size:13px;color:#315e79;font-weight:700}
 .calendar-options .switch{margin:8px 0}
 .filter-wrap{margin:8px 0 13px}
 
@@ -199,17 +197,8 @@ textarea:focus-visible,select:focus-visible{outline:3px solid #237b99;outline-of
 /* Details on demand — technical content should not drown the primary task. */
 .natal-more-options,.calculation-details{margin:16px 0 12px;background:#f7fafb;
   border:1px solid var(--astra-rule);border-radius:12px;overflow:hidden}
-.natal-more-options>summary,.calculation-details>summary{
-  display:flex;align-items:center;min-height:48px;padding:12px 14px;
-  cursor:pointer;font-size:14px;font-weight:700;color:#284e64
-}
-.natal-more-options[open]>summary,.calculation-details[open]>summary{
-  border-bottom:1px solid var(--astra-rule)
-}
-.natal-more-options .natal-advanced{padding:16px 12px 14px;border:0;margin:0}
-.calculation-details>p,.calculation-details .field-help{
-  padding:0 14px 14px;font-size:13px;color:#526879;line-height:1.6
-}
+.natal-more-options .natal-advanced{border:0;margin:0}
+.calculation-details .field-help{font-size:13px;color:var(--astra-muted);line-height:1.6}
 .city-confirmed{font-size:13px}
 .city-confirmed b{font-size:13px}
 .city-technical{margin-top:8px}
@@ -459,23 +448,12 @@ button.astra-insight-tile:hover{border-color:#7597aa}
   font-size:13px;min-height:44px;width:100%;text-align:left}
 .natal-glossary,.natal-extras{background:#fff;border:1px solid #dbe5e9;
   border-radius:13px;margin:13px 0;overflow:hidden}
-.natal-glossary>summary,.natal-extras>summary{
-  min-height:48px;padding:13px 15px;cursor:pointer;color:#2b5368;
-  font-size:13px;font-weight:750
-}
-.natal-glossary[open]>summary,.natal-extras[open]>summary{
-  border-bottom:1px solid #dbe5e9
-}
-.natal-glossary dl{padding:10px 16px;margin:0;display:grid;gap:4px}
+.natal-glossary dl{margin:0;display:grid;gap:4px}
 .natal-glossary dt{font:750 14px/1.4 system-ui,sans-serif;color:#223a4e;margin-top:8px}
 .natal-glossary dd{font:400 13px/1.55 system-ui,sans-serif;color:#5a7180;
   margin:0 0 4px}
-.natal-glossary .tiny{padding:0 16px 12px;margin:0}
+.natal-glossary .tiny{margin:0}
 .natal-extras{margin-top:20px}
-.natal-extras>button{display:flex;align-items:center;min-height:47px;
-  padding:9px 15px;width:100%;background:#fff;border:0;border-bottom:1px solid #ebeff1;
-  color:#244c65;font:700 14px/1.35 system-ui,sans-serif;text-align:left;cursor:pointer}
-.natal-extras>button:last-child{border-bottom:0}
 .natal-transit-filters{margin:13px 0}
 .natal-contact-list button[aria-pressed="true"]{background:#e6f1f5}
 .natal-contact-list button small{font-size:12px;line-height:1.4;white-space:normal}

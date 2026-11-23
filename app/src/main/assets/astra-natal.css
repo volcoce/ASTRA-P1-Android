@@ -317,11 +317,6 @@
   background:var(--astra-secondary-surface);
   overflow:hidden;color:var(--astra-ink);
 }
-.natal-explore :is(.natal-explore-wheel,.natal-matrix-disclosure)>summary{
-  min-height:48px;padding:14px 16px;
-  color:var(--astra-ink);font:750 14px/1.4 var(--astra-font-body);
-  cursor:pointer;
-}
 .natal-explore .natal-explore-wheel .natal-wheel-viewport{
   min-width:0;max-width:100%;
   margin:10px auto;padding:8px;
@@ -345,27 +340,8 @@
   border-radius:var(--astra-radius-lg);
   color:var(--astra-ink);overflow:hidden;
 }
-:is(.natal-home,.natal-explore) :is(.natal-glossary,.natal-extras)>summary{
-  min-height:52px;display:flex;align-items:center;gap:10px;
-  padding:13px 16px;cursor:pointer;list-style:none;
-  color:var(--astra-ink);font:750 14px/1.4 var(--astra-font-body);
-}
-:is(.natal-home,.natal-explore) :is(.natal-glossary,.natal-extras)>summary::-webkit-details-marker{
-  display:none;
-}
-:is(.natal-home,.natal-explore) :is(.natal-glossary,.natal-extras)>summary::after{
-  content:'+';font-size:20px;line-height:1;margin-left:auto;
-}
-:is(.natal-home,.natal-explore) :is(.natal-glossary,.natal-extras)[open]>summary::after{content:'−'}
 :is(.natal-home,.natal-explore) .natal-glossary :is(dt,dd,.tiny){color:var(--astra-ink)}
 :is(.natal-home,.natal-explore) .natal-glossary dd{color:var(--astra-muted)}
-:is(.natal-home,.natal-explore) .natal-extras>button{
-  width:100%;min-height:48px;padding:12px 16px;
-  text-align:left;background:var(--astra-surface);
-  border:0;border-top:1px solid var(--astra-divider);
-  color:var(--astra-ink);font:650 14px/1.4 var(--astra-font-body);
-}
-:is(.natal-home,.natal-explore) .natal-extras>button:hover{background:var(--astra-secondary-surface)}
 .natal-home :is(.natal-overview-panel,.natal-positions,.natal-aspects){min-width:0}
 .natal-home .natal-overview-panel .natal-position,
 .natal-home .natal-overview-panel .natal-aspect{
