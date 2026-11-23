@@ -870,9 +870,9 @@ if __name__ == '__main__':
             capture('calendar-dark-393')
             assert page.evaluate("""() => {
               const root=getComputedStyle(document.documentElement);
-              return root.getPropertyValue('--solar-earth-bg').trim()==='#6E6A33' &&
-                root.getPropertyValue('--solar-water-bg').trim()==='#315E85' &&
-                root.getPropertyValue('--solar-air-bg').trim()==='#3E6E90';
+              return root.getPropertyValue('--solar-earth-bg').trim()==='#326B1A' &&
+                root.getPropertyValue('--solar-water-bg').trim()==='#185E9E' &&
+                root.getPropertyValue('--solar-air-bg').trim()==='#776A0D';
             }""")
             assert page.locator('.calendar .day').first.evaluate(
                 "el => getComputedStyle(el).color"
@@ -929,8 +929,8 @@ if __name__ == '__main__':
             assert page.evaluate("document.documentElement.dataset.astraTheme")=='light'
             assert page.evaluate("""() => {
               const root=getComputedStyle(document.documentElement);
-              return root.getPropertyValue('--solar-earth-bg').trim()==='#C8C36A' &&
-                root.getPropertyValue('--solar-water-bg').trim()==='#5B9BC7';
+              return root.getPropertyValue('--solar-earth-bg').trim()==='#46CD17' &&
+                root.getPropertyValue('--solar-water-bg').trim()==='#159BF2';
             }""")
             page.locator('[data-profile-screen="overview"]').click()
             assert page.locator('#orb').count()==0
