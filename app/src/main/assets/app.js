@@ -1644,21 +1644,13 @@
       '<button type="button" data-close-natal-detail="1" aria-label="Fermer la fiche">Fermer <span aria-hidden="true">×</span></button></div>'+
       '<div class="natal-context-content">'+selectedDetail+'</div></section>':'';
     const shortCaption='<p class="natal-home-hint">Sélectionne un astre ou un aspect.</p>';
-    const pageBack='<button type="button" class="natal-back" data-profile-screen="overview" aria-label="Retour à Mon ciel">'+
-      '<span aria-hidden="true">←</span><span>Mon ciel</span></button>';
+    const pageBack='<button type="button" class="natal-back" data-profile-screen="'+(isCompare?'explore':'overview')+'" aria-label="'+(isCompare?'Retour à Explorer les positions':'Retour à Mon ciel')+'">'+
+      '<span aria-hidden="true">←</span><span>'+(isCompare?'Explorer les positions':'Mon ciel')+'</span></button>';
     if(isOverview){
       const homeSvg=svg.replace(/class="natal-wheel([^"]*)"/,(_,rest)=>
         'class="natal-wheel'+rest+'" style="width:100%;min-width:0;max-width:none"');
       const overviewContent='<div class="natal-wheel-viewport" role="region" tabindex="0" aria-label="Roue natale interactive">'+homeSvg+'</div>'+
           shortCaption;
-      const glossary='<details class="natal-glossary astra-disclosure"><summary>Comprendre les mots astrologiques</summary>'+
-        '<div class="astra-disclosure-body"><dl><dt>Planète</dt><dd>Corps céleste représenté à sa position dans le zodiaque.</dd>'+
-        '<dt>Signe</dt><dd>L’un des douze secteurs de 30° du zodiaque utilisé.</dd>'+
-        '<dt>Maison</dt><dd>Division de la carte selon l’heure et le lieu de naissance.</dd>'+
-        '<dt>Aspect</dt><dd>Angle mesuré entre deux positions planétaires.</dd>'+
-        '<dt>Orbe</dt><dd>Écart entre un angle exact et l’angle mesuré.</dd>'+
-        '<dt>Transit</dt><dd>Position planétaire à une autre date, comparée à ta naissance.</dd>'+
-        '</dl><p class="tiny">Les interprétations astrologiques sont symboliques, non scientifiquement prédictives.</p></div></details>';
       return '<section class="card natal-card astra-reading-card natal-home" id="natalChart">'+
         '<div class="natal-home-header"><div><h2 class="card-title">Ta carte de naissance</h2>'+
         '<p class="natal-home-subtitle">'+(isTropical?'Tropical':'Sidéral')+'</p></div></div>'+
@@ -1666,8 +1658,7 @@
         '<div class="natal-primary-cards'+(h?'':' natal-primary-cards--two')+'" role="group" aria-label="Soleil, Lune et Ascendant en signes astrologiques">'+quickCards+'</div>'+
         overviewContent+
         '<div class="natal-home-actions natal-home-actions--primary"><button type="button" class="natal-main-action" data-profile-screen="explore"><span class="action-label"><strong>Explorer les positions</strong></span><span class="action-arrow" aria-hidden="true">→</span></button></div>'+
-        contextSheet+glossary+
-        '<div class="natal-home-actions natal-home-actions--secondary"><button type="button" class="natal-secondary-action" data-explore-transits="1"><span class="action-label"><strong>Comparer deux dates</strong></span><span class="action-arrow" aria-hidden="true">→</span></button></div>'+
+        contextSheet+
         (h?.polarFallback?'<p class="notice">Maisons égales utilisées à cette latitude.</p>':'')+
         '</section>';
     }
@@ -1748,6 +1739,7 @@
       '<div class="astra-disclosure-body"><div class="natal-wheel-viewport" role="region" tabindex="0" aria-label="Roue natale interactive">'+resized+'</div>'+
       '<p class="natal-home-hint">Les petites marques montrent les positions exactes.</p>'+
       '</div></details>'+contextSheet+
+      '<button type="button" class="ghost full" data-explore-transits="1">Comparer deux dates →</button>'+
       (h?.polarFallback?'<p class="notice">À cette latitude, les maisons égales remplacent Placidus.</p>':'')+
       (h?.approximateSidereal?'<p class="tiny">Le zodiaque sidéral utilise ici un ayanamsa Lahiri approximatif.</p>':'')+
       '<p class="tiny">Ces lectures sont symboliques, pas des prédictions scientifiques.</p></section>';
@@ -1800,7 +1792,8 @@
       '</section>';
   }
 
-  // The only surface for app-wide preferences: one dialog, four clear categories.
+  // One shared registry for settings rendering, keyboard navigation and selection.
+  const SETTINGS_TABS=[['astrology','Astrologie'],['appearance','Apparence'],['data','Données'],['advanced','Avancé'],['help','Aide']];
   function settingsAstrologyPanel(){
     const choices=(label,key,values,attr)=>'<div class="astra-settings-field"><h4>'+label+'</h4>'+
       '<div class="astra-settings-choices" role="group" aria-label="'+label+'">'+
@@ -1835,11 +1828,22 @@
       '<details class="calculation-details astra-disclosure"><summary>Limites et précision des calculs</summary>'+
       '<div class="astra-disclosure-body"><p>Vérifie les villes homonymes et les frontières historiques. Les fuseaux anciens dépendent des archives disponibles sur ton appareil. Lahiri sidéral est approximatif. Près des pôles, les maisons égales peuvent remplacer Placidus.</p></div></details>';
   }
+  function settingsHelpPanel(){
+    return '<section class="astra-settings-group"><h3>Aide</h3>'+
+      '<details class="natal-glossary astra-disclosure"><summary>Comprendre les mots astrologiques</summary>'+
+        '<div class="astra-disclosure-body"><dl><dt>Planète</dt><dd>Corps céleste représenté à sa position dans le zodiaque.</dd>'+
+        '<dt>Signe</dt><dd>L’un des douze secteurs de 30° du zodiaque utilisé.</dd>'+
+        '<dt>Maison</dt><dd>Division de la carte selon l’heure et le lieu de naissance.</dd>'+
+        '<dt>Aspect</dt><dd>Angle mesuré entre deux positions planétaires.</dd>'+
+        '<dt>Orbe</dt><dd>Écart entre un angle exact et l’angle mesuré.</dd>'+
+        '<dt>Transit</dt><dd>Position planétaire à une autre date, comparée à ta naissance.</dd>'+
+        '</dl><p class="tiny">Les interprétations astrologiques sont symboliques, non scientifiquement prédictives.</p></div></details></section>';
+  }
   function renderGlobalSettings(){
     const dlg=$('astraSettingsDialog');if(!dlg)return;
-    const tabs=[['astrology','Astrologie'],['appearance','Apparence'],['data','Données'],['advanced','Avancé']];
+    const tabs=SETTINGS_TABS;
     const active=globalSettingsSection;
-    const views={astrology:settingsAstrologyPanel,appearance:appearancePanel,data:settingsDataPanel,advanced:settingsAdvancedPanel};
+    const views={astrology:settingsAstrologyPanel,appearance:appearancePanel,data:settingsDataPanel,advanced:settingsAdvancedPanel,help:settingsHelpPanel};
     dlg.innerHTML='<header class="astra-settings-head"><div><p class="astra-settings-kicker">ASTRA</p>'+
       '<h2 id="astraSettingsTitle">Paramètres</h2></div>'+
       '<button type="button" class="astra-settings-close" data-settings-close="1" aria-label="Fermer les paramètres">Fermer ×</button></header>'+
@@ -2030,10 +2034,10 @@
     const tab=e.target.closest('[role="tab"][data-settings-section]');
     if(!tab||!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;
     e.preventDefault();
-    const sections=['astrology','appearance','data','advanced'];
+    const sections=SETTINGS_TABS.map(([id])=>id);
     const ix=sections.indexOf(globalSettingsSection);
-    globalSettingsSection=e.key==='Home'?sections[0]:e.key==='End'?sections[3]:
-      sections[(ix+(e.key==='ArrowRight'?1:3))%sections.length];
+    globalSettingsSection=e.key==='Home'?sections[0]:e.key==='End'?sections[sections.length-1]:
+      sections[(ix+(e.key==='ArrowRight'?1:-1)+sections.length)%sections.length];
     updateGlobalSettings('[data-settings-section="'+globalSettingsSection+'"]');
   });
   document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.tab)));
@@ -2059,7 +2063,7 @@
     const a=button.dataset;
     if(a.settingsClose){globalSettingsDialog.close();return;}
     if(a.settingsSection){
-      if(!['astrology','appearance','data','advanced'].includes(a.settingsSection))return;
+      if(!SETTINGS_TABS.some(([id])=>id===a.settingsSection))return;
       globalSettingsSection=a.settingsSection;
       updateGlobalSettings('[data-settings-section="'+globalSettingsSection+'"]');return;
     }
