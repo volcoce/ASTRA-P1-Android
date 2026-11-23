@@ -1221,7 +1221,7 @@
   }
   // Signs are typographic glyphs, not native emoji badges.
   const wheelZodiacGlyph=index=>zodiacSymbols[index]+'\uFE0E';
-  // Minimal visual spacing only: never move the astronomical anchor or change rings.
+  // Original angular anti-collision: astronomical anchors and ring radii stay fixed.
   function wheelPlanetLabel(body,lng,asc,{center=210,radius=150,markerRadius=166,dateOnly=false,transit=false,labelLongitude=lng}={}){
     const polarPoint=(longitude,r)=>{
       const angle=(180-(longitude-asc))*Math.PI/180;
@@ -1246,11 +1246,9 @@
       '<text x="'+x+'" y="'+y+'" text-anchor="middle" dominant-baseline="central" pointer-events="none" class="natal-planet">'+(natalGlyphs[body]||body)+'</text></g>';
   }
   function wheelLabels(positions,asc,options={}){
-    const radius=options.radius??150;
-    // A 26 SVG-unit chord is just wider than the 21-unit glyph. Unlike a
-    // fixed 14–19° gap, this scales with each ring and leaves clear glyphs alone.
-    const minDegrees=2*Math.asin(26/(2*radius))*180/Math.PI;
-    const labels=E.layoutPlanetLabels(positions,minDegrees);
+    // Restore the pre-comparison spacing policy: the shared solver's
+    // original 14-degree minimum, on every natal and transit ring.
+    const labels=E.layoutPlanetLabels(positions);
     return Object.entries(positions)
       .filter(([,lng])=>Number.isFinite(lng))
       .map(([body,lng])=>wheelPlanetLabel(body,lng,asc,{...options,labelLongitude:labels[body].labelLongitude})).join('');
