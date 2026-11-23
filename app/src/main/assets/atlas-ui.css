@@ -95,8 +95,6 @@ textarea:focus-visible,select:focus-visible{outline:3px solid #237b99;outline-of
 .day.selected .count{background:#fff}
 .day .pinhole{background:#d99965}
 .calendar .tiny{font-size:12px;color:#687988;margin:11px 0 0}
-.calendar-options{margin:8px 0 14px}
-.calendar-options .switch{margin:8px 0}
 .filter-wrap{margin:8px 0 13px}
 
 /* Journal: an inviting diary, not five technical widgets. */
