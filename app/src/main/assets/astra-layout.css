@@ -86,8 +86,6 @@ label:has(>input:is([type="checkbox"],[type="radio"])){
 }
 
 /* These are global interaction states, not route-specific exceptions. */
-body.astra-focus-open .top,
-body.astra-focus-open .bottom-nav{visibility:hidden}
 body.astra-input-active .bottom-nav{
   visibility:hidden;pointer-events:none
 }
