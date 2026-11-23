@@ -48,12 +48,21 @@ jobs:
           python-version: '3.12'
       - name: Préparer les tests navigateur avec Chrome du runner
         run: |
-          python -m pip install playwright==1.56.0
+          python -m pip install playwright==1.56.0 Pillow==11.3.0
           command -v google-chrome || command -v chromium
       - name: Tester Mon ciel, les modes et le journal dans Chromium
         env:
           ASTRA_SCREENSHOT_DIR: tests/artifacts/screenshots
         run: python tests/ui-smoke.py
+      - name: Vérifier les captures visuelles et la palette par pixels
+        run: python tests/visual-regression.py
+      - name: Publier le rapport des tests visuels
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ASTRA-visual-test-report
+          path: tests/artifacts/visual-report.json
+          if-no-files-found: warn
       - name: Publier les captures UI synthétiques
         if: always()
         uses: actions/upload-artifact@v4
