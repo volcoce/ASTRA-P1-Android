@@ -1481,7 +1481,7 @@
       '<title>ASTRA — Roue double natal/transits</title>'+
       '<circle class="wheel-paper" cx="270" cy="270" r="264" fill="#fff" stroke="#bca8c9"/>'+
       '<circle class="wheel-transit-band" cx="270" cy="270" r="232" fill="#f1f8fc" stroke="#a1becd" stroke-width="1.6"/>'+
-      parts.join('')+wheelDegreeTicks(270,227,asc)+
+      parts.join('')+
       '<circle class="wheel-zodiac-inner" cx="270" cy="270" r="193" fill="#fff" stroke="#a48db5"/>'+
       '<circle class="wheel-house-backdrop" cx="270" cy="270" r="133" fill="#faf7fc" stroke="#bba7c9"/>'+
       '<circle class="wheel-aspect-backdrop" cx="270" cy="270" r="98" fill="#fff" stroke="#baa8c8"/>'+
@@ -1634,9 +1634,9 @@
       '<div class="natal-context-bar"><h2 id="natalContextTitle">Fiche de lecture</h2>'+
       '<button type="button" data-close-natal-detail="1" aria-label="Fermer la fiche">Fermer <span aria-hidden="true">×</span></button></div>'+
       '<div class="natal-context-content">'+selectedDetail+'</div></section>':'';
-    const shortCaption='<p class="natal-home-hint">Les points indiquent les longitudes réelles ; les symboles sont écartés si nécessaire. '+
-      (state.natalView==='complete'?'Degrés et minutes, aspects filtrés. ':'Degrés et six aspects au plus, sans classement d’influence. ')+
-      (uncertain?'Heure inconnue : Lune indicative, sans maisons.':'Choisis une planète pour lire sa fiche.')+'</p>';
+    const shortCaption='<p class="natal-home-hint">Les points indiquent les positions exactes ; les symboles sont espacés pour rester lisibles. '+
+      (state.natalView==='complete'?'Tous les aspects du filtre sont affichés. ':'Jusqu’à six aspects sont affichés. ')+
+      (uncertain?'Heure inconnue : Lune indicative, sans maisons.':'Sélectionne une planète pour afficher ses détails.')+'</p>';
     const pageBack='<button type="button" class="natal-back" data-profile-screen="overview" aria-label="Retour à Mon ciel">'+
       '<span aria-hidden="true">←</span><span>Mon ciel</span></button>';
     if(isOverview){
