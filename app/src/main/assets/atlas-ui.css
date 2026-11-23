@@ -57,7 +57,7 @@ textarea:focus-visible,select:focus-visible{outline:3px solid #237b99;outline-of
 .natal-segments button{font-size:13px;color:#486171}
 .natal-segments button.on{background:var(--atlas-night);color:#fff;box-shadow:none}
 .natal-advanced{background:transparent}
-.natal-advanced-buttons button,.natal-downloads button,.natal-zoom button{color:#274c60}
+.natal-advanced-buttons button,.natal-zoom button{color:#274c60}
 .natal-advanced-buttons button[aria-pressed="true"]{background:var(--atlas-night);color:#fff}
 .natal-preview-disclosure{margin-top:20px}
 .field label,.tags-field legend{font-size:13px;font-weight:750;color:#405766}
