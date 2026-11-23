@@ -820,6 +820,17 @@ if __name__ == '__main__':
             assert page.locator('[data-explore-transits]').count()==0
             page.locator('.natal-main-action').click()
             assert page.locator('.natal-explore [data-explore-transits]').count()==1
+            for width in (320,393,768,1280):
+                page.set_viewport_size({'width':width,'height':844})
+                for section in ('planets','houses','aspects'):
+                    page.locator('[data-explore-section="'+section+'"]').click()
+                    gap=page.locator('.natal-explore').evaluate("""e=>{
+                      const panel=e.querySelector('.natal-explorer-panel');
+                      const action=e.querySelector('[data-explore-transits]');
+                      return action.getBoundingClientRect().top-panel.getBoundingClientRect().bottom;
+                    }""")
+                    assert gap>=15,(width,section,gap)
+            page.set_viewport_size({'width':393,'height':844})
             page.locator('[data-explore-transits]').click()
             assert page.locator('.natal-compare').count()==1
             assert page.locator('h1.page-title').inner_text()=='Comparer deux dates'
