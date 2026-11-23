@@ -80,7 +80,7 @@ test('Calendar disclosures reuse global title and body padding',()=>{
  const components=read('astra-components.css');
  assert.match(components,/\.astra-disclosure>summary\s*\{[^}]*padding:var\(--astra-disclosure-block-inset\) var\(--astra-component-inset\)/s);
  assert.match(app,/class="calendar-help-body astra-disclosure-body"/);
- assert.match(app,/class="astra-disclosure-body"\>'+switcher\(\)\+filters\(\)/);
+ assert.match(app,/class="astra-disclosure-body">'\+switcher\(\)\+filters\(\)/);
  assert.doesNotMatch(css,/\.calendar-options\s*\{[^}]*padding:/s);
  assert.doesNotMatch(css,/\.calendar\.astra-calendar-board \.calendar-help>summary\s*\{[^}]*padding:/s);
  assert.doesNotMatch(css,/\.calendar-options\s*\{[^}]*max-width:/s);
