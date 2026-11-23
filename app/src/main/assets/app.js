@@ -1085,7 +1085,7 @@
       const phaseName=lunarLabel(phaseAngle);
       const moonIndicator=Number.isFinite(phaseAngle)?
         '<span class="moon-phase-badge" aria-hidden="true">'+moonPhaseIcon(phaseAngle)+'</span>':'';
-      cells.push(`<button type="button" class="day ${day===selected?'selected':''} ${day===isoDay(new Date())?'today':''} ${phase?'moon-'+phase:''}" data-day="${day}" aria-pressed="${day===selected}" ${day===todayKey?'aria-current="date"':''} aria-label="${safe(displayDate(day))}, ${total} événement(s) exact(s), ${personalCount} événement(s) personnel(s), ${entry.active.length} aspect(s) actif(s)${Number.isFinite(phaseAngle)?', '+phaseName+' à midi':''}${phase?', '+phaseLabel:''}, ${solarNameForDay}${ingressLabel}">${d}<span class="count">${total?total+' ✦':entry.active.length?entry.active.length+' ~':''}</span>${moonIndicator}${state.journal[day]?'<span class="pinhole"></span>':''}</button>`);
+      cells.push(`<button type="button" class="day ${day===selected?'selected':''} ${day===isoDay(new Date())?'today':''} ${phase?'moon-'+phase:''}" data-day="${day}" aria-pressed="${day===selected}" ${day===todayKey?'aria-current="date"':''} aria-label="${safe(displayDate(day))}, ${total} événement(s) exact(s), ${personalCount} événement(s) personnel(s), ${entry.active.length} aspect(s) actif(s)${Number.isFinite(phaseAngle)?', '+phaseName+' à midi':''}${phase?', '+phaseLabel:''}, ${solarNameForDay}${ingressLabel}" data-solar-element="${solarIndex===null?'unknown':['fire','earth','air','water'][solarIndex%4]}"${ingress?' data-solar-ingress="true"':''}><span class="astra-calendar-date-number">${d}</span><span class="count">${total?total+' ✦':entry.active.length?entry.active.length+' ~':''}</span>${moonIndicator}${state.journal[day]?'<span class="pinhole"></span>':''}</button>`);
     }
     // One continuous solar ribbon behind each week's dates, not seven cards.
     const weeks=[];
@@ -1119,6 +1119,10 @@
         (visiblePeriods?solarCalendarBackdropWeek(year,m,weekday,week,visiblePeriods):'')+
         dates.join('')+'</div>');
     }
+    // Full-size alternative when seven 48px targets do not fit.
+    const accessibleDates='<select class="astra-calendar-date-picker" id="astraCalendarDatePicker" aria-label="Date du calendrier">'+
+      Array.from({length:count},(_,i)=>{const day=`${year}-${pad(m+1)}-${pad(i+1)}`;
+        return '<option value="'+day+'"'+(day===selected?' selected':'')+'>'+safe(displayDate(day))+'</option>';}).join('')+'</select>';
     return header('Calendrier')+
       birthTimeWarning()+
       '<div class="month-head astra-calendar-month-head">'+
@@ -1126,7 +1130,7 @@
       '<h2>'+safe(new Intl.DateTimeFormat('fr-FR',{month:'long',year:'numeric'}).format(month))+'</h2>'+
       '<button type="button" class="arrow" data-month="1" aria-label="Mois suivant">›</button></div>'+
 
-      '<div class="calendar astra-calendar-board"><div class="cal-grid">'+['L','M','M','J','V','S','D'].map((x,i)=>
+      '<div class="calendar astra-calendar-board">'+accessibleDates+'<div class="cal-grid">'+['L','M','M','J','V','S','D'].map((x,i)=>
       '<span class="weekday"><span aria-hidden="true">'+x+'</span><span class="astra-sr-only">'+['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'][i]+'</span></span>').join('')+weeks.join('')+'</div>'+
       (periods?solarMonthSummary(periods):'')+
       (state.profile?'<div class="calendar-phase-legend" aria-label="Légende des marqueurs du calendrier">'+
@@ -2345,6 +2349,11 @@
     },120);
   });
   document.addEventListener('change',async event=>{
+    if(event.target.id==='astraCalendarDatePicker'){
+      const day=event.target.value;
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(day))return;
+      $('app').querySelector('[data-day="'+day+'"]')?.click();return;
+    }
     if(event.target.id==='transitDay'||event.target.id==='transitTime'){
       captureBirthForm();
       const date=$('transitDay')?.value||state.transitDay;

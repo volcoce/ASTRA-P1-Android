@@ -44,7 +44,7 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
 :is(.primary,.natal-main-action,.astra-month-calendar-link,.astra-personal-save){
   background:var(--astra-primary);color:var(--astra-primary-ink);
   border:2px solid var(--astra-primary-ink);border-radius:var(--astra-radius-md);
-  box-shadow:none;font-weight:750;min-height:44px;
+  box-shadow:none;font-weight:750;min-height:var(--astra-control-min);
   transition:transform var(--astra-motion),box-shadow var(--astra-motion)
 }
 :is(.primary,.natal-main-action,.astra-month-calendar-link,.astra-personal-save):hover:not(:disabled){
@@ -221,7 +221,7 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
 }
 .astra-disclosure>summary{
   display:flex;align-items:center;gap:12px;
-  min-height:48px;
+  min-height:var(--astra-control-min);
   padding:var(--astra-disclosure-block-inset) var(--astra-component-inset);
   cursor:pointer;list-style:none;
   color:var(--astra-ink);font-size:14px;line-height:1.45;font-weight:750;

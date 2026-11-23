@@ -57,6 +57,7 @@
   /* Fixed astronomical plate; unchanged by the interface dark theme. */
   --astra-plate-cream:#FFF9EA;
   --astra-calendar-ink:#102A34;
+  --astra-calendar-label-bg:var(--astra-plate-cream);
   --astra-calendar-focus:#17465D;
   /* Android-oriented interactive target and separation, shared on every screen. */
   --astra-control-min:48px;
