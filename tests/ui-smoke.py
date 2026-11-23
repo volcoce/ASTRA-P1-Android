@@ -780,7 +780,13 @@ if __name__ == '__main__':
             assert page.locator('[data-close-natal-detail]').count()==1
             assert page.evaluate("document.activeElement.hasAttribute('data-close-natal-detail')") is True
             assert 'Lune' in page.locator('#natalSelectionInfo').inner_text()
-            assert 'Donnée calculée' in page.locator('#natalSelectionInfo').inner_text()
+            # Overview intentionally hides technical facts in a disclosure.
+            reading=page.locator('#natalSelectionInfo .natal-reading-more')
+            assert reading.count()==1
+            assert reading.get_attribute('open') is None
+            reading.locator('summary').click()
+            assert reading.locator('.natal-fact').is_visible()
+            assert 'Donnée calculée' in reading.locator('.natal-fact').inner_text()
             page.locator('[data-close-natal-detail]').click()
             assert page.locator('#natalSelectionInfo').count()==0
             page.locator('[data-profile-screen="explore"]').click()
@@ -1332,7 +1338,7 @@ if __name__ == '__main__':
             assert 180<=widths['width']<=widths['client']+2,widths
             assert page.evaluate("document.documentElement.scrollWidth")<=322
             assert page.locator('#birthForm').count()==0
-            # P0 visual guardrails at 320px across all four destinations.
+            # P0 visual guardrails at 320px across the three main destinations.
             for tab in ('today','calendar','profile'):
                 page.locator(f'[data-tab="{tab}"]').click()
                 assert page.evaluate("document.documentElement.scrollWidth") <= 322, tab
@@ -1690,6 +1696,10 @@ if __name__ == '__main__':
             page.locator('#calendarDayDialog [data-personal-new]').click()
             assert page.locator('#personalEventDialog[open]').count()==1
             page.locator('#personalTitle').fill('Séjour sur trois jours')
+            page.locator('[data-personal-close]').click()
+            page.locator('.calendar .day[data-day="2026-11-23"]').click()
+            page.locator('#calendarDayDialog [data-personal-new]').click()
+            assert page.locator('#personalTitle').input_value()=='Séjour sur trois jours'
             page.locator('#personalStart').fill('2026-11-23')
             page.locator('#personalEnd').fill('2026-11-25')
             assert page.locator('#personalAllDay').is_checked()
@@ -1827,6 +1837,20 @@ if __name__ == '__main__':
             assert 'Une belle journée de création.' in page.locator('.history-item').first.inner_text()
             assert page.locator('#journalNote').input_value()!='Une belle journée de création.'
             assert page.locator('#journalNote').is_visible()
+            # Unpublished notes survive both date changes and route changes.
+            journal_day=page.locator('#journalEditorTitle').inner_text()
+            page.locator('#journalNote').fill('Brouillon non publié')
+            page.locator('.astra-journal-editor [data-offset="-1"]').click()
+            assert page.locator('#journalEditorTitle').inner_text()!=journal_day
+            assert page.locator('#journalNote').input_value()!='Brouillon non publié'
+            page.locator('.astra-journal-editor [data-offset="1"]').click()
+            assert page.locator('#journalNote').input_value()=='Brouillon non publié'
+            page.locator('[data-tab="today"]').click()
+            page.locator('.astra-day-journal-link[data-goto="journal"]').click()
+            assert page.locator('#journalNote').input_value()=='Brouillon non publié'
+            assert page.evaluate("Object.values(JSON.parse(localStorage.getItem('astra-public-v1')).journalDrafts).some(d=>d.note==='Brouillon non publié')")
+            assert page.evaluate("Object.values(JSON.parse(localStorage.getItem('astra-public-v1')).journal).every(d=>d.note!=='Brouillon non publié')")
+            assert page.locator('.astra-section-stack[aria-label="Sections du journal"]').evaluate('e=>parseFloat(getComputedStyle(e).rowGap)')==16
             page.locator('#journalNote').focus()
             assert page.locator('.bottom-nav').evaluate(
                 "e => getComputedStyle(e).visibility"
@@ -1865,6 +1889,7 @@ if __name__ == '__main__':
             assert 'Ascendant' not in page.locator('.natal-primary-cards').inner_text()
             assert 'indicatives' in page.locator('.natal-distribution-caption').inner_text()
             page.locator('.natal-wheel [data-natal-body="Moon"]').click()
+            page.locator('#natalSelectionInfo .natal-reading-more > summary').click()
             assert 'indicative' in page.locator('#natalSelectionInfo').inner_text()
             page.locator('[data-close-natal-detail]').click()
             page.locator('[data-profile-screen="explore"]').click()
