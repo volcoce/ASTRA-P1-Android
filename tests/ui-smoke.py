@@ -339,6 +339,39 @@ if __name__ == '__main__':
                 assert nav['top']>=0 and nav['bottom']<=height+2,(width,height,nav)
                 if (width,height) in ((320,700),(360,780),(360,620),(393,844),(412,915),(768,1024),(1280,800)):
                     capture('overview-'+str(width)+'x'+str(height))
+            # The shared reading-column contract is invariant around the
+            # compact, mobile, tablet and desktop breakpoint boundaries.
+            for width,height in ((360,780),(400,844),(480,900),
+                                 (799,1024),(800,1024),(1100,900)):
+                page.set_viewport_size({'width':width,'height':height})
+                for tab,selector in (
+                    ('today','.astra-day-hero'),
+                    ('month','.astra-month-hero'),
+                    ('calendar','.calendar.astra-calendar-board'),
+                    ('profile','.natal-home.card')
+                ):
+                    page.locator(f'[data-tab="{tab}"]').click()
+                    positions=page.evaluate("""selector => {
+                      const main=document.querySelector('.main');
+                      const intro=main.querySelector('.screen-intro');
+                      const panel=main.querySelector(selector);
+                      if(!intro||!panel)return null;
+                      const rect=main.getBoundingClientRect();
+                      const css=getComputedStyle(main);
+                      const left=rect.left+parseFloat(css.paddingLeft);
+                      const right=rect.right-parseFloat(css.paddingRight);
+                      const ir=intro.getBoundingClientRect(),pr=panel.getBoundingClientRect();
+                      return {left,right,intro:[ir.left,ir.right],
+                        panel:[pr.left,pr.right],
+                        nav:getComputedStyle(document.querySelector('.bottom-nav')).position,
+                        documentWidth:document.documentElement.scrollWidth};
+                    }""",selector)
+                    assert positions is not None,(width,tab)
+                    assert positions['nav']=='fixed',(width,tab,positions)
+                    assert positions['documentWidth']<=width+2,(width,tab,positions)
+                    for left,right in (positions['intro'],positions['panel']):
+                        assert abs(left-positions['left'])<=2,(width,tab,positions)
+                        assert abs(right-positions['right'])<=2,(width,tab,positions)
             page.set_viewport_size({'width':360,'height':780})
             # The primary purpose must be visible without having to scroll,
             # above the fixed bottom navigation on a Galaxy A15-like screen.
