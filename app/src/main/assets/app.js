@@ -1246,24 +1246,58 @@
   }
   // Signs are typographic glyphs, not native emoji badges.
   const wheelZodiacGlyph=index=>zodiacSymbols[index]+'\uFE0E';
-  // Exact longitudes remain in the planet detail, not on the wheel.
-  function wheelPlanetLabel(body,lng,placed,asc,{center=210,glyphRadius=153,anchorRadius=165,dateOnly=false}={}){
-    const item=placed[body],active=natalSelection?.kind==='planet'&&natalSelection.id===body;
-    const coord=(longitude,r)=>{
-      const angle=(180-(longitude-asc))*Math.PI/180;
-      return [(center+r*Math.cos(angle)).toFixed(2),(center+r*Math.sin(angle)).toFixed(2)];
-    };
-    const [x,y]=coord(item.labelLongitude,glyphRadius);
-    const [bx,by]=coord(lng,anchorRadius),[hx,hy]=coord(item.labelLongitude,anchorRadius);
-    const leader='<g class="natal-leader'+(active?' is-active':'')+'">'+
-      '<path d="M '+bx+' '+by+' L '+hx+' '+hy+' L '+x+' '+y+'"/>'+
-      '<circle cx="'+bx+'" cy="'+by+'" r="2.8"/></g>';
-    const classes='natal-hit natal-planet-hit '+(body==='Sun'?'is-sun':body==='Moon'?'is-moon':'is-other')+(active?' is-active':'');
-    const accessible=safe(planets[body]+' · '+(dateOnly&&body==='Moon'?'position indicative · ':'')+E.formatSign(lng));
-    return leader+'<g class="'+classes+'" data-natal-body="'+body+'" data-true-longitude="'+lng.toFixed(6)+
-      '" data-label-longitude="'+item.labelLongitude.toFixed(6)+'" tabindex="0" focusable="true" role="button" aria-label="Voir '+accessible+'" aria-pressed="'+active+'">'+
+  // No angular anti-collision: symbols and position ticks always use their
+  // true astronomical longitude. Only a second radial lane is used for pairs.
+  function wheelPlanetLabel(body,lng,asc,{center=210,radius=150,markerRadius=166,dateOnly=false,transit=false}={}){
+    const angle=(180-(lng-asc))*Math.PI/180;
+    const polarPoint=r=>[(center+r*Math.cos(angle)).toFixed(2),(center+r*Math.sin(angle)).toFixed(2)];
+    const [x,y]=polarPoint(radius),[tx,ty]=polarPoint(markerRadius);
+    const active=natalSelection?.kind===(transit?'transit':'planet')&&natalSelection.id===body;
+    const classes='natal-hit '+(transit?'natal-transit-hit':'natal-planet-hit')+
+      ' '+(body==='Sun'?'is-sun':body==='Moon'?'is-moon':'is-other')+(active?' is-active':'');
+    const attr=transit?'data-transit-body':'data-natal-body';
+    const accessible=safe(planets[body]+(transit?' en transit':'')+' · '+
+      (dateOnly&&body==='Moon'?'position indicative · ':'')+E.formatSign(lng));
+    return '<circle class="wheel-true-anchor" cx="'+tx+'" cy="'+ty+'" r="2.7"/>'+
+      '<g class="'+classes+'" '+attr+'="'+body+'" data-true-longitude="'+lng.toFixed(6)+
+      '" data-label-longitude="'+lng.toFixed(6)+'" data-wheel-radius="'+radius+
+      '" tabindex="0" focusable="true" role="button" aria-label="Voir '+accessible+'" aria-pressed="'+active+'">'+
       '<circle class="wheel-planet-disc" cx="'+x+'" cy="'+y+'" r="17"/>'+
       '<text x="'+x+'" y="'+y+'" text-anchor="middle" dominant-baseline="central" pointer-events="none" class="natal-planet">'+(natalGlyphs[body]||body)+'</text></g>';
+  }
+  function wheelClusterLabel(group,asc,{center=210,radius=145,markerRadius=166,transit=false}={}){
+    const coord=(lng,r)=>{
+      const angle=(180-(lng-asc))*Math.PI/180;
+      return [(center+r*Math.cos(angle)).toFixed(2),(center+r*Math.sin(angle)).toFixed(2)];
+    };
+    const bodies=group.items.map(item=>item.body);
+    const [x,y]=coord(group.longitude,radius);
+    const selectedKind=transit?'transit-cluster':'cluster';
+    const active=natalSelection?.kind===selectedKind&&natalSelection.id===bodies.join(',');
+    const markers=group.items.map(item=>{
+      const [tx,ty]=coord(item.longitude,markerRadius);
+      return '<circle class="wheel-true-anchor" cx="'+tx+'" cy="'+ty+'" r="2.7"/>';
+    }).join('');
+    const names=bodies.map(body=>planets[body]).join(', ');
+    return markers+'<g class="natal-hit wheel-cluster-hit'+(active?' is-active':'')+
+      '" data-'+(transit?'transit':'natal')+'-cluster="'+bodies.join(',')+
+      '" tabindex="0" focusable="true" role="button" aria-pressed="'+active+
+      '" aria-label="Afficher '+bodies.length+' planètes proches : '+safe(names)+'">'+
+      '<circle class="wheel-cluster-disc" cx="'+x+'" cy="'+y+'" r="19"/>'+
+      '<text class="wheel-cluster-symbol" x="'+x+'" y="'+y+
+      '" text-anchor="middle" dominant-baseline="central" pointer-events="none">⋯</text>'+
+      '<text class="wheel-cluster-count" x="'+(Number(x)+14).toFixed(2)+'" y="'+(Number(y)-13).toFixed(2)+
+      '" text-anchor="middle" dominant-baseline="central" pointer-events="none">'+bodies.length+'</text></g>';
+  }
+  function wheelGroupedLabels(positions,asc,{center=210,outerRadius=150,innerRadius=130,markerRadius=166,dateOnly=false,transit=false}={}){
+    return E.groupWheelPlanets(positions).map(group=>{
+      if(group.items.length>=3)
+        return wheelClusterLabel(group,asc,{center,radius:(outerRadius+innerRadius)/2,markerRadius,transit});
+      return group.items.map((item,index)=>wheelPlanetLabel(item.body,item.longitude,asc,{
+        center,radius:group.items.length===2&&index===1?innerRadius:outerRadius,
+        markerRadius,dateOnly,transit
+      })).join('');
+    }).join('');
   }
 
   function wheelSvg(chart,quiet=false) {
@@ -1320,9 +1354,7 @@
       return '<line class="wheel-aspect-line'+(sel?' is-emphasized':'')+'" data-aspect-kind="'+safe(a.aspect)+'" x1="'+p[0]+'" y1="'+p[1]+'" x2="'+q[0]+'" y2="'+q[1]+'" stroke="'+(aspectColors[a.aspect]||'#84639d')+'" stroke-width="'+(sel?2.3:1.3)+'" stroke-opacity="'+(sel?'1':quiet?'.70':'.82')+'"/>';
     });
 
-    const positioned=E.layoutPlanetLabels(chart.positions,16);
-    const glyphs=Object.entries(chart.positions).sort((a,b)=>a[1]-b[1])
-      .map(([body,lng])=>wheelPlanetLabel(body,lng,positioned,asc));
+    const glyphs=wheelGroupedLabels(chart.positions,asc);
     const ascPoint=polar(asc,194,asc),mcPoint=polar(h.midheaven,194,asc);
     const mcX=Math.max(32,Math.min(388,mcPoint[0]));
     const mcY=Math.max(20,Math.min(397,mcPoint[1]-8));
@@ -1335,7 +1367,7 @@
       houses.join('')+highlight+houseLines.join('')+
       '<circle class="wheel-aspect-backdrop" cx="210" cy="210" r="94" fill="#fff" stroke="#9b85b2" stroke-width="1.4"/>'+
       aspectLines.join('')+
-      glyphs.join('')+'<text x="'+(ascPoint[0]+7)+'" y="'+(ascPoint[1]-7)+'" class="angle-label" text-anchor="start">ASC</text>'+
+      glyphs+'<text x="'+(ascPoint[0]+7)+'" y="'+(ascPoint[1]-7)+'" class="angle-label" text-anchor="start">ASC</text>'+
       '<text x="'+mcX+'" y="'+mcY+'" class="angle-label" text-anchor="middle">MC</text></svg>';
   }
   // A date-only chart is intentionally NOT a 12-house horoscope.
@@ -1352,7 +1384,7 @@
         ' L '+c.join(' ')+' A 166 166 0 0 1 '+d.join(' ')+' Z" fill="'+(i%2?'#eee5f6':'#faf5ff')+'" stroke="#a38cb9"/>'+
         '<text x="'+x+'" y="'+y+'" text-anchor="middle" dominant-baseline="central" class="zodiac-symbol">'+wheelZodiacGlyph(i)+'</text>');
     }
-    const aligned=E.layoutPlanetLabels(chart.positions,16),sel=natalSelection,complete=!quiet&&state.natalView==='complete';
+    const sel=natalSelection,complete=!quiet&&state.natalView==='complete';
     const dateAspects=E.filterNatalAspects(chart.aspects||[],state.natalAspectFilter);
     const visibleAspects=quiet&&!sel?[...dateAspects]
       .sort((a,b)=>Math.abs(a.orb??99)-Math.abs(b.orb??99)).slice(0,6):dateAspects;
@@ -1362,15 +1394,14 @@
       const p=polar(chart.positions[a.a],85,asc),q=polar(chart.positions[a.b],85,asc);
       return '<line class="wheel-aspect-line" x1="'+p[0]+'" y1="'+p[1]+'" x2="'+q[0]+'" y2="'+q[1]+'" stroke="'+(aspectColors[a.aspect]||'#84639d')+'" stroke-width="1.5" stroke-opacity="'+(quiet&&!sel?'.62':'.85')+'"/>';
     });
-    const bodies=Object.entries(chart.positions)
-      .map(([body,lng])=>wheelPlanetLabel(body,lng,aligned,asc,{dateOnly:true,anchorRadius:163}));
+    const bodies=wheelGroupedLabels(chart.positions,asc,{outerRadius:149,innerRadius:129,markerRadius:164,dateOnly:true});
     return '<svg class="natal-wheel wheel-modern wheel-date-only" viewBox="0 0 420 420" role="group" aria-label="Roue du zodiaque sans maisons ni Ascendant, heure natale inconnue" xmlns="http://www.w3.org/2000/svg">'+
       '<title>Positions zodiacales indicatives pour midi local ; heure inconnue</title>'+
       '<circle class="wheel-paper" cx="210" cy="210" r="198" fill="#fff"/>'+segments.join('')+
       '<circle class="wheel-zodiac-inner" cx="210" cy="210" r="165" fill="#fff" stroke="#a38cb9"/>'+
       '<circle class="wheel-aspect-backdrop" cx="210" cy="210" r="98" fill="#fff" stroke="#a38cb9"/>'+
       lines.join('')+
-      bodies.join('')+'</svg>';
+      bodies+'</svg>';
   }
 
   function natalDetail(chart){
@@ -1463,20 +1494,10 @@
       return '<line class="wheel-transit-contact" x1="'+a[0]+'" y1="'+a[1]+'" x2="'+b[0]+'" y2="'+b[1]+
         '" stroke="#7386a9" stroke-width="'+(sel?2:1.1)+'" stroke-opacity="'+(sel?'.72':'.34')+'"/>';
     }).join('');
-    const glyphRing=(positions,radius,markerRadius,className,attr)=>{
-      const arrangement=E.layoutPlanetLabels(positions);
-      return Object.entries(positions).map(([body,lng])=>{
-        const point=arrangement[body],glyph=p(point.labelLongitude,radius),anchor=p(lng,markerRadius);
-        const active=sel?.kind===(attr==='data-transit-body'?'transit':'planet')&&sel.id===body;
-        const ink=attr==='data-transit-body'?'#396a83':'#62477e';
-        const transit=attr==='data-transit-body';
-        return '<line class="wheel-planet-leader" x1="'+anchor[0]+'" y1="'+anchor[1]+'" x2="'+glyph[0]+'" y2="'+glyph[1]+'" stroke="'+ink+'" stroke-width="1.1"/>'+
-          '<circle class="wheel-true-anchor" cx="'+anchor[0]+'" cy="'+anchor[1]+'" r="2.8" fill="'+ink+'"/>'+
-          '<g class="natal-hit '+className+' '+(body==='Sun'?'is-sun':body==='Moon'?'is-moon':'is-other')+(active?' is-active':'')+'" '+attr+'="'+body+'" role="button" tabindex="0" focusable="true" aria-pressed="'+active+'" aria-label="'+safe(planets[body])+(transit?' en transit':' natal')+', '+safe(E.formatSign(lng))+'">'+
-          '<circle class="wheel-planet-disc" cx="'+glyph[0]+'" cy="'+glyph[1]+'" r="14" fill="'+(active?'#d8e8ef':'transparent')+'"/>'+
-          '<text x="'+glyph[0]+'" y="'+glyph[1]+'" text-anchor="middle" dominant-baseline="central" pointer-events="none" class="natal-planet" fill="'+ink+'">'+natalGlyphs[body]+'</text></g>';
-      }).join('');
-    };
+    const glyphRing=(positions,transit)=>wheelGroupedLabels(positions,asc,{
+      center:270,outerRadius:transit?247:172,innerRadius:transit?225:150,
+      markerRadius:transit?234:189,transit
+    });
     return '<svg class="natal-wheel natal-double-wheel wheel-modern" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 540" role="group" aria-label="Roue double : planètes natales en violet à l’intérieur, transits en bleu à l’extérieur">'+
       '<title>ASTRA — Roue double natal/transits</title>'+
       '<circle class="wheel-paper" cx="270" cy="270" r="264" fill="#fff" stroke="#bca8c9"/>'+
@@ -1486,8 +1507,8 @@
       '<circle class="wheel-house-backdrop" cx="270" cy="270" r="133" fill="#faf7fc" stroke="#bba7c9"/>'+
       '<circle class="wheel-aspect-backdrop" cx="270" cy="270" r="98" fill="#fff" stroke="#baa8c8"/>'+
       links+houses+
-      glyphRing(chart.positions,169,189,'natal-planet-hit','data-natal-body')+
-      glyphRing(snapshot.positions,247,234,'natal-transit-hit','data-transit-body')+
+      glyphRing(chart.positions,false)+
+      glyphRing(snapshot.positions,true)+
       '</svg>';
   }
   const transitWindowCache=new Map();
