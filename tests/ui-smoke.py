@@ -819,7 +819,7 @@ if __name__ == '__main__':
                 page.locator('[data-tab="profile"]').click()
                 page.locator('[data-profile-screen="settings"]').click()
             # P3: both appearance modes, readable ribbon ink and reduced motion.
-            page.locator('[data-profile-screen="settings"]').click()
+            # The palette comparison has already returned to the settings view.
             page.locator('[data-appearance="dark"]').click()
             assert page.evaluate("document.documentElement.dataset.astraTheme")=='dark'
             page.wait_for_timeout(200)  # let any theme surface transitions settle
