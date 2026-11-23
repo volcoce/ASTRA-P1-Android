@@ -13,7 +13,7 @@ function routeHarness(hash, native = false) {
   const calls = [];
   const context = {
     window: {
-      ASTRA_CHART_EXPORT: native ? {} : null,
+      ASTRA_NATIVE_UI: native ? {} : null,
       location:{protocol:'https:',hash},
       history:{
         pushState(_state,_title,route){context.window.location.hash=route;calls.push('push:'+route);},
@@ -42,7 +42,7 @@ test('P1: browser routes accept known views and valid ISO dates', () => {
     ['#/today','today'],['#/today/2024-02-29','today'],
     ['#/month/2026-11','calendar'],['#/calendar/2026-11-20','calendar'],
     ['#/journal/2026-11-19','journal'],['#/profile/compare','profile'],
-    ['#/profile/focus','profile']
+    ['#/profile/settings','profile']
   ]){
     assert.equal(routeHarness(hash).routes.readBrowserRoute()?.tab,tab,hash);
   }
@@ -52,7 +52,7 @@ test('P1: invalid and out-of-range routes are rejected', () => {
   for(const hash of [
     '#/calendar/2026-02-30','#/calendar/1899-12-31',
     '#/month/2026-13','#/month/2200-01',
-    '#/profile/not-a-page','#/calendar/2026-10-01/extra'
+    '#/profile/not-a-page','#/profile/focus','#/calendar/2026-10-01/extra'
   ])assert.equal(routeHarness(hash).routes.readBrowserRoute(),null,hash);
 });
 

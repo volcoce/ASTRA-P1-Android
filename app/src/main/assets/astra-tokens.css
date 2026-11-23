@@ -70,6 +70,7 @@
   --astra-phase-halo:#FFF9EA88;
   /* One semantic palette for the hero and phase panels on Ce jour / Ce mois. */
   --astra-day-hero-bg:var(--color-cornflower);
+  --astra-day-hero-ink:#102936;
   --astra-day-hero-rule:#1E404F55;
   --astra-month-hero-bg:var(--color-dandelion);
   --astra-lunar-full-bg:#FFF4D7;
@@ -202,6 +203,7 @@
   --astra-event-label-exact-aspect:#B7DFFC;
   --astra-event-label-active:#CADAE7;
   --astra-day-hero-bg:#31566D;
+  --astra-day-hero-ink:var(--color-cream);
   --astra-day-hero-rule:#FFFFFF55;
   --astra-month-hero-bg:#75452E;
   --astra-lunar-full-bg:#5A442F;

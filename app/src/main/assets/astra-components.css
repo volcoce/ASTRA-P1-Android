@@ -148,7 +148,7 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
 .astra-city-option:focus-visible{outline:3px solid var(--astra-focus);outline-offset:-3px}
 .astra-city-status{font-size:.8125rem;color:var(--astra-muted);line-height:1.45;margin:6px 0 0}
 .astra-city-status:empty{display:none}
-@media(max-width:380px){
+@media(max-width:400px){
   .astra-city-menu{max-height:min(32dvh,252px)}
 }
 
@@ -524,7 +524,7 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
   .astra-settings-tabs [role="tab"]{font-size:.75rem;padding-inline:3px}
   .astra-settings-body{padding-inline:var(--astra-card-gutter)}
 }
-@media(max-width:380px){
+@media(max-width:400px){
   .astra-settings-actions{grid-template-columns:1fr}
   .astra-settings-close{padding-inline:10px}
 }

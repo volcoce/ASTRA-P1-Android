@@ -53,23 +53,19 @@ test('P0: calendar announces the selected date and current date', () => {
   assert.match(html,/class="astra-adjacent-day"/);
 });
 
-test('P0: chart uses native modal semantics and restores keyboard access', () => {
-  assert.ok(app.includes("'<dialog class=\"natal-focus\" id=\"natalChart\""));
-  assert.ok(app.includes("focusDialog.showModal()"));
-  assert.ok(app.includes("event.target.matches('dialog.natal-focus')"));
+test('P0: chart uses a labelled non-modal contextual sheet and restores keyboard access', () => {
+  assert.match(app,/id="natalSelectionInfo"[^>]*role="dialog" aria-modal="false" aria-labelledby="natalContextTitle"/);
+  assert.match(app,/data-close-natal-detail="1" aria-label="Fermer la fiche"/);
+  assert.match(app,/close\?\.focus\(\{preventScroll:true\}\)/);
+  assert.match(app,/if\(a\.closeNatalDetail\)/);
   assert.ok(app.includes("pendingDayFocus=calendarSheet?null:a.day"));
-  assert.ok(css.includes('dialog.natal-focus::backdrop'));
 });
-
-test('P0: birth and composite form errors are associated with their fields', () => {
+test('P0: birth form errors are associated with their fields', () => {
   for (const [field, state] of [
     ['birthDate','birthValidation'],
     ['birthTime','birthValidation'],
     ['birthCity','birthCityError'],
-    ['fold','birthValidation'],
-    ['secondDate','compositeValidation'],
-    ['secondTime','compositeValidation'],
-    ['secondCity','compositeCityError']
+    ['fold','birthValidation']
   ]) {
     assert.ok(app.includes("validationAttrs('"+field+"',"+state+")"), field);
     assert.ok(app.includes("validationMessage('"+field+"',"+state+")"), field);

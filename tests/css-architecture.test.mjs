@@ -18,10 +18,11 @@ test('Navigation is owned by the global layout, not natal routes',()=>{
 });
 test('Birth and settings cards share the global reading-column gutters',()=>{
  const app=read('app.js'),layout=read('astra-layout.css'),navigation=read('astra-p2-navigation.css');
- for(const component of ['astra-birth-settings','astra-privacy-settings',
+ for(const component of ['astra-birth-settings',
    'astra-preferences astra-settings-section','astra-performance astra-settings-section']){
    assert.ok(app.includes('class="card astra-reading-card '+component+'"'),component);
  }
+ assert.match(app,/function settingsDataPanel\(\)[\s\S]*?class="astra-settings-group"/);
  assert.match(layout,/\.main\s*\{[^}]*max-width:\s*calc\(var\(--astra-reading-width\)\s*\+\s*var\(--astra-card-gutter\)\s*\+\s*var\(--astra-card-gutter\)\)/s);
  assert.doesNotMatch(layout,/\.card\.astra-reading-card\s*\{[^}]*max-width:/s);
  assert.doesNotMatch(navigation,/\.astra-settings-section,.astra-birth-settings,.astra-privacy-settings\s*\{[^}]*\b(?:max-width|margin)\s*:/s);
@@ -124,7 +125,7 @@ test('Four-element palette has one source and no duplicates in feature CSS',()=>
  assert.match(tokens,/--solar-water-muted:#A4D6F5/);
  assert.match(tokens,/--solar-earth-muted:#B9E5AF/);
  assert.match(wheel,/zodiac-element-water\{fill:var\(--astra-zodiac-water\)\}/);
- assert.match(read('app.js'),/zodiacFill\('water'\)/);
+ assert.match(read('app.js'),/zodiac-element-.*\['fire','earth','air','water'\]/);
  assert.doesNotMatch(read('solar-ribbon.css'),/:root\s*\{[^}]*--solar-water-bg/s);
 });
 
@@ -198,7 +199,7 @@ test('Calendar phase fills, category inks and focus colours come from semantic t
 
 test('Daily and monthly lunar colors are semantic roles, not view-level literals',()=>{
  const tokens=read('astra-tokens.css'),screens=read('astra-p1-screens.css');
- for(const role of ['--astra-day-hero-bg','--astra-day-hero-rule',
+ for(const role of ['--astra-day-hero-bg','--astra-day-hero-ink',
    '--astra-lunar-full-bg','--astra-lunar-full-border',
    '--astra-lunar-new-bg','--astra-lunar-new-border',
    '--astra-lunar-quarter-bg','--astra-lunar-quarter-border',

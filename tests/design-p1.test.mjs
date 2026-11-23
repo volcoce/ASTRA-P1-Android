@@ -23,7 +23,7 @@ test('P1 daily Moon transition and exact phase share one hero',()=>{
   assert.match(today,/moonPhaseIcon\(lunarPhaseAngles\[event.name\],'cell'\)/);
   assert.match(today,/eventTitle\(event\)/);
   assert.match(today,/phaseHighlights\+\s*solarDayBand/);
-  assert.match(today,/astra-hero-link/);
+  assert.doesNotMatch(today,/astra-hero-link/);
   assert.match(today,/astra-day-journal-link/);
   assert.doesNotMatch(today,/dailyLunarMoments|astra-day-moon-moments|Évolution de la Lune dans la journée/);
   assert.match(p1,/\.astra-day-hero/);
@@ -51,7 +51,7 @@ test('P1 natal summary, progressive navigation and wheel remain available',()=>{
   const profile=slice('  function profile() {','  function render() {');
   const code=app.slice(app.indexOf('  function renderNatalChart('),app.indexOf('  function profile() {'));
   assert.match(code,/natal-primary-cards/);
-  assert.match(code,/natal-overview-panel/);
+  assert.match(code,/natal-home-actions--primary/);
   assert.match(code,/natal-wheel-viewport/);
   assert.match(code,/data-profile-screen="explore"/);
   assert.match(read('astra-natal.css'),/\.natal-home/);
