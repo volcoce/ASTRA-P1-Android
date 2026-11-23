@@ -994,6 +994,64 @@ if __name__ == '__main__':
             assert page.locator('#astraSettingsDialog [data-diagnostics-toggle]').count()==1
             page.locator('[data-settings-section="appearance"]').click()
             assert page.locator('[data-element-palette]').count()==2
+            # All five settings tabs share the same content edges, including
+            # the former nested appearance/diagnostics cards. Check geometry,
+            # not only screenshots, at desktop and mobile widths.
+            def assert_settings_geometry():
+                geometry=page.evaluate("""() => {
+                  const d=document.querySelector('#astraSettingsDialog'),b=d.querySelector('.astra-settings-body');
+                  const h=d.querySelector('.astra-settings-head'),tabs=d.querySelector('.astra-settings-tabs');
+                  const bounds=e=>e.getBoundingClientRect(), edges=e=>{
+                    const r=bounds(e),s=getComputedStyle(e);
+                    return [r.left+parseFloat(s.paddingLeft),r.right-parseFloat(s.paddingRight)];
+                  };
+                  const br=edges(b),children=[...b.children].flatMap(e=>
+                    e.classList.contains('astra-settings-group')?[...e.children].filter(x=>!x.hidden):[e]);
+                  const visible=children.filter(e=>e.getClientRects().length&&getComputedStyle(e).display!=='none');
+                  const palette=b.querySelector('.astra-palette-options'),options=b.querySelector('.calendar-options');
+                  return {viewport:document.documentElement.clientWidth,dialogLeft:bounds(d).left,
+                    dialogRight:bounds(d).right,dialogOverflow:d.scrollWidth-d.clientWidth,
+                    header:edges(h),tabs:edges(tabs),body:br,
+                    overflow:visible.map(e=>({name:e.className,left:bounds(e).left,right:bounds(e).right})),
+                    paletteGap:palette&&options?bounds(options).top-bounds(palette).bottom:null,
+                    titleLeft:bounds(h.querySelector('h2')).left,
+                    closeRight:bounds(h.querySelector('button')).right};
+                }""")
+                assert geometry['dialogLeft']>=-1 and geometry['dialogRight']<=geometry['viewport']+1,geometry
+                assert geometry['dialogOverflow']<=1,geometry
+                for edge in ('header','tabs'):
+                    assert all(abs(a-b)<=1 for a,b in zip(geometry[edge],geometry['body'])),geometry
+                assert abs(geometry['titleLeft']-geometry['body'][0])<=1,geometry
+                assert abs(geometry['closeRight']-geometry['body'][1])<=1,geometry
+                for item in geometry['overflow']:
+                    assert item['left']>=geometry['body'][0]-1 and item['right']<=geometry['body'][1]+1,(item,geometry)
+                if geometry['paletteGap'] is not None:
+                    assert geometry['paletteGap']>=15,geometry
+            for width,height in ((320,700),(360,780),(393,844),(768,1024),(1280,800)):
+                page.set_viewport_size({'width':width,'height':height})
+                for section in ('astrology','appearance','data','advanced','help'):
+                    page.locator('[data-settings-section="'+section+'"]').click()
+                    assert_settings_geometry()
+            page.set_viewport_size({'width':393,'height':844})
+            page.locator('[data-settings-section="appearance"]').click()
+            # Exercise the real registered touch handlers using browser TouchEvents.
+            def swipe_settings(dx,dy):
+                page.locator('#astraSettingsPanel').evaluate("""(target,delta)=>{
+                  const start={x:190,y:250};
+                  const touch=(x,y)=>new Touch({identifier:7,target,clientX:x,clientY:y});
+                  const send=(name,touches,changedTouches)=>target.dispatchEvent(new TouchEvent(name,
+                    {bubbles:true,cancelable:true,touches,changedTouches}));
+                  const a=touch(start.x,start.y),b=touch(start.x+delta[0],start.y+delta[1]);
+                  send('touchstart',[a],[a]);send('touchmove',[b],[b]);send('touchend',[],[b]);
+                }""",[dx,dy])
+            swipe_settings(-110,5)
+            assert page.locator('[data-settings-section="data"]').get_attribute('aria-selected')=='true'
+            swipe_settings(110,5)
+            assert page.locator('[data-settings-section="appearance"]').get_attribute('aria-selected')=='true'
+            swipe_settings(5,-120)
+            assert page.locator('[data-settings-section="appearance"]').get_attribute('aria-selected')=='true'
+            swipe_settings(-25,0)
+            assert page.locator('[data-settings-section="appearance"]').get_attribute('aria-selected')=='true'
             light_palettes={
                 'classic':{'fire':'#FAB617','air':'#E7F6FD','water':'#00ADEF','earth':'#896B49'},
                 'vivid':{'fire':'#FF3D14','air':'#F7FC35','water':'#159BF2','earth':'#46CD17'},

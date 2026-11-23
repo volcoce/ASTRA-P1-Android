@@ -18,9 +18,11 @@ test('Navigation is owned by the global layout, not natal routes',()=>{
 });
 test('Birth and settings cards share the global reading-column gutters',()=>{
  const app=read('app.js'),layout=read('astra-layout.css'),navigation=read('astra-p2-navigation.css');
- for(const component of ['astra-birth-settings','astra-privacy-settings',
-   'astra-preferences astra-settings-section','astra-performance astra-settings-section']){
+ for(const component of ['astra-birth-settings','astra-privacy-settings']){
    assert.ok(app.includes('class="card astra-reading-card '+component+'"'),component);
+ }
+ for(const component of ['astra-preferences','astra-performance']){
+   assert.ok(app.includes('class="astra-settings-group '+component+' astra-settings-section"'),component);
  }
  assert.match(layout,/\.main\s*\{[^}]*max-width:\s*calc\(var\(--astra-reading-width\)\s*\+\s*var\(--astra-card-gutter\)\s*\+\s*var\(--astra-card-gutter\)\)/s);
  assert.doesNotMatch(layout,/\.card\.astra-reading-card\s*\{[^}]*max-width:/s);
@@ -255,4 +257,18 @@ test('Natal overview actions share one vertical spacing and distributions remain
  assert.match(css,/\.natal-home>\.natal-home-actions--primary,\s*\.natal-home>\.natal-home-actions--secondary\s*\{[^}]*margin:var\(--astra-space-4\) 0 0/s);
  assert.match(css,/\.natal-distribution-grid\s*\{[^}]*grid-template-columns:minmax\(0,1fr\)/s);
  assert.doesNotMatch(atlas,/\.natal-home-actions--(?:primary|secondary)\s*\{[^}]*margin:/s);
+});
+
+test('Settings use one shared inset, sticky chrome and vertical section gap',()=>{
+ const css=read('astra-components.css'),app=read('app.js');
+ for(const selector of ['astra-settings-head','astra-settings-tabs','astra-settings-body']){
+   const rule=css.match(new RegExp('\\.'+selector+'\\s*\\{([^}]+)\\}'));
+   assert.ok(rule,selector);
+   assert.match(rule[1],/padding-inline:var\(--settings-inset-start\) var\(--settings-inset-end\)/);
+ }
+ assert.match(css,/\.astra-settings-chrome\s*\{[^}]*position:sticky/);
+ assert.match(css,/\.astra-settings-group\s*\{[^}]*gap:var\(--astra-space-4\)/);
+ assert.doesNotMatch(app,/class="card astra-reading-card astra-(?:preferences|performance)/);
+ assert.match(app,/globalSettingsDialog\.addEventListener\('touchend'/);
+ assert.match(app,/globalSettingsDialog\.addEventListener\('touchcancel'/);
 });

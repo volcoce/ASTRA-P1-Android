@@ -419,21 +419,28 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
 }
 .astra-settings-dialog{
   position:fixed;inset:0;margin:auto;
-  width:min(720px,calc(100vw - 28px));max-width:100%;
+  --settings-inset-start:max(var(--astra-component-inset),var(--astra-safe-left));
+  --settings-inset-end:max(var(--astra-component-inset),var(--astra-safe-right));
+  width:min(720px,calc(100dvw - 28px));max-width:100%;
   max-height:min(88dvh,900px);min-width:0;box-sizing:border-box;
-  padding:0;overflow:auto;overscroll-behavior:contain;
+  padding:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;
   border:1px solid var(--astra-border);border-radius:var(--astra-radius-xl);
   background:var(--astra-surface);color:var(--astra-ink);
   box-shadow:0 20px 60px #101F2A66;
 }
 .astra-settings-dialog::backdrop{background:#101F2ABA}
+.astra-settings-chrome{
+  position:sticky;top:0;z-index:2;min-width:0;
+  background:var(--astra-surface)
+}
 .astra-settings-head{
-  position:sticky;top:0;z-index:2;display:flex;align-items:center;
-  justify-content:space-between;gap:12px;
-  padding:18px var(--astra-component-inset) 14px;
+  display:flex;align-items:center;justify-content:space-between;gap:var(--astra-space-3);
+  min-width:0;padding-block:18px 14px;
+  padding-inline:var(--settings-inset-start) var(--settings-inset-end);
   border-bottom:1px solid var(--astra-divider);
   background:var(--astra-surface);color:var(--astra-ink)
 }
+.astra-settings-head>div{min-width:0;overflow-wrap:anywhere}
 .astra-settings-kicker{
   margin:0 0 1px;font-size:.7rem;font-weight:800;
   letter-spacing:.12em;color:var(--astra-muted)
@@ -448,9 +455,9 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
   border-radius:var(--astra-radius-md);color:var(--astra-ink);font-weight:750;cursor:pointer
 }
 .astra-settings-tabs{
-  position:sticky;top:77px;z-index:2;
   display:grid;grid-template-columns:repeat(5,minmax(0,1fr));
-  gap:4px;padding:8px var(--astra-component-inset);
+  min-width:0;gap:4px;padding-block:8px;
+  padding-inline:var(--settings-inset-start) var(--settings-inset-end);
   border-bottom:1px solid var(--astra-divider);background:var(--astra-surface)
 }
 .astra-settings-tabs [role="tab"]{
@@ -467,14 +474,26 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
   background:var(--astra-secondary-surface);color:var(--astra-ink)
 }
 .astra-settings-body{
-  min-width:0;padding:var(--astra-component-inset);
+  display:grid;grid-template-columns:minmax(0,1fr);gap:var(--astra-space-4);
+  min-width:0;padding-block:var(--astra-space-4);
+  padding-inline:var(--settings-inset-start) var(--settings-inset-end);
   color:var(--astra-ink)
 }
-.astra-settings-body>.card{width:100%;margin:0}
-.astra-settings-group{display:grid;gap:10px;min-width:0}
-.astra-settings-group h3{
-  margin:0 0 4px;font:700 1.25rem/1.25 var(--astra-font-display);color:var(--astra-ink)
+.astra-settings-body>*{min-width:0;width:100%;max-width:100%;margin:0}
+.astra-settings-group{
+  display:grid;grid-template-columns:minmax(0,1fr);gap:var(--astra-space-4);min-width:0
 }
+.astra-settings-group>*{min-width:0;max-width:100%;margin:0}
+.astra-settings-group>h3:not(.astra-palette-heading),.astra-settings-panel-title{
+  margin:0;font:700 1.25rem/1.25 var(--astra-font-display);color:var(--astra-ink)
+}
+.astra-settings-group>.astra-palette-heading{
+  margin:0;font:750 1rem/1.35 var(--astra-font-body)
+}
+.astra-settings-group>.astra-palette-options,.astra-settings-group>.astra-appearance-options{
+  margin:0
+}
+.astra-settings-group>.calendar-options{margin:0}
 .astra-settings-group p{margin:0;color:var(--astra-muted);line-height:1.5}
 .astra-settings-field{
   display:grid;gap:9px;margin-top:8px;padding-top:14px;
@@ -512,17 +531,14 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
   border:1px solid var(--astra-danger);border-radius:var(--astra-radius-lg)
 }
 .astra-settings-danger>.danger{justify-self:start;min-height:var(--astra-control-min);padding:10px 14px}
-.astra-settings-dialog .astra-performance{margin-bottom:16px}
-.astra-settings-dialog .calculation-details{margin-top:14px}
 @media(max-width:600px){
   .astra-settings-dialog{
     inset:auto 0 0;margin:0;width:100%;max-width:100%;
-    max-height:94dvh;border-radius:var(--astra-radius-xl) var(--astra-radius-xl) 0 0;
+    max-height:min(94dvh,calc(100dvh - var(--astra-safe-top)));border-radius:var(--astra-radius-xl) var(--astra-radius-xl) 0 0;
     border-bottom:0;padding-bottom:max(12px,var(--astra-safe-bottom))
   }
-  .astra-settings-tabs{gap:2px;padding-inline:10px}
+  .astra-settings-tabs{gap:2px}
   .astra-settings-tabs [role="tab"]{font-size:.75rem;padding-inline:3px}
-  .astra-settings-body{padding-inline:var(--astra-card-gutter)}
 }
 @media(max-width:380px){
   .astra-settings-actions{grid-template-columns:1fr}

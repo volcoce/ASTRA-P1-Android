@@ -237,3 +237,8 @@ Sous la roue et les actions existantes de Mon ciel, une seule section présente 
 La sélection d’une ligne de répartition affiche les astres et leurs signes ; un seul groupe par répartition reste ouvert. La sélection d’un astre ouvre sa fiche existante.
 
 Les répartitions Éléments et Modalités se succèdent verticalement sur tous les écrans. Les boutons Explorer et Comparer gardent un espacement identique de 16 px après la roue et entre eux, via le token global d’espacement.
+
+
+### Paramètres — géométrie et gestes
+
+Les cinq rubriques partagent une seule gouttière horizontale (en-tête, navigation, contenu), compatible avec les insets Android. Les panneaux sont des groupes de contenu et non des cartes imbriquées ; espacement vertical commun de 16 px. L’en-tête et les onglets restent ensemble pendant le défilement. Un balayage horizontal intentionnel dans le contenu ouvre la rubrique précédente ou suivante, sans boucle aux extrémités. Les gestes verticaux, multitouch, champs de saisie et tableaux défilants restent natifs. Les tests Chromium mesurent les limites du dialogue, les gouttières et la séparation entre palettes et options de 320 à 1280 px, et exercent les gestes tactiles.

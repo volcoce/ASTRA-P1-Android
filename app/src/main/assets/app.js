@@ -1779,8 +1779,8 @@
   function appearancePanel(){
     const mode=state.appearance;
     const choices=[['system','Système'],['light','Clair'],['dark','Sombre']];
-    return '<section class="card astra-reading-card astra-preferences astra-settings-section" aria-labelledby="astraAppearanceTitle">'+
-      '<h2 id="astraAppearanceTitle" class="card-title">Apparence</h2>'+
+    return '<section class="astra-settings-group astra-preferences astra-settings-section" aria-labelledby="astraAppearanceTitle">'+
+      '<h2 id="astraAppearanceTitle" class="astra-settings-panel-title">Apparence</h2>'+
       '<div class="astra-appearance-options" role="group" aria-label="Thème visuel">'+
       choices.map(([id,label])=>'<button type="button" data-appearance="'+id+
         '" aria-pressed="'+(mode===id)+'" class="'+(mode===id?'selected':'')+'">'+label+'</button>').join('')+
@@ -1800,8 +1800,8 @@
   function diagnosticsPanel(){
     const rows=performanceReport();
     const format=n=>new Intl.NumberFormat('fr-FR',{maximumFractionDigits:1}).format(n);
-    return '<section class="card astra-reading-card astra-performance astra-settings-section" aria-labelledby="astraPerformanceTitle">'+
-      '<h2 id="astraPerformanceTitle" class="card-title">Diagnostics de performances</h2>'+
+    return '<section class="astra-settings-group astra-performance astra-settings-section" aria-labelledby="astraPerformanceTitle">'+
+      '<h2 id="astraPerformanceTitle" class="astra-settings-panel-title">Diagnostics de performances</h2>'+
       '<p class="tiny">Mesures locales facultatives, conservées uniquement pendant cette session. Aucune donnée personnelle transmise.</p>'+
       '<div class="actions"><button type="button" class="ghost" data-diagnostics-toggle="1" aria-pressed="'+diagnosticsEnabled+'">'+
       (diagnosticsEnabled?'Désactiver les mesures':'Activer les mesures')+'</button>'+
@@ -1875,17 +1875,20 @@
     const tabs=SETTINGS_TABS;
     const active=globalSettingsSection;
     const views={astrology:settingsAstrologyPanel,appearance:appearancePanel,data:settingsDataPanel,advanced:settingsAdvancedPanel,help:settingsHelpPanel};
-    dlg.innerHTML='<header class="astra-settings-head"><div><p class="astra-settings-kicker">ASTRA</p>'+
+    dlg.innerHTML='<div class="astra-settings-chrome"><header class="astra-settings-head"><div><p class="astra-settings-kicker">ASTRA</p>'+
       '<h2 id="astraSettingsTitle">Paramètres</h2></div>'+
       '<button type="button" class="astra-settings-close" data-settings-close="1" aria-label="Fermer les paramètres">Fermer ×</button></header>'+
       '<nav class="astra-settings-tabs" role="tablist" aria-label="Rubriques des paramètres">'+
       tabs.map(([id,name])=>'<button type="button" role="tab" id="astraSettingsTab-'+id+'" data-settings-section="'+id+
         '" aria-selected="'+(active===id)+'" aria-controls="astraSettingsPanel" tabindex="'+(active===id?'0':'-1')+'">'+name+'</button>').join('')+
-      '</nav><div class="astra-settings-body" role="tabpanel" id="astraSettingsPanel" tabindex="0" aria-labelledby="astraSettingsTab-'+active+'">'+views[active]()+'</div>';
+      '</nav></div><div class="astra-settings-body" role="tabpanel" id="astraSettingsPanel" tabindex="0" aria-labelledby="astraSettingsTab-'+active+'">'+views[active]()+'</div>';
   }
   function updateGlobalSettings(focus){
     const dlg=$('astraSettingsDialog');if(!dlg?.open)return;
-    renderGlobalSettings();if(focus)dlg.querySelector(focus)?.focus({preventScroll:true});
+    const previousScroll=dlg.scrollTop;
+    const previousSection=dlg.querySelector('[role="tab"][aria-selected="true"]')?.dataset.settingsSection;
+    renderGlobalSettings();dlg.scrollTop=previousSection===globalSettingsSection?previousScroll:0;
+    if(focus)dlg.querySelector(focus)?.focus({preventScroll:true});
   }
   function profile() {
     const d=draft(),place=placeSearch.selected;
@@ -2071,6 +2074,42 @@
       sections[(ix+(e.key==='ArrowRight'?1:-1)+sections.length)%sections.length];
     updateGlobalSettings('[data-settings-section="'+globalSettingsSection+'"]');
   });
+  // Settings swipe: horizontal navigation only, never intercept vertical
+  // scrolling, multi-touch, form fields or the horizontally scrollable table.
+  let settingsSwipe=null;
+  globalSettingsDialog.addEventListener('touchstart',e=>{
+    settingsSwipe=null;
+    if(e.touches.length!==1||!e.target.closest('.astra-settings-body')||
+       e.target.closest('input,textarea,select,label,[contenteditable],.astra-performance-scroll'))return;
+    const t=e.touches[0];
+    settingsSwipe={id:t.identifier,x:t.clientX,y:t.clientY,section:globalSettingsSection,axis:null};
+  },{passive:true});
+  globalSettingsDialog.addEventListener('touchmove',e=>{
+    if(!settingsSwipe)return;
+    if(e.touches.length!==1){settingsSwipe=null;return;}
+    const t=e.touches[0];
+    if(t.identifier!==settingsSwipe.id){settingsSwipe=null;return;}
+    const dx=t.clientX-settingsSwipe.x,dy=t.clientY-settingsSwipe.y;
+    if(!settingsSwipe.axis&&Math.max(Math.abs(dx),Math.abs(dy))>=12){
+      settingsSwipe.axis=Math.abs(dx)>1.5*Math.abs(dy)?'horizontal':'vertical';
+    }
+    if(settingsSwipe.axis==='horizontal'&&e.cancelable)e.preventDefault();
+  },{passive:false});
+  globalSettingsDialog.addEventListener('touchcancel',()=>{settingsSwipe=null;},{passive:true});
+  globalSettingsDialog.addEventListener('touchend',e=>{
+    const start=settingsSwipe;settingsSwipe=null;
+    if(!start||start.axis==='vertical'||start.section!==globalSettingsSection||e.touches.length)return;
+    const t=Array.from(e.changedTouches).find(t=>t.identifier===start.id);
+    if(!t)return;
+    const dx=t.clientX-start.x,dy=t.clientY-start.y;
+    if(Math.abs(dx)<64||Math.abs(dx)<=1.5*Math.abs(dy))return;
+    if(e.cancelable)e.preventDefault();
+    const index=SETTINGS_TABS.findIndex(([id])=>id===start.section);
+    const next=SETTINGS_TABS[index+(dx<0?1:-1)];
+    if(!next)return;
+    globalSettingsSection=next[0];
+    updateGlobalSettings('[data-settings-section="'+globalSettingsSection+'"]');
+  },{passive:false});
   document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.tab)));
   // Samples user interactions from click dispatch to the next animation frame.
   // The callback is before paint: this is a frame-delay proxy, not paint latency.
