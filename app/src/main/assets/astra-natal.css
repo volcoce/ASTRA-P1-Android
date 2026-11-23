@@ -446,13 +446,13 @@
   background:var(--astra-surface);container-type:inline-size;
 }
 .natal-position-table.has-houses{
-  --position-columns:minmax(0,1fr) 1em minmax(0,1fr) 3.25em
+  --position-columns:minmax(0,1fr) 1em minmax(0,1fr) 4.25em
 }
 .natal-position-table.has-degrees{
-  --position-columns:minmax(0,1fr) 1em minmax(0,1fr) 3.6em
+  --position-columns:minmax(0,1fr) 1em minmax(0,1fr) 4.25em
 }
 .natal-position-table.has-degrees.has-houses{
-  --position-columns:minmax(0,1fr) 1em minmax(0,1fr) 3.6em 3.25em
+  --position-columns:minmax(0,1fr) 1em minmax(0,1fr) 4.25em 4.25em
 }
 .natal-position-table :is(.natal-position-heading,.natal-position){
   display:grid;grid-template-columns:var(--position-columns);
@@ -503,7 +503,7 @@
   font:inherit;min-width:0;grid-column:auto;grid-row:auto;
   color:var(--astra-ink);text-align:center;white-space:normal;font-variant-numeric:tabular-nums
 }
-.natal-position-table .natal-position-heading>span:nth-child(n+4){text-align:center;overflow-wrap:anywhere}
+.natal-position-table .natal-position-heading>span:nth-child(n+4){text-align:center;white-space:nowrap;overflow-wrap:normal}
 .natal-position-legend{font-size:.75rem;color:var(--astra-muted);margin:8px 0 0}
 @container(max-width:330px){
   .natal-position-table :is(.natal-position-heading,.natal-position){font-size:.75rem;gap:3px;padding-inline:5px}
