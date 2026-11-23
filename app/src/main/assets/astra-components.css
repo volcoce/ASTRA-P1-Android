@@ -24,6 +24,9 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
   box-shadow:none;
 }
 
+/* Shared card variants: semantic styling lives here, not in a route. */
+.card.astra-card--emphasis{border-width:2px}
+
 /* Shared surfaces; keep feature-specific pastel heroes and natal wheel intact. */
 :is(.calendar,.natal-overview-panel,.natal-focus,.natal-context-sheet,
 .astra-event-feed,.astra-active-panel,.astra-month-events,.natal-selection,

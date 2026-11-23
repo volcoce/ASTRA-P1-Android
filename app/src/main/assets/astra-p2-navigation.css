@@ -20,10 +20,7 @@
 .natal-subpage-heading .card-title{font-family:var(--astra-font-display);color:var(--astra-ink)}
 .natal-section-lead{color:var(--astra-muted);line-height:1.5}
 
-/* Journal: the editor is the primary task; statistics and history are secondary. */
-.card.astra-reading-card.astra-journal-editor{
-  border-width:2px;
-}
+/* Journal: the editor uses the global .astra-card--emphasis variant. */
 
 .astra-journal-editor>.card-title{font-family:var(--astra-font-display);font-size:23px}
 .astra-journal-editor .actions{margin:8px 0 19px;gap:8px}
