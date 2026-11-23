@@ -318,7 +318,7 @@ if __name__ == '__main__':
             assert page.locator('[data-tab="month"]').get_attribute('aria-label')=='Ce mois'
             assert page.locator('[data-tab="calendar"]').get_attribute('aria-label')=='Calendrier'
             assert page.locator('.bottom-nav [data-tab="journal"]').count()==0
-            assert px('.lead')>=14
+            assert page.locator('.screen-intro .lead').count()==0
             assert px('.tiny')>=13
             for item in page.evaluate(CONTRAST_JS):
                 assert item.get('ratio',0)>=4.5,('light',item)
@@ -474,7 +474,7 @@ if __name__ == '__main__':
             assert page.locator('.natal-home .natal-wheel').count()==0
             page.locator('[data-overview-pane="aspects"]').click()
             assert page.locator('.natal-home .natal-aspect').count()==1
-            assert page.locator('.natal-panel-lead').is_visible()
+            assert page.locator('.natal-panel-lead').count()==0
             page.locator('[data-overview-pane="wheel"]').click()
             assert page.locator('.natal-home .natal-wheel').count()==1
             assert page.locator('.natal-glossary').get_attribute('open') is None
