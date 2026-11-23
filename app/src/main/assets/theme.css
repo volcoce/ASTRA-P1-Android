@@ -68,7 +68,7 @@
 :root[data-astra-theme="dark"] textarea::placeholder{color:#a2b9c8;opacity:1}
 :root[data-astra-theme="dark"] :is(.ghost,.natal-settings-link,.natal-back,
   .subnav,.arrow,.astra-back-today,.natal-more-link,
-  .natal-focus-launch button,.natal-focus-close,.natal-downloads button,
+  .natal-focus-launch button,.natal-focus-close,
   .natal-zoom button,.city-search .ghost){
   color:var(--astra-ink);background:var(--astra-secondary-surface);
   border-color:#567086
