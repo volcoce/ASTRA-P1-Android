@@ -110,7 +110,7 @@
 }
 :is(.natal-more-options,.natal-extras,.natal-glossary,.calculation-details,
 .natal-preview-disclosure)>summary{
-  color:var(--astra-ink);font-weight:750;cursor:pointer;min-height:44px
+  color:var(--astra-ink);font-weight:750;cursor:pointer
 }
 :is(.natal-more-options,.natal-extras,.natal-glossary,.calculation-details,
 .natal-preview-disclosure)[open]>summary{color:var(--astra-brand-strong)}

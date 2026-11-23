@@ -167,7 +167,7 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
   min-height:48px;
   padding:var(--astra-disclosure-block-inset) var(--astra-component-inset);
   cursor:pointer;list-style:none;
-  color:var(--astra-ink);font-weight:750;
+  color:var(--astra-ink);font-size:14px;line-height:1.45;font-weight:750;
 }
 .astra-disclosure>summary::-webkit-details-marker{display:none}
 .astra-disclosure>summary::after{
