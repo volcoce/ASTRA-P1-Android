@@ -15,7 +15,7 @@
 | **Ce jour** | Ciel à la date sélectionnée, Lune et phase à midi local, changements lunaires horodatés, événements et accès au journal. |
 | **Ce mois** | Synthèse mensuelle, phases et événements du mois. |
 | **Calendrier** | Grille mensuelle, nouvelles et pleines lunes, fond continu des cases sur plusieurs jours, coloré selon l'élément (Feu, Terre, Air, Eau), partagé 50/50 aux dates de transition, événements personnels sur plusieurs jours et consultation d'une date. |
-| **Mon ciel** | Thème natal, roue interactive, positions et aspects, exploration, transits en double roue, systèmes de maisons et export d'images. |
+| **Mon ciel** | Thème natal, roue interactive, positions et aspects, exploration, transits en double roue, systèmes de maisons et zoom intégré. |
 
 En complément : modes **tropical** et **sidéral** (Lahiri approximatif), fiches pédagogiques, journal local, import/export JSON, thèmes visuels et adaptation aux petits écrans.
 
@@ -45,7 +45,7 @@ node --check app/src/main/assets/app.js
 npm run bundle
 ```
 
-Les tests d'interface sous Chromium sont exécutés dans le pipeline CI avec `python tests/ui-smoke.py` et Playwright. Les tests automatisés ne remplacent pas la vérification de l'APK sur un appareil physique.
+Les tests d'interface sous Chromium sont exécutés dans le pipeline CI avec `python tests/ui-smoke.py` et Playwright. Les tests automatisés ne remplacent pas la vérification de l'APK sur un appareil physique. Contrôler notamment le mode Edge-to-Edge sur Android (encoche, barre de statut, trois boutons ou navigation gestuelle, clavier Samsung One UI). Les fonds de l'application doivent couvrir toute la surface ; les textes et commandes restent dans la zone sûre.
 
 ## APK Android Preview
 
