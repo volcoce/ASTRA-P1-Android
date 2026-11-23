@@ -1154,7 +1154,7 @@ if __name__ == '__main__':
             assert page.locator('.calendar .astra-calendar-date-week').first.locator('.astra-solar-ribbon-segment').count()>=2
             assert page.locator('.calendar .astra-solar-ribbon-segment.is-outside-month').first.evaluate(
                 "el => getComputedStyle(el).backgroundColor"
-            )=='rgb(189, 215, 227)'
+            )=='rgb(164, 214, 245)'
             assert page.locator('.calendar .astra-adjacent-day[data-day="2026-10-26"]').count()==1
             assert page.locator('.calendar .astra-adjacent-day[data-day="2026-12-06"]').count()==1
             assert page.locator('.calendar .astra-adjacent-day').first.get_attribute('aria-label').__contains__('hors du mois affiché')
