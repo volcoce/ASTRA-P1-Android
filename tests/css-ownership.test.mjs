@@ -227,6 +227,8 @@ test('Global settings have one responsive dialog and single owners for shared pr
  const html=read('index.html'),app=read('app.js');
  const css=postcss.parse(read('astra-components.css'),{from:'astra-components.css'});
  assert.match(html,/id="settingsButton"[^>]+aria-haspopup="dialog"/);
+ assert.ok(html.indexOf('aria-label="Mon ciel"')<html.indexOf('id="settingsButton"'),'Paramètres must follow Mon ciel');
+ assert.ok(html.indexOf('id="settingsButton"')<html.indexOf('</nav>'),'Settings must be part of bottom navigation');
  assert.match(html,/<dialog id="astraSettingsDialog" class="astra-settings-dialog"/);
  for(const category of ['astrology','appearance','data','advanced']){
   assert.ok(app.includes("['"+category+"'"),category+' settings tab missing');
@@ -249,9 +251,13 @@ test('Global settings have one responsive dialog and single owners for shared pr
  let dialogRule=0,triggerRule=0;
  css.walkRules(rule=>{
   if(rule.selector==='.astra-settings-dialog')dialogRule++;
-  if(rule.selector==='.top .astra-settings-trigger')triggerRule++;
+  if(rule.selector==='.bottom-nav #settingsButton[aria-expanded="true"]')triggerRule++;
  });
  assert.equal(dialogRule,2,'One base dialog rule and one responsive adjustment');
+ assert.match(read('astra-layout.css'),/grid-template-columns:repeat\(5,minmax\(0,1fr\)\)/);
+ assert.equal((app.match(/data-profile-screen="settings">Personnaliser/g)||[]).length,0,
+   'The contextual Mon ciel personalization buttons must be removed');
+ assert.match(app,/state\.profile\?'Personnaliser mon thème'/);
  assert.equal(triggerRule,1);
  for(const filename of CSS_SOURCES.filter(f=>f!=='astra-components.css')){
   postcss.parse(read(filename),{from:filename}).walkRules(rule=>{
