@@ -11,7 +11,7 @@
   const pad = n => String(n).padStart(2, '0');
   const isoDay = date => `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
   const detectedZone = (() => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'; } catch { return 'UTC'; } })();
-  const defaultState = () => ({profile:null, mode:'tropical', natalView:'essential', natalZodiac:'tropical', natalAspectFilter:'all', houseSystem:'placidus',wheelLayout:'natal',natalZoom:1,transitDay:isoDay(new Date()),transitTime:'12:00', orb:'auto', filter:'all', appearance:'system', elementPalette:'vivid', journal:{},calendarEvents:[]});
+  const defaultState = () => ({profile:null, mode:'tropical', natalView:'essential', showNatalDegrees:false, natalZodiac:'tropical', natalAspectFilter:'all', houseSystem:'placidus',wheelLayout:'natal',natalZoom:1,transitDay:isoDay(new Date()),transitTime:'12:00', orb:'auto', filter:'all', appearance:'system', elementPalette:'vivid', journal:{},calendarEvents:[]});
   const moodSymbols = ['','☹','◔','◯','◕','☺'];
   const themes = {relations:'Relations',travail:'Travail',sante:'Bien-être',creation:'Créativité',repos:'Repos',autre:'Autre'};
   const planets = {Sun:'Soleil',Moon:'Lune',Mercury:'Mercure',Venus:'Vénus',Mars:'Mars',Jupiter:'Jupiter',Saturn:'Saturne',Uranus:'Uranus',Neptune:'Neptune',Pluto:'Pluton'};
@@ -94,7 +94,7 @@
     if (raw.profile && E) {
       try { E.validateProfile(raw.profile); profile = raw.profile; } catch { /* Les dates invalides ne doivent pas bloquer l'appli. */ }
     }
-    return {profile,mode,natalView:['essential','complete'].includes(raw.natalView)?raw.natalView:'essential',natalZodiac:['tropical','sidereal'].includes(raw.natalZodiac)?raw.natalZodiac:'tropical',natalAspectFilter:['all','Conjonction','Sextile','Carré','Trigone','Opposition'].includes(raw.natalAspectFilter)?raw.natalAspectFilter:'all',
+    return {profile,mode,showNatalDegrees:raw.showNatalDegrees===true,natalView:['essential','complete'].includes(raw.natalView)?raw.natalView:'essential',natalZodiac:['tropical','sidereal'].includes(raw.natalZodiac)?raw.natalZodiac:'tropical',natalAspectFilter:['all','Conjonction','Sextile','Carré','Trigone','Opposition'].includes(raw.natalAspectFilter)?raw.natalAspectFilter:'all',
       houseSystem:['placidus','equal','whole'].includes(raw.houseSystem)?raw.houseSystem:'placidus',
       wheelLayout:['natal','double'].includes(raw.wheelLayout)?raw.wheelLayout:'natal',
       natalZoom:[1,1.25,1.5,1.75,2].includes(raw.natalZoom)?raw.natalZoom:1,
@@ -1562,10 +1562,29 @@
       const data=key.startsWith('H')?'data-natal-house="'+key.slice(1)+'"':'data-natal-body="'+key+'"';
       return '<button type="button" class="natal-highlight" '+data+'><span>'+safe(label)+'</span><b>'+fmt(lng)+'</b></button>';
     }).join('');
-    const bodyButtons=Object.entries(chart.positions).map(([body,lng])=>
-      '<button type="button" class="natal-position" data-natal-body="'+body+'" aria-pressed="'+(natalSelection?.kind==='planet'&&natalSelection.id===body)+'">'+
-      '<span class="position-planet"><span aria-hidden="true">'+natalGlyphs[body]+'</span>'+safe(planets[body])+'</span>'+
-      '<span class="position-value">'+fmt(lng)+'</span>'+(h?'<span class="position-house">M'+(house(lng)||'–')+'</span>':'<span class="position-house">—</span>')+'</button>').join('');
+    const signLabels=['Bélier','Taureau','Gémeaux','Cancer','Lion','Vierge',
+      'Balance','Scorpion','Sagittaire','Capricorne','Verseau','Poissons'];
+    const roman=['','I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'];
+    const showDegrees=state.showNatalDegrees;
+    const bodyButtons=Object.entries(chart.positions).map(([body,lng])=>{
+      const signIndex=Math.floor(((lng%360)+360)%360/30);
+      const minutes=Math.min(1799,Math.floor((((lng%30)+30)%30)*60+1e-7));
+      const degree=pad(Math.floor(minutes/60))+'°'+pad(minutes%60);
+      const retro=chart.retrogrades?.[body]===true;
+      const approx=uncertain&&body==='Moon';
+      const signName=signLabels[signIndex];
+      const houseNumber=house(lng);
+      return '<button type="button" class="natal-position" data-natal-body="'+body+'" aria-pressed="'+(natalSelection?.kind==='planet'&&natalSelection.id===body)+'" aria-label="'+safe(planets[body]+(retro?', rétrograde':'')+', '+signName+(showDegrees?', '+degree:'')+(houseNumber?', maison '+houseNumber:'')+(approx?', position indicative':''))+'">'+
+        '<span class="position-planet"><span class="position-glyph" aria-hidden="true">'+natalGlyphs[body]+'\uFE0E</span><span>'+safe(planets[body])+'</span></span>'+
+        '<span class="position-retrograde" aria-hidden="true">'+(retro?'R':'')+'</span>'+
+        '<span class="position-value"><span class="position-sign-glyph" data-element="'+['fire','earth','air','water'][signIndex%4]+'" aria-hidden="true">'+zodiacSymbols[signIndex]+'\uFE0E</span><span>'+safe(signName)+(approx?' ≈':'')+'</span></span>'+
+        (showDegrees?'<span class="position-degree">'+(uncertain?'≈ ':'')+degree+'</span>':'')+
+        (h?'<span class="position-house">'+(roman[houseNumber]||'—')+'</span>':'')+'</button>';
+    }).join('');
+    const planetTable='<div class="natal-positions natal-position-table'+(showDegrees?' has-degrees':'')+(h?' has-houses':'')+'">'+
+      '<div class="natal-position-heading" aria-hidden="true"><span>Planète</span><span></span><span>Signe</span>'+
+      (showDegrees?'<span>Degrés</span>':'')+(h?'<span>Maison</span>':'')+'</div>'+bodyButtons+'</div>'+
+      '<p class="natal-position-legend"><span>R</span> — rétrograde'+(uncertain?' · Positions indicatives à midi.':'')+'</p>';
     const houseButtons=h?h.cusps.map((lng,i)=>
       '<button type="button" class="natal-house-chip" data-natal-house="'+(i+1)+'" aria-pressed="'+(natalSelection?.kind==='house'&&Number(natalSelection.id)===i+1)+'">'+
       'Maison '+(i+1)+' <small>'+fmt(lng)+'</small></button>').join(''):'';
@@ -1577,7 +1596,7 @@
       '<div class="natal-warning" role="status"><b>Heure de naissance inconnue</b><p>Les positions sont calculées à midi local à titre indicatif. La Lune peut avoir sensiblement changé de place ou de signe pendant la journée. Ascendant et maisons non calculés ; aspects natals à la Lune et transits personnalisés exacts exclus.</p></div>':'';
     const full=isFull?
       '<h3 class="natal-subtitle">Positions planétaires'+(uncertain?' indicatives':' précises')+'</h3>'+
-      '<div class="natal-positions">'+bodyButtons+'</div>'+
+      planetTable+
       (h?'<h3 class="natal-subtitle">Maisons</h3><div class="natal-houses">'+houseButtons+'</div>':'')+
       '<h3 class="natal-subtitle">Aspects natals ('+filtered.length+')</h3>'+
       '<div class="natal-aspects">'+(aspects||'<p class="muted">Aucun aspect avec ce filtre.</p>')+'</div>'+renderAspectMatrix(chart):'';
@@ -1586,8 +1605,6 @@
     // on a separate, explicitly named screen.
     // One compact, accessible line: ☼♌︎ | ☽♓︎ | ↑♋︎ (actual signs
     // always come from the astronomical natal chart, never hardcoded).
-    const signLabels=['Bélier','Taureau','Gémeaux','Cancer','Lion','Vierge',
-      'Balance','Scorpion','Sagittaire','Capricorne','Verseau','Poissons'];
     const summaryItems=highlights.filter(([,,key])=>key!=='H10');
     const quickCards=summaryItems.map(([label,lng,key])=>{
       const isAngle=key==='H1';
@@ -1624,7 +1641,7 @@
           (overviewPane===id?'selected':'')+'">'+name+'</button>').join('')+'</div>';
       const overviewContent=overviewPane==='planets'
         ?'<section class="natal-overview-panel" aria-label="Positions planétaires"><p class="natal-panel-lead">Appuie sur une planète pour voir sa position et sa signification.</p>'+
-          '<div class="natal-positions">'+bodyButtons+'</div></section>'
+          planetTable+'</section>'
         :overviewPane==='aspects'
         ?'<section class="natal-overview-panel" aria-label="Aspects de naissance"><p class="natal-panel-lead">Les aspects sont les angles entre deux planètes au moment de ta naissance.</p>'+
           '<div class="natal-aspects">'+(aspects||'<p class="astra-empty">Aucun aspect avec le filtre sélectionné.</p>')+'</div>'+
@@ -1714,7 +1731,7 @@
       matrixDetails+'</section>';
     const planetList='<section class="natal-explore-list"><h3>Mes planètes</h3>'+
       '<p>Découvre dans quel signe se trouvait chaque planète à ta naissance.</p>'+
-      '<div class="natal-positions">'+bodyButtons+'</div></section>';
+      planetTable+'</section>';
     const housesList='<section class="natal-explore-list"><h3>Mes maisons</h3>'+
       '<p>Ce sont les douze secteurs de ta carte. Leur position dépend de l’heure de naissance.</p>'+
       '<div class="natal-houses">'+houseButtons+'</div></section>';
@@ -1794,6 +1811,8 @@
       '<p class="field-help">Ce choix s’applique à Ce jour, Ce mois et Calendrier.</p>'+
       choices('Zodiaque du thème natal',state.natalZodiac,[['tropical','Tropical'],['sidereal','Sidéral']],'data-natal-zodiac')+
       '<p class="field-help">Sidéral Lahiri approximatif ; la carte utilise ce zodiaque.</p>'+
+      choices('Degrés des planètes',state.showNatalDegrees?'on':'off',[['off','Masquer'],['on','Afficher']],'data-natal-degrees')+
+      '<p class="field-help">Affiche les degrés et minutes dans le tableau des positions. La roue reste épurée.</p>'+
       choices('Système de maisons',state.houseSystem,[['placidus','Placidus'],['equal','Maisons égales'],['whole','Signes entiers']],'data-house-system')+
       '<p class="field-help">Ascendant et maisons disponibles si l’heure de naissance est connue.</p></section>';
   }
@@ -2061,6 +2080,11 @@
       captureBirthForm();state.elementPalette=a.elementPalette;persist();applyElementPalette();render();
       updateGlobalSettings('[data-element-palette="'+a.elementPalette+'"]');
       return;
+    }
+    if(a.natalDegrees){
+      if(!['on','off'].includes(a.natalDegrees))return;
+      captureBirthForm();state.showNatalDegrees=a.natalDegrees==='on';persist();render();
+      updateGlobalSettings('[data-natal-degrees="'+a.natalDegrees+'"]');return;
     }
     if(a.appearance){
       if(!['system','light','dark'].includes(a.appearance))return;
