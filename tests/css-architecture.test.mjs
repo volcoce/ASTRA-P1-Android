@@ -20,7 +20,8 @@ test('Birth and settings cards share the global reading-column gutters',()=>{
    'astra-preferences astra-settings-section','astra-performance astra-settings-section']){
    assert.ok(app.includes('class="card astra-reading-card '+component+'"'),component);
  }
- assert.match(layout,/\.card\.astra-reading-card\s*\{[^}]*max-width:/s);
+ assert.match(layout,/\.main\s*\{[^}]*max-width:\s*calc\(var\(--astra-reading-width\)\s*\+\s*2\s*\*\s*var\(--astra-card-gutter\)\)/s);
+ assert.doesNotMatch(layout,/\.card\.astra-reading-card\s*\{[^}]*max-width:/s);
  assert.doesNotMatch(navigation,/\.astra-settings-section,.astra-birth-settings,.astra-privacy-settings\s*\{[^}]*\b(?:max-width|margin)\s*:/s);
 });
 test('Reading surfaces and disclosures reuse global component classes',()=>{
@@ -37,4 +38,22 @@ test('Welcome onboarding reuses reading geometry and a compact visual',()=>{
  assert.match(app,/class="card astra-reading-card welcome-card"/);
  assert.match(css,/\.welcome-illustration\s*\{[^}]*height:64px/s);
  assert.match(css,/\.welcome-card>\.ghost\.full\s*\{[^}]*width:100%/s);
+});
+
+test('Every route uses the same main width and gutters, without page-specific caps',()=>{
+ const layout=read('astra-layout.css');
+ const p1=read('astra-p1-screens.css');
+ const natal=read('astra-natal.css');
+ const solar=read('solar-ribbon.css');
+ const atlas=read('atlas-ui.css');
+ const accessibility=read('astra-p3-accessibility.css');
+ assert.match(layout,/\\.main\\s*\\{[^}]*max-width:calc\\(var\\(--astra-reading-width\\)[^}]*padding-inline:var\\(--astra-card-gutter\\)/s);
+ assert.doesNotMatch(layout,/\\.main>\\.screen-intro\\s*\\{[^}]*max-width:/s);
+ assert.doesNotMatch(layout,/\\.card\\.astra-reading-card\\s*\\{[^}]*max-width:/s);
+ assert.doesNotMatch(natal,/\\.natal-home>\\s*:is\\([\\s\\S]*?\\)\\s*\\{[^}]*max-width:/);
+ assert.doesNotMatch(natal,/\\.natal-explore :is\\([\\s\\S]*?\\)\\s*\\{[^}]*max-width:/);
+ assert.doesNotMatch(p1,/max-width:840px/);
+ assert.doesNotMatch(solar,/\\.astra-calendar-month-head,\\.calendar-options,\\.calendar\\s*\\{\\s*max-width:/);
+ assert.doesNotMatch(atlas,/\\.main\\s*\\{[^}]*\\b(?:max-width|padding-left|padding-right|padding):/);
+ assert.doesNotMatch(accessibility,/@media\\(max-width:480px\\)\\{\\s*\\.main\\s*\\{/);
 });
