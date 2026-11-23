@@ -6,7 +6,7 @@
   const $ = id => document.getElementById(id);
   // The native Activity already reserves system-bar insets for the WebView.
   // Browsers continue using CSS safe areas, without double-padding Android.
-  if(window.ASTRA_CHART_EXPORT)document.documentElement.classList.add('astra-native-webview');
+  if(window.ASTRA_NATIVE_UI)document.documentElement.classList.add('astra-native-webview');
   const safe = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const pad = n => String(n).padStart(2, '0');
   const isoDay = date => `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
@@ -162,7 +162,7 @@
   let personalEditor=null; // 'new' or a saved event ID
 
   // Browser-only deep links. The Android shell keeps its native back handler.
-  const webRouting = !window.ASTRA_CHART_EXPORT &&
+  const webRouting = !window.ASTRA_NATIVE_UI &&
     ['http:','https:'].includes(window.location.protocol) &&
     typeof window.history?.pushState === 'function';
   const routeTabs = new Set(['today','month','calendar','journal','profile']);
@@ -1472,120 +1472,6 @@
       '</div><p class="natal-disclaimer">Positions astronomiques instantanées et conventions astrologiques ; aucune prédiction scientifique d’événement.</p></article>';
   }
 
-  /** Portable SVG export with embedded typography; PNG rasterized in-browser.
-   * Android invokes a narrow native create-document bridge. No network upload.
-   */
-  async function saveChartBlob(blob,filename,mime){
-    if(window.ASTRA_CHART_EXPORT?.saveChart){
-      const base64=await new Promise((resolve,reject)=>{
-        const reader=new FileReader();
-        reader.onload=()=>resolve(String(reader.result).split(',')[1]);
-        reader.onerror=()=>reject(Error('Lecture impossible du fichier'));
-        reader.readAsDataURL(blob);
-      });
-      window.ASTRA_CHART_EXPORT.saveChart(filename,mime,base64);
-      return;
-    }
-    const url=URL.createObjectURL(blob);
-    try{
-      const link=document.createElement('a');
-      link.href=url;link.download=filename;link.rel='noopener';document.body.appendChild(link);
-      link.click();link.remove();
-      show('Export '+mime.split('/')[1].toUpperCase()+' préparé');
-    }finally{setTimeout(()=>URL.revokeObjectURL(url),12000);}
-  }
-  async function exportNatalGraphic(kind){
-    try{
-      if(!['svg','png'].includes(kind))throw Error('Format d’image non reconnu');
-      const displayed=$('natalChart')?.querySelector('.natal-wheel');
-      if(!displayed)throw Error('Aucune roue à exporter');
-      const clone=displayed.cloneNode(true);
-      const box=displayed.viewBox.baseVal;
-      const output=kind==='png'?1600:1080;
-      clone.removeAttribute('style');
-      clone.setAttribute('xmlns','http://www.w3.org/2000/svg');
-      clone.setAttribute('width',String(output));
-      clone.setAttribute('height',String(output));
-      // Resolve the wheel's single palette from CSS for standalone SVG and PNG.
-      // The daylight wheel stays legible in both themes.
-      const wheelPalette=getComputedStyle(document.documentElement);
-      const zodiacFill=name=>wheelPalette.getPropertyValue('--astra-zodiac-'+name).trim();
-      const embedded=document.createElementNS('http://www.w3.org/2000/svg','style');
-      embedded.textContent=[
-        ".wheel-modern .wheel-paper{fill:#FFF9EA;stroke:#1E404F;stroke-width:1.8}",
-        ".wheel-modern .wheel-zodiac-sector{stroke:#1E404F;stroke-width:.85}",
-        ".wheel-modern .wheel-zodiac-sector.is-even{fill:#f4f8fb}",
-        ".wheel-modern .wheel-zodiac-sector.is-odd{fill:#e8f1f6}",
-        ".wheel-modern .wheel-zodiac-sector.zodiac-element-fire{fill:"+zodiacFill('fire')+"}",
-        ".wheel-modern .wheel-zodiac-sector.zodiac-element-earth{fill:"+zodiacFill('earth')+"}",
-        ".wheel-modern .wheel-zodiac-sector.zodiac-element-air{fill:"+zodiacFill('air')+"}",
-        ".wheel-modern .wheel-zodiac-sector.zodiac-element-water{fill:"+zodiacFill('water')+"}",
-        ".wheel-modern .zodiac-symbol{font:700 18px Georgia,serif;fill:#1E404F;stroke:#FFF9EA;stroke-width:.5;paint-order:stroke}",
-        ".wheel-modern .wheel-degree-tick{stroke:#B6AFA0;stroke-width:1.05;stroke-linecap:round}",
-        ".wheel-modern .wheel-degree-tick.is-medium{stroke:#637881;stroke-width:1.3}",
-        ".wheel-modern .wheel-degree-tick.is-major{stroke:#1E404F;stroke-width:1.9}",
-        ".wheel-modern .wheel-zodiac-inner{fill:#FFF9EA;stroke:#1E404F;stroke-width:1.35}",
-        ".wheel-modern .wheel-house-backdrop{fill:#FFF9EA;stroke:#9BAAA7;stroke-width:1.15}",
-        ".wheel-modern .wheel-house-sector.is-even{fill:#FFF9EA}",
-        ".wheel-modern .wheel-house-sector.is-odd{fill:#F2E8D5}",
-        ".wheel-modern .wheel-active-house{fill:#F0BE57;fill-opacity:.64}",
-        ".wheel-modern .wheel-house-divider{stroke:#A3B0AD;stroke-width:1.25}",
-        ".wheel-modern .wheel-house-divider.is-major{stroke:#1E404F;stroke-width:2.15}",
-        ".wheel-modern .wheel-house-divider.is-active{stroke:#C03A22;stroke-width:2.8}",
-        ".wheel-modern .house-number{font:700 12px Arial,sans-serif;fill:#1E404F;stroke:#FFF9EA;stroke-width:2.5;paint-order:stroke}",
-        ".wheel-modern .wheel-aspect-backdrop{fill:#FFF9EA;stroke:#9BAAA7;stroke-width:1.1}",
-        ".wheel-modern .wheel-aspect-line{stroke-linecap:round}",
-        ".wheel-modern .natal-leader line,.wheel-modern .wheel-planet-leader{stroke:#66818C;stroke-width:1.15}",
-        ".wheel-modern .natal-leader circle,.wheel-modern .wheel-true-anchor{fill:#34685C;stroke:#FFF9EA;stroke-width:.75}",
-        ".wheel-modern .natal-planet-hit .wheel-planet-disc{fill:#FFF9EA;stroke:#66818C;stroke-width:1.35}",
-        ".wheel-modern .natal-planet-hit .natal-planet{font:700 20px Georgia,serif;fill:#1E404F}",
-        ".wheel-modern .natal-planet-hit.is-sun .natal-planet{fill:#8F4C14}",
-        ".wheel-modern .natal-planet-hit.is-sun .wheel-planet-disc{fill:#F0BE57;stroke:#A36D25}",
-        ".wheel-modern .natal-planet-hit.is-moon .natal-planet{fill:#1E404F}",
-        ".wheel-modern .natal-planet-hit.is-moon .wheel-planet-disc{fill:#82AAC7;stroke:#365F79}",
-        ".wheel-modern .natal-planet-hit.is-active .wheel-planet-disc{fill:#1E404F;stroke:#C03A22;stroke-width:2}",
-        ".wheel-modern .natal-planet-hit.is-active .natal-planet{fill:#fff}",
-        ".wheel-modern .angle-label{font:850 10.5px Arial,sans-serif;fill:#1E404F;stroke:#FFF9EA;stroke-width:3;paint-order:stroke}",
-        ".wheel-modern.natal-double-wheel .wheel-paper{fill:#F8EFD5;stroke:#1E404F}",
-        ".wheel-modern.natal-double-wheel .wheel-transit-band{fill:#D1E7F0;stroke:#34685C}",
-        ".wheel-modern.natal-double-wheel .natal-planet-hit .wheel-planet-disc{fill:#FFF9EA;stroke:#34685C}",
-        ".wheel-modern.natal-double-wheel .natal-planet-hit .natal-planet{fill:#34685C}",
-        ".wheel-modern.natal-double-wheel .natal-transit-hit .wheel-planet-disc{fill:#FFF9EA;stroke:#C03A22}",
-        ".wheel-modern.natal-double-wheel .natal-transit-hit .natal-planet{fill:#C03A22}",
-        ".wheel-modern.natal-double-wheel .natal-transit-hit.is-active .wheel-planet-disc{fill:#1E404F;stroke:#C03A22}",
-        ".wheel-modern.natal-double-wheel .natal-transit-hit.is-active .natal-planet{fill:#fff}",
-        "text{text-rendering:geometricPrecision}"
-      ].join('\n');
-      clone.insertBefore(embedded,clone.firstChild);
-      // Everything is generated locally. No external stylesheets or links.
-      const xml='<?xml version="1.0" encoding="UTF-8"?>\n'+new XMLSerializer().serializeToString(clone);
-      const svgBlob=new Blob([xml],{type:'image/svg+xml;charset=utf-8'});
-      const filename='ASTRA-theme-'+(state.wheelLayout==='double'?'transits-':'')+
-        (state.natalZodiac==='tropical'?'tropical':'sideral');
-      if(kind==='svg'){
-        await saveChartBlob(svgBlob,filename+'.svg','image/svg+xml');return;
-      }
-      const sourceUrl=URL.createObjectURL(svgBlob);
-      try{
-        const img=await new Promise((resolve,reject)=>{
-          const element=new Image();
-          element.onload=()=>resolve(element);
-          element.onerror=()=>reject(Error('Impossible de convertir la roue SVG en PNG'));
-          element.src=sourceUrl;
-        });
-        const canvas=document.createElement('canvas');
-        canvas.width=output;canvas.height=output;
-        const ctx=canvas.getContext('2d');
-        if(!ctx)throw Error('Canvas indisponible');
-        ctx.fillStyle='#ffffff';ctx.fillRect(0,0,output,output);
-        ctx.drawImage(img,0,0,output,output);
-        const png=await new Promise((resolve,reject)=>canvas.toBlob(
-          result=>result?resolve(result):reject(Error('Conversion PNG impossible')),'image/png'));
-        await saveChartBlob(png,filename+'.png','image/png');
-      }finally{URL.revokeObjectURL(sourceUrl);}
-    }catch(error){show('Export impossible : '+(error?.message||'Erreur'));}
-  }
-
   function renderNatalChart(chart){
     const isOverview=profileScreen==='overview',isSettings=profileScreen==='settings',isCompare=profileScreen==='compare';
     const isProgressions=profileScreen==='progressions',isComposite=profileScreen==='composite';
@@ -1616,10 +1502,7 @@
       '<div class="natal-toolstrip"><div role="group" aria-label="Zoom de la roue" class="natal-zoom">'+
       '<button type="button" data-natal-zoom="-0.25" aria-label="Dézoomer" '+(state.natalZoom<=1?'disabled':'')+'>−</button>'+
       '<button type="button" data-natal-zoom="reset" aria-label="Réinitialiser le zoom">'+Math.round(state.natalZoom*100)+' %</button>'+
-      '<button type="button" data-natal-zoom="0.25" aria-label="Zoomer" '+(state.natalZoom>=2?'disabled':'')+'>+</button></div>'+
-      '<div class="natal-downloads" role="group" aria-label="Exporter la roue">'+
-      '<button type="button" data-export-chart="svg">Exporter SVG</button>'+
-      '<button type="button" data-export-chart="png">Exporter PNG</button></div></div></section>';
+      '<button type="button" data-natal-zoom="0.25" aria-label="Zoomer" '+(state.natalZoom>=2?'disabled':'')+'>+</button></div></div></section>';
     let transitSnapshot=null,transitError='';
     if(isCompare||(isSettings&&state.wheelLayout==='double')){
       try{
@@ -1690,7 +1573,8 @@
       '<div class="natal-context-content">'+selectedDetail+'</div></section>':'';
     const shortCaption='<p class="natal-home-hint">Les petits points indiquent les degrés réels. '+
       (uncertain?'Heure inconnue : Lune indicative, sans maisons.':'Touche une planète pour consulter sa position et sa fiche.')+'</p>';
-    const pageBack='<button type="button" class="natal-back" data-profile-screen="overview">← Mon ciel</button>';
+    const pageBack='<button type="button" class="natal-back" data-profile-screen="overview" aria-label="Retour à Mon ciel">'+
+      '<span aria-hidden="true">←</span><span>Mon ciel</span></button>';
     if(isOverview){
       const homeSvg=svg.replace(/class="natal-wheel([^"]*)"/,(_,rest)=>
         'class="natal-wheel'+rest+'" style="width:100%;min-width:0;max-width:none"');
@@ -1735,9 +1619,9 @@
         '<p class="natal-section-lead">Choisis ton affichage. Tes informations de naissance sont plus bas.</p></div>'+
         '<div class="natal-settings-controls">'+controls+
         '<details class="natal-more-options astra-disclosure"'+(settingsAdvancedOpen?' open':'')+'><summary>Options avancées</summary><div class="astra-disclosure-body">'+advancedControls+'</div></details></div>'+
-        '<details class="natal-preview-disclosure astra-disclosure"'+(settingsPreviewOpen?' open':'')+'><summary>Aperçu de la carte et export graphique</summary>'+
+        '<details class="natal-preview-disclosure astra-disclosure"'+(settingsPreviewOpen?' open':'')+'><summary>Aperçu de la carte</summary>'+
         '<div class="astra-disclosure-body"><div class="natal-wheel-viewport" role="region" tabindex="0" aria-label="Aperçu de la carte astrologique">'+resized+'</div>'+
-        '<p class="natal-home-hint">Les exports SVG et PNG correspondent à cette carte.</p></div></details>'+
+        '<p class="natal-home-hint">Sélectionne une planète sur la roue pour en consulter les détails.</p></div></details>'+
         (transitError?'<p class="notice" role="alert">'+safe(transitError)+'</p>':'')+
         '</section>';
     }
@@ -2297,7 +2181,6 @@
       $('app').querySelector('[data-natal-zoom="'+a.natalZoom+'"]')?.focus({preventScroll:true});
       return;
     }
-    if(a.exportChart){exportNatalGraphic(a.exportChart);return;}
     if(a.transitRange){
       if(!['all','fast','slow'].includes(a.transitRange))return;
       transitRange=a.transitRange;natalSelection=null;render();
