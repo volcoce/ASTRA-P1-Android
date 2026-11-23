@@ -144,14 +144,28 @@ textarea:focus-visible,select:focus-visible{outline:3px solid #237b99;outline-of
 .insights b{color:#224e63;font-size:19px}
 .history-item{border-bottom-color:#e0e8eb}
 
-/* Welcome view: one action and short, human explanation. */
-.welcome-card{padding:23px 20px}
-.welcome-card>p{font-size:15px;line-height:1.6;color:var(--secondary)}
-.welcome-card .tiny{margin-top:14px;font-size:13px;text-align:center}
-.welcome-illustration{width:100%;height:130px;border-radius:14px;
-  background:#e9f1f4;color:#25586d;display:flex;gap:38px;align-items:center;
-  justify-content:center;font:500 50px/1 Georgia,serif;margin-bottom:18px}
-.welcome-illustration span{color:#b37f54;font-size:42px}
+/* Welcome — use the shared reading column; preserve a single clear primary action. */
+.welcome-card{display:flex;flex-direction:column;gap:0}
+.welcome-card .card-title{margin:0 0 8px;font-size:clamp(1.3rem,2vw,1.55rem)}
+.welcome-card>p:not(.tiny){max-width:58ch;margin:0;font-size:15px;line-height:1.55;color:var(--astra-muted)}
+.welcome-card .tiny{margin:12px 0 0;font-size:13px;line-height:1.5;text-align:center}
+.welcome-illustration{
+  width:104px;height:64px;flex:none;border-radius:14px;
+  background:var(--astra-secondary-surface);color:var(--astra-ink);
+  display:flex;gap:10px;align-items:center;justify-content:center;
+  font:500 30px/1 Georgia,serif;margin:0 0 16px
+}
+.welcome-illustration span{color:var(--astra-transit);font-size:27px}
+.welcome-card>.primary.full{
+  width:100%;min-height:52px;margin-top:20px;
+  display:flex;align-items:center;justify-content:center;text-align:center
+}
+.welcome-card>.ghost.full{
+  width:100%;min-height:44px;margin-top:6px;padding:10px 12px;
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  background:transparent;border:0;box-shadow:none;color:var(--astra-ink);
+  text-decoration:underline;text-underline-offset:3px
+}
 
 /* Tight screens must not transform the whole page into a miniature desktop. */
 @media(min-width:800px){
