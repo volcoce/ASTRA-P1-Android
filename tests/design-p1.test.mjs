@@ -77,3 +77,19 @@ test('P1 month overview groups future days and preserves major lunar phase cards
  assert.match(month,/class="astra-event-day-list"/);
  assert.doesNotMatch(month,/Premiers événements du mois/);
 });
+
+test('Merged calendar lunar phases show the exact sign and local time, including accessibility labels',()=>{
+  const source=slice('  function monthOverview() {','  function personalCalendarWeek(');
+  const event={type:'moon',name:'Pleine Lune',at:'2026-11-24T14:53:00Z',moonLongitude:62};
+  const ctx={
+    state:{profile:{timezone:'Europe/Paris'},journal:{}},
+    result:{days:{'2026-11-24':{sky:[event],exact:[]}}},
+    month:new Date(2026,10,1),pad:n=>String(n).padStart(2,'0'),
+    safe:String,displayDate:d=>d,eventTitle:e=>e.name+' en Gémeaux',
+    moonPhaseIcon:angle=>'<svg data-angle="'+angle+'"></svg>'
+  };
+  const markup=new Function('ctx','with(ctx){'+source+'return monthOverview();}')(ctx);
+  assert.match(markup,/Pleine Lune en Gémeaux, le 2026-11-24 à 15 h 53/);
+  assert.match(markup,/<time datetime="2026-11-24T14:53:00Z">15 h 53<\/time>/);
+  assert.match(markup,/<svg data-angle="180">/);
+});

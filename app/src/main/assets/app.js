@@ -875,6 +875,9 @@
       (event.name==='Nouvelle Lune'||event.name==='Pleine Lune'));
     const dayLabel=day=>new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'short',timeZone:'UTC'})
       .format(new Date(day+'T12:00:00Z'));
+    const lunarTime=at=>at&&Number.isFinite(new Date(at).getTime())?
+      new Intl.DateTimeFormat('fr-FR',{hour:'2-digit',minute:'2-digit',hourCycle:'h23',
+        timeZone:state.profile.timezone||detectedZone}).format(new Date(at)).replace(':',' h '):'';
     const weekdayLabel=day=>new Intl.DateTimeFormat('fr-FR',{weekday:'short',timeZone:'UTC'})
       .format(new Date(day+'T12:00:00Z')).replace(/\.$/,'').toLocaleUpperCase('fr-FR');
     const majorMoon=events=>events.find(e=>e.type==='moon'&&
@@ -882,7 +885,8 @@
     const dayPreview=events=>{
       const firstMoon=majorMoon(events);
       const ordered=firstMoon?[firstMoon,...events.filter(e=>e!==firstMoon)]:events;
-      const titles=ordered.slice(0,2).map(e=>eventTitle(e).replace(/ · (?:0|60|90|120|180)°$/,''));
+      const titles=ordered.slice(0,2).map(e=>eventTitle(e).replace(/ · (?:0|60|90|120|180)°$/,'')+
+        (e.type==='moon'&&lunarTime(e.at)?' à '+lunarTime(e.at):''));
       const hidden=events.length-titles.length;
       return titles.join(' · ')+(hidden?' · +'+hidden+' autre'+(hidden>1?'s':''):'');
     };
@@ -895,11 +899,12 @@
         '<div class="astra-section-head"><h2 id="monthMoonTitle">Phases majeures</h2><span>Ce mois uniquement</span></div>'+
         '<div class="astra-month-phases">'+(lunar.map(({day,event})=>{
           const isNew=event.name==='Nouvelle Lune';
+          const title=eventTitle(event),time=lunarTime(event.at);
           return '<button type="button" class="astra-month-phase '+(isNew?'new':'full')+
-            '" data-month-open-day="'+day+'" aria-label="'+safe(event.name+', le '+displayDate(day))+'">'+
-            '<span class="astra-month-phase-icon" aria-hidden="true">'+(isNew?'●':'○')+'</span>'+
-            '<span class="astra-month-phase-copy"><strong>'+safe(eventTitle(event))+'</strong>'+
-            '<small>'+safe(dayLabel(day))+(event.at?' · '+safe(new Intl.DateTimeFormat('fr-FR',{hour:'2-digit',minute:'2-digit',timeZone:state.profile.timezone}).format(new Date(event.at))):'')+
+            '" data-month-open-day="'+day+'" aria-label="'+safe(title+', le '+displayDate(day)+(time?' à '+time:''))+'">'+
+            '<span class="astra-month-phase-icon" aria-hidden="true">'+moonPhaseIcon(isNew?0:180,'cell')+'</span>'+
+            '<span class="astra-month-phase-copy"><strong>'+safe(title)+'</strong>'+
+            '<small>'+safe(dayLabel(day))+(time?' · <time datetime="'+safe(event.at)+'">'+safe(time)+'</time>':'')+
             '</small></span><span aria-hidden="true">›</span></button>';
         }).join('')||'<p class="astra-empty">Aucune Nouvelle ou Pleine Lune calculée pour ce mois.</p>')+'</div>'+
         '</section>'+
