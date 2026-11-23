@@ -1083,7 +1083,10 @@ if __name__ == '__main__':
                     assert page.locator('[data-step-day]').count()==0
                     selected_date=page.locator('.astra-week-day.is-selected').get_attribute('data-day')
                     expected_count=5 if selected_date.endswith('11-23') else 2 if int(selected_date[-2:]) in (5,20) else 1
-                    assert page.locator('.astra-day-hero .astra-hero-stat strong').inner_text()==str(expected_count)
+                    assert page.locator('.astra-day-hero .astra-hero-stat').count()==0
+                    assert page.locator('.astra-day-hero .astra-hero-link').count()==0
+                    assert page.locator('#todayEvents .astra-event-list-head p').inner_text().endswith(
+                        str(expected_count)+' '+('événement' if expected_count==1 else 'événements'))
                     assert page.locator('.astra-event-list-rows [data-event]').count()==min(expected_count,3)
                     verify_active_aspects_gutters('light-320')
                     capture('today-flo-layout-320')
@@ -1220,8 +1223,8 @@ if __name__ == '__main__':
             assert after!=before
             page.locator('[data-week-shift="-7"]').click()
             assert page.locator('.astra-week-day.is-selected').get_attribute('data-day')==before
-            page.locator('.astra-hero-link').click()
-            assert page.evaluate('document.activeElement.id')=='todayEventsTitle'
+            assert page.locator('.astra-hero-link').count()==0
+            assert page.locator('#todayEventsTitle').inner_text()=='Événements du jour'
             page.locator('.astra-day-journal-link[data-goto="journal"]').click()
             assert page.locator('#journalNote').count()==1
             page.locator('[data-tab="today"]').click()
@@ -1365,7 +1368,10 @@ if __name__ == '__main__':
             page.locator('[data-tab="today"]').click()
             day_key=page.locator('.astra-week-day.is-selected').get_attribute('data-day')
             expected=5 if day_key.endswith('11-23') else 2 if int(day_key[-2:]) in (5,20) else 1
-            assert page.locator('.astra-day-hero .astra-hero-stat strong').inner_text()==str(expected)
+            assert page.locator('.astra-day-hero .astra-hero-stat').count()==0
+            assert page.locator('.astra-day-hero .astra-hero-link').count()==0
+            assert page.locator('#todayEvents .astra-event-list-head p').inner_text().endswith(
+                str(expected)+' '+('événement' if expected==1 else 'événements'))
             page.locator('[data-tab="calendar"]').click()
             assert page.locator('.calendar-options').get_attribute('open') is not None
             page.locator('#eventFilter').select_option('all')
