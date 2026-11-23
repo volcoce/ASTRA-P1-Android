@@ -133,7 +133,7 @@ Ne jamais afficher une barre latérale **et** une barre basse concurrentes ; il 
 | `ChartViewport` | SVG natal / transits et zoom interactif (sans export graphique) | lisible à 100% sans défilement latéral de page |
 | `DateMonthPicker` | calendrier mensuel avec phases lunaires, fonds solaires continus par élément et événements personnels | 7 colonnes fixes, cases de 55 px, numéro en haut, icône lunaire SVG centrée, événements personnels en bandes sur plusieurs jours ; Nouvelle Lune et Pleine Lune distinctes. Aucun marqueur d’« Aspect solaire exact ». Préfixer les classes SVG pour éviter la collision avec `.calendar`. Légende, `aria-label` et notes distinctes |
 | `MoodPicker` / `JournalEditor` | humeur, énergie, note, sauvegarde | labels explicites, persistance de brouillon lors d'une navigation |
-| `BirthForm` / `CityPicker` | saisie date/heure/ville | erreurs au champ, aucune ville non confirmée, heure inconnue possible |
+| `BirthForm` / `CityPicker` | saisie date/heure et liste de villes suggérées | choix fréquents sans saisie, recherche automatique après 3 lettres (280 ms), nom/région/pays visibles, flèches/Entrée/Échap accessibles, seules les villes explicitement sélectionnées fournissent coordonnées et fuseau, heure inconnue possible |
 | `FeedbackState` | vide, chargement, erreur, confirmation | action suivante visible, ton neutre, pas de faux résultat |
 
 ### États de chaque widget
@@ -197,6 +197,7 @@ Ces rapports sont calculés sur fond blanc à partir des couleurs proposées. Co
 - Android Edge-to-Edge : la WebView et ses fonds se prolongent sous l'encoche, la barre d'état et les boutons de navigation. L'Activity dessine avec des barres transparentes et désactive le contraste forcé de la barre inférieure ; les insets physiques (`systemBars | displayCutout`) sont convertis en pixels CSS et publiés sur `--astra-native-inset-*`. Les variables `--astra-safe-*` emploient les insets natifs ou `env(safe-area-inset-*)` sur navigateur, **jamais les deux en addition**. Les boutons restent dans la zone sûre, la barre inférieure conserve son fond sous la navigation système et l'IME est géré séparément.
 - Pas de CTA essentiel sous la barre basse ; vérifier les deux systèmes de navigation Android (gestes et 3 boutons), le mode clair/sombre et les découpes latérales.
 - Champs toujours associés à `label`, titres sémantiques, progression `aria-live`, `aria-expanded` et `aria-pressed` si adaptés.
+- Le champ de ville ouvre une liste de propositions dès le focus (villes fréquentes) et la met à jour après trois caractères sans bouton « Rechercher ». Le menu utilise `combobox` / `listbox`, conserve le focus pendant la saisie et distingue les villes homonymes par région et pays. Les données de naissance ne sont jamais envoyées au service de géocodage.
 - Focus visible et correctement restauré après re-render. Navigation TalkBack et clavier. Toutes les informations essentielles doivent être accessibles sans geste horizontal.
 - Animations fonctionnelles de 120–180 ms, désactivées avec `prefers-reduced-motion`. Aucune roue en mouvement sans interaction explicite.
 - Les indicateurs de précision doivent accompagner les résultats eux-mêmes (heure inconnue, phase lunaire approximée, zodiaque).
