@@ -67,7 +67,7 @@
 :root[data-astra-theme="dark"] input::placeholder,
 :root[data-astra-theme="dark"] textarea::placeholder{color:#a2b9c8;opacity:1}
 :root[data-astra-theme="dark"] :is(.ghost,.natal-settings-link,.natal-back,
-  .subnav,.top-today,.arrow,.astra-back-today,.natal-more-link,
+  .subnav,.arrow,.astra-back-today,.natal-more-link,
   .natal-focus-launch button,.natal-focus-close,.natal-downloads button,
   .natal-zoom button,.city-search .ghost){
   color:var(--astra-ink);background:var(--astra-secondary-surface);
@@ -83,9 +83,6 @@
 
 
 
-:root[data-astra-theme="dark"] .top{background:var(--atlas-night);color:#fff}
-:root[data-astra-theme="dark"] .brand{color:inherit}
-:root[data-astra-theme="dark"] .brand-sub{color:#c8d8e3}
 :root[data-astra-theme="dark"] :is(.switch,.natal-segments,.natal-overview-tabs,
   .natal-transit-filters,.natal-filter-items,.natal-advanced-buttons){
   background:var(--astra-secondary-surface);border-color:var(--astra-rule)
