@@ -71,3 +71,51 @@ export function layoutPlanetLabels(positions, minDegrees = MIN_LABEL_SPACING_DEG
       shiftDegrees:+shiftDegrees.toFixed(5)}];
   }));
 }
+
+
+/**
+ * Actual-angle wheel grouping. Unlike layoutPlanetLabels, this never changes
+ * the longitude of a planet glyph to make the drawing look less crowded.
+ * One planet: a glyph at its precise angle. Two close planets: radial stacking
+ * at their own angles. Three or more: one accessible cluster marker, with
+ * individual exact positions retained in the returned group.
+ *
+ * Grouping is purely visual; it MUST NOT be interpreted as a conjunction.
+ */
+export function groupWheelPlanets(positions, gapDegrees=11, maxGroupSpan=27){
+  if(!positions||typeof positions!=='object'||Array.isArray(positions))
+    throw Error('Positions planétaires invalides');
+  if(!Number.isFinite(gapDegrees)||gapDegrees<=0||gapDegrees>25||
+     !Number.isFinite(maxGroupSpan)||maxGroupSpan<gapDegrees||maxGroupSpan>60)
+    throw Error('Espacement de regroupement invalide');
+  const sorted=Object.entries(positions)
+    .filter(([,longitude])=>Number.isFinite(longitude))
+    .map(([body,longitude])=>({body,longitude:mod(longitude)}))
+    .sort((a,b)=>a.longitude-b.longitude||a.body.localeCompare(b.body));
+  if(!sorted.length)return [];
+  if(sorted.length===1)return [{longitude:sorted[0].longitude,items:sorted}];
+  // Choose the largest truly empty sector as the circular seam. Clusters
+  // crossing 0° Aries are then handled like all the others.
+  let largest=-1,first=0;
+  for(let i=0;i<sorted.length;i++){
+    const next=sorted[(i+1)%sorted.length].longitude+(i===sorted.length-1?360:0);
+    const gap=next-sorted[i].longitude;
+    if(gap>largest){largest=gap;first=(i+1)%sorted.length;}
+  }
+  const ordered=Array.from({length:sorted.length},(_,i)=>{
+    const index=(first+i)%sorted.length;
+    return {...sorted[index],unwrapped:sorted[index].longitude+(index<first?360:0)};
+  });
+  const groups=[];
+  for(const item of ordered){
+    const group=groups[groups.length-1];
+    if(group&&item.unwrapped-group[group.length-1].unwrapped<=gapDegrees&&
+      item.unwrapped-group[0].unwrapped<=maxGroupSpan){
+      group.push(item);
+    }else groups.push([item]);
+  }
+  return groups.map(items=>({
+    longitude:mod(items.reduce((sum,item)=>sum+item.unwrapped,0)/items.length),
+    items:items.map(({body,longitude})=>({body,longitude}))
+  }));
+}
