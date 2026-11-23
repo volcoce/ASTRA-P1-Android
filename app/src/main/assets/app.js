@@ -848,7 +848,7 @@
           '<div class="astra-event-list-head"><h2 id="todayEventsTitle">Événements du jour</h2>'+
           '<p>'+safe(displayDate(selected))+' · '+count+' '+(count===1?'événement':'événements')+'</p></div>'+
           '<div class="astra-event-feed astra-event-list-rows" id="todayEventsList">'+
-            (displayed.map(e=>row(e,true)).join('')||'<p class="astra-empty">Aucun événement exact ce jour-là. Consulte une autre date ou explore les aspects en cours.</p>')+
+            (displayed.map(e=>row(e,true)).join('')||'<p class="astra-empty">Aucun événement exact ce jour-là.</p>')+
           '</div>'+
           (remaining>0?'<div class="astra-event-list-footer"><button type="button" class="astra-event-list-toggle" data-today-expand="1" aria-controls="todayEventsList" aria-expanded="'+todayExpanded+'">'+
           (todayExpanded?'Réduire la liste':'Afficher les '+remaining+' autres événements')+
@@ -922,7 +922,6 @@
         '<p class="astra-month-kicker">VUE D’ENSEMBLE</p>'+
         '<div class="astra-month-headline"><strong>'+exactEvents.length+'</strong>'+
         '<span>événement'+(exactEvents.length===1?'':'s')+' calculé'+(exactEvents.length===1?'':'s')+'</span></div>'+
-        '<p>Pour '+safe(monthLabel)+' · aspects exacts et événements du ciel</p>'+
       '</section>'+status()+
       '<section class="astra-month-section" aria-labelledby="monthMoonTitle">'+
         '<div class="astra-section-head"><h2 id="monthMoonTitle">Phases majeures</h2><span>Ce mois uniquement</span></div>'+
@@ -935,7 +934,7 @@
             '<small>'+safe(dayLabel(day))+(event.at?' · '+safe(new Intl.DateTimeFormat('fr-FR',{hour:'2-digit',minute:'2-digit',timeZone:state.profile.timezone}).format(new Date(event.at))):'')+
             '</small></span><span aria-hidden="true">›</span></button>';
         }).join('')||'<p class="astra-empty">Aucune Nouvelle ou Pleine Lune calculée pour ce mois.</p>')+'</div>'+
-        '<p class="astra-section-help">Les horaires sont ceux du fuseau de naissance enregistré. Choisis une phase pour voir sa date dans le calendrier.</p></section>'+
+        '</section>'+
       '<section class="astra-month-metrics" aria-label="Indicateurs mensuels">'+
         '<div><strong>'+daysWithEvents+'</strong><span>jours avec événements</span></div>'+
         '<button type="button" data-goto="journal"><strong>'+journalDays+'</strong><span>jour'+(journalDays===1?'':'s')+' noté'+(journalDays===1?'':'s')+' · ouvrir le journal</span></button>'+
@@ -959,7 +958,6 @@
           '<p class="astra-empty">'+(isCurrentMonth&&daysWithEvents?
             'Plus aucune journée avec événement à venir ce mois-ci. Les dates passées restent dans le calendrier.':
             'Aucun événement exact calculé pour ce mois.')+'</p>')+'</div>'+
-        (upcomingDays.length>featuredDays.length?'<p class="astra-section-help">Cinq journées affichées. Le calendrier présente toutes les autres dates.</p>':'')+
         '<button type="button" class="astra-month-calendar-link" data-goto="calendar">Ouvrir le calendrier <span aria-hidden="true">→</span></button></section>';
   }
   // A personal event has inclusive civil start/end dates. Split visual bars at
@@ -1434,7 +1432,6 @@
       return '<tr><th scope="row" title="'+safe(planets[row])+'" aria-label="'+safe(planets[row])+'">'+natalGlyphs[row]+'</th>'+cols+'</tr>';
     }).join('');
     return '<section class="natal-matrix-section"><h3 class="natal-subtitle">Matrice des aspects</h3>'+
-      '<p class="tiny">Chaque case relie deux planètes ; sélectionner un symbole ouvre ses mesures. Le filtre d’aspects actif est respecté.</p>'+
       '<div class="natal-matrix-scroll" role="region" tabindex="0" aria-label="Matrice des aspects natals, défilement horizontal">'+
       '<table class="natal-matrix"><thead>'+head+'</thead><tbody>'+rows+'</tbody></table></div></section>';
   }
@@ -1645,14 +1642,12 @@
       '<div class="natal-context-bar"><h2 id="natalContextTitle">Fiche de lecture</h2>'+
       '<button type="button" data-close-natal-detail="1" aria-label="Fermer la fiche">Fermer <span aria-hidden="true">×</span></button></div>'+
       '<div class="natal-context-content">'+selectedDetail+'</div></section>':'';
-    const shortCaption='<p class="natal-home-hint">Sélectionne un astre ou un aspect.</p>';
     const pageBack='<button type="button" class="natal-back" data-profile-screen="'+(isCompare?'explore':'overview')+'" aria-label="'+(isCompare?'Retour à Explorer les positions':'Retour à Mon ciel')+'">'+
       '<span aria-hidden="true">←</span><span>'+(isCompare?'Explorer les positions':'Mon ciel')+'</span></button>';
     if(isOverview){
       const homeSvg=svg.replace(/class="natal-wheel([^"]*)"/,(_,rest)=>
         'class="natal-wheel'+rest+'" style="width:100%;min-width:0;max-width:none"');
-      const overviewContent='<div class="natal-wheel-viewport" role="region" tabindex="0" aria-label="Roue natale interactive">'+homeSvg+'</div>'+
-          shortCaption;
+      const overviewContent='<div class="natal-wheel-viewport" role="region" tabindex="0" aria-label="Roue natale interactive">'+homeSvg+'</div>';
       return '<section class="card natal-card astra-reading-card natal-home" id="natalChart">'+
         '<div class="natal-home-header"><div><h2 class="card-title">Ta carte de naissance</h2>'+
         '<p class="natal-home-subtitle">'+(isTropical?'Tropical':'Sidéral')+'</p></div></div>'+
@@ -1690,7 +1685,6 @@
         [['all','Tous'],['fast','Rapides'],['slow','Lents']].map(([k,label])=>
           '<button type="button" data-transit-range="'+k+'" aria-pressed="'+(transitRange===k)+'" class="'+(transitRange===k?'selected':'')+'">'+label+'</button>').join('')+
         '</div>'+
-        '<p>Les angles entre les planètes de cette date et celles de ta naissance. Appuie pour en savoir plus.</p>'+
         (shownContacts.length?'<div class="natal-contact-list">'+shownContacts.slice(0,16).map(c=>{
           const key=[c.body,c.natal,c.angle].join('-');
           const active=natalSelection?.kind==='contact'&&natalSelection.id===key;
@@ -1705,7 +1699,6 @@
       return '<section class="card natal-card astra-reading-card natal-compare" id="natalChart">'+
         '<div class="natal-subpage-heading">'+pageBack+
         '<h2 class="card-title">Deux ciels, une seule carte</h2>'+
-        '<p class="natal-section-lead">Au centre : ton ciel de naissance. À l’extérieur : les planètes à la date choisie.</p>'+
         '</div>'+comparing+notice+(transitError?'<p class="notice" role="alert">'+safe(transitError)+'</p>':'')+
         '<div class="natal-wheel-viewport" role="region" tabindex="0" aria-label="Roue double, natal et transits">'+resized+'</div>'+
         '<div class="wheel-ring-legend"><span><i class="natal-swatch"></i>Planètes natales</span>'+
@@ -1745,13 +1738,11 @@
     const choices=[['system','Système'],['light','Clair'],['dark','Sombre']];
     return '<section class="card astra-reading-card astra-preferences astra-settings-section" aria-labelledby="astraAppearanceTitle">'+
       '<h2 id="astraAppearanceTitle" class="card-title">Apparence</h2>'+
-      '<p class="tiny">Choisis l’apparence de l’interface. Le mode Système suit les réglages de ton appareil.</p>'+
       '<div class="astra-appearance-options" role="group" aria-label="Thème visuel">'+
       choices.map(([id,label])=>'<button type="button" data-appearance="'+id+
         '" aria-pressed="'+(mode===id)+'" class="'+(mode===id?'selected':'')+'">'+label+'</button>').join('')+
       '</div>'+
       '<h3 class="astra-palette-heading" id="astraPaletteTitle">Couleurs des quatre éléments</h3>'+
-      '<p class="tiny">Compare les couleurs sur la roue et le calendrier. Le choix est enregistré sur cet appareil.</p>'+
       '<div class="astra-palette-options" role="group" aria-labelledby="astraPaletteTitle">'+
       [['classic','Palette 1 · Classique','Feu doré · Air bleu pâle · Eau cyan · Terre brune'],
        ['vivid','Palette 2 · Vive','Feu rouge · Air jaune · Eau bleue · Terre verte']]
