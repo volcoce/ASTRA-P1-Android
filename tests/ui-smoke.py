@@ -639,7 +639,7 @@ if __name__ == '__main__':
             assert page.locator('.natal-home .wheel-aspect-line').first.get_attribute('data-aspect-kind')=='Carré'
             assert page.locator('.natal-home .zodiac-symbol').count()==12
             assert all(text.endswith('\ufe0e') for text in page.locator('.natal-home .zodiac-symbol').all_text_contents())
-            # Minimal glyph spacing; exact astronomical anchors and fixed ring radius.
+            # Original 14-degree spacing; exact astronomical anchors and fixed ring radius.
             labels=page.locator('.natal-planet-hit').evaluate_all("""items => items.map(e => ({
               body:e.dataset.natalBody, actual:Number(e.dataset.trueLongitude),
               label:Number(e.dataset.labelLongitude), radius:Number(e.dataset.wheelRadius)
@@ -649,13 +649,15 @@ if __name__ == '__main__':
                       'Jupiter':123,'Saturn':141,'Uranus':175,'Neptune':203,'Pluto':270}
             for item in labels:
                 assert abs(item['actual']-expected[item['body']])<1e-5
-            # Only the close Moon/Mercury pair needs a small displacement.
+            # The original solver spreads the 9-degree Moon/Mercury pair symmetrically.
             for item in labels:
                 shift=abs((item['label']-item['actual']+180)%360-180)
                 if item['body'] in ('Moon','Mercury'):
-                    assert 0<shift<1, item
+                    assert abs(shift-2.5)<1e-5, item
                 else:
                     assert shift<1e-5,item
+            ordered=sorted(x['label'] for x in labels)
+            assert min((ordered[(i+1)%len(ordered)]-v)%360 for i,v in enumerate(ordered))>=14-1e-5
             assert page.locator('.natal-home .wheel-planet-leader').count()==2
             assert page.locator('.natal-home .wheel-true-anchor').count()==10
             assert len({x['radius'] for x in labels})==1,labels
