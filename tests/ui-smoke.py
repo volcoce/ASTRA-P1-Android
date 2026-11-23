@@ -550,9 +550,14 @@ if __name__ == '__main__':
             assert page.locator('.wheel-zodiac-sector').count()==12
             for element in ('fire','earth','air','water'):
                 assert page.locator('.wheel-zodiac-sector.zodiac-element-'+element).count()==3
-            assert page.locator('.natal-home .wheel-zodiac-sector.zodiac-element-fire').first.evaluate(
-                'el => getComputedStyle(el).fill'
-            )=='rgb(244, 199, 143)'
+            # Reference palette: Fire red-orange, Air yellow, Water blue, Earth green.
+            expected_fills={'fire':'rgb(255, 61, 20)','air':'rgb(247, 252, 53)',
+                            'water':'rgb(21, 155, 242)','earth':'rgb(70, 205, 23)'}
+            for element,expected_fill in expected_fills.items():
+                actual=page.locator('.natal-home .wheel-zodiac-sector.zodiac-element-'+element).first.evaluate(
+                    'el => getComputedStyle(el).fill'
+                )
+                assert actual==expected_fill,(element,actual,expected_fill)
             assert page.locator('.wheel-house-sector').count()==12
             # The true degree markers never move; labels use the actual solver.
             labels=page.locator('.natal-planet-hit').evaluate_all("""items => items.map(e => ({
