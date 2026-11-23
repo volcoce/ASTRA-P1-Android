@@ -10,12 +10,16 @@
 
 .astra-journal-back,.natal-back,.astra-back-today{
   display:inline-flex;align-items:center;justify-content:center;
-  min-height:44px;gap:8px;padding:10px 14px;
+  min-height:var(--astra-control-min);gap:var(--astra-touch-gap);padding:10px 14px;
+  max-width:100%;white-space:nowrap;
   color:var(--astra-ink);background:var(--astra-surface);
-  border:1px solid var(--astra-divider);border-radius:var(--astra-radius-md);
-  font-weight:750;text-decoration:none
+  border:1px solid var(--astra-border);border-radius:var(--astra-radius-md);
+  font:750 14px/1.35 var(--astra-font-body);text-decoration:none;cursor:pointer
 }
 .astra-journal-back{margin-bottom:12px}
+.natal-back{align-self:flex-start;flex:none}
+.natal-back span:first-child{font-size:19px;line-height:1;flex:none}
+.natal-back:hover{background:var(--astra-secondary-surface)}
 .natal-subpage-heading{gap:10px;margin-bottom:18px}
 .natal-subpage-heading .card-title{font-family:var(--astra-font-display);color:var(--astra-ink)}
 .natal-section-lead{color:var(--astra-muted);line-height:1.5}
