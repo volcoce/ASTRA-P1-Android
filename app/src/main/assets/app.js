@@ -1642,8 +1642,8 @@
       '<div class="natal-context-bar"><h2 id="natalContextTitle">Fiche de lecture</h2>'+
       '<button type="button" data-close-natal-detail="1" aria-label="Fermer la fiche">Fermer <span aria-hidden="true">×</span></button></div>'+
       '<div class="natal-context-content">'+selectedDetail+'</div></section>':'';
-    const pageBack='<button type="button" class="natal-back" data-profile-screen="'+(isCompare?'explore':'overview')+'" aria-label="'+(isCompare?'Retour à Explorer les positions':'Retour à Mon ciel')+'">'+
-      '<span aria-hidden="true">←</span><span>'+(isCompare?'Explorer les positions':'Mon ciel')+'</span></button>';
+    const pageBack='<button type="button" class="natal-back" data-profile-screen="overview" aria-label="Retour à Mon ciel">'+
+      '<span aria-hidden="true">←</span><span>Mon ciel</span></button>';
     if(isOverview){
       const homeSvg=svg.replace(/class="natal-wheel([^"]*)"/,(_,rest)=>
         'class="natal-wheel'+rest+'" style="width:100%;min-width:0;max-width:none"');
@@ -1655,6 +1655,7 @@
         '<div class="natal-primary-cards'+(h?'':' natal-primary-cards--two')+'" role="group" aria-label="Soleil, Lune et Ascendant en signes astrologiques">'+quickCards+'</div>'+
         overviewContent+
         '<div class="natal-home-actions natal-home-actions--primary"><button type="button" class="natal-main-action" data-profile-screen="explore"><span class="action-label"><strong>Explorer les positions</strong></span><span class="action-arrow" aria-hidden="true">→</span></button></div>'+
+        '<div class="natal-home-actions natal-home-actions--secondary"><button type="button" class="natal-secondary-action" data-explore-transits="1"><span class="action-label"><strong>Comparer deux dates</strong></span><span class="action-arrow" aria-hidden="true">→</span></button></div>'+
         contextSheet+
         (h?.polarFallback?'<p class="notice">Maisons égales utilisées à cette latitude.</p>':'')+
         '</section>';
@@ -1727,7 +1728,6 @@
       '<div class="natal-explore-toolbar" role="group" aria-label="Navigation du thème">'+pageBack+'</div>'+
       notice+selector+'<div id="natalExplorerPanel" class="natal-explorer-panel">'+contents+'</div>'+
       contextSheet+
-      '<button type="button" class="ghost full" data-explore-transits="1">Comparer deux dates →</button>'+
       (h?.polarFallback?'<p class="notice">À cette latitude, les maisons égales remplacent Placidus.</p>':'')+
       (h?.approximateSidereal?'<p class="tiny">Le zodiaque sidéral utilise ici un ayanamsa Lahiri approximatif.</p>':'')+
       '</section>';
