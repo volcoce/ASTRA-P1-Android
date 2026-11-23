@@ -321,11 +321,11 @@
 
 /* On the birth-chart overview, the lower tools should use the same column and
  * semantic surfaces. This also fixes white advanced-tool menus in dark mode. */
-.natal-home :is(.natal-glossary,.natal-extras,.natal-home-actions--secondary){
+.natal-home :is(.natal-glossary,.natal-home-actions--secondary){
   width:100%;min-width:0;
   margin-left:0;margin-right:0;box-sizing:border-box;
 }
-:is(.natal-home,.natal-explore) :is(.natal-glossary,.natal-extras){
+:is(.natal-home,.natal-explore) :is(.natal-glossary){
   background:var(--astra-secondary-surface);
   border:1px solid var(--astra-divider);
   border-radius:var(--astra-radius-lg);
@@ -392,7 +392,7 @@
   .natal-wheel-viewport,.natal-overview-panel,
   .natal-home-hint,.natal-focus-launch,
   .natal-glossary,.natal-home-actions--secondary,
-  .natal-extras,.natal-warning,.notice
+  .natal-warning,.notice
 ){
   width:100%;min-width:0;
   margin-left:0;margin-right:0;box-sizing:border-box
@@ -453,9 +453,6 @@
 }
 .natal-home>.natal-glossary{
   margin-top:14px;margin-bottom:14px
-}
-.natal-home>.natal-extras{
-  margin-top:0;margin-bottom:12px
 }
 @media(max-width:480px){
   .natal-home>.natal-home-header{gap:9px;margin-bottom:12px}
