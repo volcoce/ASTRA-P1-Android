@@ -24,8 +24,7 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
 
 /* Shared surfaces; keep feature-specific pastel heroes and natal wheel intact. */
 :is(.calendar,.natal-overview-panel,.natal-context-sheet,
-.astra-event-feed,.astra-active-panel,.natal-selection,
-.natal-composite-result){
+.astra-event-feed,.astra-active-panel,.natal-selection){
   background:var(--astra-surface);border-color:var(--astra-divider);
   color:var(--astra-ink);border-radius:var(--astra-radius-lg);box-shadow:none
 }
@@ -156,14 +155,14 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
 /* Form inputs and state. Shared validation and form states. */
 :is(.field label,.filter-wrap label,.tags-field legend){color:var(--astra-ink);font-size:var(--astra-font-size-sm);font-weight:700}
 :is(.field input,.field select,.field textarea,.filter-wrap select,
-.city-search input,.natal-transit-time input,.natal-progress-controls input,
-.natal-composite input,.natal-compare input){
+.city-search input,.natal-transit-time input,
+.natal-compare input){
   min-height:44px;max-width:100%;border:1px solid var(--astra-border);
   background:var(--astra-surface);color:var(--astra-ink);
   border-radius:var(--astra-radius-md);font-family:var(--astra-font-body)
 }
 :is(.field input,.field select,.field textarea,.filter-wrap select,
-.city-search input,.natal-transit-time input,.natal-progress-controls input):disabled{
+.city-search input,.natal-transit-time input):disabled{
   opacity:.6;cursor:not-allowed
 }
 :is(input,textarea)::placeholder{color:var(--astra-muted);opacity:1}
@@ -173,7 +172,7 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
 .field-help{font-size:.8125rem}
 :root[data-astra-theme="dark"] :is(.field input,.field select,.field textarea,
 .filter-wrap select,.city-search input,.natal-transit-time input,
-.natal-progress-controls input,.natal-composite input,.natal-compare input){
+.natal-compare input){
   background:var(--astra-secondary-surface);color:var(--astra-ink);border-color:var(--astra-border)
 }
 :root[data-astra-theme="dark"] :is(input,textarea)::placeholder{color:var(--astra-muted)}
