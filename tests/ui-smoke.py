@@ -356,10 +356,19 @@ if __name__ == '__main__':
             page.locator('#birthDate').fill('1994-05-12')
             page.locator('#birthTime').fill('18:40')
             assert page.locator('#birthZone').count()==0 and page.locator('#lat').count()==0 and page.locator('#lng').count()==0
-            page.locator('#birthCity').fill('Paris')
-            page.locator('[data-search-place]').click()
-            page.locator('[data-place]').first.wait_for(timeout=1500)
-            page.locator('[data-place]').first.click()
+            # A blank field offers choices immediately: no typing, search
+            # button or Enter key is required to select a common city.
+            assert page.locator('[data-search-place]').count()==0
+            page.locator('#birthCity').click()
+            assert page.locator('#birthCity').get_attribute('role')=='combobox'
+            assert page.locator('#birthCity').get_attribute('aria-expanded')=='true'
+            assert page.locator('[data-city-kind="birth"][data-city-preset]').count()==8
+            page.locator('[data-city-kind="birth"][data-city-preset="Paris"]').click()
+            assert page.locator('#birthCity').input_value()=='Paris'
+            page.locator('[data-city-kind="birth"][data-city-choice]').first.wait_for(timeout=3000)
+            assert page.locator('#birthCity').get_attribute('aria-expanded')=='true'
+            page.locator('[data-city-kind="birth"][data-city-choice]').first.click()
+            assert page.locator('#birthCity').get_attribute('aria-expanded')=='false'
             assert page.locator('.city-technical').get_attribute('open') is None
             page.locator('.city-technical summary').click()
             assert 'Europe/Paris' in page.locator('.city-confirmed').inner_text()
@@ -775,9 +784,24 @@ if __name__ == '__main__':
             assert page.locator('.natal-composite').count()==1
             page.locator('#secondDate').fill('1996-07-19')
             page.locator('#secondTime').fill('06:30')
-            page.locator('#secondCity').fill('Paris')
-            page.locator('[data-search-composite-place]').click()
-            page.locator('[data-composite-place]').first.click()
+            # The second birth form shares live autocomplete and keyboard
+            # selection, and does not re-create the input during typing.
+            assert page.locator('[data-search-composite-place]').count()==0
+            page.locator('#secondCity').fill('Par')
+            assert page.locator('#secondCity').input_value()=='Par'
+            page.locator('[data-city-kind="composite"][data-city-choice]').first.wait_for(timeout=3000)
+            page.locator('#secondCity').press('ArrowDown')
+            assert page.locator('#secondCity').get_attribute('aria-activedescendant')=='secondCityOption0'
+            page.locator('#secondCity').press('Enter')
+            assert page.locator('#secondCity').get_attribute('aria-expanded')=='false'
+            assert 'Paris' in page.locator('.natal-composite .city-confirmed').inner_text()
+            # Changing the confirmed city invalidates its old coordinates;
+            # the dropdown can reopen on click without clearing the field.
+            page.locator('#secondCity').click()
+            assert page.locator('[data-city-kind="composite"][data-city-preset]').count()==8
+            page.locator('#secondCity').press('Escape')
+            assert page.locator('#secondCity').get_attribute('aria-expanded')=='false'
+            assert page.locator('#secondCity').input_value().startswith('Paris')
             page.locator('#compositeForm button[type="submit"]').click()
             assert page.locator('.natal-composite-result').count()==1
             assert page.locator('.natal-composite-result .natal-progression-row').count()==10
