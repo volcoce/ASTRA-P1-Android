@@ -2221,13 +2221,6 @@
       setTimeout(()=>URL.revokeObjectURL(url),1500);
       return;
     }
-    if(a.scrollTo){
-      const node=$(a.scrollTo);
-      node?.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth',block:'start'});
-      node?.querySelector('h2')?.setAttribute('tabindex','-1');
-      node?.querySelector('h2')?.focus({preventScroll:true});
-      return;
-    }
     if(a.weekShift){selectDay(shiftDay(selected,Number(a.weekShift)));return;}
     if(a.lunarDay){selectDay(a.lunarDay);go('calendar');return;}
     if(a.monthOpenDay){selectDay(a.monthOpenDay);go('calendar');return;}
