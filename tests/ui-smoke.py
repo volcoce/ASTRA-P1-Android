@@ -792,6 +792,15 @@ if __name__ == '__main__':
             # calendar geometry. Persisted choices must affect live CSS & export.
             page.set_viewport_size({'width':393,'height':844})
             page.locator('[data-profile-screen="settings"]').click()
+            page.locator('#settingsButton').click()
+            assert page.locator('#astraSettingsDialog[open]').count()==1
+            assert page.locator('#astraSettingsDialog [role="tab"]').count()==4
+            page.locator('[data-settings-section="data"]').click()
+            assert page.locator('#astraSettingsDialog [data-export]').count()==1
+            assert page.locator('#importFile').count()==1
+            page.locator('[data-settings-section="advanced"]').click()
+            assert page.locator('#astraSettingsDialog [data-diagnostics-toggle]').count()==1
+            page.locator('[data-settings-section="appearance"]').click()
             assert page.locator('[data-element-palette]').count()==2
             light_palettes={
                 'classic':{'fire':'#FAB617','air':'#E7F6FD','water':'#00ADEF','earth':'#896B49'},
@@ -810,6 +819,8 @@ if __name__ == '__main__':
                 }""")
                 assert actual==hues,(palette,actual)
                 capture('palette-'+palette+'-settings-light-393')
+                page.locator('[data-settings-close]').click()
+                assert page.locator('#astraSettingsDialog[open]').count()==0
                 page.locator('[data-profile-screen="overview"]').click()
                 for element,colour in hues.items():
                     expected_fill='rgb('+', '.join(str(int(colour[i:i+2],16)) for i in (1,3,5))+')'
@@ -822,6 +833,8 @@ if __name__ == '__main__':
                 capture_element('palette-'+palette+'-calendar-light-393','.astra-calendar-board')
                 page.locator('[data-tab="profile"]').click()
                 page.locator('[data-profile-screen="settings"]').click()
+                page.locator('#settingsButton').click()
+                page.locator('[data-settings-section="appearance"]').click()
             # P3: both appearance modes, readable ribbon ink and reduced motion.
             # The palette comparison has already returned to the settings view.
             page.locator('[data-appearance="dark"]').click()
@@ -839,25 +852,32 @@ if __name__ == '__main__':
                 style.getPropertyValue('--solar-air-bg').trim()==='#395665' &&
                 style.getPropertyValue('--solar-water-bg').trim()==='#105D87';
             }""")
+            page.locator('[data-settings-close]').click()
             page.locator('[data-profile-screen="overview"]').click()
             capture_element('palette-classic-wheel-dark-393','.natal-home .natal-wheel')
             page.locator('[data-tab="calendar"]').click()
             capture_element('palette-classic-calendar-dark-393','.astra-calendar-board')
             page.locator('[data-tab="profile"]').click()
             page.locator('[data-profile-screen="settings"]').click()
+            page.locator('#settingsButton').click()
+            page.locator('[data-settings-section="appearance"]').click()
             page.locator('[data-element-palette="vivid"]').click()
             capture('palette-vivid-settings-dark-393')
+            page.locator('[data-settings-close]').click()
             page.locator('[data-profile-screen="overview"]').click()
             capture_element('palette-vivid-wheel-dark-393','.natal-home .natal-wheel')
             page.locator('[data-tab="calendar"]').click()
             capture_element('palette-vivid-calendar-dark-393','.astra-calendar-board')
             page.locator('[data-tab="profile"]').click()
             page.locator('[data-profile-screen="settings"]').click()
+            page.locator('#settingsButton').click()
+            page.locator('[data-settings-section="appearance"]').click()
             assert page.evaluate('document.documentElement.dataset.astraPalette')=='vivid'
             assert page.evaluate(
                 "getComputedStyle(document.documentElement).getPropertyValue('--astra-calendar-ink').trim()"
             )=='#F8EFD5'
             capture('settings-dark-393')
+            page.locator('[data-settings-close]').click()
             # Regression: the natal reading must not use pale text on white cards.
             page.locator('[data-profile-screen="overview"]').click()
             page.locator('.natal-wheel [data-natal-body="Sun"]').click()
@@ -988,6 +1008,8 @@ if __name__ == '__main__':
             capture('today-dark-readable-events-393')
             page.locator('[data-tab="profile"]').click()
             page.locator('[data-profile-screen="settings"]').click()
+            page.locator('#settingsButton').click()
+            page.locator('[data-settings-section="appearance"]').click()
             page.emulate_media(reduced_motion='reduce')
             assert page.locator('.bottom-nav .nav').first.evaluate(
                 "e => getComputedStyle(e).transitionDuration"
@@ -1000,6 +1022,7 @@ if __name__ == '__main__':
               return root.getPropertyValue('--solar-earth-bg').trim()==='#46CD17' &&
                 root.getPropertyValue('--solar-water-bg').trim()==='#159BF2';
             }""")
+            page.locator('[data-settings-close]').click()
             page.locator('[data-profile-screen="overview"]').click()
             assert page.locator('#orb').count()==0
             # New default: full wheel is fitted to the 320 px screen.
