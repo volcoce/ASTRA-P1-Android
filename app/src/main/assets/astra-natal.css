@@ -1,3 +1,4 @@
+@layer features {
 /* ASTRA — Natal UI component module.
    Overview, planet explorer, aspects, and natal disclosures share the same
    semantic tokens and the same reading-column contract. Screen-specific
@@ -28,7 +29,7 @@
 }
 .natal-home .natal-summary-icon{display:none}
 .natal-home .natal-summary-name{position:static!important;clip:auto!important;overflow:visible!important;
-  width:auto!important;height:auto!important;margin:0!important;white-space:normal!important;
+  width:auto;height:auto;margin:0;white-space:normal;
   font:750 12px/1.3 system-ui,sans-serif;color:#627281}
 .natal-home .natal-summary-sign{font:500 29px/1.15 Georgia,serif;color:#295a72}
 .natal-home .natal-summary-value{font:750 13px/1.3 system-ui,sans-serif;color:var(--ink);
@@ -503,4 +504,6 @@
 @media(max-width:360px){
   .natal-home>.natal-home-header .natal-settings-link{padding:8px 10px}
   .natal-home>.natal-primary-cards{padding:5px 3px;gap:4px}
+}
+
 }

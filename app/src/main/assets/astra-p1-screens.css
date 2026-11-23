@@ -1,3 +1,4 @@
+@layer features {
 /* ASTRA P1 / Four principal screens. Loaded after P0 shared components.
    Layout hierarchy only; physical astronomy, dates and event actions untouched. */
 
@@ -210,4 +211,6 @@
 }
 @media(prefers-reduced-motion:reduce){
   .astra-day-hero,.astra-month-hero{transition:none!important}
+}
+
 }

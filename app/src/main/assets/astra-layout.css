@@ -1,3 +1,4 @@
+@layer layout {
 /* ASTRA — single global shell & navigation contract.
    Applies identically to Ce jour, Ce mois, Calendrier, Journal, Mon ciel and
    its sub-pages. CSS geometry never depends on which route is open. */
@@ -72,3 +73,5 @@ body.astra-input-active .bottom-nav{
   visibility:hidden;pointer-events:none
 }
 body.astra-input-active .app-shell{padding-bottom:20px}
+
+}
