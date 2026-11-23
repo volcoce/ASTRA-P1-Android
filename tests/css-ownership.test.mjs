@@ -130,3 +130,33 @@ test('Active aspects disclosure cannot bypass shared body gutters',()=>{
  assert.match(shared,/\.astra-disclosure-body>\.astra-event-feed\s*\{[^}]*padding:0;/s);
  assert.match(shared,/\.astra-disclosure\.astra-disclosure--surface\s*\{/s);
 });
+
+
+test('Today EventList is single-surface and controlled by one accessible footer',()=>{
+ const app=read('app.js');
+ const shared=read('astra-components.css');
+ const legacy=read('atlas-ui.css');
+ const accessibility=read('astra-p3-accessibility.css');
+ assert.match(app,/<div class="astra-event-list-card">/);
+ assert.match(app,/<div class="astra-event-feed astra-event-list-rows" id="todayEventsList">/);
+ assert.match(app,/displayed\.map\(e=>row\(e,true\)\)/);
+ assert.match(app,/aria-controls="todayEventsList" aria-expanded="/);
+ assert.match(app,/data-today-expand="1"/);
+ assert.doesNotMatch(app,/class="astra-more-events"/);
+ assert.doesNotMatch(legacy,/\.astra-more-events/);
+ assert.doesNotMatch(accessibility,/\.astra-more-events/);
+ for(const type of ['.astra-event-list-card','.astra-event-list-head',
+   '.astra-event-list-rows>.astra-event-row','.astra-event-list-footer',
+   '.astra-event-list-toggle','.astra-event-time','.astra-event-meta']){
+  assert.ok(shared.includes(type),type+' must be shared component CSS');
+ }
+ for(const file of CSS_SOURCES.filter(f=>f!=='astra-components.css')){
+  postcss.parse(read(file),{from:file}).walkRules(rule=>{
+    if(!rule.selector.includes('.astra-event-list'))return;
+    rule.walkDecls(decl=>{
+      assert.ok(!/^(?:padding|margin|border|background|width|min-height)/.test(decl.prop),
+        file+' redefines shared event list '+rule.selector+' '+decl.prop);
+    });
+  });
+ }
+});

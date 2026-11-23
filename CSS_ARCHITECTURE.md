@@ -84,3 +84,10 @@ Ne pas réintroduire de breakpoints locaux à 350, 370, 375, 380, 390, 420 ou 70
 ## Point de migration
 
 Cette itération retire les deux feuilles P5/P6, retire les exceptions de navigation fixes/statiques et définit l'interface natale dans un module métier. Les anciennes couches générales n'ont pas encore été entièrement réécrites ; elles constituent une dette technique documentée, pas une autorisation de multiplier les overrides.
+
+### Listes chronologiques d’événements
+
+`EventList` est implémenté par `.astra-event-list-card`, `.astra-event-list-head`, `.astra-event-list-rows`, `.astra-event-row` et `.astra-event-list-footer` dans `astra-components.css`. Le tableau est **une seule surface**, quel que soit le nombre d’événements. Les trois premiers sont visibles, les suivants sont ajoutés aux mêmes lignes par `data-today-expand`. Ce bouton reste à la fin de la liste, conserve le focus après mise à jour et expose `aria-expanded` et `aria-controls`.
+
+Les temps sont alignés à droite, les événements sont triés avant affichage, et l’information d’angle se lit sous le titre plutôt qu’être répétée en surtitre. Aucun CSS de page ne doit repeindre cette structure ou ajouter une deuxième carte. Un test Chromium force un jeu de **cinq événements** pour vérifier l’ouverture, la fermeture, l’alignement des heures et l’absence de débordement à 320, 393 et 1280 px.
+
