@@ -254,7 +254,7 @@ test('Global settings have one responsive dialog and single owners for shared pr
   if(rule.selector==='.bottom-nav #settingsButton[aria-expanded="true"]')triggerRule++;
  });
  assert.equal(dialogRule,2,'One base dialog rule and one responsive adjustment');
- assert.match(read('astra-layout.css'),/grid-template-columns:repeat\(5,minmax\(0,1fr\)\)/);
+ assert.match(read('astra-layout.css'),/grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
  assert.equal((app.match(/data-profile-screen="settings">Personnaliser/g)||[]).length,0,
    'The contextual Mon ciel personalization buttons must be removed');
  assert.match(app,/state\.profile\?'Personnaliser mon thème'/);

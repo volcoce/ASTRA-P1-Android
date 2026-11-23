@@ -40,7 +40,7 @@ test('P0: calendar announces the selected date and current date', () => {
     solarVisiblePeriods:()=>({days:[]}),
     solarCalendarBackdropWeek: () => '<div class="astra-solar-ribbon-backdrop"></div>', solarMonthSummary: () => '',
     solarCalendarExplanation: () => '<details class="calendar-help"><summary>Comprendre le calendrier</summary></details>',
-    personalCalendarWeek: () => '',calendarDayInspector: () => '',personalEventEditor: () => '',
+    personalCalendarWeek: () => '',monthOverview: () => '',calendarDayInspector: () => '',personalEventEditor: () => '',
     solarDayBand: () => '',
     isoDay: date => [date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join('-'),
     pad: number => String(number).padStart(2,'0'),

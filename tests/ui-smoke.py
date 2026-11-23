@@ -334,7 +334,7 @@ if __name__ == '__main__':
             # Journal stays available even without a birth chart.
             page.locator('.welcome-card [data-goto="journal"]').click()
             assert page.locator('#journalNote').count()==1
-            assert page.locator('.bottom-nav [data-tab]').count()==4
+            assert page.locator('.bottom-nav [data-tab]').count()==3
             page.locator('.astra-journal-back').click()
             assert page.locator('.welcome-card').count()==1
             page.get_by_text('Configurer mon thème natal').click()

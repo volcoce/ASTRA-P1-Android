@@ -45,9 +45,10 @@ test('Personal calendar dialogs remain accessible, closable and multi-day',()=>{
   assert.match(app,/event\.key==='Escape'/);
   assert.match(p2,/\.astra-personal-dialog\[open\]/);
 });
-test('P2 keeps 4 tabs; journal is a secondary route',()=>{
+test('P2 keeps 3 page tabs plus settings; journal is a secondary route',()=>{
   const tabs=(html.match(/data-tab="/g)||[]).length;
-  assert.equal(tabs,4);
+  assert.equal(tabs,3);
+  assert.ok(!html.includes('data-tab="month"'));
   assert.ok(!html.includes('data-tab="journal"'));
   assert.match(app,/data-goto="journal"/);
   assert.match(components,/\.bottom-nav \.nav.active/);
