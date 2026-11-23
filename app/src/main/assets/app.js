@@ -779,17 +779,14 @@
     return header(isCurrent?'Ce jour':'Le ciel du '+new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'long',timeZone:'UTC'}).format(new Date(selected+'T12:00:00Z')),
         'Choisis un jour, puis découvre ses événements et tes notes.')+
       weekStrip()+birthTimeWarning()+
-      '<section class="astra-day-hero" aria-label="Lune et événements pour cette date">'+
+      '<section class="astra-day-hero" aria-label="Ciel lunaire de cette date">'+
         '<div class="astra-day-hero-copy"><p class="astra-hero-kicker">LE CIEL DU '+safe(new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'long',timeZone:'UTC'}).format(new Date(selected+'T12:00:00Z')).toLocaleUpperCase('fr-FR'))+'</p>'+
         '<div class="astra-hero-moon"><span class="astra-hero-moon-icon" aria-hidden="true">'+moonPhaseIcon(sky?.moonPhase,'hero')+'</span>'+
         '<div class="astra-hero-moon-copy"><h2 class="astra-moon-title" aria-label="'+safe(moonHeadingLabel)+'">'+moonHeading+'</h2>'+
         '<p class="astra-moon-phase">'+moonSubtitle+'</p></div></div>'+
         '<p class="astra-sky-reference">Position à 12 h · '+safe(zone)+' · '+(state.mode==='sidereal'?'sidéral':'tropical')+'</p>'+
         furtherIngresses+phaseHighlights+
-        solarDayBand(sky?.sunLongitude)+
-        '<div class="astra-hero-stat"><strong>'+count+'</strong><span>'+(
-          count===1?'événement calculé':'événements calculés')+' pour cette date</span></div></div>'+
-        '<button type="button" class="astra-hero-link" data-scroll-to="todayEvents">Voir les événements <span aria-hidden="true">↓</span></button>'+
+        solarDayBand(sky?.sunLongitude)+'</div>'+
       '</section>'+status()+
       '<button type="button" class="astra-day-journal-link" data-goto="journal">'+
         '<span aria-hidden="true">✎</span> '+(entry?'Relire mes notes':'Noter cette journée')+
