@@ -710,7 +710,7 @@ if __name__ == '__main__':
             assert page.evaluate("""() => {
               const root=getComputedStyle(document.documentElement);
               return root.getPropertyValue('--solar-earth-bg').trim()==='#6E6A33' &&
-                root.getPropertyValue('--solar-water-bg').trim()==='#2D7777' &&
+                root.getPropertyValue('--solar-water-bg').trim()==='#315E85' &&
                 root.getPropertyValue('--solar-air-bg').trim()==='#3E6E90';
             }""")
             assert page.locator('.calendar .day').first.evaluate(
@@ -768,7 +768,7 @@ if __name__ == '__main__':
             assert page.evaluate("""() => {
               const root=getComputedStyle(document.documentElement);
               return root.getPropertyValue('--solar-earth-bg').trim()==='#C8C36A' &&
-                root.getPropertyValue('--solar-water-bg').trim()==='#5FA3A3';
+                root.getPropertyValue('--solar-water-bg').trim()==='#5B9BC7';
             }""")
             page.locator('[data-profile-screen="overview"]').click()
             assert page.locator('#orb').count()==0
