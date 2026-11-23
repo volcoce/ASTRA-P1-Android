@@ -663,6 +663,28 @@ if __name__ == '__main__':
                     for left,right in (positions['intro'],positions['panel']):
                         assert abs(left-positions['left'])<=2,(width,tab,positions)
                         assert abs(right-positions['right'])<=2,(width,tab,positions)
+                    if tab=='calendar':
+                        sections=page.evaluate("""()=>{
+                          const main=document.querySelector('.main'),s=main.querySelector('.astra-section-stack');
+                          const board=main.querySelector('.astra-calendar-board');
+                          const rect=e=>e.getBoundingClientRect(),br=rect(board);
+                          const rows=[...s.children].map(e=>{
+                            const r=rect(e);
+                            return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,
+                              overflow:e.scrollWidth-e.clientWidth};
+                          });
+                          return {rows,board:{left:br.left,right:br.right,bottom:br.bottom},
+                            gap:parseFloat(getComputedStyle(s).rowGap)};
+                        }""")
+                        assert len(sections['rows'])==4,(width,sections)
+                        previous=sections['board']['bottom']
+                        for item in sections['rows']:
+                            assert abs(item['left']-positions['left'])<=2,(width,item,sections)
+                            assert abs(item['right']-positions['right'])<=2,(width,item,sections)
+                            assert item['top']-previous>=15,(width,item,sections)
+                            assert item['overflow']<=2,(width,item,sections)
+                            previous=item['bottom']
+                        assert sections['gap']==16,(width,sections)
             page.set_viewport_size({'width':360,'height':780})
             # The three primary signs must be visible without scrolling,
             # above the fixed bottom navigation on a Galaxy A15-like screen.

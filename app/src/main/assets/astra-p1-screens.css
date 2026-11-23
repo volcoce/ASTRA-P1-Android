@@ -147,7 +147,6 @@
 .astra-month-headline span,.astra-month-hero>p:last-child{color:var(--color-deep-ocean)}
 .astra-month-headline strong{font-family:var(--astra-font-display);font-size:clamp(45px,9vw,62px)}
 .astra-month-headline span{font-size:15px}
-.astra-month-metrics{margin-bottom:21px}
 .astra-month-metrics>div,.astra-month-metrics>button{
   background:var(--astra-surface);border:1px solid var(--astra-divider);
   border-radius:var(--astra-radius-lg);color:var(--astra-ink);
@@ -156,7 +155,6 @@
 .astra-month-metrics>div:first-child{background:var(--astra-secondary-surface)}
 .astra-month-metrics strong,.astra-month-metrics span{color:var(--astra-ink)}
 .astra-month-metrics span{color:var(--astra-muted)}
-.astra-month-section{margin-bottom:24px}
 .astra-month-phases{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .astra-month-phase{
   min-height:106px;align-items:flex-start;

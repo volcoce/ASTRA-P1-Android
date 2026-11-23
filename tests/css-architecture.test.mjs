@@ -273,3 +273,12 @@ test('Settings use one shared inset, sticky chrome and vertical section gap',()=
  assert.match(app,/globalSettingsDialog\.addEventListener\('touchend'/);
  assert.match(app,/globalSettingsDialog\.addEventListener\('touchcancel'/);
 });
+
+test('Merged monthly summary uses shared vertical stack, not individual margins',()=>{
+ const app=read('app.js'),layout=read('astra-layout.css');
+ assert.match(app,/class="astra-section-stack" aria-label="Synthèse mensuelle"/);
+ assert.match(layout,/\.astra-section-stack\s*\{[^}]*gap:var\(--astra-space-4\)[^}]*margin-block:var\(--astra-space-4\)/s);
+ for(const file of ['atlas-ui.css','astra-p1-screens.css']){
+   assert.doesNotMatch(read(file),/\.astra-month-(?:hero|section|metrics)\s*\{[^}]*\bmargin(?:-bottom)?:/s);
+ }
+});

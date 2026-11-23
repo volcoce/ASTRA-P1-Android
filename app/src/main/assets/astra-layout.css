@@ -25,6 +25,13 @@
 }
 /* Every screen uses this single content column, including direct panels. */
 .main>*{min-width:0;max-width:100%;box-sizing:border-box}
+/* Reusable vertical section flow: the parent owns all inter-section spacing. */
+.astra-section-stack{
+  display:grid;grid-template-columns:minmax(0,1fr);gap:var(--astra-space-4);
+  width:100%;min-width:0;box-sizing:border-box;
+  margin-block:var(--astra-space-4)
+}
+.astra-section-stack>*{min-width:0;max-width:100%;margin:0;box-sizing:border-box}
 .main>.screen-intro{
   width:100%;
   min-width:0;

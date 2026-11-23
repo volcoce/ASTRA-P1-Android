@@ -890,13 +890,14 @@
       const hidden=events.length-titles.length;
       return titles.join(' · ')+(hidden?' · +'+hidden+' autre'+(hidden>1?'s':''):'');
     };
-    return '<section class="astra-month-hero" aria-label="Résumé des événements du mois">'+
+    return '<div class="astra-section-stack" aria-label="Synthèse mensuelle">'+
+      '<section class="astra-month-hero" aria-label="Résumé des événements du mois">'+
         '<p class="astra-month-kicker">VUE D’ENSEMBLE</p>'+
         '<div class="astra-month-headline"><strong>'+exactEvents.length+'</strong>'+
         '<span>événement'+(exactEvents.length===1?'':'s')+' calculé'+(exactEvents.length===1?'':'s')+'</span></div>'+
       '</section>'+
       '<section class="astra-month-section" aria-labelledby="monthMoonTitle">'+
-        '<div class="astra-section-head"><h2 id="monthMoonTitle">Phases majeures</h2><span>Ce mois uniquement</span></div>'+
+        '<div class="astra-section-head"><h2 id="monthMoonTitle">Phases majeures</h2></div>'+
         '<div class="astra-month-phases">'+(lunar.map(({day,event})=>{
           const isNew=event.name==='Nouvelle Lune';
           const title=eventTitle(event),time=lunarTime(event.at);
@@ -930,7 +931,7 @@
         }).join('')||
           '<p class="astra-empty">'+(isCurrentMonth&&daysWithEvents?
             'Plus aucune journée avec événement à venir ce mois-ci. Les dates passées restent dans le calendrier.':
-            'Aucun événement exact calculé pour ce mois.')+'</p>')+'</div></section>';
+            'Aucun événement exact calculé pour ce mois.')+'</p>')+'</div></section></div>';
   }
   // A personal event has inclusive civil start/end dates. Split visual bars at
   // week boundaries without splitting, duplicating or modifying the event.

@@ -421,7 +421,7 @@ button.astra-insight-tile:hover{border-color:#7597aa}
   color:#2a566d;font-size:14px;font-weight:700;cursor:pointer}
 .astra-month-navigation{margin:0 0 18px}
 .astra-month-navigation h2{text-transform:capitalize}
-.astra-month-hero{overflow:hidden;position:relative;margin:0 0 14px;
+.astra-month-hero{overflow:hidden;position:relative;
   padding:23px 22px;border-radius:21px;background:#172b3e;color:#fff}
 .astra-month-hero:after{position:absolute;content:'';width:165px;height:165px;
   right:-54px;top:-59px;border:1px solid #7c9caf;border-radius:50%;
@@ -436,7 +436,7 @@ button.astra-insight-tile:hover{border-color:#7597aa}
 .astra-month-hero>p:last-child{color:#cddce7;font-size:13px;line-height:1.5;
   margin:9px 0 0;position:relative;z-index:1}
 .astra-month-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:9px;margin:0 0 25px}
+  gap:9px}
 .astra-month-metrics>div,.astra-month-metrics>button{
   display:flex;flex-direction:column;align-items:flex-start;justify-content:center;
   gap:5px;min-width:0;min-height:99px;border:1px solid #d7e2e7;
@@ -447,7 +447,6 @@ button.astra-insight-tile:hover{border-color:#7597aa}
 .astra-month-metrics span{font-size:12px;line-height:1.35;color:#607484}
 .astra-month-metrics button{cursor:pointer}
 .astra-month-metrics button:hover{border-color:#8eacba}
-.astra-month-section{margin:0 0 25px}
 .astra-month-phases{display:flex;flex-direction:column;
   gap:8px;min-width:0}
 .astra-month-phase{display:flex;align-items:center;gap:12px;min-height:78px;
