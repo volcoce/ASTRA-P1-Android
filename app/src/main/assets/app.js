@@ -249,7 +249,8 @@
   let placeSearch={options:[],selected:null,loading:false,error:'',needFold:false,requestId:0,open:false,active:-1};
   let birthValidation=null, compositeValidation=null;
   const validationAttrs=(field,error)=>error?.field===field?
-    ' aria-invalid="true" aria-describedby="'+field+'Error"':'';
+    ' aria-invalid="true"'+(['birthCity','secondCity'].includes(field)?'':
+      ' aria-describedby="'+field+'Error"'):'';
   const validationMessage=(field,error)=>error?.field===field?
     '<p id="'+field+'Error" class="form-field-error" role="alert">'+safe(error.message)+'</p>':'';
   function showValidationError(scope,field,message){
@@ -1734,7 +1735,7 @@
         '<input type="time" id="secondTime" '+(d.timeKnown?'required':'disabled')+' value="'+safe(d.time)+'"'+validationAttrs('secondTime',compositeValidation)+'>'+validationMessage('secondTime',compositeValidation)+'</div></div>'+
         '<label class="unknown-time-toggle" for="secondUnknownTime"><input type="checkbox" id="secondUnknownTime" '+(!d.timeKnown?'checked':'')+'> Je ne connais pas l’heure</label>'+
         '<div class="field"><label for="secondCity">Ville de naissance</label>'+
-        '<div class="astra-city-picker" data-city-picker="composite"><div class="city-search"><input type="search" id="secondCity" autocomplete="off" required role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-expanded="false" aria-controls="secondCityOptions" aria-describedby="secondCityStatus" value="'+safe(d.city)+'" placeholder="Choisir ou rechercher une ville…"'+validationAttrs('secondCity',compositeCityError)+'></div>'+
+        '<div class="astra-city-picker" data-city-picker="composite"><div class="city-search"><input type="search" id="secondCity" autocomplete="off" required role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-expanded="false" aria-controls="secondCityOptions" aria-describedby="secondCityStatus'+(compositeCityError?' secondCityError':'')+'" value="'+safe(d.city)+'" placeholder="Choisir ou rechercher une ville…"'+validationAttrs('secondCity',compositeCityError)+'></div>'+
         '<div class="astra-city-menu" id="secondCityOptions" role="listbox" aria-label="Villes proposées" hidden></div>'+
         '<p class="astra-city-status" id="secondCityStatus" role="status" aria-live="polite"></p></div></div>'+
         validationMessage('secondCity',compositeCityError)+
@@ -1953,7 +1954,7 @@
       (showSettings?
       `<section class="card astra-reading-card astra-birth-settings"><h2 class="card-title">Tes informations de naissance</h2><form id="birthForm" novalidate><div class="field-grid"><div class="field"><label for="birthDate">Date de naissance</label><input required type="date" id="birthDate" name="date" min="1900-01-01" max="2100-12-31" value="${safe(d.date)}"${validationAttrs('birthDate',birthValidation)}>${validationMessage('birthDate',birthValidation)}</div><div class="field"><label for="birthTime">Heure de naissance</label><input ${d.timeKnown?'required':''} type="time" id="birthTime" name="time" value="${safe(d.time)}" ${d.timeKnown?'':'disabled'}${validationAttrs('birthTime',birthValidation)}>${validationMessage('birthTime',birthValidation)}</div></div>`+
       `<label class="unknown-time-toggle" for="unknownBirthTime"><input type="checkbox" id="unknownBirthTime" name="unknownBirthTime" ${d.timeKnown?'':'checked'}> Je ne connais pas l’heure</label><p class="field-help">Sans heure, ASTRA ne calcule pas l’Ascendant ni les maisons. Tu peux continuer.</p>`+
-      `<div class="field"><label for="birthCity">Ville de naissance</label><div class="astra-city-picker" data-city-picker="birth"><div class="city-search"><input required type="search" autocomplete="off" id="birthCity" name="city" role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-expanded="false" aria-controls="birthCityOptions" aria-describedby="birthCityStatus" placeholder="Choisir ou rechercher une ville…" value="${safe(d.city)}"${validationAttrs('birthCity',birthCityError)}></div><div class="astra-city-menu" id="birthCityOptions" role="listbox" aria-label="Villes proposées" hidden></div><p class="astra-city-status" id="birthCityStatus" role="status" aria-live="polite"></p></div><p class="field-help">Choisis une ville dans le menu. Les coordonnées et le fuseau seront remplis automatiquement après sélection.</p></div>`+
+      `<div class="field"><label for="birthCity">Ville de naissance</label><div class="astra-city-picker" data-city-picker="birth"><div class="city-search"><input required type="search" autocomplete="off" id="birthCity" name="city" role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-expanded="false" aria-controls="birthCityOptions" aria-describedby="birthCityStatus${birthCityError?' birthCityError':''}" placeholder="Choisir ou rechercher une ville…" value="${safe(d.city)}"${validationAttrs('birthCity',birthCityError)}></div><div class="astra-city-menu" id="birthCityOptions" role="listbox" aria-label="Villes proposées" hidden></div><p class="astra-city-status" id="birthCityStatus" role="status" aria-live="polite"></p></div><p class="field-help">Choisis une ville dans le menu. Les coordonnées et le fuseau seront remplis automatiquement après sélection.</p></div>`+
       `${validationMessage('birthCity',birthCityError)}`+
       `${place?`<div class="city-confirmed" role="status"><b>Ville confirmée · ${safe(place.label)}</b><details class="city-technical astra-disclosure"><summary>Voir le fuseau et les coordonnées</summary><div class="astra-disclosure-body"><p>${safe(offsetDescription(d,place))}</p><small>Coordonnées calculées · ${place.latitude.toFixed(4)}°, ${place.longitude.toFixed(4)}°</small></div></details></div>`:'<p class="city-unselected">Sélectionne une ville pour continuer.</p>'}`+
       `${foldPicker}<details class="calculation-details astra-disclosure"><summary>Comment les calculs fonctionnent-ils ?</summary><div class="astra-disclosure-body"><p class="field-help"><strong>Orbes automatiques.</strong> ASTRA adapte la marge à la planète et à l’aspect. Les instants exacts sont calculés séparément dans le calendrier.</p></div></details><button class="primary full" type="submit">Calculer mon thème natal</button></form>`+
@@ -2264,21 +2265,12 @@
     if(a.natalAspect){natalChoose('aspect',a.natalAspect,event.detail===0);return;}
     if(a.natalBody){natalChoose('planet',a.natalBody,event.detail===0);return;}
     if(a.natalHouse){natalChoose('house',Number(a.natalHouse),event.detail===0);return;}
-    if(a.searchCompositePlace){searchCompositeCity();return;}
-    if(a.compositePlace!==undefined){
-      captureCompositeForm();compositeValidation=null;
-      const found=compositeSearch.options[Number(a.compositePlace)];
-      if(found){
-        compositeDraft.place=found;compositeDraft.city=found.label;
-        compositeSearch.options=[];compositeSearch.error='';compositeResult=null;render();
-        $('secondCity')?.focus({preventScroll:true});
-      }
-      return;
+    if(a.cityPreset!==undefined&&['birth','composite'].includes(a.cityKind)){
+      chooseCityPreset(a.cityKind,a.cityPreset);return;
     }
-    if(a.searchPlace){searchBirthCity();return;}
-    if(a.place!==undefined){
-      captureBirthForm();birthValidation=null;const place=placeSearch.options[Number(a.place)];
-      if(place){placeSearch.selected=place;placeSearch.options=[];placeSearch.error='';placeSearch.needFold=false;birthDraft.fold=null;birthDraft.city=place.label;render();$('birthCity')?.focus({preventScroll:true});}
+    if(a.cityChoice!==undefined&&['birth','composite'].includes(a.cityKind)){
+      const state=cityState(a.cityKind);
+      if(state.open)chooseCity(a.cityKind,state.options[Number(a.cityChoice)]);
       return;
     }
     if(a.personalNew){
@@ -2337,7 +2329,7 @@
     if(a['deleteNote'] && confirm('Supprimer cette journée du journal ?')){delete state.journal[selected];persist();journalDraft=null;render();show('Note supprimée');return;}
     if(a.export){const data={format:'astra-public-v1',exportedAt:new Date().toISOString(),...state};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='ASTRA-sauvegarde.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1500);return;}
     if(a.import){$('importFile')?.click();return;}
-    if(a.clear&&confirm('Effacer le thème natal et toutes les notes locales ?')){localStorage.removeItem(STORAGE_KEY);state=defaultState();applyAppearance();applyElementPalette();diagnosticsEnabled=false;performanceSamples.clear();cache.clear();natalCache.clear();journalDraft=null;birthDraft=null;placeSearch={options:[],selected:null,loading:false,error:'',needFold:false,requestId:placeSearch.requestId+1};openDetail=null;refresh();updateGlobalSettings('[data-clear]');show('Données supprimées');}
+    if(a.clear&&confirm('Effacer le thème natal et toutes les notes locales ?')){localStorage.removeItem(STORAGE_KEY);state=defaultState();applyAppearance();applyElementPalette();diagnosticsEnabled=false;performanceSamples.clear();cache.clear();natalCache.clear();journalDraft=null;birthDraft=null;placeSearch={options:[],selected:null,loading:false,error:'',needFold:false,requestId:placeSearch.requestId+1,open:false,active:-1};openDetail=null;refresh();updateGlobalSettings('[data-clear]');show('Données supprimées');}
   });
   $('app').addEventListener('cancel',event=>{
     if(event.target.id==='personalEventDialog'){
@@ -2348,6 +2340,30 @@
     }
   },true);
   $('app').addEventListener('keydown',event=>{
+    const kind=event.target.id==='birthCity'?'birth':event.target.id==='secondCity'?'composite':null;
+    if(kind){
+      const state=cityState(kind),value=cityText(kind).trim();
+      if(event.key==='ArrowDown'||event.key==='ArrowUp'){
+        event.preventDefault();
+        if(!state.open){state.open=true;
+          if(value.length>=3&&!state.options.length&&!state.loading)queueCityLookup(kind);
+        }
+        moveCityActive(kind,event.key==='ArrowDown'?1:-1);return;
+      }
+      if(event.key==='Escape'&&state.open){
+        event.preventDefault();state.open=false;state.active=-1;renderCityMenu(kind);return;
+      }
+      if(event.key==='Enter'&&state.open){
+        const count=value?state.options.length:cityPresets.length;
+        if(count){
+          event.preventDefault();
+          const index=state.active>=0?state.active:0;
+          if(!value)chooseCityPreset(kind,cityPresets[index]);
+          else chooseCity(kind,state.options[index]);
+          return;
+        }
+      }
+    }
     if(event.key==='Escape'&&personalEditor!==null){
       event.preventDefault();personalEditor=null;pendingDayFocus=selected;render();return;
     }
@@ -2375,13 +2391,14 @@
     }
     if(event.target.id==='energyRange'){initDraft();journalDraft.energy=Number(event.target.value);$('energyValue').textContent=journalDraft.energy+'/5';}
     if(event.target.id==='secondCity'){
-      clearValidationError('secondCity');compositeSearch.error='';
+      clearValidationError('secondCity');
       compositeDraft.city=event.target.value;
       if(compositeDraft.place&&compositeDraft.city!==compositeDraft.place.label){
-        compositeDraft.place=null;compositeResult=null;compositeSearch.options=[];
+        compositeDraft.place=null;compositeResult=null;
         const notice=$('app').querySelector('.natal-composite .city-confirmed');
-        if(notice){notice.className='city-unselected';notice.textContent='Ville modifiée : recherche et sélection nécessaires.';}
+        if(notice){notice.className='city-unselected';notice.textContent='Ville modifiée : sélectionne une suggestion.';}
       }
+      queueCityLookup('composite');return;
     }
     if(event.target.id==='secondDate'||event.target.id==='secondTime'){
       clearValidationError(event.target.id);
@@ -2389,13 +2406,14 @@
       compositeResult=null;
     }
     if(event.target.id==='birthCity'){
-      clearValidationError('birthCity');placeSearch.error='';
+      clearValidationError('birthCity');
       const d=draft();d.city=event.target.value;
-      if(placeSearch.selected && d.city!==placeSearch.selected.label){
-        placeSearch.selected=null;placeSearch.options=[];placeSearch.error='';placeSearch.needFold=false;d.fold=null;
-        const notice=document.querySelector('.city-confirmed');
-        if(notice){notice.className='city-unselected';notice.textContent='Ville modifiée : recherche et sélection nécessaires.';}
+      if(placeSearch.selected&&d.city!==placeSearch.selected.label){
+        placeSearch.selected=null;placeSearch.needFold=false;d.fold=null;
+        const notice=$('app').querySelector('.astra-birth-settings .city-confirmed');
+        if(notice){notice.className='city-unselected';notice.textContent='Ville modifiée : sélectionne une suggestion.';}
       }
+      queueCityLookup('birth');return;
     }
     if(event.target.id==='birthDate'||event.target.id==='birthTime'){
       clearValidationError(event.target.id);
@@ -2404,6 +2422,29 @@
       if(placeSearch.selected){const v=document.querySelector('.city-confirmed p');if(v)v.textContent=offsetDescription(d,placeSearch.selected);}
     }
 
+  });
+  // Opening a blank picker immediately shows common cities. No keypress or
+  // submit button is required. Closing never destroys the current form input.
+  $('app').addEventListener('focusin',event=>{
+    const kind=event.target.id==='birthCity'?'birth':event.target.id==='secondCity'?'composite':null;
+    if(!kind)return;
+    const state=cityState(kind);
+    if(citySelected(kind)?.label===cityText(kind))return;
+    state.open=true;
+    if(cityText(kind).trim().length>=3&&!state.options.length&&!state.loading)
+      queueCityLookup(kind);
+    else renderCityMenu(kind);
+  });
+  $('app').addEventListener('focusout',event=>{
+    const kind=event.target.id==='birthCity'?'birth':event.target.id==='secondCity'?'composite':null;
+    if(!kind)return;
+    setTimeout(()=>{
+      const picker=$(cityInputId(kind))?.closest('[data-city-picker]');
+      if(picker&&!picker.contains(document.activeElement)){
+        const state=cityState(kind);state.open=false;state.active=-1;
+        renderCityMenu(kind);
+      }
+    },120);
   });
   document.addEventListener('change',async event=>{
     if(event.target.id==='progressionDay'){
@@ -2444,7 +2485,7 @@
         const backup=JSON.parse(await file.text());if(backup.format!=='astra-public-v1')throw Error('Format non reconnu');
         if(backup.profile)E.validateProfile(backup.profile);
         if(!confirm('Remplacer les données locales par la sauvegarde ?'))return;
-        state=cleanState(backup);applyAppearance();applyElementPalette();diagnosticsEnabled=false;performanceSamples.clear();journalDraft=null;birthDraft=null;placeSearch={options:[],selected:null,loading:false,error:'',needFold:false,requestId:placeSearch.requestId+1};openDetail=null;cache.clear();natalCache.clear();persist();refresh();updateGlobalSettings('[data-import]');show('Sauvegarde importée');
+        state=cleanState(backup);applyAppearance();applyElementPalette();diagnosticsEnabled=false;performanceSamples.clear();journalDraft=null;birthDraft=null;placeSearch={options:[],selected:null,loading:false,error:'',needFold:false,requestId:placeSearch.requestId+1,open:false,active:-1};openDetail=null;cache.clear();natalCache.clear();persist();refresh();updateGlobalSettings('[data-import]');show('Sauvegarde importée');
       } catch(err){show('Import impossible : '+(err?.message||'Erreur'));}
     }
   });
