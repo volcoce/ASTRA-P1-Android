@@ -402,27 +402,15 @@ button.astra-insight-tile:hover{border-color:#7597aa}
 .natal-panel-lead{font-size:13px;line-height:1.5;color:#5c7080;margin:2px 0 11px}
 .natal-more-link{background:transparent;border:0;color:#285770;font-weight:750;
   font-size:13px;min-height:44px;width:100%;text-align:left}
-.natal-glossary,.natal-extras{margin:13px 0}
+.natal-glossary{margin:13px 0}
 .natal-glossary dl{margin:0;display:grid;gap:4px}
 .natal-glossary dt{font:750 14px/1.4 system-ui,sans-serif;color:#223a4e;margin-top:8px}
 .natal-glossary dd{font:400 13px/1.55 system-ui,sans-serif;color:#5a7180;
   margin:0 0 4px}
 .natal-glossary .tiny{margin:0}
-.natal-extras{margin-top:20px}
 .natal-transit-filters{margin:13px 0}
 .natal-contact-list button[aria-pressed="true"]{background:#e6f1f5}
 .natal-contact-list button small{font-size:12px;line-height:1.4;white-space:normal}
-.natal-progressions,.natal-composite{min-width:0}
-.natal-progress-controls{display:grid;gap:8px;margin:18px 0}
-.natal-progress-controls label{font:750 14px/1.4 system-ui,sans-serif;color:#314f60}
-.natal-progress-controls input{width:100%;min-width:0;min-height:48px;
-  border:1px solid #cbd8de;border-radius:12px;padding:10px;color:#193d54;font-size:16px;
-  background:#fff}
-.natal-progression-row{display:grid;grid-template-columns:minmax(0,1fr) auto;
-  align-items:center;gap:10px;min-height:56px}
-.natal-progression-row .position-value{text-align:right;overflow-wrap:anywhere}
-.natal-composite-result{border-top:1px solid #dce5e9;margin:22px 0 0;padding-top:18px}
-.natal-composite-result h3{margin:0 0 12px;font-size:19px;color:#243d4c}
 @media(max-width:360px){
   .astra-lunar-track{gap:4px}
   .astra-lunar-milestone{padding:11px 2px}
