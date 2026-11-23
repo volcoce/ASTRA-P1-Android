@@ -27,17 +27,17 @@
 :root[data-astra-theme="dark"] body{background:var(--astra-paper);color:var(--astra-ink)}
 :root[data-astra-theme="dark"] :is(.card,.calendar,.natal-overview-panel,.natal-explore,
   .natal-compare,.natal-settings,.natal-preview-disclosure,.natal-selection,
-  .natal-context-sheet,.natal-composite-result,.natal-advanced,.natal-matrix-scroll,
+  .natal-context-sheet,.natal-advanced,.natal-matrix-scroll,
   .natal-positions,.natal-aspects,.astra-active-panel,.astra-event-feed,
   .astra-month-metrics>div,.astra-month-metrics>button,.astra-month-events,
   .astra-month-phase,.astra-month-event,.natal-glossary,
-  .natal-focus,.natal-progress-controls,.city-results,.city-confirmed,
+  .natal-focus,.city-results,.city-confirmed,
   .natal-transit-time,.natal-explore-list,.natal-contact-section){
   background:var(--astra-surface);border-color:var(--astra-rule);color:var(--astra-ink)
 }
 :root[data-astra-theme="dark"] :is(.page-title,.card-title,.section-title,
   .natal-subtitle,.natal-home-header .card-title,.astra-section-head h2,
-  .natal-explore-list h3,.natal-contact-section h3,.natal-composite-result h3,
+  .natal-explore-list h3,.natal-contact-section h3,
   .natal-context-bar h2,.natal-detail-body h3,.astra-moon-phase,
   .natal-panel-lead strong,.astra-month-event-text,.planet b,
   .natal-position .position-planet,.astra-performance th){
@@ -56,12 +56,12 @@
 }
 :root[data-astra-theme="dark"] :is(.field label,.tags-field legend,
   .filter-wrap label,.natal-control>span,.natal-settings .natal-control>span,
-  .natal-progress-controls label,.natal-transit-time label){
+  .natal-transit-time label){
   color:var(--astra-ink)
 }
 :root[data-astra-theme="dark"] :is(.field input,.field select,.field textarea,
-  .filter-wrap select,.natal-transit-time input,.natal-progress-controls input,
-  .city-search input,.natal-composite input,.natal-compare input){
+  .filter-wrap select,.natal-transit-time input,
+  .city-search input,.natal-compare input){
   color:var(--astra-ink);background:#142637;border-color:#567086;
 }
 :root[data-astra-theme="dark"] input::placeholder,
