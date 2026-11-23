@@ -241,12 +241,12 @@
   let transitRange='all';
   let progressionDay=isoDay(new Date());
   let compositeDraft={date:'',time:'',city:'',timeKnown:true,place:null};
-  let compositeSearch={options:[],error:'',loading:false,requestId:0};
+  let compositeSearch={options:[],error:'',loading:false,requestId:0,open:false,active:-1};
   let compositeResult=null;
   let result = null, error='', busy=false, calcToken=0, openDetail=null, journalDraft=null, journalDraftDate='', searchTerm='';
   // Non-persisted form state. Only a selected city can supply coordinates/timezone.
   let birthDraft=null;
-  let placeSearch={options:[],selected:null,loading:false,error:'',needFold:false,requestId:0};
+  let placeSearch={options:[],selected:null,loading:false,error:'',needFold:false,requestId:0,open:false,active:-1};
   let birthValidation=null, compositeValidation=null;
   const validationAttrs=(field,error)=>error?.field===field?
     ' aria-invalid="true" aria-describedby="'+field+'Error"':'';
@@ -289,46 +289,122 @@
     if($('secondCity'))d.city=$('secondCity').value;
     if($('secondUnknownTime'))d.timeKnown=!$('secondUnknownTime').checked;
   }
-  async function searchCompositeCity(){
-    captureCompositeForm();
-    const term=compositeDraft.city.trim();
-    if(term.length<3){compositeSearch.error='Entre au moins trois lettres.';render();return;}
-    const requestId=++compositeSearch.requestId;
-    compositeSearch.loading=true;compositeSearch.error='';compositeSearch.options=[];
-    compositeDraft.place=null;compositeResult=null;render();
-    try{
-      const matches=await E.searchCities(term);
-      if(requestId!==compositeSearch.requestId)return;
-      compositeSearch.options=matches;
-      if(!matches.length)compositeSearch.error='Aucune ville trouvée. Essaie un nom plus précis.';
-    }catch(error){
-      if(requestId!==compositeSearch.requestId)return;
-      compositeSearch.error=error?.message||'Recherche indisponible.';
-    }finally{
-      if(requestId===compositeSearch.requestId){compositeSearch.loading=false;render();}
-    }
+  // One accessible city autocomplete for the birth and composite forms.
+  // Presets don't claim any coordinates: every selection resolves through the
+  // existing geocoding provider, which supplies verified timezone information.
+  const cityPresets=['Paris','Lyon','Marseille','Toulouse','Bordeaux','Lille','Nantes','Nice'];
+  const cityTimers={birth:null,composite:null};
+  const cityControllers={birth:null,composite:null};
+  const cityState=kind=>kind==='birth'?placeSearch:compositeSearch;
+  const cityInputId=kind=>kind==='birth'?'birthCity':'secondCity';
+  const cityText=kind=>kind==='birth'?draft().city:compositeDraft.city;
+  const citySelected=kind=>kind==='birth'?placeSearch.selected:compositeDraft.place;
+  function cancelCityLookup(kind){
+    const state=cityState(kind);
+    state.requestId++;
+    if(cityTimers[kind]!==null){clearTimeout(cityTimers[kind]);cityTimers[kind]=null;}
+    cityControllers[kind]?.abort();cityControllers[kind]=null;
   }
-  async function searchBirthCity() {
-    captureBirthForm();
-    const query=draft().city.trim();
-    if(query.length<3){placeSearch.error='Saisis au moins 3 caractères.';render();return;}
-    const requestId=++placeSearch.requestId;
-    placeSearch.loading=true;placeSearch.error='';placeSearch.options=[];
-    placeSearch.selected=null;placeSearch.needFold=false;render();
-    const controller=new AbortController();
+  function renderCityMenu(kind){
+    const input=$(cityInputId(kind)),list=$(cityInputId(kind)+'Options'),status=$(cityInputId(kind)+'Status');
+    if(!input||!list||!status)return;
+    const state=cityState(kind),q=cityText(kind).trim();
+    const presetMode=state.open&&!q;
+    const options=presetMode?cityPresets:state.options;
+    const visible=state.open&&options.length>0;
+    list.hidden=!visible;
+    list.innerHTML=!visible?'':options.map((place,index)=>{
+      const title=presetMode?place:place.name;
+      const subtitle=presetMode?'Ville fréquemment recherchée':[place.admin1,place.country].filter(Boolean).join(' · ');
+      return '<button type="button" role="option" id="'+cityInputId(kind)+'Option'+index+
+        '" class="astra-city-option" data-city-kind="'+kind+'" '+
+        (presetMode?'data-city-preset="'+safe(place)+'"':'data-city-choice="'+index+'"')+
+        ' aria-selected="'+(index===state.active)+'" tabindex="-1">'+
+        '<strong>'+safe(title)+'</strong><span>'+safe(subtitle)+'</span></button>';
+    }).join('');
+    input.setAttribute('aria-expanded',String(visible));
+    if(visible&&state.active>=0&&state.active<options.length){
+      input.setAttribute('aria-activedescendant',cityInputId(kind)+'Option'+state.active);
+    }else input.removeAttribute('aria-activedescendant');
+    if(!state.open||citySelected(kind)?.label===cityText(kind)){status.textContent='';return;}
+    if(state.loading)status.textContent='Recherche des villes…';
+    else if(state.error)status.textContent=state.error;
+    else if(presetMode)status.textContent='Choisis une ville proposée ou commence à taper.';
+    else if(q.length<3)status.textContent='Saisis au moins trois lettres pour afficher des résultats.';
+    else if(options.length)status.textContent=options.length+' '+(options.length===1?'ville trouvée.':'villes trouvées.');
+    else status.textContent='Aucune ville trouvée. Précise le nom ou la région.';
+  }
+  async function runCityLookup(kind,query,requestId){
+    const state=cityState(kind),controller=new AbortController();
+    cityControllers[kind]=controller;
     const timeout=setTimeout(()=>controller.abort(),10000);
     try{
-      const options=await E.searchCities(query,{signal:controller.signal});
-      if(requestId!==placeSearch.requestId)return;
-      placeSearch.options=options;
-      if(!options.length)placeSearch.error='Aucune ville trouvée. Essaie le nom complet ou une ville voisine.';
-    }catch(err){
-      if(requestId!==placeSearch.requestId)return;
-      placeSearch.error=err?.name==='AbortError'?'Recherche trop longue. Vérifie la connexion.':(err?.message||'Recherche impossible');
+      const places=await E.searchCities(query,{signal:controller.signal});
+      if(state.requestId!==requestId||cityText(kind).trim()!==query)return;
+      state.options=places;state.error='';state.active=-1;
+    }catch(error){
+      if(state.requestId!==requestId)return;
+      state.error=controller.signal.aborted?'Recherche trop longue. Réessaie.':
+        error?.message||'Recherche de ville indisponible.';
+      state.options=[];
     }finally{
       clearTimeout(timeout);
-      if(requestId===placeSearch.requestId){placeSearch.loading=false;render();}
+      if(cityControllers[kind]===controller)cityControllers[kind]=null;
+      if(state.requestId===requestId){state.loading=false;renderCityMenu(kind);}
     }
+  }
+  function queueCityLookup(kind,immediate=false){
+    const state=cityState(kind),q=cityText(kind).trim();
+    cancelCityLookup(kind);
+    state.options=[];state.error='';state.active=-1;state.open=true;
+    state.loading=q.length>=3;
+    renderCityMenu(kind);
+    if(q.length<3)return;
+    const requestId=state.requestId;
+    cityTimers[kind]=setTimeout(()=>{
+      cityTimers[kind]=null;
+      runCityLookup(kind,q,requestId);
+    },immediate?0:280);
+  }
+  function chooseCity(kind,place){
+    if(!place)return;
+    if(kind==='birth')captureBirthForm();
+    else captureCompositeForm();
+    const state=cityState(kind);
+    cancelCityLookup(kind);
+    state.options=[];state.error='';state.loading=false;state.open=false;state.active=-1;
+    if(kind==='birth'){
+      birthValidation=null;state.selected=place;state.needFold=false;
+      birthDraft.fold=null;birthDraft.city=place.label;
+    }else{
+      compositeValidation=null;compositeDraft.place=place;
+      compositeDraft.city=place.label;compositeResult=null;
+    }
+    render();
+    $(cityInputId(kind))?.focus({preventScroll:true});
+  }
+  function chooseCityPreset(kind,name){
+    if(!cityPresets.includes(name))return;
+    if(kind==='birth'){
+      captureBirthForm();birthValidation=null;
+      placeSearch.selected=null;placeSearch.needFold=false;
+      birthDraft.fold=null;birthDraft.city=name;
+    }else{
+      captureCompositeForm();compositeValidation=null;
+      compositeDraft.place=null;compositeDraft.city=name;compositeResult=null;
+    }
+    const input=$(cityInputId(kind));
+    if(input){input.value=name;input.focus({preventScroll:true});}
+    queueCityLookup(kind,true);
+  }
+  function moveCityActive(kind,delta){
+    const state=cityState(kind);
+    if(!state.open){state.open=true;renderCityMenu(kind);}
+    const count=cityText(kind).trim()?state.options.length:cityPresets.length;
+    if(!count)return;
+    state.active=state.active<0?(delta>0?0:count-1):(state.active+delta+count)%count;
+    renderCityMenu(kind);
+    $(cityInputId(kind)+'Option'+state.active)?.scrollIntoView({block:'nearest'});
   }
   function offsetDescription(d,place) {
     if(!d.date)return 'Choisis aussi la date de naissance.';
@@ -1648,9 +1724,6 @@
       const d=compositeDraft;
       const compositeCityError=compositeValidation?.field==='secondCity'?compositeValidation:
         compositeSearch.error?{field:'secondCity',message:compositeSearch.error}:null;
-      const suggestions=compositeSearch.options.map((p,i)=>
-        '<button type="button" class="city-choice" data-composite-place="'+i+'"><strong>'+safe(p.name)+'</strong>'+
-        '<span>'+safe([p.admin1,p.country].filter(Boolean).join(' · '))+'</span></button>').join('');
       return '<section class="card natal-card astra-reading-card natal-composite" id="natalChart">'+
         '<div class="natal-subpage-heading">'+pageBack+'<h2 class="card-title">Carte composite</h2>'+
         '<p class="natal-section-lead">Milieux zodiacaux calculés entre deux thèmes de naissance. Les positions composites sont conventionnelles : ce n’est pas une carte du ciel à un instant réel.</p></div>'+
@@ -1661,10 +1734,10 @@
         '<input type="time" id="secondTime" '+(d.timeKnown?'required':'disabled')+' value="'+safe(d.time)+'"'+validationAttrs('secondTime',compositeValidation)+'>'+validationMessage('secondTime',compositeValidation)+'</div></div>'+
         '<label class="unknown-time-toggle" for="secondUnknownTime"><input type="checkbox" id="secondUnknownTime" '+(!d.timeKnown?'checked':'')+'> Je ne connais pas l’heure</label>'+
         '<div class="field"><label for="secondCity">Ville de naissance</label>'+
-        '<div class="city-search"><input type="text" id="secondCity" autocomplete="off" required value="'+safe(d.city)+'" placeholder="Rechercher une ville…"'+validationAttrs('secondCity',compositeCityError)+'>'+
-        '<button type="button" class="ghost" data-search-composite-place="1" '+(compositeSearch.loading?'disabled':'')+'>Rechercher</button></div></div>'+
+        '<div class="astra-city-picker" data-city-picker="composite"><div class="city-search"><input type="search" id="secondCity" autocomplete="off" required role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-expanded="false" aria-controls="secondCityOptions" aria-describedby="secondCityStatus" value="'+safe(d.city)+'" placeholder="Choisir ou rechercher une ville…"'+validationAttrs('secondCity',compositeCityError)+'></div>'+
+        '<div class="astra-city-menu" id="secondCityOptions" role="listbox" aria-label="Villes proposées" hidden></div>'+
+        '<p class="astra-city-status" id="secondCityStatus" role="status" aria-live="polite"></p></div></div>'+
         validationMessage('secondCity',compositeCityError)+
-        (suggestions?'<div class="city-results">'+suggestions+'</div>':'')+
         (d.place?'<p class="city-confirmed">Ville confirmée · '+safe(d.place.label)+'</p>':'<p class="field-help">Sélectionne la ville trouvée dans les résultats.</p>')+
         '<button type="submit" class="primary full">Calculer la carte composite</button></form>'+
         (compositeResult?'<section class="natal-composite-result" aria-label="Positions composites">'+
@@ -1863,7 +1936,6 @@
       }
     }catch(err){ /* Les anciennes sauvegardes peuvent être incomplètes. */ }
     if(natalStart)recordPerformance(natalCached?'Natal · cache':'Natal · calcul',perfClock()-natalStart);
-    const suggestions=placeSearch.options.map((p,i)=>`<button type="button" class="city-choice" data-place="${i}" aria-label="Choisir ${safe(p.label)}"><strong>${safe(p.name)}</strong><span>${safe([p.admin1,p.country].filter(Boolean).join(' · '))}</span></button>`).join('');
     const foldPicker=placeSearch.needFold&&d.timeKnown?`<div class="field"><label for="fold">Cette heure locale a existé deux fois</label><select id="fold" name="fold" required${validationAttrs('fold',birthValidation)}><option value="">Choisir l’occurrence</option><option value="0" ${d.fold===0?'selected':''}>Première occurrence (avant le retour à l’heure d’hiver)</option><option value="1" ${d.fold===1?'selected':''}>Deuxième occurrence (après le retour à l’heure d’hiver)</option></select>${validationMessage('fold',birthValidation)}<p class="field-help">Ce cas rare ne peut pas être déduit de la ville et de l’heure seules. Consulte l’heure indiquée sur l’acte de naissance.</p></div>`:'';
     const showSettings=!chart||profileScreen==='settings';
     return (showSettings
@@ -1881,9 +1953,8 @@
       (showSettings?
       `<section class="card astra-reading-card astra-birth-settings"><h2 class="card-title">Tes informations de naissance</h2><form id="birthForm" novalidate><div class="field-grid"><div class="field"><label for="birthDate">Date de naissance</label><input required type="date" id="birthDate" name="date" min="1900-01-01" max="2100-12-31" value="${safe(d.date)}"${validationAttrs('birthDate',birthValidation)}>${validationMessage('birthDate',birthValidation)}</div><div class="field"><label for="birthTime">Heure de naissance</label><input ${d.timeKnown?'required':''} type="time" id="birthTime" name="time" value="${safe(d.time)}" ${d.timeKnown?'':'disabled'}${validationAttrs('birthTime',birthValidation)}>${validationMessage('birthTime',birthValidation)}</div></div>`+
       `<label class="unknown-time-toggle" for="unknownBirthTime"><input type="checkbox" id="unknownBirthTime" name="unknownBirthTime" ${d.timeKnown?'':'checked'}> Je ne connais pas l’heure</label><p class="field-help">Sans heure, ASTRA ne calcule pas l’Ascendant ni les maisons. Tu peux continuer.</p>`+
-      `<div class="field"><label for="birthCity">Ville de naissance</label><div class="city-search"><input required autocomplete="off" id="birthCity" name="city" placeholder="Ex. Paris, Montréal, Tokyo…" value="${safe(d.city)}"${validationAttrs('birthCity',birthCityError)}><button type="button" class="ghost" data-search-place="1" ${placeSearch.loading?'disabled':''}>${placeSearch.loading?'Recherche…':'Rechercher'}</button></div><p class="field-help">Recherche avec Internet, puis sélectionne le bon résultat. La position et le fuseau sont déduits de la ville, pas du téléphone.</p></div>`+
+      `<div class="field"><label for="birthCity">Ville de naissance</label><div class="astra-city-picker" data-city-picker="birth"><div class="city-search"><input required type="search" autocomplete="off" id="birthCity" name="city" role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-expanded="false" aria-controls="birthCityOptions" aria-describedby="birthCityStatus" placeholder="Choisir ou rechercher une ville…" value="${safe(d.city)}"${validationAttrs('birthCity',birthCityError)}></div><div class="astra-city-menu" id="birthCityOptions" role="listbox" aria-label="Villes proposées" hidden></div><p class="astra-city-status" id="birthCityStatus" role="status" aria-live="polite"></p></div><p class="field-help">Choisis une ville dans le menu. Les coordonnées et le fuseau seront remplis automatiquement après sélection.</p></div>`+
       `${validationMessage('birthCity',birthCityError)}`+
-      `${suggestions?`<div class="city-results" aria-label="Villes trouvées">${suggestions}</div>`:''}`+
       `${place?`<div class="city-confirmed" role="status"><b>Ville confirmée · ${safe(place.label)}</b><details class="city-technical astra-disclosure"><summary>Voir le fuseau et les coordonnées</summary><div class="astra-disclosure-body"><p>${safe(offsetDescription(d,place))}</p><small>Coordonnées calculées · ${place.latitude.toFixed(4)}°, ${place.longitude.toFixed(4)}°</small></div></details></div>`:'<p class="city-unselected">Sélectionne une ville pour continuer.</p>'}`+
       `${foldPicker}<details class="calculation-details astra-disclosure"><summary>Comment les calculs fonctionnent-ils ?</summary><div class="astra-disclosure-body"><p class="field-help"><strong>Orbes automatiques.</strong> ASTRA adapte la marge à la planète et à l’aspect. Les instants exacts sont calculés séparément dans le calendrier.</p></div></details><button class="primary full" type="submit">Calculer mon thème natal</button></form>`+
       `<p class="tiny">Recherche de villes fournie par <a href="https://open-meteo.com/" rel="noopener noreferrer">Open-Meteo / GeoNames</a>. Seul le nom de ville recherché est transmis. Ensuite, les calculs restent sur ton appareil, même hors connexion. Les règles historiques sont celles de la base de fuseaux disponible sur l’appareil.</p></section>`+
@@ -1893,6 +1964,7 @@
     const renderStart=diagnosticsEnabled?perfClock():0;
     renderedEvents=[];
     $('app').innerHTML=({today,month:monthOverview,calendar,journal,profile})[activeTab]();
+    if(activeTab==='profile'){renderCityMenu('birth');renderCityMenu('composite');}
     if(activeTab==='calendar'){
       const dlg=personalEditor!==null?$('personalEventDialog'):$('calendarDayDialog');
       if(dlg?.showModal&&!dlg.open)dlg.showModal();
