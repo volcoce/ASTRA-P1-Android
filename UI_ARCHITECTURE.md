@@ -20,7 +20,7 @@
 | **Ce jour** | Où se trouve la Lune à midi et quand change-t-elle de signe ? | Sélection de semaine, **Lune en [signe] à midi** dans le fuseau du profil, changement de signe en titre si présent, phase majeure exacte en encart dans la même carte | Cartes Soleil / Journal / Mon ciel, trois premiers événements | Autres événements, aspects en cours, calcul détaillé |
 | **Ce mois** | Que se passe-t-il pendant le mois affiché ? | Mois, nombre d'événements calculés, Nouvelles Lunes et Pleines Lunes | Premiers événements du mois et jours consignés | Dates détaillées, accès au journal |
 | **Calendrier** | À quelle date est cet événement ? | Grille mensuelle, phases lunaires à midi, **fond solaire continu sur plusieurs jours**, coloré selon l'élément (Feu, Terre, Air, Eau), avec jour de transition partagé 50/50, événements personnels multi-jours | Nouvelle Lune violette, Pleine Lune dorée, événements du jour et prochaines phases | Filtres contextuels, autres détails ; zodiaque dans Paramètres |
-| **Mon ciel** | Quel est mon thème et comment le comprendre ? | Soleil/Lune/Ascendant en clair, « Comprendre mon thème », carte de naissance | « Comparer deux dates », lecture d'une planète | Matrice d'aspects, détails techniques et exports ; maisons dans Paramètres |
+| **Mon ciel** | Quel est mon thème et comment le comprendre ? | Soleil/Lune/Ascendant en clair, « Comprendre mon thème », carte de naissance | « Comparer deux dates », lecture d'une planète | Matrice d’aspects, degrés et minutes en mode complet ; maisons dans Paramètres |
 
 **Journal secondaire :** le Journal n'est plus un onglet principal, mais reste accessible depuis Ce jour, Ce mois et les fiches d'événements, y compris sans thème natal. Ses données locales et ses fonctions de saisie/recherche/sauvegarde ne changent pas.
 
@@ -118,6 +118,17 @@ Ne jamais afficher une barre latérale **et** une barre basse concurrentes ; il 
 - `PageContent` — flux vertical commun, sections accessibles avec titres H2.
 - `BottomNavigation` — quatre vues et une entrée Paramètres à droite de Mon ciel ; icônes et libellés, `aria-current="page"` pour les vues, `aria-expanded` pour les paramètres.
 - `ContextSheet` — lecture d’un objet de la roue sur la page courante, avec fermeture et restauration du focus. Aucune deuxième roue en plein écran ; le zoom intégré reste disponible dans les outils de la carte, sans exports PNG/SVG.
+
+### Roue de naissance — contrat de visualisation
+
+- **Trois anneaux lisibles** — douze signes égaux à l'extérieur, positions planétaires avec leurs degrés dans la couronne intérieure, maisons Placidus/égales/signes entiers dans leur anneau distinct ; le centre est réservé aux aspects.
+- **Glyphes typographiques** — les signes SVG utilisent la variante Unicode texte (FE0E), sans carrés emoji. Les palettes existantes restent sélectionnables, les pastilles planétaires décoratives ne doivent pas masquer les degrés.
+- **Position vraie préservée** — les marqueurs utilisent les longitudes du moteur ; seul le placement du symbole et de son degré est déplacé par `layoutPlanetLabels`. Le trait de rappel relie toujours la position vraie à l'étiquette.
+- **Essentiel (par défaut)** — degré de chaque planète (ex. `25°`) et jusqu'à six aspects retenus par orbe faible ; **Complet** — degré et minute (ex. `25°36′`) et tous les aspects du filtre. Pas de classement énergétique inventé.
+- **Roue double** — conserve deux anneaux distincts natal / transits ; les degrés et minutes sont détaillés uniquement en mode Complet pour éviter vingt étiquettes simultanées par défaut.
+- **Sans heure de naissance** — pas de maisons ni d'Ascendant ; la Lune reste indicative et sa fiche le précise. Aucun changement de calcul des éphémérides.
+- **Mobile** — la vue reste dans la largeur standard, les marqueurs/fiches restent interactifs et clavier-accessibles, les légendes supplémentaires n'imposent ni débordement de page ni une deuxième roue agrandie.
+
 - `GlobalSettingsDialog` — préférences globales en quatre rubriques accessibles depuis la dernière entrée de la barre inférieure, un seul propriétaire CSS et restauration du focus.
 
 ### Bibliothèque de composants
@@ -152,7 +163,7 @@ Ne jamais afficher une barre latérale **et** une barre basse concurrentes ; il 
 - Écrire **« Comparer deux dates »** avant « Transits ».
 - Écrire **« Comprendre mon thème »** avant « Explorateur natal ».
 - Écrire **« Comment tu te sens ? »** avant « Humeur (1–5) ».
-- Expliquer une fois « Aspect = angle entre deux planètes », garder les degrés dans un panneau de détail.
+- Expliquer une fois « Aspect = angle entre deux planètes » ; afficher les degrés directement sur la roue, puis les minutes en mode Complet. Les mesures détaillées restent accessibles dans les fiches.
 - Éviter les éléments vagues « Contacts », « Énergie du ciel », « Potentiel de la journée » s'ils ne désignent aucune information mesurée.
 - Ne pas écrire « Aujourd'hui » si la personne consulte une autre date sans identifier la date choisie.
 
