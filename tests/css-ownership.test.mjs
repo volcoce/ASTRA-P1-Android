@@ -334,3 +334,53 @@ test('App opens on a contextual page title without any permanent masthead',()=>{
   });
  }
 });
+
+test('Edge-to-edge system chrome uses transparent Android bars and one CSS safe-area source',()=>{
+ const java=readFileSync(new URL('../app/src/main/java/org/astra/publicapp/MainActivity.java',import.meta.url),'utf8');
+ const app=read('app.js'),html=read('index.html'),tokens=read('astra-tokens.css'),layout=read('astra-layout.css');
+ for(const expected of [
+  'setDecorFitsSystemWindows(false)',
+  'View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN',
+  'View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION',
+  'setStatusBarColor(Color.TRANSPARENT)',
+  'setNavigationBarColor(Color.TRANSPARENT)',
+  'setNavigationBarContrastEnforced(false)',
+  'LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES',
+  'WindowInsets.Type.systemBars() | WindowInsets.Type.displayCutout()',
+  "setProperty('--astra-native-inset-top'",
+  "setProperty('--astra-native-inset-bottom'",
+  "setProperty('--astra-native-inset-left'",
+  "setProperty('--astra-native-inset-right'",
+  'ASTRA_NATIVE_UI',
+  'setSystemBarsAppearance(dark ? 0 : LIGHT_BAR_FLAGS'
+ ]){
+  assert.ok(java.includes(expected),'Missing native edge-to-edge contract: '+expected);
+ }
+ assert.doesNotMatch(java,/root\.setPadding\(bars\.left|ASTRA_CHART_EXPORT|ChartExportBridge/);
+ assert.match(html,/viewport-fit=cover/);
+ assert.match(app,/window\.ASTRA_NATIVE_UI\?\.setDarkMode\?\./);
+ assert.doesNotMatch(app,/ASTRA_CHART_EXPORT|data-export-chart|exportNatalGraphic/);
+ assert.match(tokens,/--astra-safe-top:var\(--astra-native-inset-top,env\(safe-area-inset-top,0px\)\)/);
+ assert.match(tokens,/--astra-safe-bottom:var\(--astra-native-inset-bottom,env\(safe-area-inset-bottom,0px\)\)/);
+ assert.match(layout,/padding-top:var\(--astra-safe-top\)/);
+ assert.match(layout,/padding-bottom:calc\(11px \+ var\(--astra-safe-bottom\)\)/);
+ assert.doesNotMatch(read('style.css'),/--astra-safe-top:0px/);
+});
+
+test('Mon ciel back button and birth editor have no duplicate exports',()=>{
+ const app=read('app.js');
+ assert.match(app,/aria-label="Retour à Mon ciel"/);
+ assert.match(app,/<summary>Aperçu de la carte<\/summary>/);
+ assert.doesNotMatch(app,/data-export-chart|Exporter SVG|Exporter PNG|exportNatalGraphic/);
+ const navigation=postcss.parse(read('astra-p2-navigation.css'),{from:'astra-p2-navigation.css'});
+ const back=[];
+ navigation.walkRules(rule=>{
+  if(rule.selector==='.astra-journal-back,.natal-back,.astra-back-today'){
+   rule.walkDecls(d=>back.push([d.prop,d.value]));
+  }
+ });
+ assert.ok(back.some(([k,v])=>k==='min-height'&&v==='var(--astra-control-min)'));
+ for(const css of CSS_SOURCES){
+  assert.doesNotMatch(read(css),/natal-downloads/,css+' contains orphaned wheel export styles');
+ }
+});
