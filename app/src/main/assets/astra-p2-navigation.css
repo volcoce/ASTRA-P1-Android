@@ -339,7 +339,7 @@
 }
 .astra-angle-reading .astra-angle-roles dd{margin:0}
 @media(max-width:400px){
-  .astra-event-detail--compact{padding:16px 12px 20px}
+  
   .astra-event-role-list>div{grid-template-columns:minmax(92px,38%) minmax(0,1fr)}
   .astra-event-detail--compact .astra-event-axis{font-size:19px!important}
 }
