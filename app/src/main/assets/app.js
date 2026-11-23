@@ -150,6 +150,7 @@
   let aspectMatrixOpen = false;
   let settingsPreviewOpen = false;
   let settingsAdvancedOpen = false;
+  let globalSettingsSection='astrology';
   // Temporary view state; never saved with birth information.
   let focusReturnScreen='overview';
   let selected = isoDay(new Date());
@@ -1100,7 +1101,7 @@
       '<span class="cal-legend-item"><span class="moon-phase-legend-dot full" aria-hidden="true">'+moonPhaseIcon(180)+'</span> Pleine Lune</span>'+
       '</div>':'')+
       (state.profile?solarCalendarExplanation(periods):'')+'</div>'+
-      (state.profile?'<details class="calendar-options astra-disclosure"'+(calendarOptionsOpen?' open':'')+'><summary>Options d’affichage</summary><div class="astra-disclosure-body">'+switcher()+filters()+'</div></details>':'')+
+      (state.profile?'<details class="calendar-options astra-disclosure"'+(calendarOptionsOpen?' open':'')+'><summary>Options d’affichage</summary><div class="astra-disclosure-body">'+filters()+'<p class="field-help">Le zodiaque se règle dans Paramètres.</p></div></details>':'')+
       status()+calendarDayInspector()+personalEventEditor()+detailView();
   }
   function initDraft() {
@@ -1754,7 +1755,7 @@
       return '<section class="card natal-card astra-reading-card natal-home" id="natalChart">'+
         '<div class="natal-home-header"><div><h2 class="card-title">Ta carte de naissance</h2>'+
         '<p class="natal-home-subtitle">Positions à ta naissance · '+(isTropical?'Tropical':'Sidéral')+'</p></div>'+
-        '<button type="button" class="natal-settings-link" data-profile-screen="settings">Réglages</button></div>'+
+        '<button type="button" class="natal-settings-link" data-profile-screen="settings">Personnaliser</button></div>'+
         (uncertain?notice:'')+
         '<div class="natal-primary-cards'+(h?'':' natal-primary-cards--two')+'" role="group" aria-label="Soleil, Lune et Ascendant en signes astrologiques">'+quickCards+'</div>'+
         '<div class="natal-home-actions natal-home-actions--primary"><button type="button" class="natal-main-action" data-profile-screen="explore"><span class="action-label"><strong>Explorer les positions</strong><small>Planètes, signes et maisons</small></span><span class="action-arrow" aria-hidden="true">→</span></button></div>'+
@@ -1858,7 +1859,7 @@
         '<div class="natal-subpage-heading">'+pageBack+
         '<h2 class="card-title">Deux ciels, une seule carte</h2>'+
         '<p class="natal-section-lead">Au centre : ton ciel de naissance. À l’extérieur : les planètes à la date choisie.</p>'+
-        '<button type="button" class="natal-settings-link" data-profile-screen="settings">Réglages</button></div>'+
+        '<button type="button" class="natal-settings-link" data-profile-screen="settings">Personnaliser</button></div>'+
         comparing+notice+(transitError?'<p class="notice" role="alert">'+safe(transitError)+'</p>':'')+
         '<div class="natal-wheel-viewport" role="region" tabindex="0" aria-label="Roue double, natal et transits">'+resized+'</div>'+
         '<div class="wheel-ring-legend"><span><i class="natal-swatch"></i>Planètes natales</span>'+
@@ -1888,7 +1889,7 @@
     const contents=choice==='aspects'?aspectsList:choice==='houses'?housesList:planetList;
     return '<section class="card natal-card astra-reading-card natal-explore" id="natalChart">'+
       '<div class="natal-explore-toolbar" role="group" aria-label="Navigation et réglages du thème">'+pageBack+
-      '<button type="button" class="natal-settings-link" data-profile-screen="settings">Réglages</button></div>'+
+      '<button type="button" class="natal-settings-link" data-profile-screen="settings">Personnaliser</button></div>'+
       '<p class="natal-section-lead natal-explore-intro">Choisis une rubrique, puis un élément pour découvrir sa signification.</p>'+
       notice+selector+'<div id="natalExplorerPanel" class="natal-explorer-panel">'+contents+'</div>'+
       '<details class="natal-explore-wheel astra-disclosure"'+(exploreWheelOpen?' open':'')+'>'+
@@ -1947,6 +1948,55 @@
       '<p class="tiny">Rendu = temps JavaScript, hors peinture de l’écran. Interaction = délai jusqu’à la prochaine frame, pas temps d’affichage garanti. Les mesures sont indicatives et dépendent de l’appareil.</p>'+
       '</section>';
   }
+
+  // The only surface for app-wide preferences: one dialog, four clear categories.
+  function settingsAstrologyPanel(){
+    const choices=(label,key,values,attr)=>'<div class="astra-settings-field"><h4>'+label+'</h4>'+
+      '<div class="astra-settings-choices" role="group" aria-label="'+label+'">'+
+      values.map(([value,name])=>'<button type="button" class="astra-settings-choice" '+attr+'="'+value+
+        '" aria-pressed="'+(key===value)+'">'+name+'</button>').join('')+'</div></div>';
+    return '<section class="astra-settings-group"><h3>Astrologie</h3>'+
+      '<div class="astra-settings-profile"><strong>'+(state.profile?'Thème natal configuré':'Thème natal non configuré')+'</strong>'+
+      '<span>'+(state.profile?safe(state.profile.place?.label||'Informations enregistrées'):'Date, heure et ville de naissance')+'</span>'+
+      '<button type="button" class="ghost" data-settings-birth="1">'+(state.profile?'Modifier mes informations de naissance':'Créer mon thème natal')+'</button></div>'+
+      choices('Zodiaque du calendrier et des prévisions',state.mode,[['tropical','Tropical'],['sidereal','Sidéral']], 'data-mode')+
+      '<p class="field-help">Ce choix s’applique à Ce jour, Ce mois et Calendrier.</p>'+
+      '<div class="astra-settings-field"><h4>Carte de naissance</h4><p>Zodiaque natal, système de maisons, zoom et présentation de la roue se règlent avec la carte.</p>'+
+      '<button type="button" class="ghost" data-settings-birth="1">Personnaliser mon thème</button></div></section>';
+  }
+  function settingsDataPanel(){
+    return '<section class="astra-settings-group"><h3>Données et confidentialité</h3>'+
+      '<p>Le profil, le journal et les événements personnels sont stockés localement. Ils peuvent disparaître après une désinstallation.</p>'+
+      '<div class="astra-settings-actions"><button type="button" class="ghost" data-export="1">Exporter les données</button>'+
+      '<button type="button" class="ghost" data-import="1">Importer une sauvegarde</button></div>'+
+      '<input id="importFile" type="file" accept="application/json" hidden>'+
+      '<p class="field-help">La sauvegarde JSON contient des données personnelles, conserve-la en lieu sûr.</p>'+
+      '<div class="astra-settings-danger"><h4>Suppression définitive</h4>'+
+      '<p>Efface le thème natal, les événements et toutes les notes de cet appareil.</p>'+
+      '<button type="button" class="subnav danger" data-clear="1">Effacer toutes mes données</button></div></section>';
+  }
+  function settingsAdvancedPanel(){
+    return diagnosticsPanel()+
+      '<details class="calculation-details astra-disclosure"><summary>Limites et précision des calculs</summary>'+
+      '<div class="astra-disclosure-body"><p>Vérifie les villes homonymes et les frontières historiques. Les fuseaux anciens dépendent des archives disponibles sur ton appareil. Lahiri sidéral est approximatif. Près des pôles, les maisons égales peuvent remplacer Placidus.</p></div></details>';
+  }
+  function renderGlobalSettings(){
+    const dlg=$('astraSettingsDialog');if(!dlg)return;
+    const tabs=[['astrology','Astrologie'],['appearance','Apparence'],['data','Données'],['advanced','Avancé']];
+    const active=globalSettingsSection;
+    const views={astrology:settingsAstrologyPanel,appearance:appearancePanel,data:settingsDataPanel,advanced:settingsAdvancedPanel};
+    dlg.innerHTML='<header class="astra-settings-head"><div><p class="astra-settings-kicker">ASTRA</p>'+
+      '<h2 id="astraSettingsTitle">Paramètres</h2></div>'+
+      '<button type="button" class="astra-settings-close" data-settings-close="1" aria-label="Fermer les paramètres">Fermer ×</button></header>'+
+      '<nav class="astra-settings-tabs" role="tablist" aria-label="Rubriques des paramètres">'+
+      tabs.map(([id,name])=>'<button type="button" role="tab" id="astraSettingsTab-'+id+'" data-settings-section="'+id+
+        '" aria-selected="'+(active===id)+'" aria-controls="astraSettingsPanel" tabindex="'+(active===id?'0':'-1')+'">'+name+'</button>').join('')+
+      '</nav><div class="astra-settings-body" role="tabpanel" id="astraSettingsPanel" tabindex="0" aria-labelledby="astraSettingsTab-'+active+'">'+views[active]()+'</div>';
+  }
+  function updateGlobalSettings(focus){
+    const dlg=$('astraSettingsDialog');if(!dlg?.open)return;
+    renderGlobalSettings();if(focus)dlg.querySelector(focus)?.focus({preventScroll:true});
+  }
   function profile() {
     const d=draft(),place=placeSearch.selected;
     const birthCityError=birthValidation?.field==='birthCity'?birthValidation:
@@ -1971,7 +2021,7 @@
     const foldPicker=placeSearch.needFold&&d.timeKnown?`<div class="field"><label for="fold">Cette heure locale a existé deux fois</label><select id="fold" name="fold" required${validationAttrs('fold',birthValidation)}><option value="">Choisir l’occurrence</option><option value="0" ${d.fold===0?'selected':''}>Première occurrence (avant le retour à l’heure d’hiver)</option><option value="1" ${d.fold===1?'selected':''}>Deuxième occurrence (après le retour à l’heure d’hiver)</option></select>${validationMessage('fold',birthValidation)}<p class="field-help">Ce cas rare ne peut pas être déduit de la ville et de l’heure seules. Consulte l’heure indiquée sur l’acte de naissance.</p></div>`:'';
     const showSettings=!chart||profileScreen==='settings';
     return (showSettings
-      ? header(chart?'Réglages':'Créer mon thème natal',
+      ? header(chart?'Personnaliser mon thème':'Créer mon thème natal',
           chart?'Personnalise ta carte et retrouve tes informations.':'Entre ta date et ta ville de naissance pour commencer.')
       : header(profileScreen==='explore'?'Comprendre mon thème':
           profileScreen==='compare'?'Comparer deux dates':
@@ -1991,8 +2041,7 @@
       `${place?`<div class="city-confirmed" role="status"><b>Ville confirmée · ${safe(place.label)}</b><details class="city-technical astra-disclosure"><summary>Voir le fuseau et les coordonnées</summary><div class="astra-disclosure-body"><p>${safe(offsetDescription(d,place))}</p><small>Coordonnées calculées · ${place.latitude.toFixed(4)}°, ${place.longitude.toFixed(4)}°</small></div></details></div>`:'<p class="city-unselected">Sélectionne une ville pour continuer.</p>'}`+
       `${foldPicker}<details class="calculation-details astra-disclosure"><summary>Comment les calculs fonctionnent-ils ?</summary><div class="astra-disclosure-body"><p class="field-help"><strong>Orbes automatiques.</strong> ASTRA adapte la marge à la planète et à l’aspect. Les instants exacts sont calculés séparément dans le calendrier.</p></div></details><button class="primary full" type="submit">Calculer mon thème natal</button></form>`+
       `<p class="tiny">Recherche de villes fournie par <a href="https://open-meteo.com/" rel="noopener noreferrer">Open-Meteo / GeoNames</a>. Seul le nom de ville recherché est transmis. Ensuite, les calculs restent sur ton appareil, même hors connexion. Les règles historiques sont celles de la base de fuseaux disponible sur l’appareil.</p></section>`+
-      appearancePanel()+diagnosticsPanel()+`<section class="card astra-reading-card astra-privacy-settings"><h2 class="card-title">Confidentialité et sauvegarde</h2><p class="tiny">Les dates et heures de naissance, coordonnées et notes sont stockées uniquement sur l’appareil. Une désinstallation peut les supprimer. Protège le fichier JSON exporté.</p><div class="actions"><button class="ghost" data-export="1">Exporter JSON</button><button class="ghost" data-import="1">Importer JSON</button></div><input id="importFile" type="file" accept="application/json" hidden><button class="subnav danger" data-clear="1">Effacer les données locales</button></section>`+
-      `<details class="calculation-details astra-disclosure"><summary>Limites et précision des calculs</summary><div class="astra-disclosure-body"><p>Vérifie les villes homonymes et les frontières historiques. Les dates très anciennes dépendent de la qualité des archives IANA du téléphone. Lahiri sidéral reste approximatif. Le thème tropical calcule l’Ascendant et les maisons Placidus ; près des pôles, des maisons égales les remplacent.</p></div></details>`:'');
+      '':'');
   }
   function render() {
     const renderStart=diagnosticsEnabled?perfClock():0;
@@ -2123,6 +2172,23 @@
   window.visualViewport?.addEventListener('resize',syncKeyboardVisibility);
   window.addEventListener('resize',syncKeyboardVisibility);
   $('homeButton')?.addEventListener('click',()=>{selectDay(isoDay(new Date()));go('today');});
+  const globalSettingsDialog=$('astraSettingsDialog');
+  $('settingsButton')?.addEventListener('click',()=>{
+    if(globalSettingsDialog.open)return;
+    captureBirthForm();renderGlobalSettings();globalSettingsDialog.showModal();
+    globalSettingsDialog.querySelector('[data-settings-section="'+globalSettingsSection+'"]')?.focus({preventScroll:true});
+  });
+  globalSettingsDialog.addEventListener('close',()=>{$('settingsButton')?.focus({preventScroll:true});});
+  globalSettingsDialog.addEventListener('keydown',e=>{
+    const tab=e.target.closest('[role="tab"][data-settings-section]');
+    if(!tab||!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;
+    e.preventDefault();
+    const sections=['astrology','appearance','data','advanced'];
+    const ix=sections.indexOf(globalSettingsSection);
+    globalSettingsSection=e.key==='Home'?sections[0]:e.key==='End'?sections[3]:
+      sections[(ix+(e.key==='ArrowRight'?1:3))%sections.length];
+    updateGlobalSettings('[data-settings-section="'+globalSettingsSection+'"]');
+  });
   document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.tab)));
   // Samples user interactions from click dispatch to the next animation frame.
   // The callback is before paint: this is a frame-delay proxy, not paint latency.
@@ -2131,7 +2197,7 @@
     const start=perfClock();
     window.requestAnimationFrame(()=>recordPerformance('Interaction · prochaine frame',perfClock()-start));
   },true);
-  $('app').addEventListener('click',event=>{
+  document.addEventListener('click',event=>{
     const calendarOptionsSummary=event.target.closest('.calendar-options > summary');
     if(calendarOptionsSummary){calendarOptionsOpen=!calendarOptionsSummary.parentElement.open;return;}
     const wheelSummary=event.target.closest('.natal-explore-wheel > summary');
@@ -2144,6 +2210,17 @@
     if(advancedSummary){settingsAdvancedOpen=!advancedSummary.parentElement.open;return;}
     const button=event.target.closest('button, [role="button"][data-natal-body], [role="button"][data-natal-house], [role="button"][data-transit-body]');if(!button)return;
     const a=button.dataset;
+    if(a.settingsClose){globalSettingsDialog.close();return;}
+    if(a.settingsSection){
+      if(!['astrology','appearance','data','advanced'].includes(a.settingsSection))return;
+      globalSettingsSection=a.settingsSection;
+      updateGlobalSettings('[data-settings-section="'+globalSettingsSection+'"]');return;
+    }
+    if(a.settingsBirth){
+      globalSettingsDialog.close();go('profile');profileScreen='settings';render();
+      writeBrowserRoute('replace');window.scrollTo({top:0,behavior:'instant'});
+      $('app').querySelector('h1.page-title')?.focus({preventScroll:true});return;
+    }
     if(a.todayExpand){
       todayExpanded=!todayExpanded;
       render();
@@ -2153,28 +2230,28 @@
     if(a.elementPalette){
       if(!['classic','vivid'].includes(a.elementPalette))return;
       captureBirthForm();state.elementPalette=a.elementPalette;persist();applyElementPalette();render();
-      $('app').querySelector('[data-element-palette="'+a.elementPalette+'"]')?.focus({preventScroll:true});
+      updateGlobalSettings('[data-element-palette="'+a.elementPalette+'"]');
       return;
     }
     if(a.appearance){
       if(!['system','light','dark'].includes(a.appearance))return;
       captureBirthForm();state.appearance=a.appearance;persist();applyAppearance();render();
-      $('app').querySelector('[data-appearance="'+a.appearance+'"]')?.focus({preventScroll:true});
+      updateGlobalSettings('[data-appearance="'+a.appearance+'"]');
       return;
     }
     if(a.diagnosticsToggle){
       captureBirthForm();diagnosticsEnabled=!diagnosticsEnabled;render();
-      $('app').querySelector('[data-diagnostics-toggle]')?.focus({preventScroll:true});
+      updateGlobalSettings('[data-diagnostics-toggle]');
       return;
     }
     if(a.diagnosticsReset){
       captureBirthForm();performanceSamples.clear();render();
-      $('app').querySelector('[data-diagnostics-reset]')?.focus({preventScroll:true});
+      updateGlobalSettings('[data-diagnostics-reset]');
       return;
     }
     if(a.diagnosticsRefresh){
       captureBirthForm();render();
-      $('app').querySelector('[data-diagnostics-refresh]')?.focus({preventScroll:true});
+      updateGlobalSettings('[data-diagnostics-refresh]');
       return;
     }
     if(a.diagnosticsExport){
@@ -2334,7 +2411,7 @@
       window.scrollTo({top:0,behavior:'instant'});
       return;
     }
-    if(a.mode){state.mode=a.mode;calendarInterval=null;openDetail=null;persist();refresh();return;}
+    if(a.mode){state.mode=a.mode;calendarInterval=null;openDetail=null;persist();refresh();updateGlobalSettings('[data-mode="'+a.mode+'"]');return;}
     if(a.month){
       month=new Date(month.getFullYear(),month.getMonth()+Number(a.month),1);
       selected=isoDay(month);calendarInterval=null;calendarSheet=false;
@@ -2365,7 +2442,7 @@
     if(a['deleteNote'] && confirm('Supprimer cette journée du journal ?')){delete state.journal[selected];persist();journalDraft=null;render();show('Note supprimée');return;}
     if(a.export){const data={format:'astra-public-v1',exportedAt:new Date().toISOString(),...state};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='ASTRA-sauvegarde.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1500);return;}
     if(a.import){$('importFile')?.click();return;}
-    if(a.clear&&confirm('Effacer le thème natal et toutes les notes locales ?')){localStorage.removeItem(STORAGE_KEY);state=defaultState();applyAppearance();applyElementPalette();diagnosticsEnabled=false;performanceSamples.clear();cache.clear();natalCache.clear();journalDraft=null;birthDraft=null;placeSearch={options:[],selected:null,loading:false,error:'',needFold:false,requestId:placeSearch.requestId+1};openDetail=null;refresh();show('Données supprimées');}
+    if(a.clear&&confirm('Effacer le thème natal et toutes les notes locales ?')){localStorage.removeItem(STORAGE_KEY);state=defaultState();applyAppearance();applyElementPalette();diagnosticsEnabled=false;performanceSamples.clear();cache.clear();natalCache.clear();journalDraft=null;birthDraft=null;placeSearch={options:[],selected:null,loading:false,error:'',needFold:false,requestId:placeSearch.requestId+1};openDetail=null;refresh();updateGlobalSettings('[data-clear]');show('Données supprimées');}
   });
   $('app').addEventListener('cancel',event=>{
     if(event.target.id==='personalEventDialog'){
@@ -2454,7 +2531,7 @@
     }
 
   });
-  $('app').addEventListener('change',async event=>{
+  document.addEventListener('change',async event=>{
     if(event.target.id==='progressionDay'){
       if(/^\d{4}-\d{2}-\d{2}$/.test(event.target.value)){
         progressionDay=event.target.value;render();
@@ -2493,7 +2570,7 @@
         const backup=JSON.parse(await file.text());if(backup.format!=='astra-public-v1')throw Error('Format non reconnu');
         if(backup.profile)E.validateProfile(backup.profile);
         if(!confirm('Remplacer les données locales par la sauvegarde ?'))return;
-        state=cleanState(backup);applyAppearance();applyElementPalette();diagnosticsEnabled=false;performanceSamples.clear();journalDraft=null;birthDraft=null;placeSearch={options:[],selected:null,loading:false,error:'',needFold:false,requestId:placeSearch.requestId+1};openDetail=null;cache.clear();natalCache.clear();persist();refresh();show('Sauvegarde importée');
+        state=cleanState(backup);applyAppearance();applyElementPalette();diagnosticsEnabled=false;performanceSamples.clear();journalDraft=null;birthDraft=null;placeSearch={options:[],selected:null,loading:false,error:'',needFold:false,requestId:placeSearch.requestId+1};openDetail=null;cache.clear();natalCache.clear();persist();refresh();updateGlobalSettings('[data-import]');show('Sauvegarde importée');
       } catch(err){show('Import impossible : '+(err?.message||'Erreur'));}
     }
   });
