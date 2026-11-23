@@ -327,10 +327,6 @@ button.astra-insight-tile:hover{border-color:#7597aa}
   padding:12px 0}
 .astra-event-feed .event-button:first-child{border-top:0}
 .astra-empty{font-size:14px;color:#637687;margin:18px 2px;line-height:1.55}
-.astra-more-events{margin:7px 0 0}
-.astra-more-events>summary{min-height:45px;display:flex;align-items:center;justify-content:center;
-  color:#28576d;font-weight:750;font-size:13px;cursor:pointer}
-.astra-more-events .astra-event-feed{margin-top:7px}
 .astra-active-panel{margin:20px 0 20px}
 .astra-back-today{width:100%;min-height:47px;background:transparent;
   border:1px solid #c9d7de;color:#2a5871;font-weight:750;

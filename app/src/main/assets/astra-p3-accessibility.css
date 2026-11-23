@@ -162,25 +162,6 @@ html,body{min-width:0;max-width:100%}
 :root[data-astra-theme="dark"] .event-button .event-arrow{
   color:var(--astra-muted);
 }
-/* An unobtrusive disclosure instead of a full-width slab under the list. */
-.astra-more-events>summary{
-  width:max-content;max-width:100%;min-height:44px;
-  margin:12px auto;padding:9px 15px;
-  display:flex;align-items:center;justify-content:center;gap:10px;
-  border:1px solid var(--astra-divider);border-radius:12px;
-  background:var(--astra-secondary-surface);color:var(--astra-ink);
-  font-size:13px;line-height:1.4;font-weight:750;
-  list-style:none;
-}
-.astra-more-events>summary::-webkit-details-marker{display:none}
-.astra-more-events>summary::after{content:'⌄';font-size:18px;line-height:1;flex:none}
-.astra-more-events[open]>summary::after{content:'⌃'}
-:root[data-astra-theme="dark"] .astra-more-events>summary{
-  border-color:var(--astra-border);
-  background:var(--astra-secondary-surface);
-  color:var(--astra-ink);
-}
-
 /* Natal reading sheet: contrast and nav clearance.
    The legacy light theme used white cards with dark ink; dark mode cannot
    merely recolor the text while keeping those white backgrounds. */

@@ -609,7 +609,7 @@
     active:'Aspect en cours',
     'exact-aspect':'Aspect exact'
   })[category]||'Événement';
-  function row(event) {
+  function row(event,compact=false) {
     const id=renderedEvents.push(event)-1;
     const category=eventCategory(event),isActive=event.type==='active';
     const glyph=event.type==='moon'?'☾':event.type==='station'?'℞':aspects[event.aspect]||'✧';
@@ -617,6 +617,15 @@
       dateTime(event.at);
     // The title already says "Pleine Lune" / "Nouvelle Lune".
     // Don't repeat that same category above and below the title.
+    if(compact){
+      const angle={Conjonction:0,Sextile:60,Carré:90,Trigone:120,Opposition:180}[event.aspect];
+      const title=eventTitle(event);
+      const shortTitle=angle===undefined?title:title.replace(/ · (?:0|60|90|120|180)°$/,'');
+      const meta=angle===undefined?eventCategoryLabel(category):angle+'° · Aspect exact';
+      const time=new Intl.DateTimeFormat('fr-FR',{hour:'2-digit',minute:'2-digit',
+        timeZone:state.profile?.timezone||detectedZone}).format(new Date(event.at));
+      return `<button type="button" class="event event-button event-kind-${category} astra-event-row" data-event="${id}" aria-label="Détails : ${safe(title)}, ${safe(time)}"><span class="event-glyph" aria-hidden="true">${glyph}</span><span class="event-body"><b>${safe(shortTitle)}</b><span class="astra-event-meta">${safe(meta)}</span></span><time class="astra-event-time" datetime="${safe(event.at)}">${safe(time)}</time><span class="event-arrow" aria-hidden="true">›</span></button>`;
+    }
     const kicker=event.type==='moon'?'':`<small class="event-category-label">${eventCategoryLabel(category)}</small>`;
     return `<button type="button" class="event event-button event-kind-${category}${event.type==='moon'||event.type==='station'?' sky-event':''}" data-event="${id}" aria-label="Détails : ${safe(eventTitle(event))}, ${safe(label)}"><span class="event-glyph" aria-hidden="true">${glyph}</span><span class="event-body">${kicker}<b>${safe(eventTitle(event))}</b><span class="event-sub">${safe(label)}</span></span><span class="event-arrow" aria-hidden="true">›</span></button>`;
   }
@@ -763,7 +772,8 @@
     const entry=state.journal[selected];
     const todayKey=isoDay(new Date()),isCurrent=selected===todayKey;
     const count=events.length;
-    const highlighted=events.slice(0,3),remaining=events.slice(3);
+    const initialLimit=3,remaining=events.length-initialLimit;
+    const displayed=todayExpanded?events:events.slice(0,initialLimit);
     return header(isCurrent?'Ce jour':'Le ciel du '+new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'long',timeZone:'UTC'}).format(new Date(selected+'T12:00:00Z')),
         'Choisis un jour, puis découvre ses événements et tes notes.')+
       weekStrip()+birthTimeWarning()+
@@ -783,11 +793,16 @@
         '<span aria-hidden="true">✎</span> '+(entry?'Relire mes notes':'Noter cette journée')+
         '<span aria-hidden="true">›</span></button>'+
       '<section class="astra-feed" id="todayEvents" aria-labelledby="todayEventsTitle">'+
-        '<div class="astra-section-head"><h2 id="todayEventsTitle">Événements du jour</h2></div>'+
-        '<p class="astra-section-help">Positions et horaires calculés, sans prédiction de ton vécu.</p>'+
-        '<div class="astra-event-feed">'+(highlighted.map(row).join('')||'<p class="astra-empty">Aucun événement exact ce jour-là. Consulte une autre date ou explore les aspects en cours.</p>')+'</div>'+
-        (remaining.length?'<details class="astra-more-events"'+(todayExpanded?' open':'')+'><summary>Voir les '+remaining.length+' autres événements</summary>'+
-          '<div class="astra-event-feed">'+remaining.map(row).join('')+'</div></details>':'')+
+        '<div class="astra-event-list-card">'+
+          '<div class="astra-event-list-head"><h2 id="todayEventsTitle">Événements du jour</h2>'+
+          '<p>'+safe(displayDate(selected))+' · '+count+' '+(count===1?'événement':'événements')+'</p></div>'+
+          '<div class="astra-event-feed astra-event-list-rows" id="todayEventsList">'+
+            (displayed.map(e=>row(e,true)).join('')||'<p class="astra-empty">Aucun événement exact ce jour-là. Consulte une autre date ou explore les aspects en cours.</p>')+
+          '</div>'+
+          (remaining>0?'<div class="astra-event-list-footer"><button type="button" class="astra-event-list-toggle" data-today-expand="1" aria-controls="todayEventsList" aria-expanded="'+todayExpanded+'">'+
+          (todayExpanded?'Réduire la liste':'Afficher les '+remaining+' autres événements')+
+          '<span aria-hidden="true">'+(todayExpanded?'⌃':'⌄')+'</span></button></div>':'')+
+        '</div>'+
       '</section>'+
       '<details class="astra-active-panel astra-disclosure astra-disclosure--surface"><summary><span>Aspects en cours</span><span class="astra-disclosure-count">'+day.active.length+'</span></summary>'+
         '<div class="astra-disclosure-body">'+
@@ -2072,14 +2087,18 @@
     if(wheelSummary){exploreWheelOpen=!wheelSummary.parentElement.open;return;}
     const matrixSummary=event.target.closest('.natal-matrix-disclosure > summary');
     if(matrixSummary){aspectMatrixOpen=!matrixSummary.parentElement.open;return;}
-    const todaySummary=event.target.closest('.astra-more-events > summary');
-    if(todaySummary){todayExpanded=!todaySummary.parentElement.open;return;}
     const previewSummary=event.target.closest('.natal-preview-disclosure > summary');
     if(previewSummary){settingsPreviewOpen=!previewSummary.parentElement.open;return;}
     const advancedSummary=event.target.closest('.natal-more-options > summary');
     if(advancedSummary){settingsAdvancedOpen=!advancedSummary.parentElement.open;return;}
     const button=event.target.closest('button, [role="button"][data-natal-body], [role="button"][data-natal-house], [role="button"][data-transit-body]');if(!button)return;
     const a=button.dataset;
+    if(a.todayExpand){
+      todayExpanded=!todayExpanded;
+      render();
+      $('app').querySelector('[data-today-expand]')?.focus({preventScroll:true});
+      return;
+    }
     if(a.appearance){
       if(!['system','light','dark'].includes(a.appearance))return;
       captureBirthForm();state.appearance=a.appearance;persist();applyAppearance();render();

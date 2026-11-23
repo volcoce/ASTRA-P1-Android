@@ -207,4 +207,74 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
 }
 .astra-disclosure-actions>button:hover{background:var(--astra-secondary-surface)}
 
+
+/* EventList: one card, a single chronological EventRow collection and
+   an in-card expansion control. Visual ownership is shared across themes. */
+.astra-event-list-card{
+  min-width:0;overflow:hidden;
+  background:var(--astra-surface);color:var(--astra-ink);
+  border:1px solid var(--astra-divider);
+  border-radius:var(--astra-radius-xl);
+}
+.astra-event-list-head{
+  padding:var(--astra-space-4) var(--astra-component-inset) var(--astra-space-3);
+  border-bottom:1px solid var(--astra-divider);
+}
+.astra-event-list-head h2{
+  margin:0;font:750 20px/1.25 var(--astra-font-body);
+  color:var(--astra-ink)
+}
+.astra-event-list-head p{
+  margin:5px 0 0;font-size:13px;line-height:1.4;color:var(--astra-muted)
+}
+.astra-event-list-card>.astra-event-feed{
+  min-width:0;margin:0;padding:0;
+  border:0;border-radius:0;background:transparent;
+}
+.astra-event-list-rows>.astra-event-row{
+  width:100%;min-width:0;min-height:72px;
+  display:grid;grid-template-columns:40px minmax(0,1fr) auto 12px;
+  gap:var(--astra-space-3);align-items:center;
+  padding:12px var(--astra-component-inset);
+  margin:0;border:0;background:transparent;text-align:left;
+}
+.astra-event-list-rows>.astra-event-row+.astra-event-row{
+  border-top:1px solid var(--astra-divider)
+}
+.astra-event-list-rows>.astra-event-row .event-glyph{
+  width:40px;height:40px;flex:none
+}
+.astra-event-list-rows>.astra-event-row .event-body{min-width:0}
+.astra-event-list-rows>.astra-event-row .event-body b{
+  display:block;color:var(--astra-ink);
+  font:700 15px/1.35 var(--astra-font-body);
+  overflow-wrap:anywhere
+}
+.astra-event-meta{
+  display:block;margin-top:3px;
+  color:var(--astra-muted);font-size:12px;line-height:1.4
+}
+.astra-event-time{
+  white-space:nowrap;font-variant-numeric:tabular-nums;
+  color:var(--astra-muted);font-size:13px;font-weight:650
+}
+.astra-event-list-rows>.astra-event-row .event-arrow{
+  font-size:20px;text-align:right
+}
+.astra-event-list-footer{
+  display:flex;justify-content:center;
+  padding:8px var(--astra-component-inset);
+  border-top:1px solid var(--astra-divider)
+}
+.astra-event-list-toggle{
+  min-height:44px;max-width:100%;
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  border:0;border-radius:var(--astra-radius-md);
+  padding:8px 12px;background:transparent;color:var(--astra-brand-strong);
+  font:750 13px/1.4 var(--astra-font-body)
+}
+.astra-event-list-toggle:hover{background:var(--astra-secondary-surface)}
+.astra-event-list-toggle:focus-visible{outline-offset:-2px}
+.astra-event-list-toggle span{font-size:18px;line-height:1}
+
 }
