@@ -149,6 +149,16 @@
 }
 .natal-double-wheel.wheel-modern .natal-transit-hit .natal-planet{fill:var(--color-retro-red)}
 .natal-double-wheel.wheel-modern .natal-transit-hit .wheel-true-anchor{fill:var(--color-retro-red)}
+/* The double wheel has 20 glyphs: exact degree/minute captions are opt-in
+   via Complet, never forced into the compact default view. */
+.natal-double-wheel.wheel-modern .wheel-natal-degree{
+  fill:var(--color-teal);stroke:var(--astra-plate-cream);
+  font-size:11px
+}
+.natal-double-wheel.wheel-modern .wheel-transit-degree{
+  fill:var(--color-retro-red);stroke:#D1E7F0;
+  font-size:11px
+}
 .natal-double-wheel.wheel-modern .natal-planet-hit .wheel-true-anchor{fill:var(--color-teal)}
 .natal-double-wheel.wheel-modern :is(.natal-planet-hit,.natal-transit-hit).is-active .wheel-planet-disc{
   fill:var(--color-deep-ocean);stroke:var(--color-retro-red)
