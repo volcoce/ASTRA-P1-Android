@@ -175,12 +175,6 @@
 .astra-month-phase .astra-month-phase-copy strong,
 .astra-month-phase .astra-month-phase-copy small,
 .astra-month-phase>span:last-child{color:var(--color-deep-ocean)}
-.astra-month-events{
-  background:var(--astra-surface);border-color:var(--astra-divider);
-  border-radius:var(--astra-radius-lg)
-}
-.astra-month-event{background:transparent;color:var(--astra-ink);border-color:var(--astra-divider)}
-.astra-month-event-day,.astra-month-event-text,.astra-month-event>span:last-child{color:var(--astra-ink)}
 :root[data-astra-theme="dark"] .astra-month-hero{
   background:var(--astra-month-hero-bg);border-color:var(--astra-border)
 }

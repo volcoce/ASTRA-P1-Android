@@ -830,13 +830,37 @@
       .sort(([a],[b])=>a.localeCompare(b));
     const exactEvents=records.flatMap(([day,data])=>[...(data.exact||[]),...(data.sky||[])].map(event=>({day,event})))
       .sort((a,b)=>(a.event.at||a.day).localeCompare(b.event.at||b.day));
-    const daysWithEvents=records.filter(([,d])=>(d.exact?.length||0)+(d.sky?.length||0)>0).length;
+    // Calendar month-day keys are already calculated in the birth-profile timezone.
+    // Group BEFORE limiting the list: busy days must never hide the other dates.
+    const eventDays=records.map(([day,data])=>({
+      day,events:[...(data.exact||[]),...(data.sky||[])]
+        .sort((a,b)=>(a.at||day).localeCompare(b.at||day))
+    })).filter(group=>group.events.length>0);
+    const daysWithEvents=eventDays.length;
+    const localNowParts=Object.fromEntries(new Intl.DateTimeFormat('en-GB',{
+      timeZone:state.profile.timezone||detectedZone,
+      year:'numeric',month:'2-digit',day:'2-digit'
+    }).formatToParts(new Date()).map(p=>[p.type,p.value]));
+    const profileToday=localNowParts.year+'-'+localNowParts.month+'-'+localNowParts.day;
+    const isCurrentMonth=monthKey===profileToday.slice(0,7);
+    const upcomingDays=isCurrentMonth?eventDays.filter(({day})=>day>=profileToday):eventDays;
+    const featuredDays=upcomingDays.slice(0,5);
     const journalDays=Object.keys(state.journal).filter(day=>day.startsWith(monthKey+'-')).length;
     const lunar=exactEvents.filter(({event})=>event.type==='moon'&&
       (event.name==='Nouvelle Lune'||event.name==='Pleine Lune'));
-    const featured=exactEvents.slice(0,5);
     const dayLabel=day=>new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'short',timeZone:'UTC'})
       .format(new Date(day+'T12:00:00Z'));
+    const weekdayLabel=day=>new Intl.DateTimeFormat('fr-FR',{weekday:'short',timeZone:'UTC'})
+      .format(new Date(day+'T12:00:00Z')).replace(/\.$/,'').toLocaleUpperCase('fr-FR');
+    const majorMoon=events=>events.find(e=>e.type==='moon'&&
+      (e.name==='Nouvelle Lune'||e.name==='Pleine Lune'));
+    const dayPreview=events=>{
+      const firstMoon=majorMoon(events);
+      const ordered=firstMoon?[firstMoon,...events.filter(e=>e!==firstMoon)]:events;
+      const titles=ordered.slice(0,2).map(e=>eventTitle(e).replace(/ · (?:0|60|90|120|180)°$/,''));
+      const hidden=events.length-titles.length;
+      return titles.join(' · ')+(hidden?' · +'+hidden+' autre'+(hidden>1?'s':''):'');
+    };
     return header('Ce mois','Les phases lunaires et les événements astronomiques de '+safe(monthLabel)+'.')+
       '<div class="month-head astra-month-navigation" aria-label="Choisir un mois">'+
         '<button type="button" class="arrow" data-month="-1" aria-label="Mois précédent">‹</button>'+
@@ -864,15 +888,27 @@
       '<section class="astra-month-metrics" aria-label="Indicateurs mensuels">'+
         '<div><strong>'+daysWithEvents+'</strong><span>jours avec événements</span></div>'+
         '<button type="button" data-goto="journal"><strong>'+journalDays+'</strong><span>jour'+(journalDays===1?'':'s')+' noté'+(journalDays===1?'':'s')+' · ouvrir le journal</span></button>'+
-      '</section>'+      '<section class="astra-month-section" aria-labelledby="monthEventsTitle">'+
-        '<div class="astra-section-head"><h2 id="monthEventsTitle">Premiers événements du mois</h2><span>'+exactEvents.length+' au total</span></div>'+
-        '<div class="astra-month-events">'+(featured.map(({day,event})=>
-          '<button type="button" data-month-open-day="'+day+'" class="astra-month-event">'+
-            '<span class="astra-month-event-day">'+safe(dayLabel(day))+'</span>'+
-            '<span class="astra-month-event-text">'+safe(eventTitle(event))+'</span>'+
-            '<span aria-hidden="true">›</span></button>').join('')||
-          '<p class="astra-empty">Aucun événement exact calculé pour ce mois.</p>')+'</div>'+
-        (exactEvents.length>featured.length?'<p class="astra-section-help">Les cinq premiers sont affichés. Consulte le calendrier pour les autres dates.</p>':'')+
+      '</section>'+
+      '<section class="astra-month-section" aria-labelledby="monthEventsTitle">'+
+        '<div class="astra-section-head"><h2 id="monthEventsTitle">'+
+          (isCurrentMonth?'Prochains jours avec événements':'Journées du mois')+
+          '</h2><span>'+upcomingDays.length+' '+(upcomingDays.length===1?'journée':'journées')+'</span></div>'+
+        '<div class="astra-event-day-list">'+(featuredDays.map(({day,events})=>{
+          const moon=majorMoon(events),number=Number(day.slice(-2));
+          const moonSymbol=moon?(moon.name==='Nouvelle Lune'?'●':'○'):'';
+          const count=events.length;
+          return '<button type="button" class="astra-event-day-row" data-month-open-day="'+day+'" '+
+            'aria-label="'+safe(displayDate(day)+', '+count+' événement'+(count===1?'':'s')+', voir dans le calendrier')+'">'+
+            '<span class="astra-event-day-date" aria-hidden="true"><strong>'+number+'</strong><small>'+safe(weekdayLabel(day))+'</small></span>'+
+            '<span class="astra-event-day-content"><span class="astra-event-day-heading"><strong>'+count+' événement'+(count===1?'':'s')+'</strong>'+
+            (moon?'<span class="astra-event-day-moon" aria-label="'+safe(moon.name)+'" title="'+safe(moon.name)+'">'+moonSymbol+'</span>':'')+'</span>'+
+            '<span class="astra-event-day-preview">'+safe(dayPreview(events))+'</span></span>'+
+            '<span class="astra-event-day-arrow" aria-hidden="true">›</span></button>';
+        }).join('')||
+          '<p class="astra-empty">'+(isCurrentMonth&&daysWithEvents?
+            'Plus aucune journée avec événement à venir ce mois-ci. Les dates passées restent dans le calendrier.':
+            'Aucun événement exact calculé pour ce mois.')+'</p>')+'</div>'+
+        (upcomingDays.length>featuredDays.length?'<p class="astra-section-help">Cinq journées affichées. Le calendrier présente toutes les autres dates.</p>':'')+
         '<button type="button" class="astra-month-calendar-link" data-goto="calendar">Ouvrir le calendrier <span aria-hidden="true">→</span></button></section>';
   }
   // A personal event has inclusive civil start/end dates. Split visual bars at

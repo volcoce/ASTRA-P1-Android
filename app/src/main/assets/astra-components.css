@@ -29,16 +29,16 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
 
 /* Shared surfaces; keep feature-specific pastel heroes and natal wheel intact. */
 :is(.calendar,.natal-overview-panel,.natal-focus,.natal-context-sheet,
-.astra-event-feed,.astra-active-panel,.astra-month-events,.natal-selection,
+.astra-event-feed,.astra-active-panel,.natal-selection,
 .natal-composite-result){
   background:var(--astra-surface);border-color:var(--astra-divider);
   color:var(--astra-ink);border-radius:var(--astra-radius-lg);box-shadow:none
 }
-:is(.calendar,.natal-focus,.astra-event-feed,.astra-month-events){
+:is(.calendar,.natal-focus,.astra-event-feed){
   border-width:1px;border-style:solid
 }
 :root[data-astra-theme="dark"] :is(.calendar,.natal-overview-panel,
-.natal-focus,.natal-context-sheet,.astra-event-feed,.astra-active-panel,.astra-month-events){
+.natal-focus,.natal-context-sheet,.astra-event-feed,.astra-active-panel){
   background:var(--astra-surface);border-color:var(--astra-border);color:var(--astra-ink)
 }
 
@@ -276,5 +276,46 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
 .astra-event-list-toggle:hover{background:var(--astra-secondary-surface)}
 .astra-event-list-toggle:focus-visible{outline-offset:-2px}
 .astra-event-list-toggle span{font-size:18px;line-height:1}
+
+
+/* Shared DayEventSummary — one day per row; the calendar remains the detail view. */
+.astra-event-day-list{
+  min-width:0;overflow:hidden;
+  background:var(--astra-surface);color:var(--astra-ink);
+  border:1px solid var(--astra-divider);border-radius:var(--astra-radius-lg);
+}
+.astra-event-day-row{
+  display:grid;grid-template-columns:54px minmax(0,1fr) 14px;
+  align-items:center;gap:var(--astra-space-3);
+  min-width:0;width:100%;min-height:78px;margin:0;
+  padding:10px var(--astra-component-inset);
+  border:0;background:transparent;color:var(--astra-ink);
+  text-align:left;cursor:pointer
+}
+.astra-event-day-row+.astra-event-day-row{border-top:1px solid var(--astra-divider)}
+.astra-event-day-row:hover{background:var(--astra-secondary-surface)}
+.astra-event-day-row:focus-visible{outline-offset:-3px}
+.astra-event-day-date{
+  min-height:54px;display:flex;flex-direction:column;justify-content:center;
+  align-items:center;gap:2px;flex:none;
+  background:var(--astra-secondary-surface);
+  border-radius:var(--astra-radius-md);color:var(--astra-ink);
+  font-variant-numeric:tabular-nums
+}
+.astra-event-day-date strong{font:750 21px/1.1 var(--astra-font-body)}
+.astra-event-day-date small{font:700 11px/1.2 var(--astra-font-body);color:var(--astra-muted)}
+.astra-event-day-content{display:flex;flex-direction:column;min-width:0;gap:3px}
+.astra-event-day-heading{display:flex;align-items:center;gap:8px;min-width:0}
+.astra-event-day-heading strong{font:750 15px/1.35 var(--astra-font-body)}
+.astra-event-day-preview{
+  color:var(--astra-muted);font:400 13px/1.45 var(--astra-font-body);
+  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
+  overflow:hidden;overflow-wrap:anywhere
+}
+.astra-event-day-moon{
+  flex:none;font:700 15px/1 var(--astra-font-body);
+  color:var(--astra-brand-strong)
+}
+.astra-event-day-arrow{font-size:21px;line-height:1;color:var(--astra-muted)}
 
 }
