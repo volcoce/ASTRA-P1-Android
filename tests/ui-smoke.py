@@ -687,6 +687,7 @@ if __name__ == '__main__':
             assert page.locator('#birthForm').count()==1
             assert page.locator('.natal-primary-cards').count()==0
             assert page.locator('#birthDate').evaluate('e=>e.getBoundingClientRect().height')>=48
+            assert page.locator('.unknown-time-toggle').evaluate('e=>e.getBoundingClientRect().height')>=48
             page.locator('#settingsButton').click()
             assert page.locator('#astraSettingsDialog[open]').count()==1
             assert page.locator('#settingsButton').get_attribute('aria-expanded')=='true'
