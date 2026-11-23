@@ -266,3 +266,33 @@ test('Global settings have one responsive dialog and single owners for shared pr
   });
  }
 });
+
+test('Shared touch targets and action spacing are governed by global tokens',()=>{
+ const tokens=postcss.parse(read('astra-tokens.css'),{from:'astra-tokens.css'});
+ const vars=new Map();
+ tokens.walkDecls(decl=>{if(decl.prop.startsWith('--astra-'))vars.set(decl.prop,decl.value)});
+ assert.equal(vars.get('--astra-control-min'),'48px');
+ assert.equal(vars.get('--astra-touch-gap'),'8px');
+ const layout=postcss.parse(read('astra-layout.css'),{from:'astra-layout.css'});
+ const rules=new Map();
+ layout.walkRules(rule=>{
+  if(!rules.has(rule.selector))rules.set(rule.selector,[]);
+  rules.get(rule.selector).push(rule);
+ });
+ const property=(selector,name)=>{
+  const rule=rules.get(selector)?.[0];assert.ok(rule,'Missing '+selector);
+  let value=null;
+  rule.walkDecls(name,decl=>value=decl.value);
+  return value;
+ };
+ assert.equal(property('button','min-height'),'var(--astra-control-min)');
+ assert.equal(property('button:not(.day):not(.astra-week-day)','min-width'),
+   'var(--astra-control-min)');
+ assert.equal(property('.bottom-nav','gap'),'var(--astra-touch-gap)');
+ assert.match(read('style.css'),/grid-template-columns:var\(--astra-control-min\) minmax\(0,1fr\) var\(--astra-control-min\)/);
+ const controlGroup=[...rules.keys()].find(key=>key.includes('.natal-zoom')&&key.includes('.astra-week-controls'));
+ assert.ok(controlGroup,'Shared spacing must cover compact controls, month and settings');
+ assert.equal(property(controlGroup,'gap'),'var(--astra-touch-gap)');
+ assert.ok(read('astra-components.css').includes('font-size:.75rem'),
+   'Tiny navigation should retain legible labels');
+});
