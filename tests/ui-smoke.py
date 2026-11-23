@@ -690,6 +690,7 @@ if __name__ == '__main__':
             page.locator('[data-profile-screen="settings"]').click()
             page.locator('[data-appearance="dark"]').click()
             assert page.evaluate("document.documentElement.dataset.astraTheme")=='dark'
+            page.wait_for_timeout(200)  # let any theme surface transitions settle
             for item in page.evaluate(CONTRAST_JS):
                 assert item.get('ratio',0)>=4.5,('dark',item)
             assert page.evaluate(

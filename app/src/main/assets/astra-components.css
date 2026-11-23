@@ -72,7 +72,7 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
   background:transparent;border:0;border-radius:var(--astra-radius-md);
   color:var(--astra-muted);font-size:.8125rem;font-weight:650;line-height:1.2;
   white-space:normal;overflow-wrap:normal;word-break:normal;text-align:center;
-  transition:background-color var(--astra-motion),color var(--astra-motion)
+  transition:background-color var(--astra-motion)
 }
 .bottom-nav .nav-label{
   display:block;max-width:100%;line-height:1.22;white-space:normal;
