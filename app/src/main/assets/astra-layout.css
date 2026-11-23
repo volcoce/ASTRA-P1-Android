@@ -58,7 +58,7 @@
   .main>.screen-intro{padding-top:30px}
 }
 @media(max-height:500px) and (orientation:landscape){
-  :root{--astra-nav-clearance:68px}
+  :root{--astra-nav-clearance:86px}
 }
 
 /* All routes share the same interactive geometry.
