@@ -388,9 +388,9 @@ test('Mon ciel back button and birth editor have no duplicate exports',()=>{
  }
 });
 
-test('City autocomplete is shared, keyboard-operable and removes manual search',()=>{
+test('Birth city autocomplete is keyboard-operable and removes manual search',()=>{
  const app=read('app.js'),css=postcss.parse(read('astra-components.css'),{from:'astra-components.css'});
- for(const id of ['birthCity','secondCity']){
+ for(const id of ['birthCity']){
   assert.ok(app.includes('id="'+id+'"'),'Missing city input '+id);
   assert.ok(app.includes('id="'+id+'Options" role="listbox"'),'Missing listbox for '+id);
   assert.ok(app.includes('aria-controls="'+id+'Options"'),'Missing combobox relationship');
@@ -448,4 +448,12 @@ test('Wheel remains interactive and legible without any degree annotations',()=>
   assert.doesNotMatch(read(file),/wheel-planet-degree|wheel-degree-tick|wheel-transit-degree|wheel-natal-degree/,
     file+' must not contain defunct wheel annotations');
  }
+});
+
+test('Advanced astrological tools are absent from natal navigation and renderer',()=>{
+ const app=read('app.js');
+ assert.doesNotMatch(app,/Outils astrologiques avancés|natal-extras|secondaryProgressions|compositeMidpoints|progressionDay|compositeForm/);
+ assert.match(app,/Comparer deux dates/);
+ assert.match(app,/Explorer les positions/);
+ for(const file of CSS_SOURCES)assert.doesNotMatch(read(file),/natal-extras|natal-progressions|natal-composite/);
 });
