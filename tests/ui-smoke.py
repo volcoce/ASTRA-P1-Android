@@ -28,7 +28,11 @@ window.ASTRA_ENGINE = {
  describeNatalAspect(a){return {title:'Aspect natal '+a.aspect,astronomy:'Écart calculé',convention:'Symbolisme conventionnel de l’aspect.',question:'Comment ces thèmes interagissent-ils ?',disclaimer:'Lecture symbolique'}},
 
  normalizePlace(p){return {...p,label:p.label||'Paris · Île-de-France · France'}},
- searchCities:async q=>[{name:'Paris',label:'Paris · Île-de-France · France',latitude:48.8534,longitude:2.3488,timezone:'Europe/Paris',admin1:'Île-de-France',country:'France'}],
+ searchCities:async q=>[
+  {name:'Paris',label:'Paris · Île-de-France · France',latitude:48.8534,longitude:2.3488,timezone:'Europe/Paris',admin1:'Île-de-France',country:'France'},
+  {name:'Paris',label:'Paris · Texas · États-Unis',latitude:33.6609,longitude:-95.5555,timezone:'America/Chicago',admin1:'Texas',country:'États-Unis'},
+  {name:'Lyon',label:'Lyon · Auvergne-Rhône-Alpes · France',latitude:45.764,longitude:4.8357,timezone:'Europe/Paris',admin1:'Auvergne-Rhône-Alpes',country:'France'}
+ ].filter(place=>place.name.toLowerCase().includes(String(q).toLowerCase().trim())),
  localToUtc(date,time,zone,fold=null){if(date==='2026-10-25' && time==='02:30' && fold===null)throw Error('Heure ambiguë');return new Date(date+'T'+(time||'12:00')+':00.000Z')},
  upcomingMoonPhases(start,zone,mode){
   const d=new Date(start);
@@ -366,6 +370,9 @@ if __name__ == '__main__':
             page.locator('[data-city-kind="birth"][data-city-preset="Paris"]').click()
             assert page.locator('#birthCity').input_value()=='Paris'
             page.locator('[data-city-kind="birth"][data-city-choice]').first.wait_for(timeout=3000)
+            assert page.locator('[data-city-kind="birth"][data-city-choice]').count()==2
+            assert 'France' in page.locator('[data-city-kind="birth"][data-city-choice]').first.inner_text()
+            assert 'Texas' in page.locator('[data-city-kind="birth"][data-city-choice]').last.inner_text()
             assert page.locator('#birthCity').get_attribute('aria-expanded')=='true'
             page.locator('[data-city-kind="birth"][data-city-choice]').first.click()
             assert page.locator('#birthCity').get_attribute('aria-expanded')=='false'
