@@ -69,6 +69,37 @@ window.ASTRA_ENGINE = {
 };
 """
 
+
+# Contrast is measured on the actual computed foreground and opaque ancestor
+# background, not just on colour-token pairs in a source stylesheet.
+CONTRAST_JS = """() => {
+  const rgb=value=>{
+    const match=value.match(/^rgba?\(([^)]+)\)$/);
+    if(!match)return null;
+    const values=match[1].split(',').map(Number);
+    return {channels:values.slice(0,3),alpha:values[3]??1};
+  };
+  const lum=channels=>channels.reduce((sum,raw,i)=>{
+    const x=raw/255;
+    return sum+(x<=0.04045?x/12.92:Math.pow((x+0.055)/1.055,2.4))*[0.2126,0.7152,0.0722][i];
+  },0);
+  return ['.top .brand','.bottom-nav .nav.active','.bottom-nav .nav:not(.active)',
+          '.screen-intro .page-title','.card .card-title'].map(selector=>{
+    const el=document.querySelector(selector);
+    if(!el)return {selector,error:'missing'};
+    const fg=rgb(getComputedStyle(el).color).channels;
+    let parent=el,bg=[255,255,255];
+    while(parent){
+      const color=rgb(getComputedStyle(parent).backgroundColor);
+      if(color&&color.alpha>=0.999){bg=color.channels;break}
+      parent=parent.parentElement;
+    }
+    const a=lum(fg),b=lum(bg);
+    return {selector,ratio:(Math.max(a,b)+.05)/(Math.min(a,b)+.05),
+            foreground:fg,background:bg};
+  });
+}"""
+
 if __name__ == '__main__':
     try:
         with sync_playwright() as pw:
@@ -148,6 +179,8 @@ if __name__ == '__main__':
             assert page.locator('.bottom-nav [data-tab="journal"]').count()==0
             assert px('.lead')>=14
             assert px('.tiny')>=13
+            for item in page.evaluate(CONTRAST_JS):
+                assert item.get('ratio',0)>=4.5,('light',item)
             assert page.locator('.card').first.evaluate(
                 "el => getComputedStyle(el).boxShadow"
             ) == 'none'
@@ -657,6 +690,8 @@ if __name__ == '__main__':
             page.locator('[data-profile-screen="settings"]').click()
             page.locator('[data-appearance="dark"]').click()
             assert page.evaluate("document.documentElement.dataset.astraTheme")=='dark'
+            for item in page.evaluate(CONTRAST_JS):
+                assert item.get('ratio',0)>=4.5,('dark',item)
             assert page.evaluate(
                 "getComputedStyle(document.documentElement).getPropertyValue('--astra-calendar-ink').trim()"
             )=='#F8EFD5'
