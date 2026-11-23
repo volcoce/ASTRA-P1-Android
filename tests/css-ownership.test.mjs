@@ -8,7 +8,7 @@ const read=file=>readFileSync(new URL('../app/src/main/assets/'+file,import.meta
 const disclosureClasses=[
  'astra-event-disclosure','calendar-help','calendar-options','natal-glossary',
  'natal-extras','natal-more-options','calculation-details','natal-preview-disclosure',
- 'natal-matrix-disclosure','natal-explore-wheel','city-technical'
+ 'natal-matrix-disclosure','natal-explore-wheel','city-technical','astra-active-panel'
 ];
 const gutterProperties=new Set(['padding','padding-left','padding-right',
  'padding-inline','padding-inline-start','padding-inline-end','padding-top',
@@ -114,4 +114,19 @@ test('Only the global component paints shared cards and card modifiers',()=>{
    });
   });
  }
+});
+
+
+test('Active aspects disclosure cannot bypass shared body gutters',()=>{
+ const app=read('app.js');
+ const legacy=read('atlas-ui.css'),features=read('astra-p1-screens.css');
+ const shared=read('astra-components.css');
+ assert.match(app,/class="astra-active-panel astra-disclosure astra-disclosure--surface"/);
+ assert.match(app,/class="astra-disclosure-count"/);
+ assert.match(app,/'<div class="astra-disclosure-body">'[\s\S]*?Angles entre les planètes présents à midi,[\s\S]*?'<div class="astra-event-feed">/);
+ assert.doesNotMatch(legacy,/\.astra-active-panel\s*\{[^}]*padding\s*:/s);
+ assert.doesNotMatch(legacy,/\.astra-active-panel\s+\.astra-event-feed\s*\{/s);
+ assert.doesNotMatch(features,/\.astra-active-panel\s*\{[^}]*background\s*:/s);
+ assert.match(shared,/\.astra-disclosure-body>\.astra-event-feed\s*\{[^}]*padding:0;/s);
+ assert.match(shared,/\.astra-disclosure\.astra-disclosure--surface\s*\{/s);
 });
