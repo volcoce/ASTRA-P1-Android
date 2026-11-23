@@ -19,8 +19,8 @@
 | --- | --- | --- | --- | --- |
 | **Ce jour** | Où se trouve la Lune à midi et quand change-t-elle de signe ? | Sélection de semaine, **Lune en [signe] à midi** dans le fuseau du profil, changement de signe en titre si présent, phase majeure exacte en encart dans la même carte | Cartes Soleil / Journal / Mon ciel, trois premiers événements | Autres événements, aspects en cours, calcul détaillé |
 | **Ce mois** | Que se passe-t-il pendant le mois affiché ? | Mois, nombre d'événements calculés, Nouvelles Lunes et Pleines Lunes | Premiers événements du mois et jours consignés | Dates détaillées, accès au journal |
-| **Calendrier** | À quelle date est cet événement ? | Grille mensuelle, phases lunaires à midi, **fond solaire continu sur plusieurs jours**, coloré selon l'élément (Feu, Terre, Air, Eau), avec jour de transition partagé 50/50, événements personnels multi-jours | Nouvelle Lune violette, Pleine Lune dorée, événements du jour et prochaines phases | Filtres, tropical/sidéral, autres détails |
-| **Mon ciel** | Quel est mon thème et comment le comprendre ? | Soleil/Lune/Ascendant en clair, « Comprendre mon thème », carte de naissance | « Comparer deux dates », lecture d'une planète | Matrice d'aspects, systèmes de maisons, détails techniques et exports |
+| **Calendrier** | À quelle date est cet événement ? | Grille mensuelle, phases lunaires à midi, **fond solaire continu sur plusieurs jours**, coloré selon l'élément (Feu, Terre, Air, Eau), avec jour de transition partagé 50/50, événements personnels multi-jours | Nouvelle Lune violette, Pleine Lune dorée, événements du jour et prochaines phases | Filtres contextuels, autres détails ; zodiaque dans Paramètres |
+| **Mon ciel** | Quel est mon thème et comment le comprendre ? | Soleil/Lune/Ascendant en clair, « Comprendre mon thème », carte de naissance | « Comparer deux dates », lecture d'une planète | Matrice d'aspects, détails techniques et exports ; maisons dans Paramètres |
 
 **Journal secondaire :** le Journal n'est plus un onglet principal, mais reste accessible depuis Ce jour, Ce mois et les fiches d'événements, y compris sans thème natal. Ses données locales et ses fonctions de saisie/recherche/sauvegarde ne changent pas.
 
@@ -32,7 +32,7 @@
 
 ```text
 ┌──────────────────────────────────┐
-│ ✳ ASTRA                          │  marque uniquement
+│ ✳ ASTRA                       ⚙  │  accès aux Paramètres
 ├──────────────────────────────────┤
 │ Aujourd'hui                      │  titre + une phrase utile
 │ Lu  Ma  Me  Je  Ve  Sa  Di       │  navigation de semaine
@@ -113,11 +113,12 @@ Ne jamais afficher une barre latérale **et** une barre basse concurrentes ; il 
 ### Zones de page
 
 - `AppShell` — fond et largeur confortable, barres système et safe areas Android.
-- `BrandHeader` — identité courte; pas de navigation concurrente.
+- `BrandHeader` — identité courte et bouton Paramètres ; aucune navigation concurrente.
 - `ScreenIntro` — un titre H1, sous-titre d'une phrase maximum, aucun titre répété à l'identique.
 - `PageContent` — flux vertical commun, sections accessibles avec titres H2.
 - `BottomNavigation` — quatre boutons, label, icône, `aria-current="page"`.
 - `ContextSheet` / `FullScreenChart` — détails et lecture agrandie, focus géré et bouton fermer.
+- `GlobalSettingsDialog` — préférences globales en quatre rubriques accessibles depuis l’en-tête, un seul propriétaire CSS et restauration du focus.
 
 ### Bibliothèque de composants
 
