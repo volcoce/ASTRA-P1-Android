@@ -134,14 +134,12 @@
 .natal-home .natal-summary-item{background:transparent;border-color:var(--astra-divider)}
 .natal-home .natal-summary-value{color:var(--astra-ink)}
 .natal-home .natal-summary-sign{color:var(--astra-brand-strong)}
-.natal-home .natal-home-actions--primary{max-width:650px;margin:0 auto 18px}
+.natal-home .natal-home-actions--primary{margin:0 0 18px}
 .natal-home .natal-home-actions--primary button{
   min-height:64px;background:var(--astra-primary);color:var(--astra-primary-ink);
   border:2px solid var(--astra-primary-ink);border-radius:var(--astra-radius-lg)
 }
 .natal-home .natal-home-actions--primary button :is(strong,small){color:var(--astra-primary-ink)}
-.natal-home .natal-overview-tabs,.natal-home .natal-extras,
-.natal-home .natal-glossary{max-width:750px;margin-left:auto;margin-right:auto}
 .natal-home .natal-overview-panel{border-color:var(--astra-divider);background:var(--astra-surface)}
 .natal-home .natal-home-actions--secondary{margin-top:20px}
 .natal-home .natal-secondary-action{
@@ -161,14 +159,14 @@
 
 /* ASTRA P5 — Mon ciel / Comprendre mon thème.
  * Single reading column, responsive planet rows and dark-mode surfaces.
- * Scope the main layout to .natal-explore to avoid perturbing calendar/wheel.
+ * Internal controls stretch to the shared page column; the wheel keeps its own geometry.
  * This layer loads after earlier responsive and theme styles. */
 
 .natal-explore :is(.natal-explore-toolbar,.natal-explore-intro,
   .natal-explore-tabs,.natal-explorer-panel,.natal-explore-wheel,
   .natal-matrix-disclosure,.natal-warning){
-  width:100%;max-width:var(--astra-reading-width);min-width:0;
-  margin-left:auto;margin-right:auto;box-sizing:border-box;
+  width:100%;min-width:0;
+  margin-left:0;margin-right:0;box-sizing:border-box;
 }
 .natal-explore .natal-explore-toolbar{
   display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;
@@ -211,7 +209,7 @@
   color:var(--astra-ink);
 }
 .natal-explore .natal-explorer-panel{
-  width:100%;max-width:var(--astra-reading-width);min-width:0;
+  width:100%;min-width:0;
 }
 .natal-explore .natal-explore-list{
   width:100%;max-width:none;min-width:0;
@@ -336,13 +334,13 @@
 .natal-explore .natal-explore-list .natal-contact-empty{
   color:var(--astra-muted);
 }
-.natal-explore>.tiny{max-width:var(--astra-reading-width);margin:10px auto;color:var(--astra-muted)}
+.natal-explore>.tiny{margin:10px 0;color:var(--astra-muted)}
 
 /* On the birth-chart overview, the lower tools should use the same column and
  * semantic surfaces. This also fixes white advanced-tool menus in dark mode. */
 .natal-home :is(.natal-glossary,.natal-extras,.natal-home-actions--secondary){
-  width:100%;max-width:650px;min-width:0;
-  margin-left:auto;margin-right:auto;box-sizing:border-box;
+  width:100%;min-width:0;
+  margin-left:0;margin-right:0;box-sizing:border-box;
 }
 :is(.natal-home,.natal-explore) :is(.natal-glossary,.natal-extras){
   background:var(--astra-secondary-surface);
@@ -425,8 +423,8 @@
  * This single scoped layer removes those conflicting gutters without changing
  * SVG positions, event handlers, the explorer or other screens. */
 /* Restore the missing outer card rather than decorating each nested item. */
-/* At narrower widths the title stays aligned to the card's inner gutter.
-   At large widths both use the centered 680px reading column. */
+/* All overview sections fill the shared card content box at every breakpoint.
+   Page width and outer gutters are owned by .main in astra-layout.css. */
 .natal-home> :is(
   .natal-home-header,.natal-primary-cards,
   .natal-home-actions--primary,.natal-overview-tabs,
@@ -435,8 +433,8 @@
   .natal-glossary,.natal-home-actions--secondary,
   .natal-extras,.natal-warning,.notice
 ){
-  width:100%;max-width:var(--astra-reading-width);
-  min-width:0;margin-left:auto;margin-right:auto;box-sizing:border-box
+  width:100%;min-width:0;
+  margin-left:0;margin-right:0;box-sizing:border-box
 }
 .natal-home>.natal-home-header{
   display:flex;align-items:center;justify-content:space-between;
