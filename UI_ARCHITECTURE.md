@@ -113,7 +113,7 @@ Ne jamais afficher une barre latérale **et** une barre basse concurrentes ; il 
 ### Zones de page
 
 - `AppShell` — fond et largeur confortable, barres système et safe areas Android.
-- `BrandHeader` — identité courte, sans bouton supplémentaire ; aucune navigation concurrente.
+- `ScreenIntro` — titre H1 et sous-titre contextuels en tête de chaque écran. Aucun bandeau ASTRA permanent ; la navigation principale reste en bas.
 - `ScreenIntro` — un titre H1, sous-titre d'une phrase maximum, aucun titre répété à l'identique.
 - `PageContent` — flux vertical commun, sections accessibles avec titres H2.
 - `BottomNavigation` — quatre vues et une entrée Paramètres à droite de Mon ciel ; icônes et libellés, `aria-current="page"` pour les vues, `aria-expanded` pour les paramètres.
@@ -166,7 +166,7 @@ Ne jamais afficher une barre latérale **et** une barre basse concurrentes ; il 
 | Blanc | `#ffffff` | cartes |
 | Encre | `#172637` | titres et texte |
 | Texte secondaire | `#526273` | description, 6.26:1 sur blanc |
-| Bleu nuit | `#172b3e` | masthead et CTA |
+| Bleu nuit | `#172b3e` | CTA et surfaces d’accentuation |
 | Bleu actif | `#315e79` | navigation et détails, 6.98:1 sur blanc |
 | Ligne | `#d8e1e6` | séparateurs |
 | Or doux | `#e9bb71` | illustration uniquement, **jamais texte clair sur blanc** |
