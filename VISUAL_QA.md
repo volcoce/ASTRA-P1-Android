@@ -33,3 +33,7 @@ Le projet ne vérifie pas les performances sur téléphone réel, le rendu TalkB
 ### Régression des blocs dépliants
 
 Les fiches d'événements réutilisent les paddings du composant commun (16 px pour les en-têtes et le contenu). Aucun padding nul ne doit être réintroduit dans une variante métier. Chromium vérifie l'espacement réellement calculé à 320, 393 et 1280 px, l'absence de débordement et produit des captures des blocs ouverts à 320 et 1280 px.
+
+## Contrat global de composants
+
+Les 16 sources CSS sont analysées par `tests/css-ownership.test.mjs` avec PostCSS. Les blocs dépliants ne doivent jamais définir des gouttières locales : `astra-components.css` fournit `.astra-disclosure`, son en-tête direct `summary` et `.astra-disclosure-body`. Le navigateur vérifie leurs valeurs calculées en mode clair/sombre, sur mobile/tablette/bureau et dans les parcours natal, calendrier et événements. Le script est lancé à la fois par `npm run lint:css` et `npm test`.

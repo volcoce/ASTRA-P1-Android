@@ -18,6 +18,33 @@ Chaque feuille est placée dans une couche CSS native. L'ordre, déclaré une se
 
 Les couches ne sont **pas** des feuilles de surcharges supplémentaires. La priorité se détermine par cette hiérarchie, avant la spécificité du sélecteur. Attention : `!important` inverse la priorité des couches. Son emploi est limité à la dissimulation d'accessibilité, aux adaptations de mouvement réduit et aux éléments dont le focus est tronqué.
 
+## Catégories standardisées
+
+ASTRA a **un seul CSS livré dans l’APK** : `astra.bundle.css`, compilé à partir des 16 sources. Les sources sont réparties par responsabilité, jamais par route. Le système partagé de composants est `astra-components.css`, et non une feuille de correctifs ajoutée à la fin.
+
+| Catégorie | Propriétaire | Convention |
+| --- | --- | --- |
+| Tokens et thèmes | `astra-tokens.css` | `--astra-*`, clair/sombre, espacement, rayons, états |
+| Base et boutons | `astra-components.css` | Couleurs de texte, typographie, `.primary`, `.ghost`, focus |
+| Formulaires | `astra-components.css` | Champs, validation, surfaces et états |
+| Cartes et panneaux | `astra-components.css` | `.card` et `.astra-reading-card` |
+| Disclosure (bloc dépliant) | `astra-components.css` | `<details class="astra-disclosure"><summary>…</summary><div class="astra-disclosure-body">…</div></details>` |
+| Actions de disclosure | `astra-components.css` | `.astra-disclosure-actions` sur le corps |
+| Grille et navigation | `astra-layout.css` | `.main`, `.app-shell`, `.bottom-nav` |
+| Variantes métier | `astra-natal.css`, `astra-p4-calendar.css`, etc. | Seulement le contenu propre aux fonctionnalités |
+| Legacy | `style.css`, `atlas-ui.css`, etc. | Compatibilité à supprimer progressivement, **pas de nouvelle géométrie commune** |
+
+### Contrat obligatoire des disclosures
+
+- Le titre est un enfant direct `summary` de `details.astra-disclosure`.
+- Le contenu est **un unique enfant direct** `.astra-disclosure-body` contenant textes, cartes, formulaires, etc.
+- L’en-tête et le corps ont chacun une gouttière horizontale définie par `--astra-component-inset` (16 px actuellement).
+- La hauteur minimale, les marges internes verticales, le marqueur +/−, le focus et les couleurs relèvent du composant global.
+- L’écran peut contrôler uniquement la mise en page **à l’intérieur** du corps (grille, typographie du contenu, etc.). Il ne peut pas réinitialiser le padding du conteneur ou du titre.
+- Les cas nécessitant un comportement différent doivent introduire une variante **documentée dans le composant global**, pas un sélecteur plus spécifique dans un CSS local.
+
+`tests/css-ownership.test.mjs` analyse **les 16 fichiers CSS avec PostCSS** et refuse les redéfinitions de padding ou min-height sur les titres/corps de disclosure hors du propriétaire global. Les tests Chromium contrôlent les valeurs calculées dans les pages de naissance, d’exploration, de réglages, de calendrier et d’événements, y compris sous plusieurs largeurs d’écran. Les garde-fous existants empêchent aussi le retour de géométries séparées pour la colonne, les cartes et la navigation.
+
 ## Répartition des responsabilités
 
 - `astra-tokens.css` : couleurs, typographies et valeurs sémantiques, ainsi que `--astra-reading-width`, `--astra-card-gutter`, `--astra-nav-width` et `--astra-nav-clearance`.
