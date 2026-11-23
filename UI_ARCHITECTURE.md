@@ -183,14 +183,16 @@ Ces rapports sont calculés sur fond blanc à partir des couleurs proposées. Co
 - H2 : 19–22 px, line-height ~1.3.
 - Corps : 15–16 px, line-height 1.45–1.6.
 - Texte secondaire : 13–14 px, jamais inférieur à 12 px pour l'information utile.
-- Boutons : hauteur conseillée **48 px** et surface tactile cible >=44 × 44 CSS px.
+- Boutons : zone cliquable cible **48 × 48 px CSS** dans la WebView (équivalent de conception au repère Android 48 dp à échelle normale). Les icônes peuvent être plus petites que leur surface interactive.
+- Les actions voisines utilisent **8 px** d'écart (`--astra-touch-gap`) ; les actions destructives sont séparées visuellement et nécessitent confirmation.
+- Les grilles de sept jours à 320 px ne peuvent pas contenir sept cellules de 48 px de large. Leurs cellules restent **entières cliquables, hautes d'au moins 48 px**, avec l'exception d'espacement WCAG 2.2, sans défilement horizontal obligatoire.
 - Cartes : rayon 14–18 px; une seule séparation visuelle (bordure *ou* ombre, pas les deux).
 - Typographie système, poids 400/650/750; pas de titres de cartes en capitales intégrales.
 
 ### Réactivité et confort
 
 - Reflow sans défilement horizontal de page à **320 CSS px** (sauf roue zoomée / rail explicitement défilable).
-- Tester 320×700, 360×780 (Galaxy A15 simulé), 393×844, 412×915, 768×1024, 1280×800.
+- Tester 320×700, 360×780 (Galaxy A15 simulé), 393×844, 412×915, 768×1024, 1280×800, ainsi que paysage et texte agrandi. Vérifier les rectangles interactifs réels (`getBoundingClientRect`) de la barre basse, des menus, des flèches et des commandes de roue.
 - Tester agrandissement de police et de l'affichage Android, portrait/paysage, clavier ouvert et fermeture, barres système.
 - Pas de CTA essentiel sous la barre basse; `env(safe-area-inset-*)` ou insets natifs gérés **une seule fois**.
 - Champs toujours associés à `label`, titres sémantiques, progression `aria-live`, `aria-expanded` et `aria-pressed` si adaptés.
