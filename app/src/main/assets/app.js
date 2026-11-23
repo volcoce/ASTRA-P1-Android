@@ -310,7 +310,7 @@
     const input=$(cityInputId(kind)),list=$(cityInputId(kind)+'Options'),status=$(cityInputId(kind)+'Status');
     if(!input||!list||!status)return;
     const state=cityState(kind),q=cityText(kind).trim();
-    const presetMode=state.open&&!q;
+    const presetMode=state.open&&(!q||citySelected(kind)?.label===cityText(kind));
     const options=presetMode?cityPresets:state.options;
     const visible=state.open&&options.length>0;
     list.hidden=!visible;
@@ -401,7 +401,8 @@
   function moveCityActive(kind,delta){
     const state=cityState(kind);
     if(!state.open){state.open=true;renderCityMenu(kind);}
-    const count=cityText(kind).trim()?state.options.length:cityPresets.length;
+    const count=cityText(kind).trim()&&citySelected(kind)?.label!==cityText(kind)?
+      state.options.length:cityPresets.length;
     if(!count)return;
     state.active=state.active<0?(delta>0?0:count-1):(state.active+delta+count)%count;
     renderCityMenu(kind);
@@ -2343,10 +2344,11 @@
     const kind=event.target.id==='birthCity'?'birth':event.target.id==='secondCity'?'composite':null;
     if(kind){
       const state=cityState(kind),value=cityText(kind).trim();
+      const confirmed=citySelected(kind)?.label===cityText(kind);
       if(event.key==='ArrowDown'||event.key==='ArrowUp'){
         event.preventDefault();
         if(!state.open){state.open=true;
-          if(value.length>=3&&!state.options.length&&!state.loading)queueCityLookup(kind);
+          if(value.length>=3&&!confirmed&&!state.options.length&&!state.loading)queueCityLookup(kind);
         }
         moveCityActive(kind,event.key==='ArrowDown'?1:-1);return;
       }
@@ -2354,11 +2356,11 @@
         event.preventDefault();state.open=false;state.active=-1;renderCityMenu(kind);return;
       }
       if(event.key==='Enter'&&state.open){
-        const count=value?state.options.length:cityPresets.length;
+        const count=value&&!confirmed?state.options.length:cityPresets.length;
         if(count){
           event.preventDefault();
           const index=state.active>=0?state.active:0;
-          if(!value)chooseCityPreset(kind,cityPresets[index]);
+          if(!value||confirmed)chooseCityPreset(kind,cityPresets[index]);
           else chooseCity(kind,state.options[index]);
           return;
         }
@@ -2425,6 +2427,14 @@
   });
   // Opening a blank picker immediately shows common cities. No keypress or
   // submit button is required. Closing never destroys the current form input.
+  $('app').addEventListener('click',event=>{
+    const kind=event.target.id==='birthCity'?'birth':event.target.id==='secondCity'?'composite':null;
+    if(!kind)return;
+    const state=cityState(kind);
+    if(citySelected(kind)?.label===cityText(kind)){
+      state.open=true;state.active=-1;renderCityMenu(kind);
+    }
+  });
   $('app').addEventListener('focusin',event=>{
     const kind=event.target.id==='birthCity'?'birth':event.target.id==='secondCity'?'composite':null;
     if(!kind)return;
