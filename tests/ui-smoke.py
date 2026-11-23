@@ -751,19 +751,19 @@ if __name__ == '__main__':
             page.locator('[data-profile-screen="overview"]').click()
             page.locator('#settingsButton').click()
             page.locator('[data-settings-birth]').click()
-            # Native settings hold export tools, preview wheel remains available.
+            # The editor has one correctly sized return control and no
+            # graphic export buttons, while keeping the preview interactive.
+            back=page.locator('.natal-settings .natal-back')
+            assert back.count()==1
+            assert back.get_attribute('aria-label')=='Retour à Mon ciel'
+            back_rect=back.bounding_box()
+            assert back_rect and back_rect['width']>=48 and back_rect['height']>=48,back_rect
+            assert back.evaluate("e=>getComputedStyle(e).borderTopStyle")=='solid'
+            assert page.locator('[data-export-chart], .natal-downloads').count()==0
             page.locator('.natal-preview-disclosure summary').click()
             assert audit_disclosures('natal-preview')>=1
             assert page.locator('.natal-settings .natal-wheel').count()==1
-            # Browser-generated exports should be real files, not only UI alerts.
-            with page.expect_download(timeout=6000) as d:
-                page.locator('[data-export-chart="svg"]').click()
-            assert d.value.suggested_filename.endswith('.svg')
-            assert b'<svg' in Path(d.value.path()).read_bytes()
-            with page.expect_download(timeout=9000) as d:
-                page.locator('[data-export-chart="png"]').click()
-            assert d.value.suggested_filename.endswith('.png')
-            assert Path(d.value.path()).read_bytes().startswith(b'\\x89PNG'.decode('unicode_escape').encode('latin1'))
+            assert page.locator('.natal-preview-disclosure summary').inner_text()=='Aperçu de la carte'
             page.locator('[data-wheel-layout="natal"]').click()
             page.locator('[data-profile-screen="overview"]').click()
             assert page.locator('.natal-double-wheel').count()==0
