@@ -15,7 +15,7 @@
 .natal-home .natal-primary-cards{
   display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;
   gap:8px;padding:0;border:0;background:transparent;border-radius:0;
-  max-width:none;width:100%;margin:0 0 14px
+  width:100%;margin:0 0 14px
 }
 .natal-home .natal-summary-item{
   min-width:0;min-height:122px;display:flex;flex-direction:column;justify-content:center;
