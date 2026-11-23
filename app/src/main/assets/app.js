@@ -1696,11 +1696,11 @@
         '<p class="natal-home-subtitle">'+(isTropical?'Tropical':'Sidéral')+'</p></div></div>'+
         (uncertain?notice:'')+
         '<div class="natal-primary-cards'+(h?'':' natal-primary-cards--two')+'" role="group" aria-label="Soleil, Lune et Ascendant en signes astrologiques">'+quickCards+'</div>'+
-        overviewContent+
+        overviewContent+renderNatalDistribution(chart)+
+        (h?.polarFallback?'<p class="notice">Maisons égales utilisées à cette latitude.</p>':'')+
         '<div class="natal-home-actions natal-home-actions--primary"><button type="button" class="natal-main-action" data-profile-screen="explore"><span class="action-label"><strong>Explorer les positions</strong></span><span class="action-arrow" aria-hidden="true">→</span></button></div>'+
         '<div class="natal-home-actions natal-home-actions--secondary"><button type="button" class="natal-secondary-action" data-explore-transits="1"><span class="action-label"><strong>Comparer deux dates</strong></span><span class="action-arrow" aria-hidden="true">→</span></button></div>'+
-        renderNatalDistribution(chart)+contextSheet+
-        (h?.polarFallback?'<p class="notice">Maisons égales utilisées à cette latitude.</p>':'')+
+        contextSheet+
         '</section>';
     }
     if(isSettings){

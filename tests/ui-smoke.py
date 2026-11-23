@@ -578,7 +578,8 @@ if __name__ == '__main__':
                       const explorer=box('.natal-main-action');
                       const compare=box('.natal-secondary-action');
                       const [elements,modalities]=[...document.querySelectorAll('.natal-distribution-figure')].map(el=>el.getBoundingClientRect());
-                      return {wheelGap:explorer.top-wheel.bottom,actionGap:compare.top-explorer.bottom,
+                      const distribution=box('.natal-distribution');
+                      return {wheelGap:distribution.top-wheel.bottom,footerGap:explorer.top-distribution.bottom,actionGap:compare.top-explorer.bottom,
                         distributionGap:modalities.top-elements.bottom,
                         elementsLeft:elements.left,modalitiesLeft:modalities.left,
                         elementsWidth:elements.width,modalitiesWidth:modalities.width};
@@ -593,7 +594,8 @@ if __name__ == '__main__':
                 }""")
                 vertical=geometry['vertical']
                 assert vertical['wheelGap']>=15,(width,vertical)
-                assert abs(vertical['wheelGap']-vertical['actionGap'])<=1,(width,vertical)
+                assert vertical['footerGap']>=15,(width,vertical)
+                assert abs(vertical['footerGap']-vertical['actionGap'])<=1,(width,vertical)
                 assert vertical['distributionGap']>=23,(width,vertical)
                 assert abs(vertical['elementsLeft']-vertical['modalitiesLeft'])<=1,(width,vertical)
                 assert abs(vertical['elementsWidth']-vertical['modalitiesWidth'])<=1,(width,vertical)
