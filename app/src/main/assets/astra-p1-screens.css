@@ -2,7 +2,7 @@
    Layout hierarchy only; physical astronomy, dates and event actions untouched. */
 
 /* Reusable page hierarchy */
-.main>.screen-intro{max-width:840px;margin:0 auto 14px}
+/* Screen-intro width and outer margins belong to astra-layout.css. */
 .screen-intro .page-title{
   margin:4px 0 6px;font-family:var(--astra-font-display);
   font-size:clamp(28px,5vw,38px);line-height:1.14;letter-spacing:-.025em
@@ -18,7 +18,7 @@
    journal -> events -> advanced active aspects */
 .astra-week-strip{margin-bottom:15px}
 .astra-day-hero{
-  max-width:840px;margin:0 auto 15px;padding:23px 24px 20px;
+  margin:0 0 15px;padding:23px 24px 20px;
   min-height:unset;border:2px solid var(--color-deep-ocean);
   border-radius:var(--astra-radius-xl);
   background:var(--color-cornflower);color:var(--color-deep-ocean);
@@ -141,8 +141,9 @@
 
 /* CE MOIS — month navigation, summary, major phases, supporting metrics,
    then first chronological events and calendar entry */
+/* Month sections stretch to the shared page content width. */
 .astra-month-navigation,.astra-month-hero,.astra-month-metrics,
-.astra-month-section{max-width:840px;margin-left:auto;margin-right:auto}
+.astra-month-section{width:100%;min-width:0}
 .astra-month-navigation{margin-bottom:15px}
 .astra-month-hero{
   background:var(--color-dandelion);color:var(--color-deep-ocean);
@@ -194,9 +195,9 @@
 
 /* CALENDRIER — clear month chooser, slim options, one truly continuous
    background ribbon behind day labels. Do not restore individual day fills. */
-.astra-calendar-month-head{max-width:840px;margin:4px auto 14px}
+.astra-calendar-month-head{margin:4px 0 14px}
 .calendar-options{
-  max-width:840px;margin:0 auto 12px;
+  margin:0 0 12px;
   background:var(--astra-surface);border:1px solid var(--astra-divider);
   border-radius:var(--astra-radius-md);padding:0 12px
 }
@@ -204,7 +205,7 @@
 .calendar.astra-calendar-board{
   background:var(--astra-surface);border:1px solid var(--astra-divider);
   border-radius:var(--astra-radius-xl);padding:16px 12px 18px;
-  max-width:840px;margin-inline:auto
+  margin-inline:0
 }
 .calendar.astra-calendar-board .cal-grid{row-gap:8px}
 .calendar.astra-calendar-board .weekday{color:var(--astra-muted);font-size:12px}
