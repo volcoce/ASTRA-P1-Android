@@ -64,3 +64,11 @@ test('Every route uses the same main width and gutters, without page-specific ca
  assert.doesNotMatch(legacy,/\.natal-explore \.natal-explore-tabs\s*\{[^}]*max-width:/);
 });
 
+
+test('Calendar disclosures preserve equal horizontal inset for labels and icons',()=>{
+ const css=read('astra-p4-calendar.css');
+ assert.match(css,/\.calendar\.astra-calendar-board \.calendar-help>summary\s*\{[^}]*padding:11px 14px/s);
+ assert.match(css,/\.calendar-options\s*\{[^}]*padding:0 14px/s);
+ assert.doesNotMatch(css,/\.calendar\.astra-calendar-board \.calendar-help>summary\s*\{[^}]*padding:11px 0/s);
+ assert.doesNotMatch(css,/\.calendar-options\s*\{[^}]*max-width:/s);
+});
