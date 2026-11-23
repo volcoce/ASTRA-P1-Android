@@ -29,6 +29,11 @@ export function natalChart(profile,mode='tropical',houseSystem='placidus') {
   if(!Object.hasOwn(HOUSE_SYSTEMS,houseSystem))throw Error('Système de maisons inconnu');
   const birth=validateProfile(profile);
   const positions=Object.fromEntries(BODIES.map(body=>[body,longitude(body,birth,mode)]));
+  // Geocentric motion at the birth instant; signed handles the 360° wrap.
+  // The noon estimate is indicative when the birth time is unknown.
+  const retrogrades=Object.fromEntries(BODIES.map(body=>[body,
+    signed(tropicalLongitude(body,new Date(birth.getTime()+3600000))-
+      tropicalLongitude(body,new Date(birth.getTime()-3600000)))<0]));
   const timeKnown=profile.timeKnown!==false;
   const tropical=timeKnown?tropicalHouses(birth,profile.latitude,profile.longitude,Astronomy.SiderealTime(birth)):null;
   // Sidereal cusps use the same local horizon and Placidus geometry, with longitudes
@@ -44,7 +49,7 @@ export function natalChart(profile,mode='tropical',houseSystem='placidus') {
   // sidereal conversion. Shifting tropical whole-sign cusps would be wrong.
   const houses=zodiacBase?selectHouseSystem(zodiacBase,houseSystem):null;
   const preciseBodies=timeKnown?positions:Object.fromEntries(Object.entries(positions).filter(([body])=>body!=='Moon'));
-  return {birth:birth.toISOString(),positions,houses,aspects:natalAspects(preciseBodies),
+  return {birth:birth.toISOString(),positions,retrogrades,houses,aspects:natalAspects(preciseBodies),
     timeKnown,approximateNoon:!timeKnown,uncertainBodies:timeKnown?[]:['Moon'],
     zodiac:mode,houseSystem,engine:'astronomy-engine@2.1.19'};
 }
