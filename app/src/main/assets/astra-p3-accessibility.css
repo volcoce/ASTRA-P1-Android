@@ -14,7 +14,12 @@ html,body,.app-shell,.main{min-width:0;max-width:100%}
 .main{overflow-wrap:break-word}
 :is(button,a,input,select,textarea,summary,[role="button"]):focus-visible{
   outline:3px solid var(--astra-focus)!important;
-  outline-offset:2px!important;
+  .outline-offset:2px!important;
+}
+/* Keep keyboard focus visible within rounded, overflow-clipped disclosures. */
+.astra-disclosure>summary:focus-visible{
+  outline-offset:-3px!important;
+  border-radius:calc(var(--astra-radius-lg) - 1px);
 }
 :is(.calendar .day,.astra-week-day,.bottom-nav .nav):focus-visible{
   outline:3px solid var(--astra-calendar-focus)!important;

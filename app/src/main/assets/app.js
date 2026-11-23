@@ -575,7 +575,7 @@
       (complete?'':'Certaines positions ne sont pas disponibles. '):
       'Positions solaires indisponibles pour ce mois.';
     return '<details class="calendar-help astra-disclosure"><summary>Comprendre le calendrier</summary>'+
-      '<div class="calendar-help-body"><p><strong>Couleurs solaires</strong> · '+sunText+'</p>'+
+      '<div class="calendar-help-body astra-disclosure-body"><p><strong>Couleurs solaires</strong> · '+sunText+'</p>'+
       '<p><strong>Icônes lunaires</strong> · Chaque disque représente la phase de la Lune à midi ; les Nouvelles Lunes et Pleines Lunes exactes sont mises en évidence.</p>'+
       '<p><strong>Repères</strong> · ✦ aspect exact · ~ aspect en cours · point rose : note du journal.</p>'+
       '</div></details>';

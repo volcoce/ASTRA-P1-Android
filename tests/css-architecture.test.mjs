@@ -65,6 +65,14 @@ test('Every route uses the same main width and gutters, without page-specific ca
 });
 
 
+test('Calendar explanation uses shared inner padding and clipped-safe keyboard focus',()=>{
+ const app=read('app.js'),components=read('astra-components.css');
+ const accessibility=read('astra-p3-accessibility.css'),calendar=read('astra-p4-calendar.css');
+ assert.match(app,/class="calendar-help-body astra-disclosure-body"/);
+ assert.match(components,/\.astra-disclosure-body\s*\{[^}]*padding:14px 16px 18px/s);
+ assert.match(accessibility,/\.astra-disclosure>summary:focus-visible\s*\{[^}]*outline-offset:-3px!important/s);
+ assert.doesNotMatch(calendar,/\.calendar\.astra-calendar-board \.calendar-help-body\s*\{[^}]*padding:/s);
+});
 test('Calendar disclosures preserve equal horizontal inset for labels and icons',()=>{
  const css=read('astra-p4-calendar.css');
  assert.match(css,/\.calendar\.astra-calendar-board \.calendar-help>summary\s*\{[^}]*padding:11px 14px/s);
