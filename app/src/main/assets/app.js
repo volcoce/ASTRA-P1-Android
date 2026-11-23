@@ -156,7 +156,6 @@
   let selected = isoDay(new Date());
   let month = new Date(new Date().getFullYear(),new Date().getMonth(),1);
   let calendarSheet=false;
-  let calendarOptionsOpen=false;
   let personalEditor=null; // 'new' or a saved event ID
 
   // Browser-only deep links. The Android shell keeps its native back handler.
@@ -618,19 +617,9 @@
     const names=periods.mostPresent.map(i=>zodiacNames[i]).join(' et ');
     return '<p class="astra-calendar-solar-note">☉ <span>Soleil dominant</span> <strong>'+safe(names)+'</strong></p>';
   }
-  function solarCalendarExplanation(periods){
-    const hasData=periods?.mostPresent?.length;
-    const names=hasData?periods.mostPresent.map(i=>zodiacNames[i]).join(' et '):'';
-    const pct=hasData?Math.round(periods.max/periods.dayCount*100):0;
-    const days=hasData?new Intl.NumberFormat('fr-FR',{maximumFractionDigits:1}).format(periods.max):'';
-    const complete=hasData&&periods.indices.every(index=>index!==null);
-    const sunText=hasData?
-      'Signe solaire le plus présent : '+safe(names)+' · '+days+' jours ('+pct+' %). Le calcul repose sur la position du Soleil à midi, pour le mois affiché. '+
-      (periods.ingresses.length?'Le jour d’entrée dans un nouveau signe est partagé visuellement en deux moitiés (50/50), quelle que soit l’heure réelle du passage. ':'')+
-      (complete?'':'Certaines positions ne sont pas disponibles. '):
-      'Positions solaires indisponibles pour ce mois.';
+  function solarCalendarExplanation(){
     return '<details class="calendar-help astra-disclosure"><summary>Comprendre le calendrier</summary>'+
-      '<div class="calendar-help-body astra-disclosure-body"><p><strong>Couleurs solaires</strong> · '+sunText+'</p>'+
+      '<div class="calendar-help-body astra-disclosure-body"><p><strong>Couleurs solaires</strong> · Le ruban indique le signe du Soleil à midi. Le jour de son changement de signe est partagé visuellement en deux moitiés (50/50), quelle que soit l’heure réelle du passage. Le signe dominant est celui qui occupe la plus grande part du mois affiché.</p>'+
       '<p><strong>Icônes lunaires</strong> · Chaque disque représente la phase de la Lune à midi ; les Nouvelles Lunes et Pleines Lunes exactes sont mises en évidence.</p>'+
       '<p><strong>Repères</strong> · ✦ aspect exact · ~ aspect en cours · point rose : note du journal.</p>'+
       '</div></details>';
@@ -1144,8 +1133,7 @@
       '<span class="cal-legend-item"><span class="moon-phase-legend-dot new" aria-hidden="true">'+moonPhaseIcon(0)+'</span> Nouvelle Lune</span>'+
       '<span class="cal-legend-item"><span class="moon-phase-legend-dot full" aria-hidden="true">'+moonPhaseIcon(180)+'</span> Pleine Lune</span>'+
       '</div>':'')+
-      (state.profile?solarCalendarExplanation(periods):'')+'</div>'+
-      (state.profile?'<details class="calendar-options astra-disclosure"'+(calendarOptionsOpen?' open':'')+'><summary>Options d’affichage</summary><div class="astra-disclosure-body">'+filters()+'<p class="field-help">Le zodiaque se règle dans Paramètres.</p></div></details>':'')+
+      '</div>'+
       status()+calendarDayInspector()+personalEventEditor()+detailView();
   }
   function initDraft() {
@@ -1751,7 +1739,8 @@
           '<span class="astra-palette-samples" aria-hidden="true">'+
           ['fire','air','water','earth'].map(e=>'<i class="astra-palette-swatch" data-element="'+e+'"></i>').join('')+'</span>'+
           '<strong>'+label+'</strong><small>'+description+'</small></button>').join('')+
-      '</div></section>';
+      '</div>'+
+      '<details class="calendar-options astra-disclosure"><summary>Options d’affichage</summary><div class="astra-disclosure-body">'+filters()+'</div></details></section>';
   }
   function diagnosticsPanel(){
     const rows=performanceReport();
@@ -1823,7 +1812,8 @@
         '<dt>Aspect</dt><dd>Angle mesuré entre deux positions planétaires.</dd>'+
         '<dt>Orbe</dt><dd>Écart entre un angle exact et l’angle mesuré.</dd>'+
         '<dt>Transit</dt><dd>Position planétaire à une autre date, comparée à ta naissance.</dd>'+
-        '</dl><p class="tiny">Les interprétations astrologiques sont symboliques, non scientifiquement prédictives.</p></div></details></section>';
+        '</dl><p class="tiny">Les interprétations astrologiques sont symboliques, non scientifiquement prédictives.</p></div></details>'+
+      solarCalendarExplanation()+'</section>';
   }
   function renderGlobalSettings(){
     const dlg=$('astraSettingsDialog');if(!dlg)return;
@@ -2035,8 +2025,6 @@
     window.requestAnimationFrame(()=>recordPerformance('Interaction · prochaine frame',perfClock()-start));
   },true);
   document.addEventListener('click',event=>{
-    const calendarOptionsSummary=event.target.closest('.calendar-options > summary');
-    if(calendarOptionsSummary){calendarOptionsOpen=!calendarOptionsSummary.parentElement.open;return;}
     const matrixSummary=event.target.closest('.natal-matrix-disclosure > summary');
     if(matrixSummary){aspectMatrixOpen=!matrixSummary.parentElement.open;return;}
     const previewSummary=event.target.closest('.natal-preview-disclosure > summary');
