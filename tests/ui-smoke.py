@@ -586,9 +586,9 @@ if __name__ == '__main__':
                         assert abs(left-positions['left'])<=2,(width,tab,positions)
                         assert abs(right-positions['right'])<=2,(width,tab,positions)
             page.set_viewport_size({'width':360,'height':780})
-            # The primary purpose must be visible without having to scroll,
+            # The three primary signs must be visible without scrolling,
             # above the fixed bottom navigation on a Galaxy A15-like screen.
-            first=page.locator('.natal-wheel-viewport').bounding_box()
+            first=page.locator('.natal-primary-cards').bounding_box()
             navtop=page.locator('.bottom-nav').bounding_box()
             assert first and navtop and first['y']+first['height']<navtop['y'],(first,navtop)
             text_style=page.add_style_tag(content=
@@ -618,7 +618,9 @@ if __name__ == '__main__':
             assert page.locator('.bottom-nav').is_visible()
             head=page.locator('.natal-primary-cards').bounding_box()
             wheel=page.locator('.natal-wheel-viewport').bounding_box()
-            assert head is not None and wheel is not None and wheel['y']<head['y']
+            tabs=page.locator('.natal-overview-tabs').bounding_box()
+            assert head is not None and wheel is not None and tabs is not None
+            assert head['y']+head['height']<=tabs['y']+1 and tabs['y']+tabs['height']<=wheel['y']+1,(head,tabs,wheel)
             assert page.locator('.natal-summary-name').first.evaluate("e => parseFloat(getComputedStyle(e).fontSize)")>=12
             assert page.locator('.natal-main-action').evaluate("e => e.getBoundingClientRect().height")>=48
             assert page.locator('.wheel-zodiac-sector').count()==12
