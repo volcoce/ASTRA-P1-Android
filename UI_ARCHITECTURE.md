@@ -32,7 +32,7 @@
 
 ```text
 ┌──────────────────────────────────┐
-│ ✳ ASTRA                       ⚙  │  accès aux Paramètres
+│ ✳ ASTRA                          │  marque seulement
 ├──────────────────────────────────┤
 │ Aujourd'hui                      │  titre + une phrase utile
 │ Lu  Ma  Me  Je  Ve  Sa  Di       │  navigation de semaine
@@ -83,12 +83,12 @@ La navigation doit toujours afficher **icône + texte**. L'état actif se distin
 - **Calendrier** — mois précédent/suivant, jour sélectionné, Nouvelle Lune et Pleine Lune colorées, quatre prochaines phases lunaires interactives ; filtres dans « Options d'affichage ».
 - **Journal (secondaire)** — accès depuis une carte ou une fiche, retour à Ce jour, jour précédent/suivant, sauvegarde et historique sous la saisie.
 - **Mon ciel** — trois vues de la même carte : « Roue / Planètes / Aspects ». Deux parcours à intitulés compréhensibles restent disponibles : « Comprendre mon thème » et « Comparer deux dates ». Le glossaire est contextuel ; les progressions et la carte composite sont repliées dans les outils avancés.
-- **Paramètres généraux** — un seul bouton « Paramètres » dans l'en-tête, visible depuis tous les écrans. Fenêtre modale native à quatre rubriques : **Astrologie** (zodiaques prévisionnel et natal, maisons, raccourci vers la naissance), **Apparence** (thème et palettes), **Données** (confidentialité, import/export, effacement), **Avancé** (diagnostics et limites). Fermeture explicite, touche Échap, bouton Retour Android, focus restauré.
-- **Mon ciel → Personnaliser** — uniquement le formulaire de naissance et les commandes contextuelles de la roue (niveau de détail, disposition natale/double, date de comparaison, zoom, export graphique). Aucun doublon des préférences générales dans cette sous-page.
+- **Paramètres généraux** — un cinquième bouton « Paramètres » dans la barre de navigation, immédiatement à droite de « Mon ciel », visible depuis tous les écrans. Fenêtre modale native à quatre rubriques : **Astrologie** (zodiaques prévisionnel et natal, maisons, raccourci vers la naissance), **Apparence** (thème et palettes), **Données** (confidentialité, import/export, effacement), **Avancé** (diagnostics et limites). Fermeture explicite, touche Échap, bouton Retour Android, focus restauré.
+- **Paramètres → Astrologie → Personnaliser mon thème** — accès unique à l’éditeur de naissance et aux commandes de personnalisation de la roue (niveau de détail, disposition natale/double, date de comparaison, zoom, export graphique). Les vues de « Mon ciel » n’affichent plus d’action « Personnaliser » en doublon.
 
 ### Contrat de la fenêtre de paramètres
 
-1. Les préférences globales ont **un seul emplacement de modification** ; elles sont sauvegardées et immédiatement appliquées aux écrans concernés.
+1. Les préférences globales ont **un seul emplacement de modification** ; elles sont sauvegardées et immédiatement appliquées aux écrans concernés. L’éditeur du thème est accessible depuis la rubrique Astrologie, y compris pour modifier les données de naissance.
 2. La fenêtre se superpose à l'écran courant, sans changer de date ou d'onglet. Sur mobile, elle devient une feuille adaptée à l'écran, sans doublonner la barre de navigation.
 3. Les sections ne sont pas simultanément ouvertes ; les quatre onglets ont un état sélectionné visible et se pilotent au clavier (flèches, Début, Fin).
 4. Après l'enregistrement d'un réglage, le focus revient au contrôle modifié. Fermer la fenêtre rend le focus au bouton du bandeau. Accéder au formulaire de naissance conserve le focus du nouveau parcours.
@@ -101,7 +101,7 @@ La navigation doit toujours afficher **icône + texte**. L'état actif se distin
 
 | Largeur CSS | Navigation | Contenu |
 | --- | --- | --- |
-| 320–479 px | Barre basse 4 destinations | Une colonne, widgets secondaires en rail horizontal |
+| 320–479 px | Barre basse : 4 vues + Paramètres | Une colonne, widgets secondaires en rail horizontal |
 | 480–767 px | Barre basse | Colonne principale plus aérée, rail 2 cartes visibles |
 | 768–1023 px | Barre basse fixe conservée | Colonne centrale plafonnée, 2 colonnes seulement pour des cartes indépendantes |
 | >=1024 px | Barre basse fixe conservée, aucune exception par page | Colonne centrale de lecture partagée, jamais tableau de bord « cockpit » |
@@ -113,10 +113,10 @@ Ne jamais afficher une barre latérale **et** une barre basse concurrentes ; il 
 ### Zones de page
 
 - `AppShell` — fond et largeur confortable, barres système et safe areas Android.
-- `BrandHeader` — identité courte et bouton Paramètres ; aucune navigation concurrente.
+- `BrandHeader` — identité courte, sans bouton supplémentaire ; aucune navigation concurrente.
 - `ScreenIntro` — un titre H1, sous-titre d'une phrase maximum, aucun titre répété à l'identique.
 - `PageContent` — flux vertical commun, sections accessibles avec titres H2.
-- `BottomNavigation` — quatre boutons, label, icône, `aria-current="page"`.
+- `BottomNavigation` — quatre vues et une entrée Paramètres à droite de Mon ciel ; icônes et libellés, `aria-current="page"` pour les vues, `aria-expanded` pour les paramètres.
 - `ContextSheet` / `FullScreenChart` — détails et lecture agrandie, focus géré et bouton fermer.
 - `GlobalSettingsDialog` — préférences globales en quatre rubriques accessibles depuis l’en-tête, un seul propriétaire CSS et restauration du focus.
 
@@ -201,7 +201,7 @@ Ces rapports sont calculés sur fond blanc à partir des couleurs proposées. Co
 ## Critères de validation pour la prochaine itération
 
 1. Sur Galaxy A15 (360 × 780 CSS simulés), la **date, le résumé et le début des informations utiles** apparaissent rapidement sans encombrement.
-2. Une personne non initiée peut expliquer les quatre onglets et trouver où noter son humeur en moins de 15 secondes.
+2. Une personne non initiée peut expliquer les quatre vues principales, repérer les paramètres et trouver où noter son humeur en moins de 15 secondes.
 3. Les trois cartes du ciel affichent le **nom** de Soleil, Lune et Ascendant et le **signe en toutes lettres** (ou une limite explicite).
 4. Aucun débordement de page à 320, 360, 393, 412, 768 et 1280 px; seule la rangée de widgets peut défiler latéralement.
 5. Deux cents pour cent de taille de texte ne provoquent ni recouvrement des liens de navigation ni boutons tronqués.
