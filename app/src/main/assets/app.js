@@ -36,7 +36,6 @@
       '<dl class="astra-angle-roles"><div><dt>'+safe(first.name)+(transit?' (en transit)':'')+'</dt><dd>'+safe(transit?first.moving:first.focus)+'</dd></div>'+
       '<div><dt>'+safe(second.name)+(transit?' (natal)':'')+'</dt><dd>'+safe(transit?second.natal:second.focus)+'</dd></div></dl>'+
       '<p class="astra-angle-context">'+safe(reading.interaction)+'</p>'+deviation+
-      '<p class="astra-angle-note">Lecture symbolique traditionnelle : l’angle ne modifie pas physiquement les astres.</p>'+
       '</div>';
   }
   const filtersMap = {all:'Tous',exact:'Aspects exacts',slow:'Transits lents',fast:'Transits rapides',moon:'Phases lunaires',station:'Stations'};
@@ -750,7 +749,7 @@
       '<div class="astra-event-facts"><div><span>Date et heure</span><strong>'+timing+'</strong></div>'+
       '<div><span>Référence horaire</span><strong>'+safe(zone)+' · '+(state.mode==='sidereal'?'Sidéral':'Tropical')+'</strong></div>'+
       '<div><span>Catégorie</span><strong>'+safe(eventCategoryLabel(category))+'</strong></div></div>'+
-      '<p>'+safe(d.astronomy)+'</p>'+measurement+'<p class="astra-event-data-note">'+safe(d.disclaimer)+'</p>'+
+      '<p>'+safe(d.astronomy)+'</p>'+measurement+
       '</div></details></section>';
   }
   function birthTimeWarning(){
@@ -1408,14 +1407,14 @@
         technical+'<div class="natal-fact"><b>Donnée calculée</b><p>'+safe(text.astronomy)+'</p></div>'+
         (pillar?symbolic:'')+
         '<div class="natal-reflection"><b>Pour réfléchir</b><p>'+safe(text.question)+'</p></div>'+
-        '<p class="natal-disclaimer">'+safe(text.disclaimer)+'</p></div></details></article>';
+        '</div></details></article>';
     }
     return '<article class="natal-detail-body">'+
       '<h3>'+safe(text.title)+'</h3>'+technical+
       '<div class="natal-fact"><b>Donnée calculée</b><p>'+safe(text.astronomy)+'</p></div>'+
       '<div class="natal-symbolic"><b>Lecture astrologique traditionnelle</b><p>'+safe(text.convention)+'</p>'+aspectHelp+'</div>'+
       '<div class="natal-reflection"><b>Pour réfléchir</b><p>'+safe(text.question)+'</p></div>'+
-      '<p class="natal-disclaimer">'+safe(text.disclaimer)+'</p></article>';
+      '</article>';
   }
 
   function renderAspectMatrix(chart){
@@ -1511,7 +1510,7 @@
         '<div class="natal-fact"><b>Période dans l’orbe automatique (estimation)</b>'+range+
         '<p>Durée approchée entre l’entrée et la sortie de l’orbe retenu, hors éventuels retours rétrogrades.</p></div>'+
         '<div class="natal-symbolic"><b>Comprendre cet aspect</b>'+angleReading(contact.body,contact.natal,contact.aspect,{transit:true,delta:contact.delta,allowedOrb:contact.orb,summary:true})+'</div>'+
-        '<p class="natal-disclaimer">Conventions astrologiques, pas de prédiction scientifique.</p></article>';
+        '</article>';
     }
     if(selected?.kind!=='transit')return natalDetail(snapshot.chart);
     const lng=snapshot.positions[selected.id];
@@ -1524,7 +1523,7 @@
       (contacts.length?'<div class="natal-related">'+contacts.map(c=>
         '<p>'+safe(planets[c.body])+' '+safe(c.glyph)+' '+safe(planets[c.natal])+
         ' · '+safe(E.formatOrbExact(c.delta))+' d’écart (orbe '+safe(E.formatOrbExact(c.orb))+')</p>').join('')+'</div>':'<p>Aucun contact dans les orbes automatiques.</p>')+
-      '</div><p class="natal-disclaimer">Positions astronomiques instantanées et conventions astrologiques ; aucune prédiction scientifique d’événement.</p></article>';
+      '</div></article>';
   }
 
   function renderNatalChart(chart){
@@ -1600,9 +1599,13 @@
       '<div class="natal-position-heading" aria-hidden="true"><span>Planète</span><span></span><span>Signe</span>'+
       (showDegrees?'<span>Degrés</span>':'')+(h?'<span>Maison</span>':'')+'</div>'+bodyButtons+'</div>'+
       '<p class="natal-position-legend"><span>R</span> — rétrograde'+(uncertain?' · Positions indicatives à midi.':'')+'</p>';
-    const houseButtons=h?h.cusps.map((lng,i)=>
-      '<button type="button" class="natal-house-chip" data-natal-house="'+(i+1)+'" aria-pressed="'+(natalSelection?.kind==='house'&&Number(natalSelection.id)===i+1)+'">'+
-      'Maison '+(i+1)+' <small>'+fmt(lng)+'</small></button>').join(''):'';
+    const houseButtons=h?h.cusps.map((lng,i)=>{
+      const [angle,signName]=E.formatSignExact(lng).split(' ');
+      return '<button type="button" class="natal-house-chip" data-natal-house="'+(i+1)+'" aria-pressed="'+(natalSelection?.kind==='house'&&Number(natalSelection.id)===i+1)+'" aria-label="'+safe('Maison '+roman[i+1]+', '+signName+', '+angle)+'">'+
+        '<strong class="natal-house-number">'+roman[i+1]+'</strong>'+
+        '<span class="natal-house-sign">'+safe(signName)+'</span>'+
+        '<small class="natal-house-angle">'+safe(angle)+'</small></button>';
+    }).join(''):'';
     const aspects=filtered.map(a=>
       '<button type="button" class="natal-aspect" data-natal-aspect="'+a.a+'-'+a.b+'" aria-pressed="'+(natalSelection?.kind==='aspect'&&natalSelection.id===a.a+'-'+a.b)+'">'+
       '<span>'+safe(planets[a.a])+' <b>'+a.glyph+'</b> '+safe(planets[a.b])+'</span>'+
@@ -1708,7 +1711,7 @@
         '<div class="wheel-ring-legend"><span><i class="natal-swatch"></i>Planètes natales</span>'+
         '<span><i class="transit-swatch"></i>Planètes en transit</span></div>'+
         contactList+contextSheet+
-        '<p class="tiny">Les contacts relèvent d’une lecture astrologique symbolique, pas de prédictions scientifiques.</p></section>';
+        '</section>';
     }
     const sections=[['planets','Planètes'],['houses','Maisons'],['aspects','Aspects']]
       .filter(([id])=>id!=='houses'||h);
@@ -1720,14 +1723,11 @@
     const matrixDetails='<details class="natal-matrix-disclosure astra-disclosure"'+(aspectMatrixOpen?' open':'')+'>'+
       '<summary>Comparer les aspects dans un tableau</summary><div class="astra-disclosure-body">'+renderAspectMatrix(chart)+'</div></details>';
     const aspectsList='<section class="natal-explore-list"><h3>Aspects natals</h3>'+
-      '<p>Les aspects sont les angles entre les planètes à ta naissance.</p>'+
       filterBar+'<div class="natal-aspects">'+(aspects||'<p class="natal-contact-empty">Aucun aspect avec ce filtre.</p>')+'</div>'+
       matrixDetails+'</section>';
     const planetList='<section class="natal-explore-list"><h3>Mes planètes</h3>'+
-      '<p>Découvre dans quel signe se trouvait chaque planète à ta naissance.</p>'+
       planetTable+'</section>';
     const housesList='<section class="natal-explore-list"><h3>Mes maisons</h3>'+
-      '<p>Ce sont les douze secteurs de ta carte. Leur position dépend de l’heure de naissance.</p>'+
       '<div class="natal-houses">'+houseButtons+'</div></section>';
     const contents=choice==='aspects'?aspectsList:choice==='houses'?housesList:planetList;
     return '<section class="card natal-card astra-reading-card natal-explore" id="natalChart">'+
@@ -1737,7 +1737,7 @@
       '<button type="button" class="ghost full" data-explore-transits="1">Comparer deux dates →</button>'+
       (h?.polarFallback?'<p class="notice">À cette latitude, les maisons égales remplacent Placidus.</p>':'')+
       (h?.approximateSidereal?'<p class="tiny">Le zodiaque sidéral utilise ici un ayanamsa Lahiri approximatif.</p>':'')+
-      '<p class="tiny">Ces lectures sont symboliques, pas des prédictions scientifiques.</p></section>';
+      '</section>';
   }
 
   function appearancePanel(){
