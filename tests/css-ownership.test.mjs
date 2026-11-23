@@ -433,7 +433,10 @@ test('Wheel remains interactive and legible without any degree annotations',()=>
  assert.match(app,/wheelZodiacGlyph=index=>zodiacSymbols\[index\]\+'\\uFE0E'/);
  assert.match(detail,/\.slice\(0,6\)/);
  assert.match(detail,/wheelLabels\(chart\.positions,asc\)/);
- assert.doesNotMatch(app,/layoutPlanetLabels|groupWheelPlanets|wheelClusterLabel|wheelGroupedLabels/);
+ assert.doesNotMatch(app,/groupWheelPlanets|wheelClusterLabel|wheelGroupedLabels/);
+ assert.match(app,/E\.layoutPlanetLabels\(positions,minDegrees\)/);
+ assert.match(app,/2\*Math\.asin\(26\/\(2\*radius\)\)\*180\/Math\.PI/);
+ assert.match(app,/polarPoint\(lng,markerRadius\)/);
  assert.match(app,/data-wheel-radius=/);
  assert.match(app,/data-true-longitude=/);
  assert.match(app,/data-label-longitude=/);
