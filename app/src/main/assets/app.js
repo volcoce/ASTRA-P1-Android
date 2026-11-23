@@ -414,7 +414,6 @@
     return 'Dernier croissant';
   }
   const header = (name,description) => `<header class="screen-intro"><h1 tabindex="-1" class="page-title">${name}</h1><p class="lead">${description}</p></header>`;
-  const switcher = () => `<div class="switch" aria-label="Type de zodiaque"><button data-mode="tropical" class="${state.mode==='tropical'?'on':''}" aria-pressed="${state.mode==='tropical'}">Tropical</button><button data-mode="sidereal" class="${state.mode==='sidereal'?'on':''}" aria-pressed="${state.mode==='sidereal'}">Sidéral · Lahiri approx.</button></div>`;
   const status = () => busy ? '<p class="loading" role="status">Calcul astronomique à la demande…</p>' : error ? `<p class="notice" role="alert">${safe(error)}</p>` : '';
   const unconfigured = () => header('Bienvenue dans ASTRA','Explore le ciel à partir de ta date de naissance.') + '<section class="card astra-reading-card welcome-card"><div class="welcome-illustration" aria-hidden="true">☉ <span>☾</span></div><h2 class="card-title">Ton thème commence ici</h2><p>Indique ta date, ton heure et ta ville de naissance pour obtenir ta carte et ton calendrier.</p><button class="primary full" data-goto="profile">Configurer mon thème natal</button><button class="ghost full" data-goto="journal">Ouvrir mon journal sans créer de thème</button><p class="tiny">Pas de compte à créer. Tes données restent sur cet appareil.</p></section>';
 
@@ -1602,9 +1601,7 @@
       '<div class="natal-control"><span>Affichage</span><div role="group" aria-label="Niveau de détail du thème natal" class="natal-segments">'+
       '<button type="button" data-natal-view="essential" aria-pressed="'+(!isFull)+'" class="'+(!isFull?'on':'')+'">Essentiel</button>'+
       '<button type="button" data-natal-view="complete" aria-pressed="'+isFull+'" class="'+(isFull?'on':'')+'">Complet</button></div></div>'+
-      '<div class="natal-control"><span>Zodiaque</span><div role="group" aria-label="Zodiaque du thème natal" class="natal-segments">'+
-      '<button type="button" data-natal-zodiac="tropical" aria-pressed="'+isTropical+'" class="'+(isTropical?'on':'')+'">Tropical</button>'+
-      '<button type="button" data-natal-zodiac="sidereal" aria-pressed="'+(!isTropical)+'" class="'+(!isTropical?'on':'')+'">Sidéral</button></div></div></div>';
+      '</div>';
     const filterNames={all:'Tous',Conjonction:'Conjonctions',Sextile:'Sextiles',Carré:'Carrés',Trigone:'Trigones',Opposition:'Oppositions'};
     const filterBar='<section class="natal-filter"><h3 class="natal-subtitle">Filtrer les aspects natals</h3>'+
       '<div class="natal-filter-items" role="group" aria-label="Type d’aspect natal">'+
@@ -1614,10 +1611,7 @@
       }).join('')+'</div></section>';
 
     const advancedControls='<section class="natal-advanced" aria-label="Outils du thème natal">'+
-      '<div class="natal-advanced-top"><div class="natal-control"><span>Système de maisons</span><div class="natal-advanced-buttons" role="group" aria-label="Système de maisons">'+
-      Object.entries({placidus:'Placidus',equal:'Maisons égales',whole:'Signes entiers'}).map(([id,label])=>
-        '<button type="button" data-house-system="'+id+'" aria-pressed="'+(state.houseSystem===id)+'" class="'+(state.houseSystem===id?'selected':'')+'">'+label+'</button>').join('')+
-      '</div></div><div class="natal-control"><span>Roue astrologique</span><div class="natal-advanced-buttons" role="group" aria-label="Disposition de la roue">'+
+      '<div class="natal-advanced-top"><div class="natal-control"><span>Roue astrologique</span><div class="natal-advanced-buttons" role="group" aria-label="Disposition de la roue">'+
       '<button type="button" data-wheel-layout="natal" aria-pressed="'+(state.wheelLayout==='natal')+'" class="'+(state.wheelLayout==='natal'?'selected':'')+'">Natal</button>'+
       '<button type="button" data-wheel-layout="double" aria-pressed="'+(state.wheelLayout==='double')+'" class="'+(state.wheelLayout==='double'?'selected':'')+'">Natal + transits</button></div></div></div>'+
       (state.wheelLayout==='double'?'<div class="natal-transit-time"><label for="transitDay">Date du transit<input id="transitDay" type="date" min="1900-01-01" max="2100-12-31" value="'+safe(state.transitDay)+'"></label>'+
@@ -1961,8 +1955,10 @@
       '<button type="button" class="ghost" data-settings-birth="1">'+(state.profile?'Modifier mes informations de naissance':'Créer mon thème natal')+'</button></div>'+
       choices('Zodiaque du calendrier et des prévisions',state.mode,[['tropical','Tropical'],['sidereal','Sidéral']], 'data-mode')+
       '<p class="field-help">Ce choix s’applique à Ce jour, Ce mois et Calendrier.</p>'+
-      '<div class="astra-settings-field"><h4>Carte de naissance</h4><p>Zodiaque natal, système de maisons, zoom et présentation de la roue se règlent avec la carte.</p>'+
-      '<button type="button" class="ghost" data-settings-birth="1">Personnaliser mon thème</button></div></section>';
+      choices('Zodiaque du thème natal',state.natalZodiac,[['tropical','Tropical'],['sidereal','Sidéral']],'data-natal-zodiac')+
+      '<p class="field-help">Sidéral Lahiri approximatif ; la carte utilise ce zodiaque.</p>'+
+      choices('Système de maisons',state.houseSystem,[['placidus','Placidus'],['equal','Maisons égales'],['whole','Signes entiers']],'data-house-system')+
+      '<p class="field-help">Ascendant et maisons disponibles si l’heure de naissance est connue.</p></section>';
   }
   function settingsDataPanel(){
     return '<section class="astra-settings-group"><h3>Données et confidentialité</h3>'+
@@ -2328,12 +2324,12 @@
       $('app').querySelector('h1.page-title')?.focus({preventScroll:true});return;
     }
     if(a.natalView){captureBirthForm();state.natalView=a.natalView==='complete'?'complete':'essential';persist();render();if(event.detail===0)$('app').querySelector('[data-natal-view="'+a.natalView+'"]')?.focus({preventScroll:true});return;}
-    if(a.natalZodiac){captureBirthForm();state.natalZodiac=a.natalZodiac==='sidereal'?'sidereal':'tropical';natalSelection=null;persist();render();if(event.detail===0)$('app').querySelector('[data-natal-zodiac="'+a.natalZodiac+'"]')?.focus({preventScroll:true});return;}
+    if(a.natalZodiac){captureBirthForm();state.natalZodiac=a.natalZodiac==='sidereal'?'sidereal':'tropical';natalSelection=null;persist();render();updateGlobalSettings('[data-natal-zodiac="'+a.natalZodiac+'"]');return;}
     if(a.natalAspectFilter){captureBirthForm();state.natalAspectFilter=a.natalAspectFilter;natalSelection=null;persist();render();if(event.detail===0)$('app').querySelector('[data-natal-aspect-filter="'+a.natalAspectFilter+'"]')?.focus({preventScroll:true});return;}
     if(a.houseSystem){
       if(!['placidus','equal','whole'].includes(a.houseSystem))return;
       captureBirthForm();state.houseSystem=a.houseSystem;natalSelection=null;persist();render();
-      if(event.detail===0)$('app').querySelector('[data-house-system="'+a.houseSystem+'"]')?.focus({preventScroll:true});
+      updateGlobalSettings('[data-house-system="'+a.houseSystem+'"]');
       return;
     }
     if(a.wheelLayout){
