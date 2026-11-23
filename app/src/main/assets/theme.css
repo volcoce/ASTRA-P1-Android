@@ -22,19 +22,7 @@
 @media(max-width:360px){.astra-appearance-options{gap:4px}.astra-appearance-options button{padding:10px 3px}}
 
 /* Preserve the established light visual design; dark mode is isolated. */
-:root[data-astra-theme="dark"]{
-  --ink:#e5eef5;--secondary:#b9cbd8;--violet:#a5d2e6;--deep:#daedf8;
-  --border:#385367;--pale:#111f2d;--plum:#243d4f;
-  --astra-ink:#e5eef5;--astra-muted:#b9cbd8;
-  --astra-brand:#a5d2e6;--astra-brand-strong:#e1f1f8;
-  --astra-paper:#101d2a;--astra-surface:#192b3b;
-  --astra-secondary-surface:#22394c;--astra-rule:#385367;
-  --astra-selected:#294b61;--astra-selected-border:#a4d3e9;
-  --astra-focus-ring:#c4e6f5;--astra-natal:#8ac0d9;--astra-transit:#f3bf92;
-  --atlas-night:#0b1826;--atlas-sea:#a8d8ef;--atlas-subtle:#263b4e;
-  --atlas-gold:#f1c981;
-  color-scheme:dark;
-}
+
 :root[data-astra-theme="dark"],
 :root[data-astra-theme="dark"] body{background:var(--astra-paper);color:var(--astra-ink)}
 :root[data-astra-theme="dark"] :is(.card,.calendar,.natal-overview-panel,.natal-explore,

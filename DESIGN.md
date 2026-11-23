@@ -139,7 +139,7 @@ Reject a change when it introduces any of the following without a specific ASTRA
 
 **Decision principle:** use one coherent visual design brief, Vercel-style functional QA, and a single polish reference. Stacking all ten competing skills will not reliably produce better product design.
 
-**Current layered implementation:** legacy `style.css`, `atlas-ui.css`, `theme.css` and feature styles remain for layout/compatibility. The approved P0 foundation loads `astra-tokens.css` then `astra-components.css` last. New shared visual decisions belong in those two files; gradually remove obsolete legacy declarations rather than adding more parallel overrides. Preserve the natal wheel geometry and continuous solar backdrop.
+**Current CSS cascade:** native `@layer legacy, tokens, components, features, layout` separates historical fallbacks from the canonical semantic tokens and shared components. `astra-tokens.css` alone defines light/dark theme variables, calendar ink and phase colours. Layout geometry is protected by its own final layer. Do not add route-level override sheets or duplicate theme `:root` declarations. Preserve the natal wheel geometry and continuous solar backdrop.
 
 Last updated: 2026-11-20.
 

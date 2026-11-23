@@ -196,3 +196,14 @@ test('Daily and monthly lunar colors are semantic roles, not view-level literals
  for(const color of ['#FFF4D7','#B36C32','#EEE5F5','#745394','#75452E'])
    assert.ok(!screens.includes(color),'hardcoded lunar palette in page: '+color);
 });
+
+test('The token layer exclusively declares the global theme variables',()=>{
+ const tokens=read('astra-tokens.css');
+ for(const css of ['style.css','atlas-ui.css','theme.css']){
+   assert.doesNotMatch(read(css),/:root(?:\[data-astra-theme="dark"\])?\s*\{\s*--(?:astra-|ink|secondary|violet|deep|pale|border|plum|shadow|atlas-)/,
+     css+' must not recreate the theme source');
+ }
+ for(const role of ['--pink','--salmon','--astra-safe-top','--astra-safe-bottom','--atlas-radius']){
+   assert.ok(tokens.includes(role+':'),role);
+ }
+});

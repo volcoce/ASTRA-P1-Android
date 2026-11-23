@@ -2,17 +2,7 @@
 /* ASTRA / Atlas — Visual language v0.7.0
    A calm, contemporary astronomical notebook. Not a generic gradient landing page.
    Applied after the legacy stylesheet until component migration is complete. */
-:root{
-  --ink:#172637;--secondary:#526273;--violet:#315e79;--deep:#193c54;
-  --pale:#f1f5f6;--border:#d8e1e6;--plum:#e5edf2;--shadow:none;
-  --astra-ink:#172637;--astra-muted:#526273;--astra-brand:#315e79;
-  --astra-brand-strong:#193c54;--astra-paper:#f6f7f7;--astra-surface:#fff;
-  --astra-secondary-surface:#edf3f5;--astra-rule:#d8e1e6;
-  --astra-selected:#e3eff3;--astra-selected-border:#47809b;
-  --astra-focus-ring:#226987;--astra-natal:#315e79;--astra-transit:#be714e;
-  --atlas-night:#172b3e;--atlas-sea:#2b5970;--atlas-gold:#e9bb71;
-  --atlas-subtle:#e9eef1;--atlas-radius:18px;
-}
+
 html,body{background:#f6f7f7;color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;font-size:15px;line-height:1.55}
 body{overscroll-behavior-x:none}
 

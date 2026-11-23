@@ -5,6 +5,7 @@ import vm from 'node:vm';
 
 const app=readFileSync(new URL('../app/src/main/assets/app.js',import.meta.url),'utf8');
 const css=readFileSync(new URL('../app/src/main/assets/theme.css',import.meta.url),'utf8');
+const tokens=readFileSync(new URL('../app/src/main/assets/astra-tokens.css',import.meta.url),'utf8');
 const html=readFileSync(new URL('../app/src/main/assets/index.html',import.meta.url),'utf8');
 const bootstrap=readFileSync(new URL('../app/src/main/assets/theme-bootstrap.js',import.meta.url),'utf8');
 
@@ -36,7 +37,7 @@ test('P2: theme preference is validated, saved and re-applied after import',()=>
   assert.match(app,/state\.appearance=a\.appearance;persist\(\);applyAppearance\(\);render\(\)/);
   assert.match(app,/state=cleanState\(backup\);applyAppearance\(\)/);
   assert.match(app,/colorSchemeQuery\?\.addEventListener\?\.\('change'/);
-  assert.match(css,/:root\[data-astra-theme="dark"\]\{/);
+  assert.match(tokens,/:root\[data-astra-theme="dark"\]\{/);
   assert.match(css,/\.astra-appearance-options button\[aria-pressed="true"\]/);
 });
 

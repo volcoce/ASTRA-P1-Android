@@ -14,6 +14,13 @@
   --color-peach:#E9BD96;
   --color-coral:#F59A80;
 
+  /* Legacy aliases retained only while their older components are used. */
+  --pink:#f9e8eb;
+  --salmon:#e59a9f;
+  --atlas-radius:var(--astra-radius-lg);
+  --astra-safe-top:env(safe-area-inset-top,0px);
+  --astra-safe-bottom:env(safe-area-inset-bottom,0px);
+
   /* Global geometry tokens, shared across every screen. */
   --astra-reading-width:680px;
   --astra-card-gutter:clamp(14px,2.5vw,26px);

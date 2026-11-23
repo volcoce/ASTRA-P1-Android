@@ -10,7 +10,7 @@ Chaque feuille est placée dans une couche CSS native. L'ordre, déclaré une se
 @layer legacy, tokens, components, features, layout;
 ```
 
-- `legacy` contient les sept feuilles historiques, sans priorité sur les nouveaux composants.
+- `legacy` contient les sept feuilles historiques, sans priorité sur les nouveaux composants. Les anciens blocs `:root` de couleurs de `style.css`, `atlas-ui.css` et `theme.css` ont été retirés.
 - `tokens` contient **toutes les couleurs sémantiques**, les rôles du calendrier, des phases lunaires, des légendes et les variantes sombre / contraste renforcé.
 - `components` contient les états et surfaces réutilisables.
 - `features` contient la présentation des écrans, du calendrier et des roues sans modifier la géométrie commune.
