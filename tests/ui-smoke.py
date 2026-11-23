@@ -222,11 +222,6 @@ if __name__ == '__main__':
             html=html.replace('<script src="theme-bootstrap.js"></script>','')
             page.goto('about:blank')
             page.add_script_tag(content=JS)
-            # Use the REAL layout solver with the mock astronomy engine.
-            layout=(ROOT.parents[3] / 'astro/chart-layout.mjs').read_text(encoding='utf-8')
-            layout=layout.replace("import {mod} from './core.mjs';", "const mod=(x,n=360)=>((x%n)+n)%n;")
-            layout=layout.replace('export const ', 'const ').replace('export function ', 'function ')
-            page.add_script_tag(content=layout + "\nwindow.ASTRA_ENGINE.layoutPlanetLabels=layoutPlanetLabels;")
             page.set_content(html)
             page.add_script_tag(content=(ROOT/'theme-bootstrap.js').read_text(encoding='utf-8'))
             page.add_style_tag(content=(ROOT/'astra.bundle.css').read_text(encoding='utf-8'))
@@ -615,19 +610,19 @@ if __name__ == '__main__':
             assert page.locator('.natal-home .wheel-aspect-line').first.get_attribute('data-aspect-kind')=='Carré'
             assert page.locator('.natal-home .zodiac-symbol').count()==12
             assert all(text.endswith('\ufe0e') for text in page.locator('.natal-home .zodiac-symbol').all_text_contents())
-            # The true degree markers never move; labels use the actual solver.
+            # Every glyph uses its own longitude and the same radius.
             labels=page.locator('.natal-planet-hit').evaluate_all("""items => items.map(e => ({
               body:e.dataset.natalBody, actual:Number(e.dataset.trueLongitude),
-              label:Number(e.dataset.labelLongitude)
+              label:Number(e.dataset.labelLongitude), radius:Number(e.dataset.wheelRadius)
             }))""")
             assert len(labels)==10
             expected={'Sun':7,'Moon':23,'Mercury':32,'Venus':55,'Mars':91,
                       'Jupiter':123,'Saturn':141,'Uranus':175,'Neptune':203,'Pluto':270}
             for item in labels:
                 assert abs(item['actual']-expected[item['body']])<1e-5
-            vals=sorted(x['label'] for x in labels)
-            gaps=[(vals[(i+1)%len(vals)]-vals[i]+360)%360 for i in range(len(vals))]
-            assert min(gaps)>=13.99, gaps
+            assert all(abs(x['label']-x['actual'])<1e-6 for x in labels),labels
+            assert len({x['radius'] for x in labels})==1,labels
+            assert page.locator('.wheel-cluster-hit').count()==0
             assert page.locator('#natalChart .natal-position').count()==0  # essential hides detailed tables
             assert page.locator('[data-natal-view]').count()==0
             assert page.locator('[data-house-system]').count()==0
