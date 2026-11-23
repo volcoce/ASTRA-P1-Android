@@ -103,7 +103,7 @@
 .calendar.astra-calendar-board .calendar-help>summary{
   min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:12px;
   cursor:pointer;list-style:none;color:var(--astra-brand-strong);
-  padding:11px 0;font-size:14px;font-weight:750;
+  padding:11px 14px;font-size:14px;font-weight:750;
 }
 .calendar.astra-calendar-board .calendar-help>summary::-webkit-details-marker{display:none}
 .calendar.astra-calendar-board .calendar-help>summary::after{
@@ -125,9 +125,8 @@
 }
 /* Options are secondary actions BELOW the month board, never before it. */
 .calendar-options{
-  margin:12px auto 0;
+  margin:12px 0 0;
   padding:0 14px;
-  max-width:840px;
   border-radius:var(--astra-radius-lg);
   background:var(--astra-surface);
   border:1px solid var(--astra-divider);
