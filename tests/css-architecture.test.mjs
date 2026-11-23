@@ -277,8 +277,17 @@ test('Settings use one shared inset, sticky chrome and vertical section gap',()=
 test('Merged monthly summary uses shared vertical stack, not individual margins',()=>{
  const app=read('app.js'),layout=read('astra-layout.css');
  assert.match(app,/class="astra-section-stack" aria-label="Synthèse mensuelle"/);
- assert.match(layout,/\.astra-section-stack\s*\{[^}]*gap:var\(--astra-space-4\)[^}]*margin-block:var\(--astra-space-4\)/s);
+ assert.match(layout,/\.astra-section-stack\s*\{[^}]*gap:var\(--astra-space-4\)[^}]*margin:0/s);
  for(const file of ['atlas-ui.css','astra-p1-screens.css']){
    assert.doesNotMatch(read(file),/\.astra-month-(?:hero|section|metrics)\s*\{[^}]*\bmargin(?:-bottom)?:/s);
  }
+});
+
+
+test('All page sections and journal cards use the common vertical rhythm',()=>{
+ const app=read('app.js'),layout=read('astra-layout.css');
+ assert.match(layout,/\.main\s*\{[^}]*gap:var\(--astra-space-4\)/s);
+ assert.match(layout,/\.main>\*:not\(dialog\)\s*\{[^}]*margin-block:0/);
+ assert.match(app,/class="astra-section-stack" aria-label="Sections du journal"/);
+ assert.match(layout,/\.bottom-nav\s*\{[^}]*grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/s);
 });
