@@ -676,14 +676,18 @@ if __name__ == '__main__':
             assert audit_disclosures('natal-settings')>=1
             assert page.locator('#birthForm').count()==1
             assert page.locator('.natal-primary-cards').count()==0
+            page.locator('#settingsButton').click()
+            assert page.locator('#astraSettingsDialog[open]').count()==1
+            assert page.locator('[data-settings-section="astrology"]').get_attribute('aria-selected')=='true'
             page.locator('[data-house-system="whole"]').focus()
             page.keyboard.press('Enter')
             assert page.locator('[data-house-system="whole"]').get_attribute('aria-pressed')=='true'
             assert page.evaluate("document.activeElement.dataset.houseSystem")=='whole'
-            assert 'Signes entiers' in page.locator('#natalChart').inner_text()
+            assert page.evaluate("JSON.parse(localStorage.getItem('astra-public-v1')).houseSystem")=='whole'
             page.locator('[data-house-system="equal"]').click()
             assert page.locator('[data-house-system="equal"]').get_attribute('aria-pressed')=='true'
             page.locator('[data-house-system="placidus"]').click()
+            page.locator('[data-settings-close]').click()
             page.locator('[data-natal-zoom="0.25"]').click()
             assert '125 %' in page.locator('.natal-zoom').inner_text()
             page.locator('[data-natal-zoom="reset"]').click()
@@ -778,12 +782,18 @@ if __name__ == '__main__':
             page.keyboard.press('Escape')
             assert page.locator('#natalSelectionInfo').count()==0
             page.locator('[data-profile-screen="settings"]').click()
+            page.locator('#settingsButton').click()
+            page.locator('[data-settings-section="astrology"]').click()
             page.locator('[data-natal-zodiac="sidereal"]').click()
             assert page.locator('[data-natal-zodiac="sidereal"]').get_attribute('aria-pressed')=='true'
+            page.locator('[data-settings-close]').click()
             page.locator('[data-profile-screen="overview"]').click()
             assert 'Sidéral' in page.locator('#natalChart').inner_text()
             page.locator('[data-profile-screen="settings"]').click()
+            page.locator('#settingsButton').click()
+            page.locator('[data-settings-section="astrology"]').click()
             page.locator('[data-natal-zodiac="tropical"]').click()
+            page.locator('[data-settings-close]').click()
             page.locator('[data-natal-view="essential"]').click()
             page.locator('[data-profile-screen="overview"]').click()
             settings=page.evaluate("JSON.parse(localStorage.getItem('astra-public-v1'))")
@@ -795,6 +805,12 @@ if __name__ == '__main__':
             page.locator('#settingsButton').click()
             assert page.locator('#astraSettingsDialog[open]').count()==1
             assert page.locator('#astraSettingsDialog [role="tab"]').count()==4
+            assert page.locator('#app [data-element-palette]').count()==0
+            assert page.locator('#app [data-appearance]').count()==0
+            assert page.locator('#app [data-house-system]').count()==0
+            page.locator('[data-settings-section="astrology"]').focus()
+            page.keyboard.press('ArrowRight')
+            assert page.locator('[data-settings-section="appearance"]').get_attribute('aria-selected')=='true'
             page.locator('[data-settings-section="data"]').click()
             assert page.locator('#astraSettingsDialog [data-export]').count()==1
             assert page.locator('#importFile').count()==1
