@@ -131,3 +131,14 @@ test('Responsive widths use only the shared breakpoint contract',()=>{
    }
  }
 });
+
+test('Calendar board owns its geometry without touching the solar ribbon',()=>{
+ const calendar=read('astra-p4-calendar.css');
+ assert.match(calendar,/\.calendar\.astra-calendar-board\s*\{[^}]*padding:16px 12px 18px/s);
+ assert.match(calendar,/@media\(max-width:360px\)\{\s*\.calendar\.astra-calendar-board\{padding-inline:3px\}/s);
+ for(const file of ['style.css','atlas-ui.css','solar-ribbon.css','astra-p1-screens.css']){
+   assert.doesNotMatch(read(file),/\.calendar(?:\.astra-calendar-board)?\s*\{/,
+    'Calendar geometry duplicated in '+file);
+ }
+ assert.match(read('solar-ribbon.css'),/\.astra-solar-ribbon-segment\.is-outside-month/);
+});

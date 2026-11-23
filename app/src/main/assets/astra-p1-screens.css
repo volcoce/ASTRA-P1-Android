@@ -193,35 +193,7 @@
 :root[data-astra-theme="dark"] .astra-month-phase :is(.astra-month-phase-copy strong,
   .astra-month-phase-copy small){color:#F8EFD5}
 
-/* CALENDRIER — clear month chooser, slim options, one truly continuous
-   background ribbon behind day labels. Do not restore individual day fills. */
-.astra-calendar-month-head{margin:4px 0 14px}
-.calendar-options{
-  margin:0 0 12px;
-  background:var(--astra-surface);border:1px solid var(--astra-divider);
-  border-radius:var(--astra-radius-md);padding:0 12px
-}
-.calendar-options>summary{color:var(--astra-ink);min-height:44px}
-.calendar.astra-calendar-board{
-  background:var(--astra-surface);border:1px solid var(--astra-divider);
-  border-radius:var(--astra-radius-xl);padding:16px 12px 18px;
-  margin-inline:0
-}
-.calendar.astra-calendar-board .cal-grid{row-gap:8px}
-.calendar.astra-calendar-board .weekday{color:var(--astra-muted);font-size:12px}
-.calendar.astra-calendar-board .astra-calendar-date-week{gap:0}
-.calendar.astra-calendar-board .astra-calendar-date-week .day{
-  background:transparent!important;box-shadow:none!important;border-radius:0!important
-}
-.calendar .astra-calendar-solar-note{color:var(--astra-ink);line-height:1.5;font-size:12px}
-.calendar .astra-calendar-solar-note span{color:var(--astra-muted)}
-.calendar-phase-legend{gap:12px;flex-wrap:wrap}
-:root[data-astra-theme="dark"] .calendar.astra-calendar-board{
-  background:var(--astra-surface);border-color:var(--astra-border)
-}
-:root[data-astra-theme="dark"] .calendar .astra-calendar-date-week .day{
-  color:var(--color-cream)
-}
+/* Calendar presentation belongs exclusively to astra-p4-calendar.css. */
 
 /* Mon ciel components live in astra-natal.css. */
 /* Spacing/stack behavior across mobile devices */
@@ -235,8 +207,6 @@
   .astra-month-phases{grid-template-columns:1fr}
   .astra-month-phase{min-height:70px}
   .astra-month-headline{gap:10px}
-  .calendar.astra-calendar-board{padding:10px 6px 13px}
-  .calendar.astra-calendar-board .cal-grid{row-gap:6px}
 }
 @media(prefers-reduced-motion:reduce){
   .astra-day-hero,.astra-month-hero{transition:none!important}

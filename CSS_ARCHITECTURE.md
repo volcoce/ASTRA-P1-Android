@@ -8,7 +8,9 @@ Le code de production utilise **une seule navigation globale**, sans exceptions 
 - `astra-components.css` : présentation de base des cartes `.card` via `--astra-card-padding`, boutons, champs, états, divulgations et **états/icônes de BottomNavigation**. Ni position ni largeur de la barre elle-même.
 - `astra-layout.css` : **unique propriétaire** de l'AppShell, du gabarit `.main>*`, des introductions, des cartes de lecture et de la barre principale fixe avec sa réserve d'espace.
 - `astra-natal.css` : contenus métier natals (roue, aperçu, explorateur, listes, outils). Les surfaces/paddings des cartes restent à `astra-reading-card`. Aucun style de navigation principale ni sélection de page via `:has()`.
-- `astra-p1-screens.css`, `astra-p2-navigation.css`, `astra-p3-accessibility.css`, `astra-p4-calendar.css`, `astra-p4-wheel.css` : autres éléments historiques à migrer progressivement, sans créer de nouvelle feuille `p7`, `hotfix` ou `override`.
+- `astra-p4-calendar.css` : propriétaire de la géométrie et de la présentation du calendrier (grille, cellules, options, légendes, états).
+- `solar-ribbon.css` : propriétaire exclusif des couleurs et de la continuité du ruban solaire, sans padding du calendrier.
+- `astra-p1-screens.css`, `astra-p2-navigation.css`, `astra-p3-accessibility.css`, `astra-p4-wheel.css` : modules historiques / fonctionnels, sans nouvelle feuille `hotfix` ou `override`.
 - `style.css`, `atlas-ui.css`, `theme.css`, `wheel-ui.css`, `solar-ribbon.css`, `calendar-p0.css`, `personal-calendar.css` : anciens styles encore nécessaires au fonctionnement des contrôles existants. Les nouvelles règles ne doivent pas y introduire de divergences de layout.
 
 ## Règles de contribution

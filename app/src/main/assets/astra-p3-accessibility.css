@@ -119,7 +119,6 @@ html,body{min-width:0;max-width:100%}
   .astra-journal-editor .mood{min-width:0}
 }
 @media(max-width:360px){
-  .calendar.astra-calendar-board{padding-inline:3px}
   .calendar.astra-calendar-board .weekday{font-size:12px}
   .astra-personal-date-fields,.astra-personal-time-fields{
     grid-template-columns:repeat(2,minmax(0,1fr))

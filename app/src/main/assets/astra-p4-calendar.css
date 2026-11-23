@@ -1,3 +1,27 @@
+/* Canonical calendar board: reading width is inherited from .main.
+   Solar-ribbon.css only positions the continuous background ribbon. */
+.calendar.astra-calendar-board{
+  width:100%;min-width:0;box-sizing:border-box;
+  background:var(--astra-surface);color:var(--astra-ink);
+  border:1px solid var(--astra-divider);
+  border-radius:var(--astra-radius-xl);
+  padding:16px 12px 18px;margin-inline:0;
+}
+.calendar.astra-calendar-board .cal-grid{row-gap:8px}
+.calendar.astra-calendar-board .weekday{color:var(--astra-muted);font-size:12px}
+.calendar.astra-calendar-board .astra-calendar-date-week{gap:0}
+.calendar.astra-calendar-board .astra-calendar-date-week .day{
+  background:transparent!important;box-shadow:none!important;border-radius:0!important
+}
+.calendar-phase-legend{gap:12px;flex-wrap:wrap}
+:root[data-astra-theme="dark"] .calendar.astra-calendar-board{
+  background:var(--astra-surface);border-color:var(--astra-border)
+}
+@media(max-width:480px){
+  .calendar.astra-calendar-board{padding:10px 6px 13px}
+  .calendar.astra-calendar-board .cal-grid{row-gap:6px}
+}
+
 /* ASTRA P4 — Calendar visual QA refinements.
    Adjacent-month dates remain inside the continuous solar ribbon, with
    muted element colours. Major lunar phases retain circular badges. */
@@ -21,6 +45,7 @@
   color:var(--astra-calendar-ink);opacity:1
 }
 @media(min-width:800px){
+  .calendar.astra-calendar-board .day{height:62px;min-height:62px}
   .calendar.astra-calendar-board .astra-calendar-date-week .astra-adjacent-day{
     min-height:62px;height:62px;
   }
@@ -47,6 +72,7 @@
   background:#EEC983!important;border-color:#FFF1CB!important;
 }
 @media(max-width:360px){
+  .calendar.astra-calendar-board{padding-inline:3px}
   .calendar.astra-calendar-board .astra-calendar-date-week .astra-adjacent-day{
     height:53px;min-height:53px;font-size:13px
   }
