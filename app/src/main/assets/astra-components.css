@@ -153,23 +153,45 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
   :is(.primary,.natal-main-action,.astra-month-calendar-link,.astra-personal-save):hover{transform:none}
 }
 
-/* One disclosure component for all screens; variants carry content, not shell. */
+/* Canonical Disclosure, used by calendar, natal, event details and settings.
+   Components own outer padding, summary spacing, body inset and marker.
+   Feature CSS may change typography/layout INSIDE the body, never these edges. */
 .astra-disclosure{
-  min-width:0;overflow:hidden;border:1px solid var(--astra-divider);
+  min-width:0;overflow:hidden;padding:0;
+  border:1px solid var(--astra-divider);
   border-radius:var(--astra-radius-lg);
   background:var(--astra-secondary-surface);color:var(--astra-ink);
 }
 .astra-disclosure>summary{
-  min-height:48px;padding:13px 16px;cursor:pointer;
+  display:flex;align-items:center;gap:12px;
+  min-height:48px;
+  padding:var(--astra-disclosure-block-inset) var(--astra-component-inset);
+  cursor:pointer;list-style:none;
   color:var(--astra-ink);font-weight:750;
 }
+.astra-disclosure>summary::-webkit-details-marker{display:none}
+.astra-disclosure>summary::after{
+  content:'+';font-size:20px;font-weight:600;line-height:1;
+  flex:none;margin-inline-start:auto
+}
+.astra-disclosure[open]>summary::after{content:'−'}
 .astra-disclosure[open]>summary{border-bottom:1px solid var(--astra-divider)}
-/* Shared inner spacing for explanatory content in any disclosure. */
 .astra-disclosure-body{
-  min-width:0;
-  padding:14px 16px 18px;
-  box-sizing:border-box;
+  min-width:0;box-sizing:border-box;
+  padding:var(--astra-disclosure-body-top) var(--astra-component-inset) var(--astra-disclosure-body-bottom);
 }
 .astra-disclosure>summary:focus-visible{outline:3px solid var(--astra-focus);outline-offset:-3px}
+/* Shared content utilities: no page-specific geometry. */
+.astra-disclosure-body> :first-child{margin-top:0}
+.astra-disclosure-body> :last-child{margin-bottom:0}
+.astra-disclosure-actions{display:grid;gap:8px}
+.astra-disclosure-actions>button{
+  display:flex;align-items:center;min-height:var(--astra-control-min);
+  width:100%;padding:10px 12px;text-align:left;
+  border:1px solid var(--astra-divider);border-radius:var(--astra-radius-md);
+  background:var(--astra-surface);color:var(--astra-ink);
+  font:650 14px/1.4 var(--astra-font-body)
+}
+.astra-disclosure-actions>button:hover{background:var(--astra-secondary-surface)}
 
 }

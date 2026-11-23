@@ -25,6 +25,10 @@
   --astra-reading-width:680px;
   --astra-card-gutter:clamp(14px,2.5vw,26px);
   --astra-card-padding:var(--astra-card-gutter);
+  --astra-component-inset:16px;
+  --astra-disclosure-block-inset:13px;
+  --astra-disclosure-body-top:14px;
+  --astra-disclosure-body-bottom:18px;
   --astra-nav-width:650px;
   --astra-nav-clearance:108px;
   --astra-bg:#F8EFD5;
