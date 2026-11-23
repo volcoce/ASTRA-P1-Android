@@ -692,7 +692,11 @@ if __name__ == '__main__':
             assert page.locator('.wheel-cluster-hit').count()==0
             assert page.locator('#natalChart .natal-position').count()==0  # essential hides detailed tables
             assert page.locator('[data-natal-view]').count()==0
-            assert page.locator('[data-house-system]').count()==0
+            # A closed settings dialog retains its DOM; only the route must
+            # be free of global settings controls.
+            assert page.locator('.main [data-house-system]').count()==0
+            assert page.locator('#astraSettingsDialog[open]').count()==0
+            assert page.locator('[data-house-system]:visible').count()==0
             assert page.evaluate("JSON.parse(localStorage.getItem('astra-public-v1')).natalZodiac")=='tropical'
             # Interactive planet wheel in both modes
             page.locator('.natal-wheel [data-natal-body="Sun"]').click()
