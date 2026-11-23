@@ -1452,16 +1452,20 @@
       clone.setAttribute('xmlns','http://www.w3.org/2000/svg');
       clone.setAttribute('width',String(output));
       clone.setAttribute('height',String(output));
+      // Resolve the wheel's single palette from CSS for standalone SVG and PNG.
+      // The daylight wheel stays legible in both themes.
+      const wheelPalette=getComputedStyle(document.documentElement);
+      const zodiacFill=name=>wheelPalette.getPropertyValue('--astra-zodiac-'+name).trim();
       const embedded=document.createElementNS('http://www.w3.org/2000/svg','style');
       embedded.textContent=[
         ".wheel-modern .wheel-paper{fill:#FFF9EA;stroke:#1E404F;stroke-width:1.8}",
         ".wheel-modern .wheel-zodiac-sector{stroke:#1E404F;stroke-width:.85}",
         ".wheel-modern .wheel-zodiac-sector.is-even{fill:#f4f8fb}",
         ".wheel-modern .wheel-zodiac-sector.is-odd{fill:#e8f1f6}",
-        ".wheel-modern .wheel-zodiac-sector.zodiac-element-fire{fill:#F4C78F}",
-        ".wheel-modern .wheel-zodiac-sector.zodiac-element-earth{fill:#C8C36A}",
-        ".wheel-modern .wheel-zodiac-sector.zodiac-element-air{fill:#8FB9D6}",
-        ".wheel-modern .wheel-zodiac-sector.zodiac-element-water{fill:#5FA3A3}",
+        ".wheel-modern .wheel-zodiac-sector.zodiac-element-fire{fill:"+zodiacFill('fire')+"}",
+        ".wheel-modern .wheel-zodiac-sector.zodiac-element-earth{fill:"+zodiacFill('earth')+"}",
+        ".wheel-modern .wheel-zodiac-sector.zodiac-element-air{fill:"+zodiacFill('air')+"}",
+        ".wheel-modern .wheel-zodiac-sector.zodiac-element-water{fill:"+zodiacFill('water')+"}",
         ".wheel-modern .zodiac-symbol{font:700 18px Georgia,serif;fill:#1E404F;stroke:#FFF9EA;stroke-width:.5;paint-order:stroke}",
         ".wheel-modern .wheel-degree-tick{stroke:#B6AFA0;stroke-width:1.05;stroke-linecap:round}",
         ".wheel-modern .wheel-degree-tick.is-medium{stroke:#637881;stroke-width:1.3}",

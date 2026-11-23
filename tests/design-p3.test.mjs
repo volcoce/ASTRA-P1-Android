@@ -24,15 +24,17 @@ test('P3 light and dark text plus solar element ribbon pairings reach AA',()=>{
     ['#1E404F','#F0BE57'],['#F8EFD5','#101F2A'],
     ['#BBCBD1','#243E4D'],
     ['#1E404F','#F4C78F'],['#1E404F','#C8C36A'],
-    ['#1E404F','#8FB9D6'],['#102A34','#5FA3A3'],
+    ['#1E404F','#8FB9D6'],['#102A34','#5B9BC7'],
     ['#F8EFD5','#8C5A37'],['#F8EFD5','#6E6A33'],
-    ['#F8EFD5','#3E6E90'],['#F8EFD5','#2D7777'],
+    ['#F8EFD5','#3E6E90'],['#F8EFD5','#315E85'],
   ]) assert.ok(contrast(ink,bg)>=4.5,ink+' on '+bg+' = '+contrast(ink,bg).toFixed(2));
   assert.match(css,/--astra-calendar-ink/);
   assert.match(css,/color:var\(--astra-calendar-ink\)!important/);
   for(const n of ['fire','earth','air','water'])assert.match(tokens,new RegExp('--solar-'+n+'-bg'));
-  assert.ok(tokens.includes('--solar-earth-bg:#C8C36A'));
-  assert.ok(tokens.includes('--solar-water-bg:#5FA3A3'));
+  assert.ok(tokens.includes('--astra-zodiac-earth:#C8C36A'));
+  assert.ok(tokens.includes('--solar-earth-bg:var(--astra-zodiac-earth)'));
+  assert.ok(tokens.includes('--astra-zodiac-water:#5B9BC7'));
+  assert.ok(tokens.includes('--solar-water-bg:var(--astra-zodiac-water)'));
   assert.match(css,/--astra-calendar-ink:#102A34/);
   for(const n of ['fire','earth','air','water'])assert.ok(tokens.includes('--solar-'+n+'-muted:'));
 

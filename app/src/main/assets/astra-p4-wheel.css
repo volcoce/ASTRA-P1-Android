@@ -11,10 +11,10 @@
 }
 .natal-wheel.wheel-modern .wheel-paper{fill:#FFF9EA;stroke:#1E404F;stroke-width:1.8}
 .natal-wheel.wheel-modern .wheel-zodiac-sector{stroke:#1E404F;stroke-width:.85}
-.natal-wheel.wheel-modern .wheel-zodiac-sector.zodiac-element-fire{fill:#F4C78F}
-.natal-wheel.wheel-modern .wheel-zodiac-sector.zodiac-element-earth{fill:#C8C36A}
-.natal-wheel.wheel-modern .wheel-zodiac-sector.zodiac-element-air{fill:#8FB9D6}
-.natal-wheel.wheel-modern .wheel-zodiac-sector.zodiac-element-water{fill:#5FA3A3}
+.natal-wheel.wheel-modern .wheel-zodiac-sector.zodiac-element-fire{fill:var(--astra-zodiac-fire)}
+.natal-wheel.wheel-modern .wheel-zodiac-sector.zodiac-element-earth{fill:var(--astra-zodiac-earth)}
+.natal-wheel.wheel-modern .wheel-zodiac-sector.zodiac-element-air{fill:var(--astra-zodiac-air)}
+.natal-wheel.wheel-modern .wheel-zodiac-sector.zodiac-element-water{fill:var(--astra-zodiac-water)}
 .natal-wheel.wheel-modern .zodiac-symbol{
   fill:#1E404F;stroke:#FFF9EA;stroke-width:.5;
   font-family:Georgia,"Times New Roman",serif;font-weight:800;

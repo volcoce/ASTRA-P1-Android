@@ -81,23 +81,30 @@
   --astra-shadow-soft:0 5px 18px #1E404F18;
   --astra-motion:150ms cubic-bezier(.2,.75,.35,1);
 
+  /* Single, daylight zodiac palette for wheel, solar ribbon and local exports.
+     Night-mode ribbons use separate, darker --solar-*-bg values. */
+  --astra-zodiac-fire:#F4C78F;
+  --astra-zodiac-earth:#C8C36A;
+  --astra-zodiac-air:#8FB9D6;
+  --astra-zodiac-water:#5B9BC7;
+
   /* Calendar sign ribbon: muted backgrounds, not day-card fills. */
   --element-fire:#E6692A;
   --element-earth:#988A20;
   --element-air:#82AAC7;
-  --element-water:#34685C;
-  --solar-fire-bg:#F4C78F;
-  --solar-earth-bg:#C8C36A;
-  --solar-air-bg:#8FB9D6;
-  --solar-water-bg:#5FA3A3;
+  --element-water:#286B9C;
+  --solar-fire-bg:var(--astra-zodiac-fire);
+  --solar-earth-bg:var(--astra-zodiac-earth);
+  --solar-air-bg:var(--astra-zodiac-air);
+  --solar-water-bg:var(--astra-zodiac-water);
   --solar-fire-muted:#E4D1BC;
-  --solar-earth-muted:#D8D5B1;
+  --solar-earth-muted:#D9D6B8;
   --solar-air-muted:#C7D9E5;
-  --solar-water-muted:#B7D2CF;
+  --solar-water-muted:#BDD7E3;
   --solar-fire-ink:#5C3722;
   --solar-earth-ink:#45411F;
   --solar-air-ink:#23485F;
-  --solar-water-ink:#1E4E4E;
+  --solar-water-ink:#102A34;
 }
 :root[data-astra-theme="dark"] {
   color-scheme:dark;
@@ -129,15 +136,15 @@
   --solar-fire-bg:#8C5A37;
   --solar-earth-bg:#6E6A33;
   --solar-air-bg:#3E6E90;
-  --solar-water-bg:#2D7777;
+  --solar-water-bg:#315E85;
   --solar-fire-muted:#4C4038;
   --solar-earth-muted:#4A4936;
   --solar-air-muted:#334756;
-  --solar-water-muted:#2E4E4E;
+  --solar-water-muted:#315674;
   --solar-fire-ink:#FFF1E5;
   --solar-earth-ink:#F5F0C8;
   --solar-air-ink:#E7F4FF;
-  --solar-water-ink:#DDF8F6;
+  --solar-water-ink:#F8EFD5;
   --atlas-night:#101F2A;
   --atlas-sea:#82AAC7;
   --atlas-gold:#F0BE57;

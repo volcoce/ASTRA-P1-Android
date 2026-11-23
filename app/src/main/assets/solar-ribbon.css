@@ -7,10 +7,6 @@
 
 /* One actual ribbon beneath the whole week, not rounded date cards.
    Solar spans use half-day columns so ingress days show two colours 50/50. */
-:root{
-  --solar-fire-bg:#F4C78F;--solar-earth-bg:#C8C36A;
-  --solar-air-bg:#8FB9D6;--solar-water-bg:#5FA3A3;
-}
 .solar-element-fire{--solar-bg:var(--solar-fire-bg);--solar-muted-bg:var(--solar-fire-muted);--solar-ink:var(--solar-fire-ink)}
 .solar-element-earth{--solar-bg:var(--solar-earth-bg);--solar-muted-bg:var(--solar-earth-muted);--solar-ink:var(--solar-earth-ink)}
 .solar-element-air{--solar-bg:var(--solar-air-bg);--solar-muted-bg:var(--solar-air-muted);--solar-ink:var(--solar-air-ink)}

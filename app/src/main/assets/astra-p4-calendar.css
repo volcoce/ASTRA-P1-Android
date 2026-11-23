@@ -6,19 +6,19 @@
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   padding:0;gap:2px;
   border:0;border-radius:0;background:transparent;
-  color:var(--astra-muted);font-size:14px;font-weight:500;
+  color:var(--astra-calendar-ink);font-size:14px;font-weight:500;
   opacity:1;cursor:pointer;
 }
 .calendar.astra-calendar-board .astra-calendar-date-week .astra-adjacent-day:hover{
-  color:var(--astra-ink);background:var(--astra-secondary-surface);
-  border-radius:var(--astra-radius-md);opacity:1;
+  color:var(--astra-calendar-ink);background:transparent;
+  text-decoration:underline;opacity:1;
 }
 .calendar.astra-calendar-board .astra-calendar-date-week .astra-adjacent-day:focus-visible{
   outline:3px solid var(--astra-focus)!important;outline-offset:-3px!important;
   border-radius:var(--astra-radius-sm);opacity:1
 }
 :root[data-astra-theme="dark"] .calendar.astra-calendar-board .astra-calendar-date-week .astra-adjacent-day{
-  color:var(--astra-muted);opacity:1
+  color:var(--astra-calendar-ink);opacity:1
 }
 @media(min-width:700px){
   .calendar.astra-calendar-board .astra-calendar-date-week .astra-adjacent-day{

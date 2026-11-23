@@ -128,11 +128,11 @@ test('P4: Retro Pop element ring preserves zodiac geometry across all wheel mode
   assert.match(skins,/natal-transit-hit/);
   assert.ok(skins.includes(':root[data-astra-theme="dark"]'));
   assert.match(app,/\.wheel-modern \.wheel-zodiac-sector\.zodiac-element-fire/);
-  assert.match(app,/#F4C78F/);
-  assert.ok(skins.includes('zodiac-element-earth{fill:#C8C36A}'));
-  assert.ok(skins.includes('zodiac-element-water{fill:#5FA3A3}'));
-  assert.ok(app.includes('zodiac-element-earth{fill:#C8C36A}'));
-  assert.ok(app.includes('zodiac-element-water{fill:#5FA3A3}'));
+  assert.match(app,/const zodiacFill=name=>wheelPalette.getPropertyValue/);
+  assert.ok(skins.includes('zodiac-element-earth{fill:var(--astra-zodiac-earth)}'));
+  assert.ok(skins.includes('zodiac-element-water{fill:var(--astra-zodiac-water)}'));
+  assert.ok(app.includes("zodiacFill('earth')"));
+  assert.ok(app.includes("zodiacFill('water')"));
 
 });
 test('Chart UI: all visual layers load in app and Chromium; exports embed wheel styling',()=>{
