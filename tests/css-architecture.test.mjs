@@ -116,7 +116,8 @@ test('Four-element palette has one source and no duplicates in feature CSS',()=>
  for(const [element,hue] of Object.entries({
    fire:'#FF3D14',air:'#F7FC35',water:'#159BF2',earth:'#46CD17'
  })){
-   assert.ok(tokens.includes('--astra-zodiac-'+element+':'+hue),element+' wheel color');
+   assert.ok(tokens.includes('--astra-elements-vivid-'+element+':'+hue),element+' vivid source');
+   assert.ok(tokens.includes('--astra-zodiac-'+element+':var(--astra-elements-vivid-'+element+')'),element+' wheel token');
    assert.ok(tokens.includes('--solar-'+element+'-bg:var(--astra-zodiac-'+element+')'),element+' ribbon');
    assert.ok(tokens.includes('--element-'+element+':var(--astra-zodiac-'+element+')'),element+' alias');
  }
@@ -228,4 +229,23 @@ test('Event disclosures use shared padding, not zero-inset feature overrides',()
  assert.match(components,/\.astra-disclosure-body\s*\{[^}]*padding:var\(--astra-disclosure-body-top\) var\(--astra-component-inset\) var\(--astra-disclosure-body-bottom\)/s);
  assert.doesNotMatch(features,/\.astra-event-detail--compact \.astra-event-disclosure>summary\s*\{[^}]*\bpadding\s*:/s);
  assert.doesNotMatch(features,/\.astra-event-detail--compact \.astra-event-disclosure-body\s*\{[^}]*\bpadding\s*:/s);
+});
+
+test('Reference palettes are selectable without route-specific colours',()=>{
+ const tokens=read('astra-tokens.css'),app=read('app.js'),
+   bootstrap=read('theme-bootstrap.js'),components=read('astra-components.css');
+ for(const [name,color] of Object.entries({
+  fire:'#FAB617',air:'#E7F6FD',water:'#00ADEF',earth:'#896B49'
+ }))assert.ok(tokens.includes('--astra-elements-classic-'+name+':'+color),name);
+ assert.match(tokens,/:root\[data-astra-palette="classic"\]\{/);
+ assert.match(tokens,/:root\[data-astra-theme="dark"\]\[data-astra-palette="classic"\]\{/);
+ assert.match(app,/elementPalette:'vivid'/);
+ assert.match(app,/data-element-palette=/);
+ assert.match(app,/applyElementPalette\(\);/);
+ assert.match(bootstrap,/dataset\.astraPalette=/);
+ for(const label of ['Palette 1 · Classique','Palette 2 · Vive'])assert.ok(app.includes(label));
+ assert.match(components,/\.astra-palette-options\{/);
+ assert.match(components,/\.astra-palette-choice\{/);
+ for(const css of ['style.css','atlas-ui.css','solar-ribbon.css','astra-p4-wheel.css'])
+   assert.doesNotMatch(read(css),/data-astra-palette=/);
 });

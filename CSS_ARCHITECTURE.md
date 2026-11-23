@@ -106,3 +106,11 @@ La **deuxième image fournie** est la référence pour l'ensemble des écrans.
 Feu rouge-orangé (`#FF3D14`), Air jaune (`#F7FC35`), Eau bleu (`#159BF2`), Terre vert (`#46CD17`).
 
 `astra-tokens.css` est le propriétaire unique des tokens `--astra-zodiac-fire/air/water/earth`. Les secteurs de la roue, l'export SVG, le ruban solaire et les bandes du Soleil réutilisent exactement la même correspondance. Les jours hors du mois ont une variante désaturée **du même élément**. Les variantes sombres abaissent la luminosité sans échanger de couleurs ; elles utilisent le texte crème pour préserver un contraste WCAG AA. Éviter tout hexadécimal élémentaire local.
+
+### Comparaison interactive des deux palettes
+
+L'écran **Mon ciel → Réglages → Apparence** permet de comparer les références avec des boutons « Palette 1 · Classique » et « Palette 2 · Vive ». Palette 1 reprend la première image (Feu doré, Air bleu pâle, Eau cyan, Terre brune). La Terre a été légèrement assombrie pour que la typographie crème respecte le contraste AA. Palette 2 conserve les rouges, jaunes, bleus et verts précédemment installés et reste le choix par défaut.
+
+Le réglage `elementPalette` est enregistré localement avec les préférences de l'application, restauré **avant l'affichage du CSS** par `theme-bootstrap.js`, et exporté dans la sauvegarde JSON. Les styles de la roue, du calendrier et du ruban utilisent les mêmes `--astra-zodiac-*`, sans duplication de palettes par page. Le mode sombre adapte le fond des rubans sans changer l'attribution des éléments, et l'export SVG/PNG résout la palette sélectionnée.
+
+Les aperçus de chaque variante doivent être capturés dans le navigateur à largeur identique pour pouvoir comparer objectivement le rendu.
