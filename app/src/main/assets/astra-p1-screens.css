@@ -121,11 +121,11 @@
   color:var(--color-cream)
 }
 .astra-day-journal-link{
-  max-width:840px;width:100%;margin:0 auto 23px;
+  width:100%;margin:0 0 23px;
   background:var(--astra-surface-alt);color:var(--astra-ink);
   border:1px solid var(--astra-border);border-radius:var(--astra-radius-lg)
 }
-.astra-feed,.astra-active-panel{max-width:840px;margin-left:auto;margin-right:auto}
+.astra-feed,.astra-active-panel{width:100%;min-width:0}
 .astra-event-feed{background:var(--astra-surface);border-color:var(--astra-divider)}
 .astra-active-panel{background:var(--astra-surface);border-color:var(--astra-divider)}
 .astra-active-panel>summary,.astra-active-panel>p{color:var(--astra-ink)}
