@@ -186,7 +186,7 @@
   .astra-journal-editor .mood,
   .astra-event-feed .event-button,.astra-month-event{transition:none!important}
 }
-@media(max-width:370px){
+@media(max-width:400px){
   .astra-journal-editor .mood-row{gap:3px}
   .astra-journal-editor .mood{min-height:72px;padding:8px 1px}
   .astra-journal-editor .mood span:last-child{font-size:10px}
@@ -228,7 +228,7 @@
 .astra-angle-reading .astra-angle-note{
   color:var(--astra-muted)!important;font-size:13px!important;
 }
-@media(max-width:390px){
+@media(max-width:400px){
   .astra-angle-roles{grid-template-columns:1fr}
 }
 @media(prefers-contrast:more){
@@ -349,7 +349,7 @@
   border-radius:0;background:none;
 }
 .astra-angle-reading .astra-angle-roles dd{margin:0}
-@media(max-width:370px){
+@media(max-width:400px){
   .astra-event-detail--compact{padding:16px 12px 20px}
   .astra-event-role-list>div{grid-template-columns:minmax(92px,38%) minmax(0,1fr)}
   .astra-event-detail--compact .astra-event-axis{font-size:19px!important}

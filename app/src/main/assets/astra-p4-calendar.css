@@ -20,7 +20,7 @@
 :root[data-astra-theme="dark"] .calendar.astra-calendar-board .astra-calendar-date-week .astra-adjacent-day{
   color:var(--astra-calendar-ink);opacity:1
 }
-@media(min-width:700px){
+@media(min-width:800px){
   .calendar.astra-calendar-board .astra-calendar-date-week .astra-adjacent-day{
     min-height:62px;height:62px;
   }

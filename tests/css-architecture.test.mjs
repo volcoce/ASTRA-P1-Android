@@ -115,3 +115,19 @@ test('Water palette has one source and no duplicates in feature CSS',()=>{
  assert.match(read('app.js'),/zodiacFill\('water'\)/);
  assert.doesNotMatch(read('solar-ribbon.css'),/:root\s*\{[^}]*--solar-water-bg/s);
 });
+
+test('Responsive widths use only the shared breakpoint contract',()=>{
+ const html=read('index.html');
+ const styles=[...html.matchAll(/href="([^"]+\.css)"/g)].map(m=>m[1]);
+ const allowed=new Set([360,400,480,799,800,1100]);
+ for(const file of styles){
+   const css=read(file);
+   for(const media of css.matchAll(/@media\s*\([^)]*\)(?:\s+and\s+\([^)]*\))?/g)){
+     const widths=[...media[0].matchAll(/(?:min|max)-width\s*:\s*(\d+)px/g)].map(m=>Number(m[1]));
+     for(const width of widths){
+       const shortViewport=width===600&&media[0].includes('max-height:650px');
+       assert.ok(allowed.has(width)||shortViewport,file+' '+media[0]);
+     }
+   }
+ }
+});

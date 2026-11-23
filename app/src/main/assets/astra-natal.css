@@ -382,7 +382,7 @@
   background:var(--astra-selected);
 }
 
-@media(max-width:600px){
+@media(max-width:480px){
   
   .natal-explore .natal-explore-tabs{gap:4px;padding:4px}
   .natal-explore .natal-explore-tabs>button{min-height:44px;padding:8px 5px;font-size:13px}
@@ -500,7 +500,7 @@
   .natal-home>.natal-overview-tabs{margin-bottom:10px}
   .natal-home>.natal-home-hint{margin-top:9px;padding:0 4px}
 }
-@media(max-width:350px){
+@media(max-width:360px){
   .natal-home>.natal-home-header .natal-settings-link{padding:8px 10px}
   .natal-home>.natal-primary-cards{padding:5px 3px;gap:4px}
 }

@@ -69,8 +69,8 @@
   background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0!important;
 }
 .calendar .astra-calendar-date-week .astra-phase-graphic{background:transparent!important}
-@media(min-width:700px){.calendar .day{height:62px;min-height:62px}.calendar{padding:16px 14px 18px}}
-@media(max-width:699px){.calendar .day{height:55px;min-height:55px}.calendar{padding:10px 6px 14px}}
+@media(min-width:800px){.calendar .day{height:62px;min-height:62px}.calendar{padding:16px 14px 18px}}
+@media(max-width:799px){.calendar .day{height:55px;min-height:55px}.calendar{padding:10px 6px 14px}}
 .astra-calendar-blank-day{min-width:0;height:55px}
 .astra-calendar-solar-note{margin:11px 0 4px;font:550 12px/1.5 system-ui,Arial,sans-serif;color:#455f70}
 .astra-calendar-solar-note b{font-weight:800}

@@ -364,7 +364,7 @@ button.astra-insight-tile:hover{border-color:#7597aa}
 .astra-back-today{width:100%;min-height:47px;background:transparent;
   border:1px solid #c9d7de;color:#2a5871;font-weight:750;
   border-radius:12px;margin:0 0 18px;cursor:pointer}
-@media(min-width:700px){
+@media(min-width:800px){
   .astra-insight-track{margin-right:0;padding-right:0}
   .astra-insight-tile{flex-basis:calc((100% - 20px)/3)}
 }
@@ -577,7 +577,7 @@ button.astra-insight-tile:hover{border-color:#7597aa}
   color:#fff;background:#1e435a;border:1px solid #1e435a;border-radius:13px;
   text-align:left;font-weight:740;font-size:14px;cursor:pointer}
 .astra-month-calendar-link span{font-size:19px}
-@media(max-width:375px){
+@media(max-width:400px){
   
   
   .astra-month-hero{padding:19px 17px}
@@ -646,7 +646,7 @@ html,body{font-size:100%;min-width:0}
 .natal-matrix-scroll,.natal-wheel-viewport,.astra-insight-track{max-width:100%;scrollbar-gutter:stable}
 .natal-overview-panel,.natal-home,.natal-explore,.natal-compare{min-width:0}
 
-@media(min-width:700px){
+@media(min-width:800px){
   
   .astra-lunar-track{grid-template-columns:repeat(4,minmax(0,1fr))}
 }
@@ -655,7 +655,7 @@ html,body{font-size:100%;min-width:0}
   
   .astra-day-hero-copy{max-width:65ch}
 }
-@media(max-width:380px){
+@media(max-width:400px){
   .astra-week-title{flex-wrap:wrap;row-gap:6px}
   .astra-week-controls{width:100%;justify-content:space-between}
   .astra-week-days{gap:2px}

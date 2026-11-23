@@ -85,8 +85,8 @@ test('P1: dynamic titles, deferred heading focus and reduced motion are implemen
 });
 
 test('P1: responsive CSS includes compact, tablet and desktop breakpoints', () => {
-  assert.match(css,/@media\(max-width:380px\)/);
-  assert.match(css,/@media\(min-width:700px\)/);
+  assert.match(css,/@media\(max-width:400px\)/);
+  assert.match(css,/@media\(min-width:800px\)/);
   assert.match(css,/@media\(min-width:1100px\)/);
   assert.match(css,/font-size:\.875rem/);
   assert.match(components,/\.bottom-nav \.nav-label\{/);

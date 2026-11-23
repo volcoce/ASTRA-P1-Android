@@ -138,8 +138,10 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
 .calendar .astra-calendar-date-week .day{background:transparent!important}
 :root[data-astra-theme="dark"] .calendar .astra-calendar-date-week .day{color:#F8EFD5}
 :root[data-astra-theme="dark"] .calendar .astra-calendar-date-week .day.selected{color:#F8EFD5}
-@media(max-width:370px){.bottom-nav .nav-label{font-size:10px}}
-@media(max-width:360px){.bottom-nav .nav{min-height:52px;padding-inline:1px}}
+@media(max-width:360px){
+  .bottom-nav .nav-label{font-size:10px}
+  .bottom-nav .nav{min-height:52px;padding-inline:1px}
+}
 @media(orientation:landscape) and (max-height:500px){
   .bottom-nav .nav{min-height:46px;gap:1px}
   .bottom-nav .nav-ico,.bottom-nav .nav-ico svg{width:19px;height:19px}

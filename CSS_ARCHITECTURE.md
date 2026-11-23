@@ -21,6 +21,19 @@ Le code de production utilise **une seule navigation globale**, sans exceptions 
 6. Après une correction, tester les quatre onglets, le Journal, l'explorateur, les réglages, les fiches et la comparaison en clair/sombre à 320, 360, 393, 768, 799, 800 et 1280 px.
 7. Une nouvelle correction d'espacement doit changer un token ou un composant source. **Pas de feuille ajoutée à la fin de la cascade comme rustine.**
 
+## Matrice responsive commune
+
+- Jusqu’à 360 px : mobile très compact (libellés et contrôles).
+- Jusqu’à 400 px : mobile compact (rangées et colonnes réduites).
+- Jusqu’à 480 px : mobile (empilement des formulaires et des fiches).
+- 481 à 799 px : lecture fluide dans la même colonne, sans navigation parallèle.
+- Dès 800 px : tablette et bureau (zones lunaires et calendrier élargis).
+- Dès 1100 px : grand bureau (respiration de l’en-tête uniquement).
+- 799 px est le complément exact de la règle min-width:800px.
+- Exception fonctionnelle : les seuils de hauteur 500 px (paysage) et 650 px avec largeur 600 px (clavier/vue courte).
+
+Ne pas réintroduire de breakpoints locaux à 350, 370, 375, 380, 390, 420 ou 700 px. Toute nouvelle borne doit être justifiée et couverte par un test.
+
 ## Point de migration
 
 Cette itération retire les deux feuilles P5/P6, retire les exceptions de navigation fixes/statiques et définit l'interface natale dans un module métier. Les anciennes couches générales n'ont pas encore été entièrement réécrites ; elles constituent une dette technique documentée, pas une autorisation de multiplier les overrides.
