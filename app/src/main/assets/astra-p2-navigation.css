@@ -101,15 +101,15 @@
   background:var(--astra-primary);color:var(--astra-primary-ink);
   border:2px solid var(--astra-primary-ink)
 }
-.natal-more-options,.natal-extras,.natal-glossary,.calculation-details,
+.natal-more-options,.natal-glossary,.calculation-details,
 .natal-preview-disclosure,.natal-focus-legend{
   border-color:var(--astra-divider);color:var(--astra-ink)
 }
-:is(.natal-more-options,.natal-extras,.natal-glossary,.calculation-details,
+:is(.natal-more-options,.natal-glossary,.calculation-details,
 .natal-preview-disclosure)>summary{
   color:var(--astra-ink);font-weight:750;cursor:pointer
 }
-:is(.natal-more-options,.natal-extras,.natal-glossary,.calculation-details,
+:is(.natal-more-options,.natal-glossary,.calculation-details,
 .natal-preview-disclosure)[open]>summary{color:var(--astra-brand-strong)}
 .natal-context-sheet{border:1px solid var(--astra-border);
   background:var(--astra-surface);color:var(--astra-ink);
