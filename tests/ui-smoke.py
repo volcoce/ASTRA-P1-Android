@@ -118,6 +118,32 @@ if __name__ == '__main__':
                     # resting screen; they obscure widget hierarchy.
                     page.evaluate("document.getElementById('toast').hidden=true")
                     page.screenshot(path=str(shots / (name+'.png')),full_page=True,animations='disabled')
+            def audit_disclosures(route):
+                """Check every disclosure on this rendered route, open or closed."""
+                items=page.evaluate("""() => [...document.querySelectorAll('details.astra-disclosure')].map(el=>{
+                  const summary=el.querySelector(':scope > summary');
+                  const body=el.querySelector(':scope > .astra-disclosure-body');
+                  if(!summary||!body)return {component:el.className,error:'missing summary/body'};
+                  const top=getComputedStyle(summary),inside=getComputedStyle(body);
+                  const asFloat=value=>parseFloat(value);
+                  const first=body.firstElementChild;
+                  const offset=el.open&&first
+                    ?first.getBoundingClientRect().left-body.getBoundingClientRect().left
+                    :null;
+                  return {component:el.className,open:el.open,
+                    titleLeft:asFloat(top.paddingLeft),titleRight:asFloat(top.paddingRight),
+                    bodyLeft:asFloat(inside.paddingLeft),bodyRight:asFloat(inside.paddingRight),
+                    titleHeight:asFloat(top.minHeight),firstChildOffset:offset};
+                })""")
+                for item in items:
+                    assert not item.get('error'),(route,item)
+                    for prop in ('titleLeft','titleRight','bodyLeft','bodyRight'):
+                        assert item[prop]>=15,(route,item)
+                    assert item['titleHeight']>=48,(route,item)
+                    if item['firstChildOffset'] is not None:
+                        assert item['firstChildOffset']>=14,(route,item)
+                return len(items)
+
             page.on('pageerror',lambda e: errors.append(str(e)))
             html=(ROOT/'index.html').read_text(encoding='utf-8')
             html=html.replace('<script src="runtime.bundle.js"></script><script src="app.js" defer></script>','')
@@ -300,6 +326,7 @@ if __name__ == '__main__':
             assert page.locator('.natal-home .natal-wheel').count()==1
             assert page.locator('.natal-glossary').get_attribute('open') is None
             page.locator('.natal-glossary summary').click()
+            assert audit_disclosures('natal-home')>=2
             assert 'Orbe' in page.locator('.natal-glossary').inner_text()
             assert page.locator('.natal-advanced').count()==0
             assert page.locator('.natal-control-stack').count()==0
@@ -574,6 +601,7 @@ if __name__ == '__main__':
             capture('settings-393')
             page.locator('.natal-more-options summary').click()
             assert page.locator('.natal-more-options').get_attribute('open') is not None
+            assert audit_disclosures('natal-settings')>=1
             assert page.locator('#birthForm').count()==1
             assert page.locator('.natal-primary-cards').count()==0
             page.locator('[data-house-system="whole"]').focus()
@@ -648,6 +676,7 @@ if __name__ == '__main__':
             page.locator('[data-profile-screen="settings"]').click()
             # Native settings hold export tools, preview wheel remains available.
             page.locator('.natal-preview-disclosure summary').click()
+            assert audit_disclosures('natal-preview')>=1
             assert page.locator('.natal-settings .natal-wheel').count()==1
             # Browser-generated exports should be real files, not only UI alerts.
             with page.expect_download(timeout=6000) as d:
@@ -665,6 +694,7 @@ if __name__ == '__main__':
             page.locator('[data-explore-section="houses"]').click()
             assert page.locator('#natalChart .natal-house-chip').count()==12
             page.locator('.natal-explore-wheel summary').click()
+            assert audit_disclosures('natal-explorer')>=1
             assert page.locator('#natalChart .natal-wheel').count()==1
             page.locator('.natal-wheel [data-natal-house="1"]').click()
             assert 'Maison 1' in page.locator('#natalSelectionInfo').inner_text()
@@ -1102,6 +1132,7 @@ if __name__ == '__main__':
               getComputedStyle(el).backgroundColor === 'rgba(0, 0, 0, 0)')""")
             # Solar element colors remain independent of the event filter.
             page.locator('.calendar-options > summary').click()
+            assert audit_disclosures('calendar')>=1
             page.locator('#eventFilter').select_option('exact')
             assert page.locator('.calendar .day.moon-new').count()==1
             assert page.locator('.calendar .day.moon-full').count()==1
@@ -1204,6 +1235,7 @@ if __name__ == '__main__':
             page.locator('.calendar .day.moon-full').click()
             page.locator('#calendarDayDialog [data-event]').first.click(timeout=2000)
             assert page.locator('#detailPanel').count()==1
+            assert audit_disclosures('event-detail')>=2
             assert 'Lecture astrologique' in page.locator('#detailPanel').inner_text()
             assert page.locator('#detailPanel .astra-event-facts').count()==1
             assert page.locator('#detailPanel .astra-event-technical').count()==1
@@ -1227,6 +1259,7 @@ if __name__ == '__main__':
                 assert spacing['summary']['left']>=14,(width,spacing)
                 assert spacing['summary']['right']>=14,(width,spacing)
                 assert spacing['body']['left']>=14,(width,spacing)
+                assert audit_disclosures('detail-'+str(width))>=2
                 assert spacing['body']['right']>=14,(width,spacing)
                 assert spacing['factsOffset']>=14,(width,spacing)
                 assert page.evaluate('document.documentElement.scrollWidth')<=width+2,(width,spacing)
