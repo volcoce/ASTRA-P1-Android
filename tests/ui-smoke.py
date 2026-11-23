@@ -450,7 +450,8 @@ if __name__ == '__main__':
             assert page.locator('.natal-home .natal-wheel').count()==1
             page.locator('.natal-main-action').click()
             assert page.locator('.natal-explore').count()==1
-            assert page.locator('.natal-explore-list > p').count()==0
+            assert page.locator('.natal-explore-list > p:not(.natal-position-legend)').count()==0
+            assert 'rétrograde' in page.locator('.natal-position-legend').inner_text()
             assert page.locator('.natal-explore .natal-position').count()==10
             assert page.locator('.natal-explore .position-retrograde').count()==10
             assert page.locator('.natal-explore [data-natal-body="Mercury"].natal-position .position-retrograde').inner_text()=='R'
