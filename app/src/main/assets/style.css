@@ -609,7 +609,7 @@ html,body{width:100%;min-width:0;max-width:100%}
   .top{padding-left:10px;padding-right:10px}
   
   .field-grid,.info-grid{grid-template-columns:minmax(0,1fr)}
-  .month-head{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;gap:4px}
+  .month-head{display:grid;grid-template-columns:var(--astra-control-min) minmax(0,1fr) var(--astra-control-min);gap:var(--astra-touch-gap)}
   .month-head h2{font-size:clamp(17px,5.5vw,23px)}
   .natal-settings-link{min-width:0}
   .natal-control-stack{grid-template-columns:minmax(0,1fr)}
