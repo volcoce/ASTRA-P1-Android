@@ -141,7 +141,7 @@
 :root[data-astra-theme="dark"] .astra-week-day b{color:var(--astra-ink)}
 :root[data-astra-theme="dark"] .astra-week-day.is-selected{background:#245773;border-color:#6da9c5;color:#fff}
 :root[data-astra-theme="dark"] .astra-week-day.is-selected b{color:#fff}
-:root[data-astra-theme="dark"] :is(.astra-more-events>summary,.calendar-options>summary){
+:root[data-astra-theme="dark"] .astra-more-events>summary{
   color:var(--astra-ink);background:var(--astra-secondary-surface);
   border-color:var(--astra-rule)
 }
