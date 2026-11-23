@@ -1748,8 +1748,7 @@
         '</dl><p class="tiny">Les interprétations astrologiques sont symboliques, non scientifiquement prédictives.</p></div></details>';
       return '<section class="card natal-card astra-reading-card natal-home" id="natalChart">'+
         '<div class="natal-home-header"><div><h2 class="card-title">Ta carte de naissance</h2>'+
-        '<p class="natal-home-subtitle">Positions à ta naissance · '+(isTropical?'Tropical':'Sidéral')+'</p></div>'+
-        '<button type="button" class="natal-settings-link" data-profile-screen="settings">Personnaliser</button></div>'+
+        '<p class="natal-home-subtitle">Positions à ta naissance · '+(isTropical?'Tropical':'Sidéral')+'</p></div></div>'+
         (uncertain?notice:'')+
         '<div class="natal-primary-cards'+(h?'':' natal-primary-cards--two')+'" role="group" aria-label="Soleil, Lune et Ascendant en signes astrologiques">'+quickCards+'</div>'+
         '<div class="natal-home-actions natal-home-actions--primary"><button type="button" class="natal-main-action" data-profile-screen="explore"><span class="action-label"><strong>Explorer les positions</strong><small>Planètes, signes et maisons</small></span><span class="action-arrow" aria-hidden="true">→</span></button></div>'+
@@ -1853,8 +1852,7 @@
         '<div class="natal-subpage-heading">'+pageBack+
         '<h2 class="card-title">Deux ciels, une seule carte</h2>'+
         '<p class="natal-section-lead">Au centre : ton ciel de naissance. À l’extérieur : les planètes à la date choisie.</p>'+
-        '<button type="button" class="natal-settings-link" data-profile-screen="settings">Personnaliser</button></div>'+
-        comparing+notice+(transitError?'<p class="notice" role="alert">'+safe(transitError)+'</p>':'')+
+        '</div>'+comparing+notice+(transitError?'<p class="notice" role="alert">'+safe(transitError)+'</p>':'')+
         '<div class="natal-wheel-viewport" role="region" tabindex="0" aria-label="Roue double, natal et transits">'+resized+'</div>'+
         '<div class="wheel-ring-legend"><span><i class="natal-swatch"></i>Planètes natales</span>'+
         '<span><i class="transit-swatch"></i>Planètes en transit</span></div>'+focusLaunch+
@@ -1882,8 +1880,7 @@
       '<div class="natal-houses">'+houseButtons+'</div></section>';
     const contents=choice==='aspects'?aspectsList:choice==='houses'?housesList:planetList;
     return '<section class="card natal-card astra-reading-card natal-explore" id="natalChart">'+
-      '<div class="natal-explore-toolbar" role="group" aria-label="Navigation et réglages du thème">'+pageBack+
-      '<button type="button" class="natal-settings-link" data-profile-screen="settings">Personnaliser</button></div>'+
+      '<div class="natal-explore-toolbar" role="group" aria-label="Navigation du thème">'+pageBack+'</div>'+
       '<p class="natal-section-lead natal-explore-intro">Choisis une rubrique, puis un élément pour découvrir sa signification.</p>'+
       notice+selector+'<div id="natalExplorerPanel" class="natal-explorer-panel">'+contents+'</div>'+
       '<details class="natal-explore-wheel astra-disclosure"'+(exploreWheelOpen?' open':'')+'>'+
@@ -1952,7 +1949,7 @@
     return '<section class="astra-settings-group"><h3>Astrologie</h3>'+
       '<div class="astra-settings-profile"><strong>'+(state.profile?'Thème natal configuré':'Thème natal non configuré')+'</strong>'+
       '<span>'+(state.profile?safe(state.profile.place?.label||'Informations enregistrées'):'Date, heure et ville de naissance')+'</span>'+
-      '<button type="button" class="ghost" data-settings-birth="1">'+(state.profile?'Modifier mes informations de naissance':'Créer mon thème natal')+'</button></div>'+
+      '<button type="button" class="ghost" data-settings-birth="1">'+(state.profile?'Personnaliser mon thème':'Créer mon thème natal')+'</button></div>'+
       choices('Zodiaque du calendrier et des prévisions',state.mode,[['tropical','Tropical'],['sidereal','Sidéral']], 'data-mode')+
       '<p class="field-help">Ce choix s’applique à Ce jour, Ce mois et Calendrier.</p>'+
       choices('Zodiaque du thème natal',state.natalZodiac,[['tropical','Tropical'],['sidereal','Sidéral']],'data-natal-zodiac')+
@@ -2174,9 +2171,11 @@
   $('settingsButton')?.addEventListener('click',()=>{
     if(globalSettingsDialog.open)return;
     captureBirthForm();renderGlobalSettings();globalSettingsDialog.showModal();
+    $('settingsButton')?.setAttribute('aria-expanded','true');
     globalSettingsDialog.querySelector('[data-settings-section="'+globalSettingsSection+'"]')?.focus({preventScroll:true});
   });
   globalSettingsDialog.addEventListener('close',()=>{
+    $('settingsButton')?.setAttribute('aria-expanded','false');
     if(restoreSettingsTriggerFocus)$('settingsButton')?.focus({preventScroll:true});
     restoreSettingsTriggerFocus=true;
   });
