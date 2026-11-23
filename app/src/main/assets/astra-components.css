@@ -366,4 +366,132 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
 .astra-palette-swatch[data-element="earth"]{background:var(--palette-preview-earth)}
 @media(max-width:480px){.astra-palette-options{grid-template-columns:minmax(0,1fr)}}
 
+
+/* One settings surface for the entire app, in every theme and viewport. */
+.top .astra-settings-trigger{
+  display:grid;place-items:center;flex:none;margin-inline-start:auto;
+  width:var(--astra-control-min);height:var(--astra-control-min);
+  padding:9px;border:1px solid #F8EFD580;border-radius:var(--astra-radius-md);
+  background:transparent;color:var(--color-cream);cursor:pointer
+}
+.top .astra-settings-trigger:hover{background:#F8EFD522}
+.top .astra-settings-trigger svg{
+  display:block;width:23px;height:23px;fill:none;stroke:currentColor;
+  stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round
+}
+.astra-settings-dialog{
+  position:fixed;inset:0;margin:auto;
+  width:min(720px,calc(100vw - 28px));max-width:100%;
+  max-height:min(88dvh,900px);min-width:0;box-sizing:border-box;
+  padding:0;overflow:auto;overscroll-behavior:contain;
+  border:1px solid var(--astra-border);border-radius:var(--astra-radius-xl);
+  background:var(--astra-surface);color:var(--astra-ink);
+  box-shadow:0 20px 60px #101F2A66;
+}
+.astra-settings-dialog::backdrop{background:#101F2ABA}
+.astra-settings-head{
+  position:sticky;top:0;z-index:2;display:flex;align-items:center;
+  justify-content:space-between;gap:12px;
+  padding:18px var(--astra-component-inset) 14px;
+  border-bottom:1px solid var(--astra-divider);
+  background:var(--astra-surface);color:var(--astra-ink)
+}
+.astra-settings-kicker{
+  margin:0 0 1px;font-size:.7rem;font-weight:800;
+  letter-spacing:.12em;color:var(--astra-muted)
+}
+.astra-settings-head h2{
+  margin:0;font:700 clamp(1.4rem,4vw,1.8rem)/1.2 var(--astra-font-display);
+  color:var(--astra-ink)
+}
+.astra-settings-close{
+  flex:none;min-height:var(--astra-control-min);padding:9px 14px;
+  background:var(--astra-secondary-surface);border:1px solid var(--astra-border);
+  border-radius:var(--astra-radius-md);color:var(--astra-ink);font-weight:750;cursor:pointer
+}
+.astra-settings-tabs{
+  position:sticky;top:77px;z-index:2;
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:4px;padding:8px var(--astra-component-inset);
+  border-bottom:1px solid var(--astra-divider);background:var(--astra-surface)
+}
+.astra-settings-tabs [role="tab"]{
+  min-width:0;min-height:var(--astra-control-min);padding:10px 5px;
+  border:1px solid transparent;border-radius:var(--astra-radius-md);
+  background:transparent;color:var(--astra-muted);font-weight:700;
+  font-size:.8125rem;line-height:1.25;overflow-wrap:anywhere;cursor:pointer
+}
+.astra-settings-tabs [role="tab"][aria-selected="true"]{
+  background:var(--astra-selected);color:var(--astra-ink);
+  border-color:var(--astra-selected-border)
+}
+.astra-settings-tabs [role="tab"]:hover:not([aria-selected="true"]){
+  background:var(--astra-secondary-surface);color:var(--astra-ink)
+}
+.astra-settings-body{
+  min-width:0;padding:var(--astra-component-inset);
+  color:var(--astra-ink)
+}
+.astra-settings-body>.card{width:100%;margin:0}
+.astra-settings-group{display:grid;gap:10px;min-width:0}
+.astra-settings-group h3{
+  margin:0 0 4px;font:700 1.25rem/1.25 var(--astra-font-display);color:var(--astra-ink)
+}
+.astra-settings-group p{margin:0;color:var(--astra-muted);line-height:1.5}
+.astra-settings-field{
+  display:grid;gap:9px;margin-top:8px;padding-top:14px;
+  border-top:1px solid var(--astra-divider)
+}
+.astra-settings-field h4,.astra-settings-danger h4{
+  margin:0;color:var(--astra-ink);font-size:.9375rem;line-height:1.35
+}
+.astra-settings-profile{
+  display:grid;gap:6px;padding:14px;
+  background:var(--astra-secondary-surface);border:1px solid var(--astra-divider);
+  border-radius:var(--astra-radius-lg)
+}
+.astra-settings-profile>strong{font-size:.96rem}
+.astra-settings-profile>span{font-size:.8125rem;color:var(--astra-muted);overflow-wrap:anywhere}
+.astra-settings-profile>.ghost{justify-self:start;min-height:var(--astra-control-min);padding:8px 12px;margin-top:5px}
+.astra-settings-choices{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,145px),1fr));gap:8px
+}
+.astra-settings-choice{
+  min-width:0;min-height:var(--astra-control-min);padding:10px 9px;
+  border:1px solid var(--astra-border);border-radius:var(--astra-radius-md);
+  background:var(--astra-surface);color:var(--astra-ink);
+  font:700 .875rem/1.35 var(--astra-font-body);cursor:pointer
+}
+.astra-settings-choice[aria-pressed="true"]{
+  background:var(--astra-selected);border:2px solid var(--astra-selected-border)
+}
+.astra-settings-choices button:hover:not([aria-pressed="true"]){background:var(--astra-secondary-surface)}
+.astra-settings-field>.ghost{justify-self:start;min-height:var(--astra-control-min);padding:10px 12px}
+.astra-settings-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}
+.astra-settings-actions>.ghost{min-height:var(--astra-control-min);padding:10px}
+.astra-settings-danger{
+  margin-top:22px;padding:16px;display:grid;gap:10px;
+  border:1px solid var(--astra-danger);border-radius:var(--astra-radius-lg)
+}
+.astra-settings-danger>.danger{justify-self:start;min-height:var(--astra-control-min);padding:10px 14px}
+.astra-settings-dialog .astra-performance{margin-bottom:16px}
+.astra-settings-dialog .calculation-details{margin-top:14px}
+@media(max-width:600px){
+  .astra-settings-dialog{
+    inset:auto 0 0;margin:0;width:100%;max-width:100%;
+    max-height:94dvh;border-radius:var(--astra-radius-xl) var(--astra-radius-xl) 0 0;
+    border-bottom:0;padding-bottom:max(12px,var(--astra-safe-bottom))
+  }
+  .astra-settings-tabs{gap:2px;padding-inline:10px}
+  .astra-settings-tabs [role="tab"]{font-size:.75rem;padding-inline:3px}
+  .astra-settings-body{padding-inline:var(--astra-card-gutter)}
+}
+@media(max-width:380px){
+  .astra-settings-actions{grid-template-columns:1fr}
+  .astra-settings-close{padding-inline:10px}
+}
+@media(prefers-reduced-motion:reduce){
+  .astra-settings-trigger,.astra-settings-dialog button{transition:none!important}
+}
+
 }
