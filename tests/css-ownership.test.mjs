@@ -312,3 +312,25 @@ test('Today lunar hero contains no duplicate event counter or jump action',()=>{
     file+' must not style the deleted hero actions');
  }
 });
+
+
+test('App opens on a contextual page title without any permanent masthead',()=>{
+ const html=read('index.html'),app=read('app.js');
+ assert.doesNotMatch(html,/<header class="top"/);
+ assert.doesNotMatch(html,/class="identity"|class="emblem"|class="brand"/);
+ assert.match(html,/<main id="app" class="main"><\/main>/);
+ assert.match(app,/const header = \(name,description\) => `<header class="screen-intro">/);
+ assert.doesNotMatch(app,/homeButton/);
+ for(const filename of CSS_SOURCES){
+  const parsed=postcss.parse(read(filename),{from:filename});
+  parsed.walkRules(rule=>{
+   const selectors=rule.selector.split(',').map(s=>s.trim());
+   for(const selector of selectors){
+    assert.ok(!/(?:^|\\s)\\.top(?:\\s|$|\\.|:)/.test(selector),
+      filename+' retains obsolete masthead selector '+selector);
+    assert.ok(!/\\.(?:identity|emblem|brand-sub|top-today)(?:\\s|$|\\.|:)/.test(selector),
+      filename+' retains obsolete brand component '+selector);
+   }
+  });
+ }
+});
