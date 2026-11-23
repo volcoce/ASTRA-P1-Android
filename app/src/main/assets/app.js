@@ -1675,8 +1675,8 @@
         '<div class="natal-home-header"><div><h2 class="card-title">Ta carte de naissance</h2>'+
         '<p class="natal-home-subtitle">'+(isTropical?'Tropical':'Sidéral')+'</p></div></div>'+
         (uncertain?notice:'')+
-        viewTabs+overviewContent+
         '<div class="natal-primary-cards'+(h?'':' natal-primary-cards--two')+'" role="group" aria-label="Soleil, Lune et Ascendant en signes astrologiques">'+quickCards+'</div>'+
+        viewTabs+overviewContent+
         '<div class="natal-home-actions natal-home-actions--primary"><button type="button" class="natal-main-action" data-profile-screen="explore"><span class="action-label"><strong>Explorer les positions</strong></span><span class="action-arrow" aria-hidden="true">→</span></button></div>'+
         contextSheet+glossary+
         '<div class="natal-home-actions natal-home-actions--secondary"><button type="button" class="natal-secondary-action" data-explore-transits="1"><span class="action-label"><strong>Comparer deux dates</strong></span><span class="action-arrow" aria-hidden="true">→</span></button></div>'+
