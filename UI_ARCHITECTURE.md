@@ -224,3 +224,7 @@ Ces rapports sont calculés sur fond blanc à partir des couleurs proposées. Co
 7. Navigation, journal, exports et calculs passent les tests Chromium, Android et un contrôle manuel sur téléphone réel.
 
 **État de référence :** le sélecteur de semaine, le widget dominant, la rangée Lune/Journal/Mon ciel et la liste d'événements existent déjà. Certaines recommandations de cette spécification sont des **cibles UX à affiner**, non des fonctionnalités prouvées par test utilisateur.
+
+### Tableau des planètes
+
+Les positions natales partagent un tableau interactif à colonnes alignées : planète, R (rétrogradation géocentrique à la naissance), signe, degrés et minutes facultatifs, maison en chiffres romains si l’heure est connue. La préférence Paramètres → Astrologie → Degrés des planètes est désactivée par défaut et persistée. La roue reste sans degrés.
