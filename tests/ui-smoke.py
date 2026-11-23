@@ -144,6 +144,58 @@ if __name__ == '__main__':
                         assert item['firstChildOffset']>=14,(route,item)
                 return len(items)
 
+            def verify_active_aspects_gutters(label):
+                # Measure real geometry, not just the presence of CSS classes.
+                details=page.locator('details.astra-active-panel')
+                assert details.count()==1,label
+                assert details.locator(':scope > .astra-disclosure-body').count()==1,label
+                initially_open=details.get_attribute('open') is not None
+                if not initially_open:
+                    details.locator(':scope > summary').click()
+                result=details.evaluate("""el=>{
+                    const summary=el.querySelector(':scope > summary');
+                    const heading=summary.querySelector('span');
+                    const body=el.querySelector(':scope > .astra-disclosure-body');
+                    const desc=body?.querySelector(':scope > p');
+                    const feed=body?.querySelector(':scope > .astra-event-feed');
+                    const row=feed?.querySelector(':scope > .event-button');
+                    const glyph=row?.querySelector('.event-glyph');
+                    const arrow=row?.querySelector('.event-arrow');
+                    if(!body||!desc||!feed||!row||!glyph||!arrow)
+                      return {error:'missing canonical content',markup:el.outerHTML.slice(0,500)};
+                    const outer=el.getBoundingClientRect(),
+                          head=heading.getBoundingClientRect(),
+                          copy=desc.getBoundingClientRect(),
+                          icon=glyph.getBoundingClientRect(),
+                          right=arrow.getBoundingClientRect();
+                    const css=getComputedStyle(body),headStyle=getComputedStyle(summary);
+                    return {
+                      titleInset:head.left-outer.left,
+                      descriptionInset:copy.left-outer.left,
+                      glyphInset:icon.left-outer.left,
+                      arrowInset:outer.right-right.right,
+                      bodyPadding:parseFloat(css.paddingLeft),
+                      titlePadding:parseFloat(headStyle.paddingLeft),
+                      feedPadding:parseFloat(getComputedStyle(feed).paddingLeft),
+                      horizontalOverflow:document.documentElement.scrollWidth>innerWidth+2,
+                      duplicateArrow:summary.querySelector('[aria-hidden="true"]')!==null,
+                    };
+                }""")
+                assert 'error' not in result,(label,result)
+                assert not result['horizontalOverflow'],(label,result)
+                assert not result['duplicateArrow'],(label,result)
+                assert result['bodyPadding']>=15,(label,result)
+                assert result['titlePadding']>=15,(label,result)
+                assert result['feedPadding']==0,(label,result)
+                for part in ('titleInset','descriptionInset','glyphInset','arrowInset'):
+                    assert result[part]>=14,(label,result)
+                assert abs(result['titleInset']-result['descriptionInset'])<=3,(label,result)
+                assert abs(result['glyphInset']-result['descriptionInset'])<=3,(label,result)
+                capture('active-aspects-'+label)
+                if not initially_open:
+                    details.locator(':scope > summary').click()
+                return result
+
             page.on('pageerror',lambda e: errors.append(str(e)))
             html=(ROOT/'index.html').read_text(encoding='utf-8')
             html=html.replace('<script src="runtime.bundle.js"></script><script src="app.js" defer></script>','')
@@ -817,6 +869,7 @@ if __name__ == '__main__':
             # Aspect text, category and disclosure must meet contrast in dark mode.
             # The pastel glyph uses independent ink, never recolour the glyph itself.
             page.locator('[data-tab="today"]').click()
+            verify_active_aspects_gutters('dark-393')
             assert page.locator('.astra-event-feed .event-button').count()>0
             contrast=page.evaluate("""() => {
               const feed=document.querySelector('.astra-event-feed');
@@ -909,6 +962,7 @@ if __name__ == '__main__':
                     expected_count=2 if int(selected_date[-2:]) in (5,20) else 1
                     assert page.locator('.astra-day-hero .astra-hero-stat strong').inner_text()==str(expected_count)
                     assert page.locator('.astra-event-feed').first.locator('[data-event]').count()==expected_count
+                    verify_active_aspects_gutters('light-320')
                     capture('today-flo-layout-320')
                 elif tab=='month':
                     assert page.locator('h1.page-title').inner_text()=='Ce mois'
@@ -1015,6 +1069,8 @@ if __name__ == '__main__':
             for width in (360,375,393,412,768,1280):
                 page.set_viewport_size({'width':width,'height':844})
                 assert page.evaluate("document.documentElement.scrollWidth") <= width+2, width
+                if width in (393,1280):
+                    verify_active_aspects_gutters('light-'+str(width))
                 if width in (360,393,412):
                     assert page.locator('.astra-week-day').count()==7
                     assert page.locator('.astra-day-hero').is_visible()
