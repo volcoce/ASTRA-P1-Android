@@ -7,20 +7,28 @@
   padding-bottom:calc(var(--astra-nav-clearance) + var(--astra-safe-bottom) + 24px);
   background:var(--astra-bg);
 }
+/* The main column is the only owner of page width and horizontal gutters.
+   Every route and its direct children use this same content box. */
 .main{
-  width:100%;min-width:0;
-  padding-inline:clamp(10px,3vw,32px);
+  width:100%;
+  max-width:calc(var(--astra-reading-width) + 2 * var(--astra-card-gutter));
+  min-width:0;
+  margin-inline:auto;
+  padding-inline:var(--astra-card-gutter);
+  box-sizing:border-box;
 }
 .main>.screen-intro{
-  width:calc(100% - 2 * var(--astra-card-gutter));
-  max-width:var(--astra-reading-width);
-  margin:0 auto 14px;
+  width:100%;
+  min-width:0;
+  margin:0 0 14px;
   padding:24px 0 2px;
   box-sizing:border-box;
 }
+/* Cards own only their internal padding and surface, never page width. */
 .card.astra-reading-card{
-  width:100%;max-width:calc(var(--astra-reading-width) + 2 * var(--astra-card-gutter));
-  min-width:0;margin:0 auto 24px;
+  width:100%;
+  min-width:0;
+  margin:0 0 24px;
   padding:var(--astra-card-gutter);
   box-sizing:border-box;
   background:var(--astra-surface);color:var(--astra-ink);
