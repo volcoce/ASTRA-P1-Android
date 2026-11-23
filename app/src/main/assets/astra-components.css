@@ -367,17 +367,10 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
 @media(max-width:480px){.astra-palette-options{grid-template-columns:minmax(0,1fr)}}
 
 
-/* One settings surface for the entire app, in every theme and viewport. */
-.top .astra-settings-trigger{
-  display:grid;place-items:center;flex:none;margin-inline-start:auto;
-  width:var(--astra-control-min);height:var(--astra-control-min);
-  padding:9px;border:1px solid #F8EFD580;border-radius:var(--astra-radius-md);
-  background:transparent;color:var(--color-cream);cursor:pointer
-}
-.top .astra-settings-trigger:hover{background:#F8EFD522}
-.top .astra-settings-trigger svg{
-  display:block;width:23px;height:23px;fill:none;stroke:currentColor;
-  stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round
+/* One settings surface; its trigger is a normal navigation item. */
+.bottom-nav #settingsButton[aria-expanded="true"]{
+  background:var(--astra-selected);color:var(--astra-ink);
+  box-shadow:inset 0 0 0 1px var(--astra-selected-border)
 }
 .astra-settings-dialog{
   position:fixed;inset:0;margin:auto;
@@ -491,7 +484,7 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
   .astra-settings-close{padding-inline:10px}
 }
 @media(prefers-reduced-motion:reduce){
-  .astra-settings-trigger,.astra-settings-dialog button{transition:none!important}
+  .astra-settings-dialog button{transition:none!important}
 }
 
 }
