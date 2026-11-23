@@ -182,3 +182,17 @@ test('Calendar phase fills, category inks and focus colours come from semantic t
  const count=styles.reduce((sum,file)=>sum+(read(file).match(/!important/g)||[]).length,0);
  assert.ok(count<=55,'important budget exceeded: '+count);
 });
+
+test('Daily and monthly lunar colors are semantic roles, not view-level literals',()=>{
+ const tokens=read('astra-tokens.css'),screens=read('astra-p1-screens.css');
+ for(const role of ['--astra-day-hero-bg','--astra-day-hero-rule',
+   '--astra-lunar-full-bg','--astra-lunar-full-border',
+   '--astra-lunar-new-bg','--astra-lunar-new-border',
+   '--astra-lunar-quarter-bg','--astra-lunar-quarter-border',
+   '--astra-month-new-bg','--astra-month-full-bg']){
+   assert.ok(tokens.includes(role+':'),role);
+   assert.ok(screens.includes('var('+role+')'),role);
+ }
+ for(const color of ['#FFF4D7','#B36C32','#EEE5F5','#745394','#75452E'])
+   assert.ok(!screens.includes(color),'hardcoded lunar palette in page: '+color);
+});
