@@ -70,6 +70,11 @@ button:not(.day):not(.astra-week-day){min-width:var(--astra-control-min)}
 :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),select,textarea,summary){
   min-height:var(--astra-control-min)
 }
+/* Native checkbox is small; its entire associated label is the hit target. */
+label:has(>input:is([type="checkbox"],[type="radio"])){
+  display:inline-flex;align-items:center;min-height:var(--astra-control-min);
+  gap:var(--astra-touch-gap);cursor:pointer
+}
 /* Consistent gaps for neighboring choices, navigation and opposite actions. */
 :is(.switch,.natal-segments,.natal-overview-tabs,.natal-transit-filters,
 .natal-filter-items,.natal-related,.natal-advanced-buttons,.natal-downloads,
