@@ -149,7 +149,6 @@
   // UX: viewing one's sky is the default. Editing and technical tools are separate destinations.
   let profileScreen = 'overview';
   let exploreSection = 'planets';
-  let exploreWheelOpen = false;
   let aspectMatrixOpen = false;
   let settingsPreviewOpen = false;
   let settingsAdvancedOpen = false;
@@ -1734,11 +1733,7 @@
     return '<section class="card natal-card astra-reading-card natal-explore" id="natalChart">'+
       '<div class="natal-explore-toolbar" role="group" aria-label="Navigation du thème">'+pageBack+'</div>'+
       notice+selector+'<div id="natalExplorerPanel" class="natal-explorer-panel">'+contents+'</div>'+
-      '<details class="natal-explore-wheel astra-disclosure"'+(exploreWheelOpen?' open':'')+'>'+
-      '<summary>Voir aussi la carte du ciel</summary>'+
-      '<div class="astra-disclosure-body"><div class="natal-wheel-viewport" role="region" tabindex="0" aria-label="Roue natale interactive">'+resized+'</div>'+
-      '<p class="natal-home-hint">Les petites marques montrent les positions exactes.</p>'+
-      '</div></details>'+contextSheet+
+      contextSheet+
       '<button type="button" class="ghost full" data-explore-transits="1">Comparer deux dates →</button>'+
       (h?.polarFallback?'<p class="notice">À cette latitude, les maisons égales remplacent Placidus.</p>':'')+
       (h?.approximateSidereal?'<p class="tiny">Le zodiaque sidéral utilise ici un ayanamsa Lahiri approximatif.</p>':'')+
@@ -2051,8 +2046,6 @@
   document.addEventListener('click',event=>{
     const calendarOptionsSummary=event.target.closest('.calendar-options > summary');
     if(calendarOptionsSummary){calendarOptionsOpen=!calendarOptionsSummary.parentElement.open;return;}
-    const wheelSummary=event.target.closest('.natal-explore-wheel > summary');
-    if(wheelSummary){exploreWheelOpen=!wheelSummary.parentElement.open;return;}
     const matrixSummary=event.target.closest('.natal-matrix-disclosure > summary');
     if(matrixSummary){aspectMatrixOpen=!matrixSummary.parentElement.open;return;}
     const previewSummary=event.target.closest('.natal-preview-disclosure > summary');
@@ -2144,7 +2137,7 @@
       if(!['overview','explore','compare','settings'].includes(a.profileScreen))return;
       captureBirthForm();
       profileScreen=state.profile?a.profileScreen:'settings';
-      if(profileScreen==='explore'){exploreSection='planets';exploreWheelOpen=false;}
+      if(profileScreen==='explore'){exploreSection='planets';}
       natalSelection=null;render();
       writeBrowserRoute('push');
       window.scrollTo({top:0,behavior:'instant'});
