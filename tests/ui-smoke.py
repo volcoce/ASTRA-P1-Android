@@ -119,6 +119,8 @@ if __name__ == '__main__':
             context=browser.new_context(viewport={'width':393,'height':844},accept_downloads=True)
             context.add_init_script(JS)
             page=context.new_page();errors=[]
+            # Stable civil dates for calendar fixtures, independent of CI run date.
+            page.clock.set_fixed_time(__import__('datetime').datetime(2026,11,23,12,0,tzinfo=__import__('datetime').timezone.utc))
             shots=Path(os.environ['ASTRA_SCREENSHOT_DIR']) if os.environ.get('ASTRA_SCREENSHOT_DIR') else None
             if shots: shots.mkdir(parents=True,exist_ok=True)
             def capture(name):
@@ -1387,15 +1389,15 @@ if __name__ == '__main__':
             page.locator('.calculation-details summary').first.click()
             assert 'Orbes automatiques' in page.locator('#birthForm').inner_text()
             page.locator('[data-tab="calendar"]').click()
-            assert page.locator('.calendar-options').count()==1
+            assert page.locator('.main .calendar-options,.main .calendar-help').count()==0
+            page.locator('#settingsButton').click()
+            page.locator('[data-settings-section="appearance"]').click()
+            assert page.locator('#astraSettingsDialog .calendar-options').count()==1
             assert page.locator('.calendar-options').get_attribute('open') is None
-            assert page.locator('.calendar-help').count()==1
+            page.locator('[data-settings-section="help"]').click()
+            assert page.locator('#astraSettingsDialog .calendar-help').count()==1
             assert page.locator('.calendar-help').get_attribute('open') is None
-            assert page.evaluate("""() => {
-              const calendar=document.querySelector('.astra-calendar-board');
-              const options=document.querySelector('.calendar-options');
-              return !!calendar&&!!options&&Boolean(calendar.compareDocumentPosition(options)&Node.DOCUMENT_POSITION_FOLLOWING);
-            }"""), 'Options should be positioned after the calendar board'
+            page.locator('[data-settings-close]').click()
             assert page.locator('h1.page-title').inner_text()=='Calendrier'
             # A single ribbon layer spans the seven date cells of each week.
             assert page.locator('.calendar .astra-calendar-date-week').count()>0
@@ -1424,10 +1426,13 @@ if __name__ == '__main__':
             assert 'Soleil dominant' in page.locator('.astra-calendar-solar-note').inner_text()
             assert 'Scorpion' in page.locator('.astra-calendar-solar-note').inner_text()
             assert '72 %' not in page.locator('.astra-calendar-solar-note').inner_text()
+            page.locator('#settingsButton').click()
+            page.locator('[data-settings-section="help"]').click()
             page.locator('.calendar-help > summary').click()
-            assert 'Signe solaire le plus présent' in page.locator('.calendar-help-body').inner_text()
+            assert 'signe dominant' in page.locator('.calendar-help-body').inner_text().lower()
             assert '50/50' in page.locator('.calendar-help-body').inner_text()
-            page.locator('.calendar-help > summary').click()
+            assert audit_disclosures('settings-help')>=1
+            page.locator('[data-settings-close]').click()
             page.locator('.calendar .day[data-day$="-19"]').click()
             assert page.locator('#calendarDayDialog[open]').count()==1
             assert 'moitié-moitié' in page.locator('.astra-calendar-sheet-solar').inner_text()
@@ -1486,8 +1491,10 @@ if __name__ == '__main__':
             assert page.evaluate("""() => [...document.querySelectorAll('.calendar .day:not(.moon-new):not(.moon-full) .moon-phase-badge')].every(el =>
               getComputedStyle(el).backgroundColor === 'rgba(0, 0, 0, 0)')""")
             # Solar element colors remain independent of the event filter.
+            page.locator('#settingsButton').click()
+            page.locator('[data-settings-section="appearance"]').click()
             page.locator('.calendar-options > summary').click()
-            assert audit_disclosures('calendar')>=1
+            assert audit_disclosures('settings-appearance')>=1
             page.locator('#eventFilter').select_option('exact')
             assert page.locator('.calendar .day.moon-new').count()==1
             assert page.locator('.calendar .day.moon-full').count()==1
@@ -1498,7 +1505,8 @@ if __name__ == '__main__':
             page.locator('#eventFilter').select_option('moon')
             assert page.locator('.calendar .astra-solar-ribbon-segment.starts-at-ingress').count()==1
             assert page.locator('.calendar .day .moon-phase-badge').count()==month_days
-            # Calendar filters cannot erase the unfiltred daily summary.
+            # Calendar filters cannot erase the unfiltered daily summary.
+            page.locator('[data-settings-close]').click()
             page.locator('[data-tab="today"]').click()
             day_key=page.locator('.astra-week-day.is-selected').get_attribute('data-day')
             expected=5 if day_key.endswith('11-23') else 2 if int(day_key[-2:]) in (5,20) else 1
@@ -1507,8 +1515,12 @@ if __name__ == '__main__':
             assert page.locator('#todayEvents .astra-event-list-head p').inner_text().endswith(
                 str(expected)+' '+('événement' if expected==1 else 'événements'))
             page.locator('[data-tab="calendar"]').click()
-            assert page.locator('.calendar-options').get_attribute('open') is not None
+            page.locator('#settingsButton').click()
+            page.locator('[data-settings-section="appearance"]').click()
+            page.locator('.calendar-options > summary').click()
+            assert page.locator('#eventFilter').input_value()=='moon'
             page.locator('#eventFilter').select_option('all')
+            page.locator('[data-settings-close]').click()
             capture('calendar-320')
             # Personal events belong IN each week of the grid, never in a list below.
             assert page.locator('.astra-calendar-day-summary').count()==0

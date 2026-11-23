@@ -136,12 +136,7 @@ textarea:focus-visible,select:focus-visible{outline:3px solid #237b99;outline-of
 }
 
 /* Tight screens must not transform the whole page into a miniature desktop. */
-@media(min-width:800px){
-  
-  
-  
-  
-}
+
 @media(max-width:480px){
   
   

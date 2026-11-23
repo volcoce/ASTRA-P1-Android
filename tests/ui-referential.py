@@ -60,6 +60,7 @@ def run():
             for theme in ('light','dark'):
                 context=browser.new_context(viewport={'width':393,'height':844},color_scheme=theme)
                 page=context.new_page()
+                page.clock.set_fixed_time(__import__('datetime').datetime(2026,11,23,12,0,tzinfo=__import__('datetime').timezone.utc))
                 page.goto('about:blank')
                 page.add_script_tag(content=FIXTURE['JS'])
                 layout=(REPO/'astro/chart-layout.mjs').read_text()

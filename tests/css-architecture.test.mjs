@@ -31,7 +31,7 @@ test('Reading surfaces and disclosures reuse global component classes',()=>{
  assert.match(app,/astra-reading-card natal-home/);
  assert.match(app,/astra-reading-card natal-explore/);
  assert.match(app,/calendar-options astra-disclosure/);
- assert.match(app,/calendarOptionsOpen\?' open':'/);
+ assert.match(app,/function appearancePanel\(\)[\s\S]*?calendar-options astra-disclosure/);
  assert.match(read('astra-components.css'),/\.astra-disclosure\{/);
 });
 
@@ -80,7 +80,7 @@ test('Calendar disclosures reuse global title and body padding',()=>{
  const components=read('astra-components.css');
  assert.match(components,/\.astra-disclosure>summary\s*\{[^}]*padding:var\(--astra-disclosure-block-inset\) var\(--astra-component-inset\)/s);
  assert.match(app,/class="calendar-help-body astra-disclosure-body"/);
- assert.match(app,/class="astra-disclosure-body">'\+switcher\(\)\+filters\(\)/);
+ assert.match(app,/calendar-options astra-disclosure[\s\S]*?class="astra-disclosure-body">'\+filters\(\)/);
  assert.doesNotMatch(css,/\.calendar-options\s*\{[^}]*padding:/s);
  assert.doesNotMatch(css,/\.calendar\.astra-calendar-board \.calendar-help>summary\s*\{[^}]*padding:/s);
  assert.doesNotMatch(css,/\.calendar-options\s*\{[^}]*max-width:/s);
