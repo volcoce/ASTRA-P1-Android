@@ -159,8 +159,7 @@ html,body{min-width:0;max-width:100%}
 :root[data-astra-theme="dark"] .event-button .event-body b{
   color:var(--astra-ink);
 }
-:root[data-astra-theme="dark"] .event-button .event-arrow,
-:root[data-astra-theme="dark"] .astra-active-panel>summary>span:last-child{
+:root[data-astra-theme="dark"] .event-button .event-arrow{
   color:var(--astra-muted);
 }
 /* An unobtrusive disclosure instead of a full-width slab under the list. */

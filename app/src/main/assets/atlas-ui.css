@@ -331,15 +331,7 @@ button.astra-insight-tile:hover{border-color:#7597aa}
 .astra-more-events>summary{min-height:45px;display:flex;align-items:center;justify-content:center;
   color:#28576d;font-weight:750;font-size:13px;cursor:pointer}
 .astra-more-events .astra-event-feed{margin-top:7px}
-.astra-active-panel{margin:20px 0 20px;padding:0 16px;
-  border:1px solid #dbe5e8;border-radius:16px;background:#fff}
-.astra-active-panel>summary{display:flex;justify-content:space-between;align-items:center;
-  min-height:62px;cursor:pointer;gap:10px;color:#304e61;
-  font-weight:750;font-size:15px}
-.astra-active-panel>summary>span:last-child{color:#637b8b;font-size:13px}
-.astra-active-panel>p{color:#647888;font-size:13px;line-height:1.5;
-  margin:0 0 12px}
-.astra-active-panel .astra-event-feed{border:0;padding:0;border-radius:0}
+.astra-active-panel{margin:20px 0 20px}
 .astra-back-today{width:100%;min-height:47px;background:transparent;
   border:1px solid #c9d7de;color:#2a5871;font-weight:750;
   border-radius:12px;margin:0 0 18px;cursor:pointer}
@@ -586,7 +578,7 @@ html,body{font-size:100%;min-width:0}
 .screen-intro .lead,.astra-section-help,.natal-panel-lead,
 .natal-home-hint,.natal-home-subtitle,.natal-disclaimer,.natal-glossary dd,
 .field-help,.tiny,.natal-card .tiny,.event-sub,.event-more,
-.astra-empty,.astra-active-panel>p{font-size:.875rem;line-height:1.55}
+.astra-empty{font-size:.875rem;line-height:1.55}
 .field label,.filter-wrap label,.natal-settings .natal-control>span,
 .astra-section-head>span,.astra-moon-phase,.astra-sky-reference,
 .astra-day-moon-moment,.astra-day-moon-moment time,

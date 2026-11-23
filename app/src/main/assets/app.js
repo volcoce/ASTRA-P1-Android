@@ -789,11 +789,12 @@
         (remaining.length?'<details class="astra-more-events"'+(todayExpanded?' open':'')+'><summary>Voir les '+remaining.length+' autres événements</summary>'+
           '<div class="astra-event-feed">'+remaining.map(row).join('')+'</div></details>':'')+
       '</section>'+
-      '<details class="astra-active-panel astra-disclosure"><summary><span>Aspects en cours</span><span>'+day.active.length+' <span aria-hidden="true">⌄</span></span></summary>'+
+      '<details class="astra-active-panel astra-disclosure astra-disclosure--surface"><summary><span>Aspects en cours</span><span class="astra-disclosure-count">'+day.active.length+'</span></summary>'+
+        '<div class="astra-disclosure-body">'+
         '<p>Angles entre les planètes présents à midi, sans événement nécessairement exact.</p>'+
         '<div class="astra-event-feed">'+(active.map(e=>row({...e,type:'active'})).join('')||'<p class="astra-empty">Aucun aspect calculé à midi.</p>')+'</div>'+
         (day.active.length>8?'<p class="tiny">Huit aspects affichés sur '+day.active.length+'. Consulte le calendrier pour les autres.</p>':'')+
-      '</details>'+
+        '</div></details>'+
       (!isCurrent?'<button type="button" class="astra-back-today" data-reset-today="1">Revenir à aujourd’hui</button>':'')+
       detailView();
   }

@@ -128,8 +128,6 @@
 }
 .astra-feed,.astra-active-panel{width:100%;min-width:0}
 .astra-event-feed{background:var(--astra-surface);border-color:var(--astra-divider)}
-.astra-active-panel{background:var(--astra-surface);border-color:var(--astra-divider)}
-.astra-active-panel>summary,.astra-active-panel>p{color:var(--astra-ink)}
 :root[data-astra-theme="dark"] .astra-day-hero{
   background:var(--astra-day-hero-bg);border-color:var(--astra-border);box-shadow:none
 }
