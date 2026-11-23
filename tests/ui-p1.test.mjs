@@ -40,7 +40,7 @@ function routeHarness(hash, native = false) {
 test('P1: browser routes accept known views and valid ISO dates', () => {
   for(const [hash,tab] of [
     ['#/today','today'],['#/today/2024-02-29','today'],
-    ['#/month/2026-11','month'],['#/calendar/2026-11-20','calendar'],
+    ['#/month/2026-11','calendar'],['#/calendar/2026-11-20','calendar'],
     ['#/journal/2026-11-19','journal'],['#/profile/compare','profile'],
     ['#/profile/focus','profile']
   ]){
@@ -108,4 +108,12 @@ test('P1: secondary headings maintain at least WCAG AA text contrast', () => {
   };
   assert.match(css,/\.astra-section-head>span\{color:#536879\}/);
   assert.ok(contrast('#536879','#f6f7f7')>=4.5);
+});
+
+test('Legacy monthly links migrate to the canonical calendar date',()=>{
+  const {routes,context}=routeHarness('#/month/2026-12');
+  const route=routes.readBrowserRoute();
+  assert.deepEqual(route,{tab:'calendar',day:'2026-12-01'});
+  routes.applyBrowserRoute(route,{focus:false});
+  assert.equal(context.window.location.hash,'#/calendar/2026-12-01');
 });

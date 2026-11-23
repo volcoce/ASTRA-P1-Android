@@ -272,14 +272,14 @@ if __name__ == '__main__':
             assert page.locator('.main > .screen-intro h1.page-title').count()==1
             assert page.locator('[data-tab="today"]').get_attribute('aria-label')=='Ce jour'
             assert page.locator('[data-tab="today"] .nav-label').inner_text()=='Ce jour'
-            assert page.locator('.bottom-nav [data-tab]').count()==4
+            assert page.locator('.bottom-nav [data-tab]').count()==3
             assert page.locator('.bottom-nav .nav-label').all_text_contents()==[
-                'Ce jour','Ce mois','Calendrier','Mon ciel','Paramètres'
+                'Ce jour','Calendrier','Mon ciel','Paramètres'
             ]
-            assert page.locator('.bottom-nav .nav').count()==5
+            assert page.locator('.bottom-nav .nav').count()==4
             assert page.locator('#settingsButton').get_attribute('aria-haspopup')=='dialog'
             assert page.locator('.bottom-nav .nav').last.get_attribute('id')=='settingsButton'
-            # The five-item navigation keeps full-size touch areas, not just large icons.
+            # The four-item navigation keeps full-size touch areas, not just large icons.
             nav_targets=page.locator('.bottom-nav .nav').evaluate_all("""items=>items.map(el=>{
               const r=el.getBoundingClientRect();return {width:r.width,height:r.height};
             })""")
@@ -318,7 +318,7 @@ if __name__ == '__main__':
               }
             }""")
 
-            assert page.locator('[data-tab="month"]').get_attribute('aria-label')=='Ce mois'
+            assert page.locator('[data-tab="month"]').count()==0
             assert page.locator('[data-tab="calendar"]').get_attribute('aria-label')=='Calendrier'
             assert page.locator('.bottom-nav [data-tab="journal"]').count()==0
             assert page.locator('.screen-intro .lead').count()==0
@@ -583,7 +583,6 @@ if __name__ == '__main__':
                 page.set_viewport_size({'width':width,'height':height})
                 for tab,selector in (
                     ('today','.astra-day-hero'),
-                    ('month','.astra-month-hero'),
                     ('calendar','.calendar.astra-calendar-board'),
                     ('profile','.natal-home.card')
                 ):
@@ -1194,7 +1193,7 @@ if __name__ == '__main__':
             assert page.evaluate("document.documentElement.scrollWidth")<=322
             assert page.locator('#birthForm').count()==0
             # P0 visual guardrails at 320px across all four destinations.
-            for tab in ('today','month','calendar','profile'):
+            for tab in ('today','calendar','profile'):
                 page.locator(f'[data-tab="{tab}"]').click()
                 assert page.evaluate("document.documentElement.scrollWidth") <= 322, tab
                 if tab=='today':
@@ -1226,8 +1225,8 @@ if __name__ == '__main__':
                     assert page.locator('.astra-event-list-rows [data-event]').count()==min(expected_count,3)
                     verify_active_aspects_gutters('light-320')
                     capture('today-flo-layout-320')
-                elif tab=='month':
-                    assert page.locator('h1.page-title').inner_text()=='Ce mois'
+                elif tab=='calendar':
+                    assert page.locator('h1.page-title').inner_text()=='Calendrier'
                     assert page.locator('.astra-month-hero').count()==1
                     assert page.locator('.astra-month-hero strong').first.inner_text().isdigit()
                     assert page.locator('.astra-month-phase').count()==2
@@ -1244,12 +1243,9 @@ if __name__ == '__main__':
                         assert item.locator('.astra-event-day-date strong').inner_text().isdigit()
                         assert 'événement' in item.locator('.astra-event-day-heading').inner_text()
                         assert item.locator('.astra-event-day-preview').inner_text()
-                    assert page.locator('.calendar').count()==0
-                    assert page.locator('.astra-lunar-milestone').count()==0
-                    capture('month-320')
-                elif tab=='calendar':
+                    assert page.locator('.calendar').count()==1
+                    capture('calendar-320')
                     assert px('.weekday')>=12
-                    assert page.locator('.astra-month-hero').count()==0
                     assert page.locator('.astra-lunar-milestone').count()==0
                     assert page.locator('.astra-calendar-day-summary').count()==0
                     assert page.locator('.astra-personal-create').count()==0
@@ -1257,63 +1253,41 @@ if __name__ == '__main__':
                     assert page.locator('[data-calendar-view]').count()==0
                 elif tab=='profile':
                     assert px('.natal-home-subtitle')>=14
-            # Monthly overview and detailed calendar must be separate but linked.
-            page.locator('[data-tab="month"]').click()
-            initial_month=page.locator('.astra-month-navigation h2').inner_text()
-            page.locator('.astra-month-navigation [data-month="-1"]').click()
+            # The calendar and monthly summary are a single destination.
+            page.locator('[data-tab="today"]').click()
+            page.locator('[data-tab="calendar"]').click()
+            initial_month=page.locator('.astra-calendar-month-head h2').inner_text()
+            page.locator('.astra-calendar-month-head [data-month="-1"]').click()
             page.wait_for_timeout(140)
-            assert page.locator('.astra-month-navigation h2').inner_text()!=initial_month
+            assert page.locator('.astra-calendar-month-head h2').inner_text()!=initial_month
             assert page.locator('#monthEventsTitle').inner_text()=='Journées du mois'
             rows=page.locator('.astra-event-day-row')
-            assert rows.count()==5
             grouped_days=rows.evaluate_all("(els)=>els.map(e=>e.dataset.monthOpenDay)")
-            assert grouped_days==sorted(set(grouped_days)),grouped_days
-            assert len(grouped_days)==5
-            assert all('événement' in text for text in rows.locator('.astra-event-day-heading').all_inner_texts())
+            assert len(grouped_days)==5 and grouped_days==sorted(set(grouped_days)),grouped_days
             first_day=grouped_days[0]
             rows.first.click()
-            assert page.locator('[data-tab="calendar"]').get_attribute('aria-current')=='page'
+            assert page.locator('#calendarDayDialog').is_visible()
             assert page.locator('.calendar .day.selected').get_attribute('data-day')==first_day
-            # Calendar is exhaustive: the monthly list is only a preview by day.
-            page.locator('[data-tab="month"]').click()
-            assert page.locator('.astra-month-navigation h2').inner_text()==initial_month
-            page.locator('.astra-month-navigation [data-month="1"]').click()
+            page.locator('[data-calendar-sheet-close]').click()
+            page.locator('.astra-calendar-month-head [data-month="1"]').click()
             page.wait_for_timeout(140)
-            assert page.locator('#monthEventsTitle').inner_text()=='Journées du mois'
-            future_days=page.locator('.astra-event-day-row').evaluate_all("(els)=>els.map(e=>e.dataset.monthOpenDay)")
-            assert len(future_days)==5 and future_days==sorted(set(future_days)),future_days
-            # "Ce jour" is not allowed to inherit the browsed month.
-            page.locator('[data-tab="today"]').click()
-            page.locator('.astra-day-hero').wait_for(timeout=2500)
+            assert page.locator('.astra-calendar-month-head h2').inner_text()==initial_month
+            assert page.locator('#monthEventsTitle').inner_text()=='Prochains jours avec événements'
+            month_group_days=page.locator('.astra-event-day-row').evaluate_all("(els)=>els.map(e=>e.dataset.monthOpenDay)")
+            assert month_group_days==sorted(set(month_group_days)) and len(month_group_days)<=5
+            chosen=page.locator('.astra-month-phase.new').get_attribute('data-month-open-day')
+            page.locator('.astra-month-phase.new').click()
+            assert page.locator('#calendarDayDialog').is_visible()
+            assert page.locator('.calendar .day.selected').get_attribute('data-day')==chosen
+            page.locator('[data-calendar-sheet-close]').click()
+            assert page.locator('.astra-month-calendar-link').count()==0
+            page.locator('.astra-month-metrics button[data-goto="journal"]').click()
+            assert page.locator('#journalNote').count()==1
+            page.locator('.astra-journal-back').click()
+            assert page.locator('[data-tab="today"]').get_attribute('aria-current')=='page'
             assert page.locator('.astra-week-day.is-selected').get_attribute('data-day')==page.evaluate(
                 "new Date().getFullYear()+'-'+String(new Date().getMonth()+1).padStart(2,'0')+'-'+String(new Date().getDate()).padStart(2,'0')"
             )
-            page.locator('[data-tab="month"]').click()
-            page.locator('.astra-month-hero').wait_for(timeout=2500)
-            assert page.locator('.astra-month-navigation h2').inner_text()==initial_month
-            assert page.locator('#monthEventsTitle').inner_text()=='Prochains jours avec événements'
-            month_group_days=page.locator('.astra-event-day-row').evaluate_all("(els)=>els.map(e=>e.dataset.monthOpenDay)")
-            assert month_group_days==sorted(set(month_group_days)),month_group_days
-            assert len(month_group_days)<=5
-            # A busy date (23 November) still occupies just ONE day row.
-            if '2026-11-23' in month_group_days:
-                assert month_group_days.count('2026-11-23')==1
-                crowded=page.locator('.astra-event-day-row[data-month-open-day="2026-11-23"]')
-                assert crowded.locator('.astra-event-day-heading').inner_text()=='5 événements'
-                assert crowded.locator('.astra-event-day-preview').inner_text().count(' · ')>=1
-            chosen=page.locator('.astra-month-phase.new').get_attribute('data-month-open-day')
-            page.locator('.astra-month-phase.new').click()
-            assert page.locator('[data-tab="calendar"]').get_attribute('aria-current')=='page'
-            assert page.locator('.calendar .day.selected').get_attribute('data-day')==chosen
-            page.locator('[data-tab="month"]').click()
-            page.locator('.astra-month-calendar-link').click()
-            assert page.locator('[data-tab="calendar"]').get_attribute('aria-current')=='page'
-            page.locator('[data-tab="month"]').click()
-            page.locator('.astra-month-metrics button[data-goto="journal"]').click()
-            assert page.locator('#journalNote').count()==1
-            assert page.locator('.astra-journal-back').count()==1
-            page.locator('.astra-journal-back').click()
-            assert page.locator('[data-tab="today"]').get_attribute('aria-current')=='page'
             # Reproduce the confusing case: Taurus at noon, ingress later,
             # and Full Moon in Gemini that evening. All are simultaneous truths
             # about different instants, never conflicting labels.
@@ -1375,10 +1349,10 @@ if __name__ == '__main__':
                     assert page.locator('.astra-week-day').count()==7
                     assert page.locator('.astra-day-hero').is_visible()
                     capture('today-flo-layout-'+str(width))
-                    page.locator('[data-tab="month"]').click()
+                    page.locator('[data-tab="calendar"]').click()
                     assert page.locator('.astra-month-hero').is_visible()
                     assert page.evaluate('document.documentElement.scrollWidth')<=width+2
-                    capture('month-'+str(width))
+                    capture('calendar-'+str(width))
                     page.locator('[data-tab="today"]').click()
             page.set_viewport_size({'width':320,'height':730})
             # Return to Mon ciel after exercising the daily home widgets.

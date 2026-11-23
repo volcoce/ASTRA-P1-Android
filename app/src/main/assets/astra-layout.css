@@ -43,7 +43,7 @@
   position:fixed;z-index:40;
   bottom:0;left:50%;right:auto;
   transform:translateX(-50%);
-  display:grid;grid-template-columns:repeat(5,minmax(0,1fr));
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
   gap:var(--astra-touch-gap);width:100%;max-width:var(--astra-nav-width);
   margin:0;
   /* Surface extends under three-button navigation; buttons sit above it. */

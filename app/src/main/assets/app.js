@@ -183,14 +183,13 @@
     }
     if(tab==='month'){
       if(argument&&!validRouteMonth(argument))return null;
-      return {tab,month:argument||null};
+      return {tab:'calendar',day:argument?argument+'-01':isoDay(new Date())};
     }
     if(argument&&!validRouteDay(argument))return null;
     return {tab,day:argument||null};
   }
   function currentBrowserHash(){
     if(activeTab==='profile')return '#/profile'+(profileScreen==='overview'?'':'/'+profileScreen);
-    if(activeTab==='month')return '#/month/'+month.getFullYear()+'-'+pad(month.getMonth()+1);
     if(activeTab==='calendar'||activeTab==='journal')return '#/'+activeTab+'/'+selected;
     return '#/today'+(selected===isoDay(new Date())?'':'/'+selected);
   }
@@ -204,12 +203,7 @@
     if(!route)return;
     captureBirthForm();
     const beforeMonth=month.getFullYear()+'-'+month.getMonth();
-    if(route.tab==='month'){
-      const now=route.month||isoDay(new Date()).slice(0,7);
-      const [y,m]=now.split('-').map(Number);
-      month=new Date(y,m-1,1);
-      selected=isoDay(month);
-    }else if(route.day){
+    if(route.day){
       selected=route.day;
       const [y,m]=selected.split('-').map(Number);
       month=new Date(y,m-1,1);
@@ -854,18 +848,9 @@
       detailView();
   }
   function monthOverview() {
-    if(!state.profile)return unconfigured();
+    if(!state.profile||!result)return '';
     const y=month.getFullYear(),m=month.getMonth()+1;
     const monthKey=y+'-'+pad(m);
-    const monthLabel=new Intl.DateTimeFormat('fr-FR',{month:'long',year:'numeric'}).format(month);
-    if(!result){
-      return header('Ce mois')+
-        '<div class="month-head astra-month-navigation" aria-label="Choisir un mois">'+
-          '<button type="button" class="arrow" data-month="-1" aria-label="Mois précédent">‹</button>'+
-          '<h2>'+safe(monthLabel)+'</h2>'+
-          '<button type="button" class="arrow" data-month="1" aria-label="Mois suivant">›</button></div>'+
-        status()+(busy?'':'<p class="astra-empty">Aucune donnée mensuelle disponible pour le moment.</p>');
-    }
     const records=Object.entries(result.days).filter(([day])=>day.startsWith(monthKey+'-'))
       .sort(([a],[b])=>a.localeCompare(b));
     const exactEvents=records.flatMap(([day,data])=>[...(data.exact||[]),...(data.sky||[])].map(event=>({day,event})))
@@ -901,17 +886,11 @@
       const hidden=events.length-titles.length;
       return titles.join(' · ')+(hidden?' · +'+hidden+' autre'+(hidden>1?'s':''):'');
     };
-    return header('Ce mois')+
-      '<div class="month-head astra-month-navigation" aria-label="Choisir un mois">'+
-        '<button type="button" class="arrow" data-month="-1" aria-label="Mois précédent">‹</button>'+
-        '<h2>'+safe(monthLabel)+'</h2>'+
-        '<button type="button" class="arrow" data-month="1" aria-label="Mois suivant">›</button></div>'+
-      birthTimeWarning()+
-      '<section class="astra-month-hero" aria-label="Résumé des événements du mois">'+
+    return '<section class="astra-month-hero" aria-label="Résumé des événements du mois">'+
         '<p class="astra-month-kicker">VUE D’ENSEMBLE</p>'+
         '<div class="astra-month-headline"><strong>'+exactEvents.length+'</strong>'+
         '<span>événement'+(exactEvents.length===1?'':'s')+' calculé'+(exactEvents.length===1?'':'s')+'</span></div>'+
-      '</section>'+status()+
+      '</section>'+
       '<section class="astra-month-section" aria-labelledby="monthMoonTitle">'+
         '<div class="astra-section-head"><h2 id="monthMoonTitle">Phases majeures</h2><span>Ce mois uniquement</span></div>'+
         '<div class="astra-month-phases">'+(lunar.map(({day,event})=>{
@@ -937,7 +916,7 @@
           const moonSymbol=moon?(moon.name==='Nouvelle Lune'?'●':'○'):'';
           const count=events.length;
           return '<button type="button" class="astra-event-day-row" data-month-open-day="'+day+'" '+
-            'aria-label="'+safe(displayDate(day)+', '+count+' événement'+(count===1?'':'s')+', voir dans le calendrier')+'">'+
+            'aria-label="'+safe(displayDate(day)+', '+count+' événement'+(count===1?'':'s')+', voir les détails')+'">'+
             '<span class="astra-event-day-date" aria-hidden="true"><strong>'+number+'</strong><small>'+safe(weekdayLabel(day))+'</small></span>'+
             '<span class="astra-event-day-content"><span class="astra-event-day-heading"><strong>'+count+' événement'+(count===1?'':'s')+'</strong>'+
             (moon?'<span class="astra-event-day-moon" aria-label="'+safe(moon.name)+'" title="'+safe(moon.name)+'">'+moonSymbol+'</span>':'')+'</span>'+
@@ -946,8 +925,7 @@
         }).join('')||
           '<p class="astra-empty">'+(isCurrentMonth&&daysWithEvents?
             'Plus aucune journée avec événement à venir ce mois-ci. Les dates passées restent dans le calendrier.':
-            'Aucun événement exact calculé pour ce mois.')+'</p>')+'</div>'+
-        '<button type="button" class="astra-month-calendar-link" data-goto="calendar">Ouvrir le calendrier <span aria-hidden="true">→</span></button></section>';
+            'Aucun événement exact calculé pour ce mois.')+'</p>')+'</div></section>';
   }
   // A personal event has inclusive civil start/end dates. Split visual bars at
   // week boundaries without splitting, duplicating or modifying the event.
@@ -1138,7 +1116,7 @@
       '<span class="cal-legend-item"><span class="moon-phase-legend-dot full" aria-hidden="true">'+moonPhaseIcon(180)+'</span> Pleine Lune</span>'+
       '</div>':'')+
       '</div>'+
-      status()+calendarDayInspector()+personalEventEditor()+detailView();
+      status()+monthOverview()+calendarDayInspector()+personalEventEditor()+detailView();
   }
   function initDraft() {
     if(journalDraftDate!==selected||!journalDraft){
@@ -1783,7 +1761,7 @@
       '<span>'+(state.profile?safe(state.profile.place?.label||'Informations enregistrées'):'Date, heure et ville de naissance')+'</span>'+
       '<button type="button" class="ghost" data-settings-birth="1">'+(state.profile?'Personnaliser mon thème':'Créer mon thème natal')+'</button></div>'+
       choices('Zodiaque du calendrier et des prévisions',state.mode,[['tropical','Tropical'],['sidereal','Sidéral']], 'data-mode')+
-      '<p class="field-help">Ce choix s’applique à Ce jour, Ce mois et Calendrier.</p>'+
+      '<p class="field-help">Ce choix s’applique à Ce jour et Calendrier.</p>'+
       choices('Zodiaque du thème natal',state.natalZodiac,[['tropical','Tropical'],['sidereal','Sidéral']],'data-natal-zodiac')+
       '<p class="field-help">Sidéral Lahiri approximatif ; la carte utilise ce zodiaque.</p>'+
       choices('Degrés des planètes',state.showNatalDegrees?'on':'off',[['off','Masquer'],['on','Afficher']],'data-natal-degrees')+
@@ -1877,7 +1855,7 @@
   function render() {
     const renderStart=diagnosticsEnabled?perfClock():0;
     renderedEvents=[];
-    $('app').innerHTML=({today,month:monthOverview,calendar,journal,profile})[activeTab]();
+    $('app').innerHTML=({today,calendar,journal,profile})[activeTab]();
     if(activeTab==='profile')renderCityMenu('birth');
     if(activeTab==='calendar'){
       const dlg=personalEditor!==null?$('personalEventDialog'):$('calendarDayDialog');
@@ -1903,11 +1881,11 @@
     if(diagnosticsEnabled)recordPerformance('Rendu JS · '+activeTab,perfClock()-renderStart);
   }
   function go(tab) {
-    if(!['today','month','calendar','journal','profile'].includes(tab))return;
-    // "Ce jour" and "Ce mois" are anchored to the present each time one
-    // enters the tab. Calendar remains the free date-browsing destination.
+    if(tab==='month')tab='calendar';
+    if(!['today','calendar','journal','profile'].includes(tab))return;
+    // Ce jour is anchored to the present. Calendar remains the date-browsing destination.
     let needsRefresh=false;
-    if(tab==='today'||tab==='month'){
+    if(tab==='today'){
       const now=isoDay(new Date());
       const [yy,mm]=now.split('-').map(Number);
       needsRefresh=month.getFullYear()!==yy||month.getMonth()!==mm-1||!result;
@@ -2096,7 +2074,7 @@
     }
     if(a.weekShift){selectDay(shiftDay(selected,Number(a.weekShift)));return;}
     if(a.lunarDay){selectDay(a.lunarDay);go('calendar');return;}
-    if(a.monthOpenDay){selectDay(a.monthOpenDay);go('calendar');return;}
+    if(a.monthOpenDay){calendarInterval=null;calendarSheet=true;personalEditor=null;selectDay(a.monthOpenDay);return;}
     if(a.resetToday){selectDay(isoDay(new Date()));return;}
     if(a.exploreSection){
       if(!['planets','houses','aspects'].includes(a.exploreSection))return;

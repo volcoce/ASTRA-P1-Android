@@ -12,7 +12,7 @@ ART = REPO / 'tests/artifacts'
 SHOTS = ART / 'p1-screenshots'
 FIXTURE = runpy.run_path(str(REPO / 'tests/ui-smoke.py'))
 WIDTHS = (320, 360, 393, 768, 1280, 1440)
-ROUTES = ('today', 'month', 'calendar', 'profile')
+ROUTES = ('today', 'calendar', 'profile')
 GEOMETRY = """() => {
   const main=document.querySelector('.main'),nav=document.querySelector('.bottom-nav');
   const box=e=>{const r=e.getBoundingClientRect();return {left:r.left,right:r.right,width:r.width,height:r.height,bottom:r.bottom}};
