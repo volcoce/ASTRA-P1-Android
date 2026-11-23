@@ -71,15 +71,18 @@ test('Calendar explanation uses shared inner padding and clipped-safe keyboard f
  const app=read('app.js'),components=read('astra-components.css');
  const accessibility=read('astra-p3-accessibility.css'),calendar=read('astra-p4-calendar.css');
  assert.match(app,/class="calendar-help-body astra-disclosure-body"/);
- assert.match(components,/\.astra-disclosure-body\s*\{[^}]*padding:14px 16px 18px/s);
+ assert.match(components,/\.astra-disclosure-body\s*\{[^}]*padding:var\(--astra-disclosure-body-top\) var\(--astra-component-inset\) var\(--astra-disclosure-body-bottom\)/s);
  assert.match(accessibility,/\.astra-disclosure>summary:focus-visible\s*\{[^}]*outline-offset:-3px!important/s);
  assert.doesNotMatch(calendar,/\.calendar\.astra-calendar-board \.calendar-help-body\s*\{[^}]*padding:/s);
 });
-test('Calendar disclosures preserve equal horizontal inset for labels and icons',()=>{
- const css=read('astra-p4-calendar.css');
- assert.match(css,/\.calendar\.astra-calendar-board \.calendar-help>summary\s*\{[^}]*padding:11px 14px/s);
- assert.match(css,/\.calendar-options\s*\{[^}]*padding:0 14px/s);
- assert.doesNotMatch(css,/\.calendar\.astra-calendar-board \.calendar-help>summary\s*\{[^}]*padding:11px 0/s);
+test('Calendar disclosures reuse global title and body padding',()=>{
+ const css=read('astra-p4-calendar.css'),app=read('app.js');
+ const components=read('astra-components.css');
+ assert.match(components,/\.astra-disclosure>summary\s*\{[^}]*padding:var\(--astra-disclosure-block-inset\) var\(--astra-component-inset\)/s);
+ assert.match(app,/class="calendar-help-body astra-disclosure-body"/);
+ assert.match(app,/class="astra-disclosure-body"\>'+switcher\(\)\+filters\(\)/);
+ assert.doesNotMatch(css,/\.calendar-options\s*\{[^}]*padding:/s);
+ assert.doesNotMatch(css,/\.calendar\.astra-calendar-board \.calendar-help>summary\s*\{[^}]*padding:/s);
  assert.doesNotMatch(css,/\.calendar-options\s*\{[^}]*max-width:/s);
 });
 
@@ -214,8 +217,8 @@ test('Event disclosures use shared padding, not zero-inset feature overrides',()
  const app=read('app.js'),components=read('astra-components.css');
  const features=read('astra-p2-navigation.css');
  assert.equal((app.match(/astra-event-disclosure-body astra-disclosure-body/g)||[]).length,2);
- assert.match(components,/\.astra-disclosure>summary\s*\{[^}]*padding:13px 16px/s);
- assert.match(components,/\.astra-disclosure-body\s*\{[^}]*padding:14px 16px 18px/s);
+ assert.match(components,/\.astra-disclosure>summary\s*\{[^}]*padding:var\(--astra-disclosure-block-inset\) var\(--astra-component-inset\)/s);
+ assert.match(components,/\.astra-disclosure-body\s*\{[^}]*padding:var\(--astra-disclosure-body-top\) var\(--astra-component-inset\) var\(--astra-disclosure-body-bottom\)/s);
  assert.doesNotMatch(features,/\.astra-event-detail--compact \.astra-event-disclosure>summary\s*\{[^}]*\bpadding\s*:/s);
  assert.doesNotMatch(features,/\.astra-event-detail--compact \.astra-event-disclosure-body\s*\{[^}]*\bpadding\s*:/s);
 });
