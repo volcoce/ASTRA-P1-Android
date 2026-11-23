@@ -326,9 +326,9 @@ test('App opens on a contextual page title without any permanent masthead',()=>{
   parsed.walkRules(rule=>{
    const selectors=rule.selector.split(',').map(s=>s.trim());
    for(const selector of selectors){
-    assert.ok(!/(?:^|\\s)\\.top(?:\\s|$|\\.|:)/.test(selector),
+    assert.ok(!/(?:^|\s)\.top(?:\s|$|\.|:)/.test(selector),
       filename+' retains obsolete masthead selector '+selector);
-    assert.ok(!/\\.(?:identity|emblem|brand-sub|top-today)(?:\\s|$|\\.|:)/.test(selector),
+    assert.ok(!/\.(?:identity|emblem|brand-sub|top-today)(?:\s|$|\.|:)/.test(selector),
       filename+' retains obsolete brand component '+selector);
    }
   });
