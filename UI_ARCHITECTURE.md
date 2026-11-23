@@ -83,7 +83,17 @@ La navigation doit toujours afficher **icône + texte**. L'état actif se distin
 - **Calendrier** — mois précédent/suivant, jour sélectionné, Nouvelle Lune et Pleine Lune colorées, quatre prochaines phases lunaires interactives ; filtres dans « Options d'affichage ».
 - **Journal (secondaire)** — accès depuis une carte ou une fiche, retour à Ce jour, jour précédent/suivant, sauvegarde et historique sous la saisie.
 - **Mon ciel** — trois vues de la même carte : « Roue / Planètes / Aspects ». Deux parcours à intitulés compréhensibles restent disponibles : « Comprendre mon thème » et « Comparer deux dates ». Le glossaire est contextuel ; les progressions et la carte composite sont repliées dans les outils avancés.
-- **Réglages** — paramètres essentiels en premier, « Options avancées » et exports repliables.
+- **Paramètres généraux** — un seul bouton « Paramètres » dans l'en-tête, visible depuis tous les écrans. Fenêtre modale native à quatre rubriques : **Astrologie** (zodiaques prévisionnel et natal, maisons, raccourci vers la naissance), **Apparence** (thème et palettes), **Données** (confidentialité, import/export, effacement), **Avancé** (diagnostics et limites). Fermeture explicite, touche Échap, bouton Retour Android, focus restauré.
+- **Mon ciel → Personnaliser** — uniquement le formulaire de naissance et les commandes contextuelles de la roue (niveau de détail, disposition natale/double, date de comparaison, zoom, export graphique). Aucun doublon des préférences générales dans cette sous-page.
+
+### Contrat de la fenêtre de paramètres
+
+1. Les préférences globales ont **un seul emplacement de modification** ; elles sont sauvegardées et immédiatement appliquées aux écrans concernés.
+2. La fenêtre se superpose à l'écran courant, sans changer de date ou d'onglet. Sur mobile, elle devient une feuille adaptée à l'écran, sans doublonner la barre de navigation.
+3. Les sections ne sont pas simultanément ouvertes ; les quatre onglets ont un état sélectionné visible et se pilotent au clavier (flèches, Début, Fin).
+4. Après l'enregistrement d'un réglage, le focus revient au contrôle modifié. Fermer la fenêtre rend le focus au bouton du bandeau. Accéder au formulaire de naissance conserve le focus du nouveau parcours.
+5. Le style, le responsive, la palette sombre/claire et les marges de cette fenêtre appartiennent **exclusivement** à `astra-components.css`. Aucune règle spécifique à Ce jour, Ce mois, Calendrier ou Mon ciel.
+6. La sauvegarde et l'effacement restent dans Données, jamais dans le formulaire de naissance ou les commandes de roue.
 
 **Retour Android :** fermer un panneau contextuel, puis la roue immersive, puis revenir de la sous-page à Mon ciel, puis à Ce jour. Ne jamais quitter l'app sur un simple retour depuis un détail.
 
