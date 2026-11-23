@@ -469,7 +469,8 @@ if __name__ == '__main__':
             assert fire.get_attribute('aria-expanded')=='true'
             assert page.locator('#natal-distribution-elements').is_visible()
             assert page.locator('#natal-distribution-elements [data-natal-body="Sun"]').is_visible()
-            assert page.locator('.natal-distribution-total').inner_text().endswith('%')
+            assert page.locator('.natal-distribution-total').text_content().strip()==fire.locator('strong').inner_text().strip()
+            assert page.locator('.natal-distribution-total').text_content().strip().endswith('%')
             assert page.locator('.natal-distribution-segment.is-selected[data-element="fire"]').count()==1
             page.locator('#natal-distribution-elements [data-natal-body="Sun"]').click()
             assert page.locator('#natalSelectionInfo').is_visible()
