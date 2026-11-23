@@ -66,9 +66,6 @@ textarea:focus-visible,select:focus-visible{outline:3px solid #237b99;outline-of
 .field textarea{min-height:122px;line-height:1.5}
 .field-help{font-size:13px;color:#5e7180}
 .city-confirmed{background:#eef4f5;border-color:#cddfe2;color:#29485a}
-.city-search .ghost{min-height:46px}
-.city-choice strong{font-size:14px}
-.city-choice span{font-size:12px}
 .unknown-time-toggle{color:#344f60}
 .natal-disclaimer{color:#627581}
 
@@ -426,7 +423,6 @@ button.astra-insight-tile:hover{border-color:#7597aa}
 .natal-progression-row .position-value{text-align:right;overflow-wrap:anywhere}
 .natal-composite-result{border-top:1px solid #dce5e9;margin:22px 0 0;padding-top:18px}
 .natal-composite-result h3{margin:0 0 12px;font-size:19px;color:#243d4c}
-.natal-composite .city-results{margin:10px 0}
 @media(max-width:360px){
   .astra-lunar-track{gap:4px}
   .astra-lunar-milestone{padding:11px 2px}
