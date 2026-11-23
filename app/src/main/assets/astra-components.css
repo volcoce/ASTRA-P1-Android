@@ -28,17 +28,17 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
 .card.astra-card--emphasis{border-width:2px}
 
 /* Shared surfaces; keep feature-specific pastel heroes and natal wheel intact. */
-:is(.calendar,.natal-overview-panel,.natal-focus,.natal-context-sheet,
+:is(.calendar,.natal-overview-panel,.natal-context-sheet,
 .astra-event-feed,.astra-active-panel,.natal-selection,
 .natal-composite-result){
   background:var(--astra-surface);border-color:var(--astra-divider);
   color:var(--astra-ink);border-radius:var(--astra-radius-lg);box-shadow:none
 }
-:is(.calendar,.natal-focus,.astra-event-feed){
+:is(.calendar,.astra-event-feed){
   border-width:1px;border-style:solid
 }
 :root[data-astra-theme="dark"] :is(.calendar,.natal-overview-panel,
-.natal-focus,.natal-context-sheet,.astra-event-feed,.astra-active-panel){
+.natal-context-sheet,.astra-event-feed,.astra-active-panel){
   background:var(--astra-surface);border-color:var(--astra-border);color:var(--astra-ink)
 }
 
