@@ -4,6 +4,7 @@ import {readFileSync} from 'node:fs';
 
 const app = readFileSync(new URL('../app/src/main/assets/app.js', import.meta.url), 'utf8');
 const css = readFileSync(new URL('../app/src/main/assets/atlas-ui.css', import.meta.url), 'utf8');
+const components = readFileSync(new URL('../app/src/main/assets/astra-components.css', import.meta.url), 'utf8');
 
 function routeHarness(hash, native = false) {
   const found = app.match(/  const webRouting = [\s\S]*?\n  \}\n  \/\/ The home feed/);
@@ -88,7 +89,8 @@ test('P1: responsive CSS includes compact, tablet and desktop breakpoints', () =
   assert.match(css,/@media\(min-width:700px\)/);
   assert.match(css,/@media\(min-width:1100px\)/);
   assert.match(css,/font-size:\.875rem/);
-  assert.match(css,/\.bottom-nav \.nav-label\{white-space:normal/);
+  assert.match(components,/\.bottom-nav \.nav-label\{/);
+  assert.match(components,/white-space:normal/);
   assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
 });
 

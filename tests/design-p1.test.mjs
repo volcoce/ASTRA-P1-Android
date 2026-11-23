@@ -42,7 +42,7 @@ test('P1 calendar keeps weekly solar backdrop and separate personal events',()=>
   assert.match(cal,/solarCalendarBackdropWeek/);
   assert.match(cal,/personalCalendarWeek/);
   assert.ok(!cal.includes('astra-solar-cell'));
-  assert.match(p1,/\.astra-solar-ribbon-backdrop/);
+  assert.match(solar,/\.astra-solar-ribbon-backdrop/);
   assert.match(solar,/\.astra-solar-ribbon-segment\.ends-at-ingress/);
   assert.match(solar,/\.astra-solar-ribbon-segment\.starts-at-ingress/);
 });
@@ -53,7 +53,7 @@ test('P1 natal summary, progressive navigation and wheel remain available',()=>{
   assert.match(code,/natal-overview-panel/);
   assert.match(code,/natal-wheel-viewport/);
   assert.match(code,/data-profile-screen="explore"/);
-  assert.match(p1,/\.natal-home/);
+  assert.match(read('astra-natal.css'),/\.natal-home/);
   assert.match(profile,/renderNatalChart\(chart\)/);
 });
 test('P1 handles compact screens and both themes',()=>{

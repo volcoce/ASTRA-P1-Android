@@ -316,7 +316,11 @@ if __name__ == '__main__':
                 assert geometry['card']['border']>=1,(width,geometry)
                 assert geometry['card']['padding']>=14,(width,geometry)
                 assert geometry['card']['background'] not in ('rgba(0, 0, 0, 0)','transparent'),(width,geometry)
-                for item in [geometry['intro'],*geometry['regions'],*geometry['actions']]:
+                # The introduction uses the outer page column. The header,
+                # regions and actions use the inner padding box of the card.
+                assert abs(geometry['intro']['left']-geometry['card']['left'])<=2,(width,geometry)
+                assert abs(geometry['intro']['right']-geometry['card']['right'])<=2,(width,geometry)
+                for item in [*geometry['regions'],*geometry['actions']]:
                     assert abs(item['left']-geometry['header']['left'])<=2,(width,item,geometry)
                     assert abs(item['right']-geometry['header']['right'])<=2,(width,item,geometry)
                 assert geometry['header']['left']>=geometry['card']['left']+geometry['card']['padding'],(width,geometry)

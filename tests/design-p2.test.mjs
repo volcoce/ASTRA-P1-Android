@@ -4,6 +4,7 @@ import {readFileSync} from 'node:fs';
 const asset=name=>readFileSync(new URL('../app/src/main/assets/'+name,import.meta.url),'utf8');
 const app=asset('app.js'),html=asset('index.html');
 const p2=asset('astra-p2-navigation.css'),p1=asset('astra-p1-screens.css');
+const components=asset('astra-components.css'),solar=asset('solar-ribbon.css');
 test('P2 sub-screen stylesheet is loaded after P0 and P1',()=>{
   const links=['astra-tokens.css','astra-components.css','astra-p1-screens.css','astra-p2-navigation.css'];
   const positions=links.map(n=>html.indexOf('href="'+n+'"'));
@@ -48,13 +49,13 @@ test('P2 keeps 4 tabs; journal is a secondary route',()=>{
   assert.equal(tabs,4);
   assert.ok(!html.includes('data-tab="journal"'));
   assert.match(app,/data-goto="journal"/);
-  assert.match(p2,/\.bottom-nav \.nav.active/);
+  assert.match(components,/\.bottom-nav \.nav.active/);
 });
 test('P2 includes dark, focus, invalid and reduced motion states',()=>{
   assert.match(p2,/data-astra-theme="dark"/);
   assert.match(p2,/:focus-visible/);
   assert.match(p2,/prefers-reduced-motion:reduce/);
   assert.match(p2,/\.astra-personal-error/);
-  assert.match(p1,/\.astra-solar-ribbon-backdrop/);
+  assert.match(solar,/\.astra-solar-ribbon-backdrop/);
   assert.ok(!p2.includes('astro\/runtime'));
 });
