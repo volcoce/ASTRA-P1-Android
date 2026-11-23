@@ -19,9 +19,6 @@
         <div class="emblem" aria-hidden="true">✳</div>
         <div><div class="brand">ASTRA</div><div class="brand-sub">Ton atlas céleste</div></div>
       </div>
-      <button type="button" id="settingsButton" class="astra-settings-trigger" aria-label="Ouvrir les paramètres" aria-haspopup="dialog" aria-controls="astraSettingsDialog" title="Paramètres">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06-1.9 1.9-.06-.06A1.7 1.7 0 0 0 16 18.43a1.7 1.7 0 0 0-1 .97V21h-2v-1.6a1.7 1.7 0 0 0-1-.97 1.7 1.7 0 0 0-1.85.34l-.06.06-1.9-1.9.06-.06A1.7 1.7 0 0 0 8.6 15 1.7 1.7 0 0 0 7.6 14H6v-2h1.6a1.7 1.7 0 0 0 1-.99 1.7 1.7 0 0 0-.34-1.85L8.2 9.1l1.9-1.9.06.06a1.7 1.7 0 0 0 1.85.34 1.7 1.7 0 0 0 .99-1V5h2v1.6a1.7 1.7 0 0 0 1 .99 1.7 1.7 0 0 0 1.85-.34l.06-.06 1.9 1.9-.06.06A1.7 1.7 0 0 0 19.4 11a1.7 1.7 0 0 0 1 .99H22v2h-1.6a1.7 1.7 0 0 0-1 .99Z" transform="translate(-1 -1)"/></svg>
-      </button>
     </header>
     <main id="app" class="main"></main>
     <nav class="bottom-nav" aria-label="Navigation principale">
@@ -40,6 +37,10 @@
       <button type="button" class="nav" data-tab="profile" aria-label="Mon ciel">
         <span class="nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 2 2.7 7.3L22 12l-7.3 2.7L12 22l-2.7-7.3L2 12l7.3-2.7L12 2Z"/></svg></span>
         <span class="nav-label">Mon ciel</span>
+      </button>
+      <button type="button" id="settingsButton" class="nav" aria-label="Paramètres" aria-haspopup="dialog" aria-controls="astraSettingsDialog" aria-expanded="false" title="Paramètres">
+        <span class="nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06-1.9 1.9-.06-.06A1.7 1.7 0 0 0 16 18.43a1.7 1.7 0 0 0-1 .97V21h-2v-1.6a1.7 1.7 0 0 0-1-.97 1.7 1.7 0 0 0-1.85.34l-.06.06-1.9-1.9.06-.06A1.7 1.7 0 0 0 8.6 15 1.7 1.7 0 0 0 7.6 14H6v-2h1.6a1.7 1.7 0 0 0 1-.99 1.7 1.7 0 0 0-.34-1.85L8.2 9.1l1.9-1.9.06.06a1.7 1.7 0 0 0 1.85.34 1.7 1.7 0 0 0 .99-1V5h2v1.6a1.7 1.7 0 0 0 1 .99 1.7 1.7 0 0 0 1.85-.34l.06-.06 1.9 1.9-.06.06A1.7 1.7 0 0 0 19.4 11a1.7 1.7 0 0 0 1 .99H22v2h-1.6a1.7 1.7 0 0 0-1 .99Z" transform="translate(-1 -1)"/></svg></span>
+        <span class="nav-label">Paramètres</span>
       </button>
     </nav>
   </div>
