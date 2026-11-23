@@ -47,13 +47,16 @@ test('Every route uses the same main width and gutters, without page-specific ca
  const solar=read('solar-ribbon.css');
  const atlas=read('atlas-ui.css');
  const accessibility=read('astra-p3-accessibility.css');
- assert.match(layout,/\\.main\\s*\\{[^}]*max-width:calc\\(var\\(--astra-reading-width\\)[^}]*padding-inline:var\\(--astra-card-gutter\\)/s);
- assert.doesNotMatch(layout,/\\.main>\\.screen-intro\\s*\\{[^}]*max-width:/s);
- assert.doesNotMatch(layout,/\\.card\\.astra-reading-card\\s*\\{[^}]*max-width:/s);
- assert.doesNotMatch(natal,/\\.natal-home>\\s*:is\\([\\s\\S]*?\\)\\s*\\{[^}]*max-width:/);
- assert.doesNotMatch(natal,/\\.natal-explore :is\\([\\s\\S]*?\\)\\s*\\{[^}]*max-width:/);
+ assert.match(layout,/\.main\s*\{[^}]*max-width:calc\(var\(--astra-reading-width\)[^}]*padding-inline:var\(--astra-card-gutter\)/s);
+ assert.doesNotMatch(layout,/\.main>\.screen-intro\s*\{[^}]*max-width:/s);
+ assert.doesNotMatch(layout,/\.card\.astra-reading-card\s*\{[^}]*max-width:/s);
+ assert.doesNotMatch(natal,/\.natal-home>\s*:is\([^)]*\)\s*\{[^}]*max-width:/);
+ assert.doesNotMatch(natal,/\.natal-explore :is\([^)]*\)\s*\{[^}]*max-width:/);
+ assert.doesNotMatch(natal,/\.natal-home \.natal-home-header\s*\{[^}]*max-width:/);
+ assert.doesNotMatch(natal,/\.natal-home \.natal-primary-cards\s*\{[^}]*max-width:/);
  assert.doesNotMatch(p1,/max-width:840px/);
- assert.doesNotMatch(solar,/\\.astra-calendar-month-head,\\.calendar-options,\\.calendar\\s*\\{\\s*max-width:/);
- assert.doesNotMatch(atlas,/\\.main\\s*\\{[^}]*\\b(?:max-width|padding-left|padding-right|padding):/);
- assert.doesNotMatch(accessibility,/@media\\(max-width:480px\\)\\{\\s*\\.main\\s*\\{/);
+ assert.doesNotMatch(solar,/\.astra-calendar-month-head,\.calendar-options,\.calendar\s*\{\s*max-width:/);
+ assert.doesNotMatch(atlas,/\.main\s*\{[^}]*\b(?:max-width|padding-left|padding-right|padding):/);
+ assert.doesNotMatch(accessibility,/@media\(max-width:480px\)\{\s*\.main\s*\{/);
 });
+
