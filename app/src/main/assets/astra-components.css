@@ -93,7 +93,7 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
 .bottom-nav .nav:focus-visible{
   outline:3px solid var(--astra-focus)!important;outline-offset:-2px!important
 }
-:root[data-astra-theme="dark"] .bottom-nav .nav{color:var(--astra-muted)}
+:root[data-astra-theme="dark"] .bottom-nav .nav{color:var(--color-cream)}
 :root[data-astra-theme="dark"] .bottom-nav .nav.active{background:var(--astra-primary);color:var(--astra-primary-ink)}
 :root[data-astra-theme="dark"] :is(.primary,.natal-main-action,.astra-month-calendar-link){
   background:var(--astra-primary);color:var(--astra-primary-ink);border-color:var(--astra-primary-ink)
