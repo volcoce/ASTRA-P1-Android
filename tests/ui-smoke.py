@@ -1208,6 +1208,33 @@ if __name__ == '__main__':
             assert page.locator('#detailPanel .astra-event-facts').count()==1
             assert page.locator('#detailPanel .astra-event-technical').count()==1
             assert page.locator('#detailPanel .astra-event-technical').get_attribute('open') is None
+            # Regression: opening an event disclosure must retain inner gutters.
+            page.locator('#detailPanel .astra-event-technical > summary').click()
+            for width in (320,393,1280):
+                page.set_viewport_size({'width':width,'height':844})
+                spacing=page.locator('#detailPanel .astra-event-technical').evaluate("""el => {
+                  const summary=el.querySelector(':scope > summary');
+                  const body=el.querySelector('.astra-event-disclosure-body');
+                  const info=[summary,body].map(node=>{
+                    const css=getComputedStyle(node);
+                    return {left:parseFloat(css.paddingLeft),right:parseFloat(css.paddingRight)};
+                  });
+                  return {summary:info[0],body:info[1],
+                    factsOffset:body.querySelector('.astra-event-facts').getBoundingClientRect().left-
+                                body.getBoundingClientRect().left};
+                }""")
+                assert spacing['summary']['left']>=14,(width,spacing)
+                assert spacing['summary']['right']>=14,(width,spacing)
+                assert spacing['body']['left']>=14,(width,spacing)
+                assert spacing['body']['right']>=14,(width,spacing)
+                assert spacing['factsOffset']>=14,(width,spacing)
+                assert page.evaluate('document.documentElement.scrollWidth')<=width+2,(width,spacing)
+                if width==320:
+                    capture('event-disclosure-padded-mobile-320')
+                elif width==1280:
+                    capture('event-disclosure-padded-desktop-1280')
+            page.set_viewport_size({'width':320,'height':730})
+            page.locator('#detailPanel .astra-event-technical > summary').click()
             assert 'Référence horaire' in page.locator('#detailPanel').text_content()
             assert page.evaluate('document.activeElement.id')=='detailPanel'
             assert page.locator('[data-detail-step]').count()==0

@@ -29,3 +29,7 @@ Le navigateur mesure les couleurs *calculées* pour cinq éléments de lecture/i
 `npm install → npm run bundle → npm run lint:css → npm test → Chromium → tests visuels (Pillow) → Android lint/assemble → artefacts`.
 
 Le projet ne vérifie pas les performances sur téléphone réel, le rendu TalkBack ni la parité de toutes les WebView Android. Ces points restent des contrôles de livraison physique.
+
+### Régression des blocs dépliants
+
+Les fiches d'événements réutilisent les paddings du composant commun (16 px pour les en-têtes et le contenu). Aucun padding nul ne doit être réintroduit dans une variante métier. Chromium vérifie l'espacement réellement calculé à 320, 393 et 1280 px, l'absence de débordement et produit des captures des blocs ouverts à 320 et 1280 px.

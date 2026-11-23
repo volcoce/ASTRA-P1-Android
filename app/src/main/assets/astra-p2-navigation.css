@@ -291,7 +291,7 @@
   margin-top:14px;
 }
 .astra-event-detail--compact .astra-event-disclosure>summary{
-  min-height:48px;padding:13px 0;cursor:pointer;list-style:none;
+  min-height:48px;cursor:pointer;list-style:none;
   display:flex;justify-content:space-between;gap:12px;align-items:center;
   color:var(--astra-brand-strong);font-size:14px;font-weight:750;
 }
@@ -304,7 +304,7 @@
   outline:3px solid var(--astra-focus);outline-offset:2px;border-radius:var(--astra-radius-sm);
 }
 .astra-event-detail--compact .astra-event-disclosure-body{
-  display:grid;gap:10px;padding:0 0 14px;
+  display:grid;gap:10px;
 }
 .astra-event-detail--compact .astra-event-disclosure-body p{
   margin:0;font-size:14px;line-height:1.55;

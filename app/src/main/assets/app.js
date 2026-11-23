@@ -663,7 +663,7 @@
       '<p class="astra-event-keypoint">'+safe(d.interpretation)+'</p></section>';
     const more=reading?
       '<details class="astra-event-disclosure astra-disclosure"><summary>Approfondir cette interprétation</summary>'+
-      '<div class="astra-event-disclosure-body"><p>'+safe(d.interpretation)+'</p>'+
+      '<div class="astra-event-disclosure-body astra-disclosure-body"><p>'+safe(d.interpretation)+'</p>'+
       '<p>'+safe(reading.interaction)+'</p></div></details>':'';
     const measure=raw.type==='active'&&Number.isFinite(raw.delta)?
       '<p>Écart à l’angle exact : '+safe(E.formatOrbExact(Math.abs(raw.delta)))+
@@ -681,7 +681,7 @@
       '<section class="astra-event-reflection"><h3>Pour réfléchir</h3><p>'+safe(d.question)+'</p>'+
       '<button type="button" class="ghost" data-prompt="'+safe(d.question)+'">Noter dans mon journal</button></section>'+
       '<details class="astra-event-disclosure astra-disclosure astra-event-technical"><summary>Voir les données astronomiques</summary>'+
-      '<div class="astra-event-disclosure-body">'+
+      '<div class="astra-event-disclosure-body astra-disclosure-body">'+
       '<div class="astra-event-facts"><div><span>Date et heure</span><strong>'+timing+'</strong></div>'+
       '<div><span>Référence horaire</span><strong>'+safe(zone)+' · '+(state.mode==='sidereal'?'Sidéral':'Tropical')+'</strong></div>'+
       '<div><span>Catégorie</span><strong>'+safe(eventCategoryLabel(category))+'</strong></div></div>'+

@@ -209,3 +209,13 @@ test('The token layer exclusively declares the global theme variables',()=>{
    assert.ok(tokens.includes(role+':'),role);
  }
 });
+
+test('Event disclosures use shared padding, not zero-inset feature overrides',()=>{
+ const app=read('app.js'),components=read('astra-components.css');
+ const features=read('astra-p2-navigation.css');
+ assert.equal((app.match(/astra-event-disclosure-body astra-disclosure-body/g)||[]).length,2);
+ assert.match(components,/\.astra-disclosure>summary\s*\{[^}]*padding:13px 16px/s);
+ assert.match(components,/\.astra-disclosure-body\s*\{[^}]*padding:14px 16px 18px/s);
+ assert.doesNotMatch(features,/\.astra-event-detail--compact \.astra-event-disclosure>summary\s*\{[^}]*\bpadding\s*:/s);
+ assert.doesNotMatch(features,/\.astra-event-detail--compact \.astra-event-disclosure-body\s*\{[^}]*\bpadding\s*:/s);
+});
