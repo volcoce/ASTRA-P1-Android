@@ -20,9 +20,6 @@
   fill:var(--color-deep-ocean);stroke:var(--astra-plate-cream);stroke-width:.5;
   font-family:Georgia,"Times New Roman",serif;font-weight:800;
 }
-.natal-wheel.wheel-modern .wheel-degree-tick{stroke:#B6AFA0}
-.natal-wheel.wheel-modern .wheel-degree-tick.is-medium{stroke:#637881}
-.natal-wheel.wheel-modern .wheel-degree-tick.is-major{stroke:var(--color-deep-ocean)}
 .natal-wheel.wheel-modern .wheel-zodiac-inner{
   fill:var(--astra-plate-cream);stroke:var(--color-deep-ocean);stroke-width:1.35
 }
@@ -80,8 +77,7 @@
 }
 /* Technical reading from the reference wheel, without its visual overload.
    Emoji-suppressed zodiac glyphs remain typography, not purple icon badges.
-   Touch targets retain their 34-SVG-unit invisible circles; only their
-   visual discs are simplified. No position is changed by these styles. */
+   Touch targets retain their SVG hit areas. No position is changed. */
 .natal-wheel.wheel-modern .zodiac-symbol{
   font-family:"Noto Sans Symbols 2","Segoe UI Symbol","DejaVu Sans",sans-serif;
   font-size:21px;font-weight:600;letter-spacing:0;
@@ -108,16 +104,6 @@
 }
 .natal-wheel.wheel-modern .natal-planet-hit.is-active .natal-planet{
   fill:var(--astra-plate-cream)
-}
-.natal-wheel.wheel-modern .wheel-planet-degree{
-  font:750 12px/1 var(--astra-font-body);
-  letter-spacing:-.2px;font-variant-numeric:tabular-nums;
-  fill:var(--color-deep-ocean);stroke:var(--astra-plate-cream);
-  stroke-width:1.8;stroke-linejoin:round;paint-order:stroke;
-  pointer-events:none
-}
-.natal-wheel.wheel-modern .natal-planet-hit.is-active .wheel-planet-degree{
-  fill:var(--color-retro-red)
 }
 .natal-wheel.wheel-modern .natal-leader path{
   stroke:#66818C;stroke-width:1.1;fill:none;
@@ -149,16 +135,6 @@
 }
 .natal-double-wheel.wheel-modern .natal-transit-hit .natal-planet{fill:var(--color-retro-red)}
 .natal-double-wheel.wheel-modern .natal-transit-hit .wheel-true-anchor{fill:var(--color-retro-red)}
-/* The double wheel has 20 glyphs: exact degree/minute captions are opt-in
-   via Complet, never forced into the compact default view. */
-.natal-double-wheel.wheel-modern .wheel-natal-degree{
-  fill:var(--color-teal);stroke:var(--astra-plate-cream);
-  font-size:11px
-}
-.natal-double-wheel.wheel-modern .wheel-transit-degree{
-  fill:var(--color-retro-red);stroke:#D1E7F0;
-  font-size:11px
-}
 .natal-double-wheel.wheel-modern .natal-planet-hit .wheel-true-anchor{fill:var(--color-teal)}
 .natal-double-wheel.wheel-modern :is(.natal-planet-hit,.natal-transit-hit).is-active .wheel-planet-disc{
   fill:var(--color-deep-ocean);stroke:var(--color-retro-red)
