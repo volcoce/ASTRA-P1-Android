@@ -439,9 +439,9 @@ if __name__ == '__main__':
             assert_birth_heading_alignment()
             capture('natal-heading-aligned-desktop-1280')
             page.set_viewport_size({'width':393,'height':844})
-            assert page.locator('.natal-home-actions button').count()==1
+            assert page.locator('.natal-home-actions button').count()==2
             assert 'Explorer les positions' in page.locator('.natal-main-action').inner_text()
-            assert page.locator('.natal-home [data-explore-transits]').count()==0
+            assert page.locator('.natal-home [data-explore-transits]').count()==1
             assert page.locator('.natal-home .natal-glossary').count()==0
             assert page.locator('.natal-summary-item').first.get_attribute('aria-label')=='Soleil en Bélier'
             assert page.locator('.natal-overview-tabs, .natal-home .natal-position, .natal-home .natal-aspect').count()==0
@@ -511,7 +511,7 @@ if __name__ == '__main__':
             assert page.locator('.natal-control-stack').count()==0
             assert page.locator('.natal-filter').count()==0
             assert page.locator('#birthForm').count()==0
-            assert page.locator('.natal-home-actions button').count()==1
+            assert page.locator('.natal-home-actions button').count()==2
             # A15 layout (~360 CSS px) plus compact and large phones, tablets
             # and desktop. These are simulated responsive layouts, not
             # measurements taken on a physical Samsung A15.
@@ -531,7 +531,7 @@ if __name__ == '__main__':
                   const cardStyle=getComputedStyle(document.querySelector('.natal-home'));
                   const selectors=[
                     '.natal-primary-cards','.natal-home-actions--primary',
-                    '.natal-wheel-viewport'];
+                    '.natal-wheel-viewport','.natal-home-actions--secondary'];
                   return {
                     intro:{left:intro.left+parseFloat(introStyle.paddingLeft),
                       right:intro.right-parseFloat(introStyle.paddingRight)},
@@ -544,7 +544,7 @@ if __name__ == '__main__':
                       const r=box('.natal-home>'+selector);
                       return {selector,left:r.left,right:r.right};
                     }),
-                    actions:['.natal-main-action'].map(s=>({
+                    actions:['.natal-main-action','.natal-secondary-action'].map(s=>({
                       selector:s,left:box(s).left,right:box(s).right
                     }))};
                 }""")
@@ -817,19 +817,15 @@ if __name__ == '__main__':
             page.locator('[data-wheel-layout="double"]').click()
             page.locator('[data-profile-screen="overview"]').click()
             assert page.locator('.natal-home').count()==1
-            assert page.locator('[data-explore-transits]').count()==0
-            page.locator('.natal-main-action').click()
-            assert page.locator('.natal-explore [data-explore-transits]').count()==1
+            assert page.locator('.natal-home [data-explore-transits]').count()==1
             for width in (320,393,768,1280):
                 page.set_viewport_size({'width':width,'height':844})
-                for section in ('planets','houses','aspects'):
-                    page.locator('[data-explore-section="'+section+'"]').click()
-                    gap=page.locator('.natal-explore').evaluate("""e=>{
-                      const panel=e.querySelector('.natal-explorer-panel');
-                      const action=e.querySelector('[data-explore-transits]');
-                      return action.getBoundingClientRect().top-panel.getBoundingClientRect().bottom;
-                    }""")
-                    assert gap>=15,(width,section,gap)
+                gap=page.locator('.natal-home').evaluate("""e=>{
+                  const primary=e.querySelector('.natal-main-action');
+                  const secondary=e.querySelector('[data-explore-transits]');
+                  return secondary.getBoundingClientRect().top-primary.getBoundingClientRect().bottom;
+                }""")
+                assert gap>=15,(width,gap)
             page.set_viewport_size({'width':393,'height':844})
             page.locator('[data-explore-transits]').click()
             assert page.locator('.natal-compare').count()==1
@@ -864,8 +860,7 @@ if __name__ == '__main__':
             saved=page.evaluate("JSON.parse(localStorage.getItem('astra-public-v1'))")
             assert saved['transitTime']=='13:30'
             page.locator('.natal-compare .natal-back').click()
-            assert page.locator('.natal-explore').count()==1
-            page.locator('.natal-explore .natal-back').click()
+            assert page.locator('.natal-home').count()==1
             assert page.locator('.natal-extras').count()==0
             assert page.locator('[data-profile-screen="progressions"], [data-profile-screen="composite"]').count()==0
             page.locator('#settingsButton').click()
@@ -898,7 +893,7 @@ if __name__ == '__main__':
             page.locator('[data-explore-section="houses"]').click()
             assert page.locator('#natalChart .natal-house-chip').count()==12
             assert page.locator('.natal-explore-wheel, .natal-explore .natal-wheel').count()==0
-            assert page.locator('.natal-explore [data-explore-transits]').count()==1
+            assert page.locator('.natal-explore [data-explore-transits]').count()==0
             page.locator('.natal-explore .natal-back').click()
             assert page.locator('.natal-home .natal-wheel').count()==1
             page.locator('.natal-wheel [data-natal-house="1"]').click()
