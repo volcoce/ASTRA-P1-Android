@@ -2124,7 +2124,6 @@
   document.addEventListener('focusout',()=>requestAnimationFrame(syncKeyboardVisibility));
   window.visualViewport?.addEventListener('resize',syncKeyboardVisibility);
   window.addEventListener('resize',syncKeyboardVisibility);
-  $('homeButton')?.addEventListener('click',()=>{selectDay(isoDay(new Date()));go('today');});
   const globalSettingsDialog=$('astraSettingsDialog');
   let restoreSettingsTriggerFocus=true;
   $('settingsButton')?.addEventListener('click',()=>{
