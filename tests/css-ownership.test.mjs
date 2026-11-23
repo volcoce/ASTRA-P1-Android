@@ -435,9 +435,9 @@ test('Natal wheel combines precise reference geometry with one progressive inter
  assert.match(app,/Math\.min\(1799,Math\.floor\(within\*60\+1e-7\)\)/);
  assert.match(detail,/\.slice\(0,6\)/);
  assert.match(detail,/E\.layoutPlanetLabels\(chart\.positions,precise\?19:16\)/);
- assert.match(detail,/class="wheel-planet-degree"/);
- assert.match(detail,/data-true-longitude=/);
- assert.match(detail,/data-label-longitude=/);
+ assert.match(app,/class="wheel-planet-degree"/);
+ assert.match(app,/data-true-longitude=/);
+ assert.match(app,/data-label-longitude=/);
  assert.match(app,/isOverview\?\(h\?wheelSvg\(chart,state\.natalView!=='complete'\)/);
  assert.match(wheelCss,/\.wheel-planet-degree\{/);
  assert.match(wheelCss,/\.natal-leader path\{/);
