@@ -57,7 +57,13 @@ window.ASTRA_ENGINE = {
    for(let d=1;d<=n;d++){
      const k=year+'-'+String(month).padStart(2,'0')+'-'+String(d).padStart(2,'0');
      days[k]={active:[{type:'active',body:'Sun',natal:'Moon',aspect:'Trigone',angle:120,delta:.43,orb:1.7}],
-       exact:[{type:'exact',body:[5,9,20,23].includes(d)?'Sun':'Mercury',natal:'Moon',aspect:'Trigone',at:k+'T11:30:00Z'}],
+       exact:month===11&&d===23?[
+          {type:'exact',body:'Moon',natal:'Venus',aspect:'Sextile',at:k+'T03:34:00Z'},
+          {type:'exact',body:'Moon',natal:'Neptune',aspect:'Carré',at:k+'T09:47:00Z'},
+          {type:'exact',body:'Moon',natal:'Moon',aspect:'Trigone',at:k+'T21:40:00Z'},
+          {type:'exact',body:'Moon',natal:'Saturn',aspect:'Sextile',at:k+'T23:09:00Z'},
+          {type:'exact',body:'Moon',natal:'Jupiter',aspect:'Trigone',at:k+'T23:13:00Z'}
+        ]:[{type:'exact',body:[5,9,20,23].includes(d)?'Sun':'Mercury',natal:'Moon',aspect:'Trigone',at:k+'T11:30:00Z'}],
        sunLongitudeAtNoon:d<19?235:250,
        sunIngress:d===19?{at:k+'T06:24:00Z',fromIndex:7,toIndex:8,
          fromSign:'Scorpion',toSign:'Sagittaire',mode}:null,
@@ -895,7 +901,7 @@ if __name__ == '__main__':
                 arrow:contrast(getComputedStyle(arrow).color,bg),
                 buttonLabel:getComputedStyle(first).color,
                 moreWidth:(()=>{
-                  const more=document.querySelector('.astra-more-events>summary');
+                  const more=document.querySelector('.astra-event-list-toggle');
                   return more?more.getBoundingClientRect().width:null;
                 })()
               };
@@ -959,9 +965,9 @@ if __name__ == '__main__':
                     assert page.locator('.astra-lunar-milestone').count()==0
                     assert page.locator('[data-step-day]').count()==0
                     selected_date=page.locator('.astra-week-day.is-selected').get_attribute('data-day')
-                    expected_count=2 if int(selected_date[-2:]) in (5,20) else 1
+                    expected_count=5 if selected_date.endswith('11-23') else 2 if int(selected_date[-2:]) in (5,20) else 1
                     assert page.locator('.astra-day-hero .astra-hero-stat strong').inner_text()==str(expected_count)
-                    assert page.locator('.astra-event-feed').first.locator('[data-event]').count()==expected_count
+                    assert page.locator('.astra-event-list-rows [data-event]').count()==min(expected_count,3)
                     verify_active_aspects_gutters('light-320')
                     capture('today-flo-layout-320')
                 elif tab=='month':
@@ -1202,7 +1208,7 @@ if __name__ == '__main__':
             # Calendar filters cannot erase the unfiltred daily summary.
             page.locator('[data-tab="today"]').click()
             day_key=page.locator('.astra-week-day.is-selected').get_attribute('data-day')
-            expected=2 if int(day_key[-2:]) in (5,20) else 1
+            expected=5 if day_key.endswith('11-23') else 2 if int(day_key[-2:]) in (5,20) else 1
             assert page.locator('.astra-day-hero .astra-hero-stat strong').inner_text()==str(expected)
             page.locator('[data-tab="calendar"]').click()
             assert page.locator('.calendar-options').get_attribute('open') is not None
@@ -1212,6 +1218,51 @@ if __name__ == '__main__':
             assert page.locator('.astra-calendar-day-summary').count()==0
             assert page.locator('.astra-personal-create').count()==0
             assert page.locator('[data-calendar-view]').count()==0
+            # Five exact events remain in ONE card before and after expansion.
+            # The expansion button is a footer rather than a second event card.
+            page.locator('.calendar .day[data-day="2026-11-23"]').click()
+            assert page.locator('#calendarDayDialog[open]').count()==1
+            page.locator('[data-calendar-open-day]').click()
+            assert page.locator('#todayEvents .astra-event-list-card').count()==1
+            assert page.locator('#todayEvents .astra-event-feed').count()==1
+            assert page.locator('#todayEvents .astra-more-events').count()==0
+            assert page.locator('#todayEvents .astra-event-list-rows .astra-event-row').count()==3
+            assert page.locator('#todayEvents .astra-event-list-toggle').inner_text().startswith('Afficher les 2')
+            assert page.locator('#todayEvents .astra-event-list-toggle').get_attribute('aria-expanded')=='false'
+            assert page.locator('#todayEvents .event-category-label').count()==0
+            assert page.locator('#todayEvents .astra-event-list-head h2').inner_text()=='Événements du jour'
+            assert page.locator('#todayEvents .astra-event-list-head p').inner_text().endswith('5 événements')
+            for width in (320,393,1280):
+                page.set_viewport_size({'width':width,'height':844})
+                page.locator('.astra-event-list-toggle').click()
+                assert page.locator('.astra-event-list-rows .astra-event-row').count()==5
+                assert page.locator('.astra-event-list-toggle').get_attribute('aria-expanded')=='true'
+                assert page.locator('.astra-event-list-toggle').inner_text().startswith('Réduire')
+                assert page.locator('.astra-event-list-toggle').evaluate('e=>document.activeElement===e')
+                assert page.locator('#todayEvents .astra-event-feed').count()==1
+                times=page.locator('#todayEvents .astra-event-row time').all_inner_texts()
+                assert len(times)==5,times
+                assert page.locator('.astra-event-row .astra-event-meta').count()==5
+                alignment=page.locator('#todayEvents').evaluate("""el=>{
+                  const root=el.querySelector('.astra-event-list-card').getBoundingClientRect();
+                  const rows=[...el.querySelectorAll('.astra-event-row')];
+                  const times=rows.map(row=>row.querySelector('time').getBoundingClientRect());
+                  const right=rows.map(row=>row.querySelector('.event-arrow').getBoundingClientRect());
+                  const counts=el.querySelectorAll('.astra-event-list-card').length;
+                  return {cards:counts,inset:rows[0].getBoundingClientRect().left-root.left,
+                    timeAlignment:times.every((t,i)=>i===0||Math.abs(t.right-times[0].right)<1.5),
+                    arrowAlignment:right.every((a,i)=>i===0||Math.abs(a.right-right[0].right)<1.5),
+                    overflow:document.documentElement.scrollWidth>innerWidth+2};
+                }""")
+                assert alignment['cards']==1 and alignment['inset']>=-1,(width,alignment)
+                assert alignment['timeAlignment'] and alignment['arrowAlignment'],(width,alignment)
+                assert not alignment['overflow'],(width,alignment)
+                capture('daily-events-expanded-'+str(width))
+                page.locator('.astra-event-list-toggle').click()
+                assert page.locator('.astra-event-list-rows .astra-event-row').count()==3
+                assert page.locator('.astra-event-list-toggle').get_attribute('aria-expanded')=='false'
+            page.set_viewport_size({'width':320,'height':730})
+            page.locator('[data-tab="calendar"]').click()
             page.locator('.calendar .day[data-day="2026-11-23"]').click()
             assert page.locator('#calendarDayDialog[open]').count()==1
             page.locator('#calendarDayDialog [data-personal-new]').click()
