@@ -106,12 +106,11 @@
 /* MON CIEL — readable natal triptych, one primary action, progressive wheel
    and comparison/advanced tools. SVG/geometry remains unchanged. */
 
-/* Align the natal card heading to the actual content column, not the
-   wider outer wrapper. The three summary cards and primary action are 650px. */
+/* The natal header and summary cards fill the shared card content box.
+   Width and outer gutters are owned by .main. */
 .natal-home .natal-home-header{
   width:100%;
-  max-width:650px;
-  margin:0 auto 17px;
+  margin:0 0 17px;
   padding:0 1px;
   display:flex;
   align-items:center;
@@ -129,7 +128,7 @@
 .natal-home .natal-home-header .natal-settings-link{flex:none}
 .natal-home .natal-primary-cards{
   background:var(--astra-surface);border:1px solid var(--astra-divider);
-  border-radius:var(--astra-radius-lg);padding:8px 6px;max-width:650px
+  border-radius:var(--astra-radius-lg);padding:8px 6px
 }
 .natal-home .natal-summary-item{background:transparent;border-color:var(--astra-divider)}
 .natal-home .natal-summary-value{color:var(--astra-ink)}
