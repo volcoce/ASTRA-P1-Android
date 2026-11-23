@@ -443,20 +443,22 @@ if __name__ == '__main__':
             assert 'Explorer les positions' in page.locator('.natal-main-action').inner_text()
             assert 'Comparer deux dates' in page.locator('.natal-secondary-action').inner_text()
             assert page.locator('.natal-summary-item').first.get_attribute('aria-label')=='Soleil en Bélier'
-            assert page.locator('.natal-overview-tabs button').count()==3
-            page.locator('[data-overview-pane="planets"]').click()
-            assert page.locator('.natal-home .natal-position').count()==10
-            assert page.locator('.natal-home .position-retrograde').count()==10
-            assert page.locator('.natal-home [data-natal-body="Mercury"].natal-position .position-retrograde').inner_text()=='R'
-            assert page.locator('.natal-home [data-natal-body="Sun"].natal-position .position-retrograde').inner_text()==''
-            assert page.locator('.natal-home .position-degree').count()==0
+            assert page.locator('.natal-overview-tabs, .natal-home .natal-position, .natal-home .natal-aspect').count()==0
+            assert page.locator('.natal-home .natal-wheel').count()==1
+            page.locator('.natal-main-action').click()
+            assert page.locator('.natal-explore').count()==1
+            assert page.locator('.natal-explore .natal-position').count()==10
+            assert page.locator('.natal-explore .position-retrograde').count()==10
+            assert page.locator('.natal-explore [data-natal-body="Mercury"].natal-position .position-retrograde').inner_text()=='R'
+            assert page.locator('.natal-explore [data-natal-body="Sun"].natal-position .position-retrograde').inner_text()==''
+            assert page.locator('.natal-explore .position-degree').count()==0
             page.locator('#settingsButton').click()
             page.locator('[data-settings-section="astrology"]').click()
             page.locator('[data-natal-degrees="on"]').click()
             assert page.locator('[data-natal-degrees="on"]').get_attribute('aria-pressed')=='true'
             page.locator('[data-settings-close]').click()
-            assert page.locator('.natal-home .position-degree').count()==10
-            assert page.locator('.natal-home .position-degree').first.inner_text()=='07°00'
+            assert page.locator('.natal-explore .position-degree').count()==10
+            assert page.locator('.natal-explore .position-degree').first.inner_text()=='07°00'
             for width in (320,393,1280):
                 page.set_viewport_size({'width':width,'height':844})
                 aligned=page.locator('.natal-position-table').evaluate("""e=>{
@@ -471,13 +473,12 @@ if __name__ == '__main__':
             page.locator('[data-settings-section="astrology"]').click()
             page.locator('[data-natal-degrees="off"]').click()
             page.locator('[data-settings-close]').click()
-            assert page.locator('.natal-home .position-degree').count()==0
-            assert page.locator('.natal-home .natal-wheel').count()==0
-            page.locator('[data-overview-pane="aspects"]').click()
-            assert page.locator('.natal-home .natal-aspect').count()==1
-            assert page.locator('.natal-panel-lead').count()==0
-            page.locator('[data-overview-pane="wheel"]').click()
+            assert page.locator('.natal-explore .position-degree').count()==0
+            page.locator('[data-explore-section="aspects"]').click()
+            assert page.locator('.natal-explore .natal-aspect').count()==1
+            page.locator('.natal-back').click()
             assert page.locator('.natal-home .natal-wheel').count()==1
+            assert page.locator('.natal-overview-tabs, .natal-home .natal-position, .natal-home .natal-aspect').count()==0
             assert page.locator('.natal-glossary').get_attribute('open') is None
             page.locator('.natal-glossary summary').click()
             assert audit_disclosures('natal-home')>=2
@@ -506,7 +507,7 @@ if __name__ == '__main__':
                   const cardStyle=getComputedStyle(document.querySelector('.natal-home'));
                   const selectors=[
                     '.natal-primary-cards','.natal-home-actions--primary',
-                    '.natal-overview-tabs','.natal-wheel-viewport',
+                    '.natal-wheel-viewport',
                     '.natal-home-hint',
                     '.natal-glossary','.natal-home-actions--secondary',
                     '.natal-extras'];
@@ -618,9 +619,9 @@ if __name__ == '__main__':
             assert page.locator('.bottom-nav').is_visible()
             head=page.locator('.natal-primary-cards').bounding_box()
             wheel=page.locator('.natal-wheel-viewport').bounding_box()
-            tabs=page.locator('.natal-overview-tabs').bounding_box()
-            assert head is not None and wheel is not None and tabs is not None
-            assert head['y']+head['height']<=tabs['y']+1 and tabs['y']+tabs['height']<=wheel['y']+1,(head,tabs,wheel)
+            assert head is not None and wheel is not None
+            assert head['y']+head['height']<=wheel['y']+1,(head,wheel)
+            assert page.locator('.natal-overview-tabs').count()==0
             assert page.locator('.natal-summary-name').first.evaluate("e => parseFloat(getComputedStyle(e).fontSize)")>=12
             assert page.locator('.natal-main-action').evaluate("e => e.getBoundingClientRect().height")>=48
             assert page.locator('.wheel-zodiac-sector').count()==12
