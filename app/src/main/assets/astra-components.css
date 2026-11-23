@@ -449,7 +449,7 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
 }
 .astra-settings-tabs{
   position:sticky;top:77px;z-index:2;
-  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+  display:grid;grid-template-columns:repeat(5,minmax(0,1fr));
   gap:4px;padding:8px var(--astra-component-inset);
   border-bottom:1px solid var(--astra-divider);background:var(--astra-surface)
 }
