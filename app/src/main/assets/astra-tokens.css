@@ -18,8 +18,12 @@
   --pink:#f9e8eb;
   --salmon:#e59a9f;
   --atlas-radius:var(--astra-radius-lg);
-  --astra-safe-top:env(safe-area-inset-top,0px);
-  --astra-safe-bottom:env(safe-area-inset-bottom,0px);
+  /* Native Android insets take precedence over WebView env() when available.
+     One source per edge prevents accidental double-padding on Android 15+. */
+  --astra-safe-top:var(--astra-native-inset-top,env(safe-area-inset-top,0px));
+  --astra-safe-bottom:var(--astra-native-inset-bottom,env(safe-area-inset-bottom,0px));
+  --astra-safe-left:var(--astra-native-inset-left,env(safe-area-inset-left,0px));
+  --astra-safe-right:var(--astra-native-inset-right,env(safe-area-inset-right,0px));
 
   /* Global geometry tokens, shared across every screen. */
   --astra-reading-width:680px;
