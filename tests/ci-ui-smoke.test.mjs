@@ -5,15 +5,16 @@ import {readFileSync} from 'node:fs';
 const smoke=readFileSync(new URL('./ui-smoke.py',import.meta.url),'utf8');
 const app=readFileSync(new URL('../app/src/main/assets/app.js',import.meta.url),'utf8');
 const html=readFileSync(new URL('../app/src/main/assets/index.html',import.meta.url),'utf8');
+import {CSS_SOURCES} from '../scripts/css-sources.mjs';
 
-test('CI: synthetic-browser smoke loads every active theme asset',()=>{
-  for(const asset of ['style.css','atlas-ui.css','theme.css','wheel-ui.css','solar-ribbon.css','calendar-p0.css','personal-calendar.css']){
-    assert.match(html,new RegExp('href="'+asset.replace('.','\\.')+'"'));
-    assert.ok(smoke.includes("ROOT/'"+asset+"'"),asset);
-  }
-  assert.match(html,/<script src="theme-bootstrap.js"><\/script>/);
+test('CI: the smoke test uses the same compiled CSS shipped to Android',()=>{
+  for(const asset of ['style.css','atlas-ui.css','theme.css','wheel-ui.css','solar-ribbon.css','calendar-p0.css','personal-calendar.css'])
+    assert.ok(CSS_SOURCES.includes(asset),asset);
+  assert.match(html,/<link rel="stylesheet" href="astra.bundle.css">/);
+  assert.ok(smoke.includes("ROOT/'astra.bundle.css'"));
+  assert.match(html,/<script src="theme-bootstrap.js"><\\/script>/);
   assert.ok(smoke.includes("ROOT/'theme-bootstrap.js'"));
-  assert.ok(smoke.includes("html=html.replace('<script src=\"theme-bootstrap.js\"></script>','')"));
+  assert.ok(smoke.includes("html=html.replace('<script src=\\\"theme-bootstrap.js\\\"></script>','')"));
 });
 
 test('CI: native modal assertion matches the current dialog implementation',()=>{

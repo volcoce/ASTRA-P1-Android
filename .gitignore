@@ -4,6 +4,7 @@
 local.properties
 node_modules/
 app/src/main/assets/runtime.bundle.js
+app/src/main/assets/astra.bundle.css
 *.iml
 *.jks
 *.keystore

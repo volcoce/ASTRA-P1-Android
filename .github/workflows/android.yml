@@ -33,8 +33,10 @@ jobs:
           npm install --no-audit --no-fund
           npm run bundle
           test -s app/src/main/assets/runtime.bundle.js
+          test -s app/src/main/assets/astra.bundle.css
       - name: Tester le calcul dynamique (profil non préchargé)
         run: |
+          npm run lint:css
           npm test
           node --check app/src/main/assets/app.js
           if grep -R -E 'ASTRA_FORECASTS|p1-data.js|data.js.gz|PRESET=' app/src/main/assets astro; then
