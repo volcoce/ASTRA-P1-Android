@@ -14,7 +14,7 @@
 }
 html,body{background:#f6f7f7;color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;font-size:15px;line-height:1.55}
 body{overscroll-behavior-x:none}
-.app-shell{background:var(--astra-paper);box-shadow:none}
+
 .top{display:flex;align-items:center;min-height:78px;gap:14px;
   padding:16px 20px;background:var(--atlas-night);color:#fff}
 .top .identity{gap:11px;min-width:0}
@@ -45,15 +45,11 @@ button{font-family:inherit}
 button:focus-visible,[role="button"]:focus-visible,summary:focus-visible,input:focus-visible,
 textarea:focus-visible,select:focus-visible{outline:3px solid #237b99;outline-offset:3px}
 
-.bottom-nav .nav{color:#60707e;border-radius:13px;min-height:58px;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:4px;line-height:1.25;font-size:12px;font-weight:650;padding:7px 1px;
-  white-space:nowrap;overflow-wrap:normal}
-.nav .nav-ico{width:23px;height:23px;display:grid;place-items:center;line-height:1}
-.nav .nav-ico svg{width:23px;height:23px;display:block;stroke:currentColor;fill:none;
-  stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.bottom-nav .nav.active{background:#eaf1f5;color:#163e54;font-weight:750}
-.bottom-nav .nav.active .nav-ico{color:#1a637f}
+
+
+
+
+
 .toast{border-radius:12px;background:#1b3246;box-shadow:0 8px 24px #172b3e32;
   font-size:13px;bottom:calc(87px + var(--astra-safe-bottom));z-index:70}
 .tag,.tag-outline{font-size:12px;background:#eaf1f5;color:#31576a;border:0;padding:5px 9px}
@@ -192,7 +188,7 @@ textarea:focus-visible,select:focus-visible{outline:3px solid #237b99;outline-of
   .top{padding-left:12px;padding-right:12px}
   .natal-home .natal-summary-item{min-height:108px}
   .natal-home .natal-summary-value{font-size:12px}
-  .bottom-nav .nav{font-size:11.5px;min-height:56px}
+  
   .calendar{padding:9px 5px 13px}
   .natal-settings.card,.natal-explore.card,.natal-compare.card{padding:13px}
 }
@@ -205,9 +201,9 @@ textarea:focus-visible,select:focus-visible{outline:3px solid #237b99;outline-of
 .natal-home-actions--primary button{min-height:65px}
 .natal-home-actions--secondary{margin:13px 0 22px}
 .natal-home .natal-primary-cards--two{grid-template-columns:repeat(2,minmax(0,1fr))}
-.bottom-nav .nav{white-space:normal;overflow-wrap:anywhere;word-break:normal;text-align:center}
+
 @media(max-width:480px){
-  .bottom-nav .nav{min-height:64px;line-height:1.15}
+  
   .natal-home-actions--primary button{min-height:64px}
 }
 /* Details on demand — technical content should not drown the primary task. */
@@ -236,7 +232,7 @@ textarea:focus-visible,select:focus-visible{outline:3px solid #237b99;outline-of
 .event-sub{font-size:13px;line-height:1.5}
 .event-more{font-size:13px}
 /* Short visual tab labels preserve meaning and remain legible at 200% font size. */
-.bottom-nav .nav-label{font:inherit;line-height:1.2;max-width:100%;white-space:nowrap}
+
 
 
 /* Home information architecture, inspired by Flo's scannable today / week /
@@ -518,8 +514,8 @@ button.astra-insight-tile:hover{border-color:#7597aa}
 
 /* Four-level navigation: Ce jour / Ce mois / Calendrier / Mon ciel.
    Secondary journal remains a reachable route, not a fifth bottom tab. */
-.bottom-nav .nav{min-width:0}
-.bottom-nav .nav-label{display:block;max-width:100%;text-align:center;line-height:1.22}
+
+
 .astra-journal-back{display:inline-flex;align-items:center;min-height:44px;
   padding:8px 6px;margin:14px 0 -12px;border:0;background:transparent;
   color:#2a566d;font-size:14px;font-weight:700;cursor:pointer}
@@ -583,8 +579,8 @@ button.astra-insight-tile:hover{border-color:#7597aa}
   text-align:left;font-weight:740;font-size:14px;cursor:pointer}
 .astra-month-calendar-link span{font-size:19px}
 @media(max-width:375px){
-  .bottom-nav .nav{min-height:64px;padding:6px 1px}
-  .bottom-nav .nav-label{white-space:normal;overflow-wrap:anywhere}
+  
+  
   .astra-month-hero{padding:19px 17px}
   .astra-month-metrics>div,.astra-month-metrics>button{padding:12px 10px}
   .astra-month-phase{gap:8px;padding:11px 10px}
@@ -620,8 +616,7 @@ button.astra-insight-tile:hover{border-color:#7597aa}
 /* ASTRA P1: fluid layouts, text zoom and resilient navigation. */
 /* 1rem responds to the user's configured text size; overflow stays local. */
 html,body{font-size:100%;min-width:0}
-.app-shell{min-width:0;padding-bottom:max(var(--astra-nav-clearance),calc(6.75rem + var(--astra-safe-bottom)))}
-.main{min-width:0}
+
 .main>*{min-width:0}
 .screen-intro .lead,.astra-section-help,.natal-panel-lead,
 .natal-home-hint,.natal-home-subtitle,.natal-disclaimer,.natal-glossary dd,
@@ -638,8 +633,8 @@ html,body{font-size:100%;min-width:0}
 .astra-day-moon-moment{grid-template-columns:max-content minmax(0,1fr)}
 .natal-position,.natal-aspect,.astra-month-event,.astra-month-phase,
 .astra-insight-tile,.astra-month-metrics>div,.astra-month-metrics>button{min-width:0}
-.bottom-nav .nav{min-width:0;min-height:3.5rem;font-size:.8125rem}
-.bottom-nav .nav-label{white-space:normal;overflow-wrap:anywhere;hyphens:auto}
+
+
 .astra-week-day span{font-size:.8125rem}
 .astra-week-controls{font-size:.8125rem}
 .astra-week-controls button{min-width:2.75rem;min-height:2.75rem;width:2.75rem;height:2.75rem;flex:none}

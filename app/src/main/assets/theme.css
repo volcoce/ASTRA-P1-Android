@@ -36,7 +36,6 @@
 }
 :root[data-astra-theme="dark"],
 :root[data-astra-theme="dark"] body{background:var(--astra-paper);color:var(--astra-ink)}
-:root[data-astra-theme="dark"] .app-shell{background:var(--astra-paper);box-shadow:none}
 :root[data-astra-theme="dark"] :is(.card,.calendar,.natal-overview-panel,.natal-explore,
   .natal-compare,.natal-settings,.natal-preview-disclosure,.natal-selection,
   .natal-context-sheet,.natal-composite-result,.natal-advanced,.natal-matrix-scroll,
@@ -91,10 +90,10 @@
   background:#2b6788
 }
 :root[data-astra-theme="dark"] a{color:#a6d9f0}
-:root[data-astra-theme="dark"] .bottom-nav{background:#142637;border-color:var(--astra-rule)}
-:root[data-astra-theme="dark"] .bottom-nav .nav{color:#b5c9d8;background:transparent}
-:root[data-astra-theme="dark"] .bottom-nav .nav.active{color:#eaf7ff;background:#2c4c60}
-:root[data-astra-theme="dark"] .bottom-nav .nav.active .nav-ico{color:#bce8fa}
+
+
+
+
 :root[data-astra-theme="dark"] .top{background:var(--atlas-night);color:#fff}
 :root[data-astra-theme="dark"] .brand{color:inherit}
 :root[data-astra-theme="dark"] .brand-sub{color:#c8d8e3}

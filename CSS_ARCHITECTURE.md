@@ -5,9 +5,9 @@ Le code de production utilise **une seule navigation globale**, sans exceptions 
 ## Répartition des responsabilités
 
 - `astra-tokens.css` : couleurs, typographies et valeurs sémantiques, ainsi que `--astra-reading-width`, `--astra-card-gutter`, `--astra-nav-width` et `--astra-nav-clearance`.
-- `astra-components.css` : boutons, cartes, champs, états et composants de divulgation réutilisables.
+- `astra-components.css` : boutons, cartes, champs, états, divulgations et **états/icônes de BottomNavigation**. Ni position ni largeur de la barre elle-même.
 - `astra-layout.css` : **unique propriétaire** de la largeur de l'AppShell, des introductions de page, des cartes de lecture, de la barre de navigation principale fixe et de la réserve d'espace pour celle-ci.
-- `astra-natal.css` : composants du thème natal (roue, aperçu, explorateur, listes, champs et outils). Aucun style de navigation principale ni sélection de page via `:has()`.
+- `astra-natal.css` : contenus métier natals (roue, aperçu, explorateur, listes, outils). Les surfaces/paddings des cartes restent à `astra-reading-card`. Aucun style de navigation principale ni sélection de page via `:has()`.
 - `astra-p1-screens.css`, `astra-p2-navigation.css`, `astra-p3-accessibility.css`, `astra-p4-calendar.css`, `astra-p4-wheel.css` : autres éléments historiques à migrer progressivement, sans créer de nouvelle feuille `p7`, `hotfix` ou `override`.
 - `style.css`, `atlas-ui.css`, `theme.css`, `wheel-ui.css`, `solar-ribbon.css`, `calendar-p0.css`, `personal-calendar.css` : anciens styles encore nécessaires au fonctionnement des contrôles existants. Les nouvelles règles ne doivent pas y introduire de divergences de layout.
 
@@ -16,7 +16,7 @@ Le code de production utilise **une seule navigation globale**, sans exceptions 
 1. Ne pas ajouter de sélecteur de type `body:has(.natal-home) .bottom-nav` ni de correctif visuel ciblant une route.
 2. Ne pas introduire de propriété `position`, `bottom`, `left`, `width`, `max-width` ou `transform` sur `.bottom-nav` en dehors du propriétaire global.
 3. Les composants de lecture prennent la classe réutilisable `astra-reading-card` ; les `screen-intro` et les cartes utilisent la même colonne de lecture.
-4. Les couleurs doivent utiliser les tokens sémantiques dans les deux thèmes. Les teintes propres aux schémas astronomiques restent dans les composants de roue.
+4. Les couleurs utilisent les tokens sémantiques dans les deux thèmes. Les quatre `--astra-zodiac-*` alimentent roue, ruban diurne et export SVG/PNG via résolution des tokens CSS ; `--solar-*-bg` gère la variante de ruban sombre. Ne pas recopier des valeurs hexadécimales dans les fonctionnalités.
 5. Les exceptions liées à la **fonction**, et non à la route (mode focus plein écran, clavier Android, orientation paysage, contraste renforcé), sont admises et documentées.
 6. Après une correction, tester les quatre onglets, le Journal, l'explorateur, les réglages, les fiches et la comparaison en clair/sombre à 320, 360, 393, 768, 799, 800 et 1280 px.
 7. Une nouvelle correction d'espacement doit changer un token ou un composant source. **Pas de feuille ajoutée à la fin de la cascade comme rustine.**

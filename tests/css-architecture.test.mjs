@@ -80,3 +80,26 @@ test('Calendar disclosures preserve equal horizontal inset for labels and icons'
  assert.doesNotMatch(css,/\.calendar\.astra-calendar-board \.calendar-help>summary\s*\{[^}]*padding:11px 0/s);
  assert.doesNotMatch(css,/\.calendar-options\s*\{[^}]*max-width:/s);
 });
+
+test('AppShell, BottomNavigation and natal reading surfaces have one owner',()=>{
+ const layout=read('astra-layout.css'),components=read('astra-components.css');
+ for(const name of ['style.css','atlas-ui.css','theme.css','astra-p2-navigation.css','astra-p3-accessibility.css']){
+   const css=read(name);
+   assert.doesNotMatch(css,/\.app-shell\s*\{/);
+   assert.doesNotMatch(css,/\.bottom-nav\s+\.nav(?:\.active|\s*\{|\s+\.nav-label)/);
+ }
+ assert.match(layout,/\.bottom-nav\s*\{[^}]*position:fixed/s);
+ assert.match(components,/\.bottom-nav \.nav\{/);
+ assert.doesNotMatch(components,/\.bottom-nav\s*\{/);
+ assert.doesNotMatch(read('astra-natal.css'),/\.natal-home\.card\s*\{/);
+ assert.doesNotMatch(read('astra-natal.css'),/\.natal-explore\.card,\.natal-compare\.card,\.natal-settings\.card/);
+});
+test('Water palette has one source and no duplicates in feature CSS',()=>{
+ const tokens=read('astra-tokens.css'),wheel=read('astra-p4-wheel.css');
+ assert.match(tokens,/--astra-zodiac-water:#5B9BC7/);
+ assert.match(tokens,/--solar-water-muted:#BDD7E3/);
+ assert.match(tokens,/--solar-earth-muted:#D9D6B8/);
+ assert.match(wheel,/zodiac-element-water\{fill:var\(--astra-zodiac-water\)\}/);
+ assert.match(read('app.js'),/zodiacFill\('water'\)/);
+ assert.doesNotMatch(read('solar-ribbon.css'),/:root\s*\{[^}]*--solar-water-bg/s);
+});
