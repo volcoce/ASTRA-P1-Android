@@ -228,3 +228,8 @@ Ces rapports sont calculés sur fond blanc à partir des couleurs proposées. Co
 ### Tableau des planètes
 
 Les positions natales partagent un tableau interactif à colonnes alignées : planète, R (rétrogradation géocentrique à la naissance), signe, degrés et minutes facultatifs, maison en chiffres romains si l’heure est connue. La préférence Paramètres → Astrologie → Degrés des planètes est désactivée par défaut et persistée. La roue reste sans degrés.
+
+
+### Répartition et dignités natales
+
+Sous la roue et les actions existantes de Mon ciel, une seule section présente les éléments (anneau et légende) et les modalités (barres), calculés à partir des dix astres du thème actif, sans pondération ni angles. Si l'heure manque, les comptes sont indicatifs à midi. Les quatre dignités classiques par signe figurent uniquement dans la fiche de la planète sélectionnée (domicile, exaltation, exil, chute, éventuellement cumulés). Uranus, Neptune et Pluton n'ont pas de statut dans ce référentiel classique. Ces statuts sont symboliques et ne sont pas des scores.

@@ -23,6 +23,15 @@ window.ASTRA_ENGINE = {
   [{at:day+'T13:09:00Z',fromSign:'Taureau',toSign:'Gémeaux',fromIndex:1,toIndex:2,mode}]:[]},
  formatSignExact(lon){const total=((Math.round(lon*3600)%1296000)+1296000)%1296000;const n=total%108000,pad=n=>String(n).padStart(2,'0');return pad(Math.floor(n/3600))+'°'+pad(Math.floor(n%3600/60))+'′'+pad(n%60)+'″ '+['Bélier','Taureau','Gémeaux','Cancer','Lion','Vierge','Balance','Scorpion','Sagittaire','Capricorne','Verseau','Poissons'][Math.floor(total/108000)]},formatOrbExact(orb){return orb.toFixed(2)+'°'},
  filterNatalAspects(list,filter){return filter==='all'?[...list]:list.filter(a=>a.aspect===filter)},
+ natalDistribution(positions){
+  const elements={fire:0,earth:0,air:0,water:0},modalities={cardinal:0,fixed:0,mutable:0};
+  const bodies=['Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto'];
+  let total=0;for(const body of bodies){if(!Number.isFinite(positions[body]))continue;
+    const sign=Math.floor(((positions[body]%360)+360)%360/30);
+    elements[Object.keys(elements)[sign%4]]++;modalities[Object.keys(modalities)[sign%3]]++;total++;}
+  return {total,elements,modalities};
+ },
+ natalDignities(body,lng){return {traditional:!['Uranus','Neptune','Pluto'].includes(body),statuses:body==='Sun'&&lng<30?['Exaltation']:[]}},
  describeNatalPillar(body,lng){return {title:body==='Moon'?'Lune en Bélier':body==='Ascendant'?'Ascendant en Vierge':'Soleil en Bélier',role:'Identité',keywords:['Initiative','Courage','Affirmation']}},
  describeNatalPlanet(body,lng,house,approx){return {title:body==='Moon'?'Lune':'Soleil',astronomy:approx?'Position indicative à midi local':'Longitude calculée',convention:'Lecture astrologique traditionnelle du signe et de la planète.',question:'Quel sens pour ce domaine ?',disclaimer:'Lecture symbolique non prédictive'}},
  describeNatalHouse(n){return {title:'Maison '+n,astronomy:'Cuspide calculée',convention:'Domaine traditionnel de la maison.',question:'Comment cette maison est-elle vécue ?',disclaimer:'Lecture symbolique'}},
@@ -446,6 +455,11 @@ if __name__ == '__main__':
             assert page.locator('.natal-summary-item').first.get_attribute('aria-label')=='Soleil en Bélier'
             assert page.locator('.natal-overview-tabs, .natal-home .natal-position, .natal-home .natal-aspect').count()==0
             assert page.locator('.natal-home .natal-wheel').count()==1
+            assert page.locator('.natal-distribution').count()==1
+            assert page.locator('.natal-element-legend li').count()==4
+            assert page.locator('.natal-modality-list li').count()==3
+            for selector in ('.natal-element-legend strong','.natal-modality-list strong'):
+                assert sum(int(x) for x in page.locator(selector).all_text_contents())==10
             page.locator('.natal-main-action').click()
             assert page.locator('.natal-explore').count()==1
             assert page.locator('.natal-explore-list > p').count()==0
@@ -531,7 +545,7 @@ if __name__ == '__main__':
                   const cardStyle=getComputedStyle(document.querySelector('.natal-home'));
                   const selectors=[
                     '.natal-primary-cards','.natal-home-actions--primary',
-                    '.natal-wheel-viewport','.natal-home-actions--secondary'];
+                    '.natal-wheel-viewport','.natal-home-actions--secondary','.natal-distribution'];
                   return {
                     intro:{left:intro.left+parseFloat(introStyle.paddingLeft),
                       right:intro.right-parseFloat(introStyle.paddingRight)},
@@ -1030,6 +1044,7 @@ if __name__ == '__main__':
             page.locator('.natal-wheel [data-natal-body="Sun"]').click()
             assert page.locator('#natalSelectionInfo').is_visible()
             assert page.locator('.natal-pillar-keywords li').count()==3
+            assert 'Exaltation' in page.locator('.natal-dignity').inner_text()
             assert page.locator('.natal-reading-more').get_attribute('open') is None
             page.locator('.natal-reading-more summary').click()
             reading=page.evaluate("""() => {
@@ -1737,6 +1752,7 @@ if __name__ == '__main__':
             assert page.locator('#natalChart .zodiac-symbol').count()==12
             assert 'Heure de naissance inconnue' in page.locator('#natalChart').inner_text()
             assert 'Ascendant' not in page.locator('.natal-primary-cards').inner_text()
+            assert 'indicatives' in page.locator('.natal-distribution-caption').inner_text()
             page.locator('.natal-wheel [data-natal-body="Moon"]').click()
             assert 'indicative' in page.locator('#natalSelectionInfo').inner_text()
             page.locator('[data-close-natal-detail]').click()

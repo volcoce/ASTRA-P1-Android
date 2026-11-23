@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   formatSignExact,formatOrbExact,filterNatalAspects,
-  describeNatalPillar,describeNatalPlanet,describeNatalHouse,describeNatalAspect
+  natalDistribution,natalDignities,describeNatalPillar,describeNatalPlanet,describeNatalHouse,describeNatalAspect
 } from '../astro/natal-learning.mjs';
 
 test('zodiac DMS formatting handles boundaries, wrap and rounding',()=>{
@@ -57,4 +57,26 @@ test('three natal pillars have distinct roles and three keywords for every sign'
   assert.deepEqual(describeNatalPillar('Moon',151).keywords,['Analyse','Organisation','Sécurité']);
   assert.throws(()=>describeNatalPillar('Mars',0));
   assert.throws(()=>describeNatalPillar('Sun',NaN));
+});
+
+test('natal distributions count only ten bodies, one vote each, and wrap longitudes',()=>{
+  const positions={Sun:0,Moon:30,Mercury:60,Venus:90,Mars:120,Jupiter:150,Saturn:180,Uranus:210,Neptune:240,Pluto:270,Ascendant:300,MC:330};
+  assert.deepEqual(natalDistribution(positions),{total:10,elements:{fire:3,earth:3,air:2,water:2},modalities:{cardinal:4,fixed:3,mutable:3}});
+  assert.deepEqual(natalDistribution({Sun:-1,Moon:360,Venus:NaN}),{total:2,elements:{fire:1,earth:0,air:0,water:1},modalities:{cardinal:1,fixed:0,mutable:1}});
+  assert.equal(natalDistribution({Ascendant:5}).total,0);
+});
+test('classical dignities include dual statuses and exclude modern rulerships',()=>{
+  assert.deepEqual(natalDignities('Sun',120).statuses,['Domicile']);
+  assert.deepEqual(natalDignities('Moon',30).statuses,['Exaltation']);
+  assert.deepEqual(natalDignities('Moon',210).statuses,['Chute']);
+  assert.deepEqual(natalDignities('Moon',270).statuses,['Exil']);
+  assert.deepEqual(natalDignities('Mercury',150).statuses,['Domicile','Exaltation']);
+  assert.deepEqual(natalDignities('Mercury',330).statuses,['Exil','Chute']);
+  assert.deepEqual(natalDignities('Venus',150).statuses,['Chute']);
+  assert.deepEqual(natalDignities('Mars',90).statuses,['Chute']);
+  assert.deepEqual(natalDignities('Jupiter',90).statuses,['Exaltation']);
+  assert.deepEqual(natalDignities('Saturn',180).statuses,['Exaltation']);
+  assert.deepEqual(natalDignities('Sun',30),{traditional:true,statuses:[]});
+  assert.deepEqual(natalDignities('Pluto',210),{traditional:false,statuses:[]});
+  assert.throws(()=>natalDignities('Sun',NaN));
 });

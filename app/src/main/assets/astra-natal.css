@@ -513,4 +513,61 @@
   .natal-position-table :is(.position-glyph,.position-sign-glyph){font-size:1.25em}
   .natal-position-table.has-degrees.has-houses :is(.natal-position-heading,.natal-position){min-width:310px}
 }
+
+/* Natal distribution: one compact section; no independent card or page width. */
+.natal-distribution{
+  width:100%;min-width:0;box-sizing:border-box;
+  margin:var(--astra-space-4) 0 0;padding-top:var(--astra-space-4);
+  border-top:1px solid var(--astra-divider);color:var(--astra-ink)
+}
+.natal-distribution-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));
+  gap:var(--astra-space-4)
+}
+.natal-distribution-figure{min-width:0;margin:0}
+.natal-distribution-figure h3{
+  font:700 1rem/1.4 var(--astra-font-body);margin:0 0 var(--astra-space-2)
+}
+.natal-element-layout{
+  display:grid;grid-template-columns:minmax(88px,120px) minmax(0,1fr);
+  gap:var(--astra-space-2);align-items:center
+}
+.natal-element-donut{display:block;width:100%;height:auto}
+.natal-distribution-track,.natal-distribution-segment{fill:none;stroke-width:20}
+.natal-distribution-track{stroke:var(--astra-secondary-surface)}
+.natal-distribution-segment{stroke:var(--distribution-element)}
+.natal-distribution [data-element="fire"]{--distribution-element:var(--astra-zodiac-fire)}
+.natal-distribution [data-element="earth"]{--distribution-element:var(--astra-zodiac-earth)}
+.natal-distribution [data-element="air"]{--distribution-element:var(--astra-zodiac-air)}
+.natal-distribution [data-element="water"]{--distribution-element:var(--astra-zodiac-water)}
+.natal-distribution-total{fill:var(--astra-ink);font:750 24px var(--astra-font-body)}
+.natal-distribution-unit{fill:var(--astra-muted);font:12px var(--astra-font-body)}
+.natal-element-legend,.natal-modality-list{
+  list-style:none;margin:0;padding:0;display:grid;gap:var(--astra-space-2);
+  font:600 .875rem/1.4 var(--astra-font-body)
+}
+.natal-element-legend li{display:grid;grid-template-columns:12px minmax(0,1fr) auto;align-items:center;gap:6px}
+.natal-element-dot{
+  width:12px;height:12px;border-radius:50%;background:var(--distribution-element);
+  border:1px solid var(--astra-border);box-sizing:border-box
+}
+.natal-modality-list li{display:grid;grid-template-columns:1fr auto;gap:4px 8px;align-items:center}
+.natal-modality-list svg{grid-column:1/-1;width:100%;height:8px;display:block}
+.natal-modality-track{fill:var(--astra-secondary-surface)}
+.natal-modality-fill{fill:var(--astra-brand)}
+.natal-distribution strong{font-variant-numeric:tabular-nums}
+.natal-distribution-caption{
+  color:var(--astra-muted);font-size:.8125rem;margin:var(--astra-space-3) 0 0
+}
+.natal-dignity{margin:0 0 var(--astra-space-3)}
+.natal-dignity-label{font-size:.8125rem;color:var(--astra-muted)}
+.natal-detail-body .natal-dignity ul{
+  display:flex;flex-wrap:wrap;gap:var(--astra-space-2);
+  list-style:none;margin:var(--astra-space-1) 0 0;padding:0
+}
+.natal-dignity li{
+  padding:4px 8px;border-radius:var(--astra-radius-sm);
+  background:var(--astra-secondary-surface);color:var(--astra-ink);
+  font:600 .875rem/1.4 var(--astra-font-body)
+}
 }

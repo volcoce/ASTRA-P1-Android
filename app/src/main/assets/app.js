@@ -1340,16 +1340,54 @@
       bodies+'</svg>';
   }
 
+  function renderNatalDistribution(chart){
+    const data=E.natalDistribution(chart.positions);
+    if(!data.total)return '';
+    const elements=[['fire','Feu'],['earth','Terre'],['air','Air'],['water','Eau']];
+    const modalities=[['cardinal','Cardinal'],['fixed','Fixe'],['mutable','Mutable']];
+    let offset=0;
+    const segments=elements.map(([key])=>{
+      const length=100*data.elements[key]/data.total;
+      const start=offset;offset+=length;
+      return length?'<circle class="natal-distribution-segment" data-element="'+key+'" cx="60" cy="60" r="46" pathLength="100" stroke-dasharray="'+length+' '+(100-length)+'" stroke-dashoffset="'+(-start)+'" transform="rotate(-90 60 60)"/>':'';
+    }).join('');
+    return '<section class="natal-distribution" aria-label="Répartition du thème natal">'+
+      '<div class="natal-distribution-grid">'+
+      '<figure class="natal-distribution-figure"><h3>Éléments</h3><div class="natal-element-layout">'+
+      '<svg class="natal-element-donut" viewBox="0 0 120 120" aria-hidden="true" focusable="false">'+
+      '<circle class="natal-distribution-track" cx="60" cy="60" r="46"/>'+segments+
+      '<text class="natal-distribution-total" x="60" y="58" text-anchor="middle">'+data.total+'</text>'+
+      '<text class="natal-distribution-unit" x="60" y="75" text-anchor="middle">astres</text></svg>'+
+      '<ul class="natal-element-legend">'+elements.map(([key,label])=>
+        '<li data-element="'+key+'"><span class="natal-element-dot" aria-hidden="true"></span><span>'+label+'</span><strong>'+data.elements[key]+'</strong></li>').join('')+
+      '</ul></div></figure>'+
+      '<figure class="natal-distribution-figure"><h3>Modalités</h3><ul class="natal-modality-list">'+
+      modalities.map(([key,label])=>'<li><span>'+label+'</span><strong>'+data.modalities[key]+'</strong>'+
+        '<svg viewBox="0 0 100 8" preserveAspectRatio="none" aria-hidden="true" focusable="false">'+
+        '<rect class="natal-modality-track" width="100" height="8" rx="2"/>'+
+        '<rect class="natal-modality-fill" width="'+(100*data.modalities[key]/data.total)+'" height="8" rx="2"/></svg></li>').join('')+
+      '</ul></figure></div>'+
+      '<p class="natal-distribution-caption">'+data.total+' astres · Sans pondération'+(chart.approximateNoon?' · Positions indicatives à midi':'')+'</p></section>';
+  }
+
+  function renderNatalDignities(body,longitude,approximate){
+    const dignity=E.natalDignities(body,longitude);
+    const labels=dignity.traditional?(dignity.statuses.length?dignity.statuses:['Aucun des quatre statuts']):['Non défini dans le système classique'];
+    return '<div class="natal-dignity"><span class="natal-dignity-label">Dignités classiques'+(approximate?' (indicatives)':'')+'</span>'+
+      '<ul>'+labels.map(label=>'<li>'+safe(label)+'</li>').join('')+'</ul></div>';
+  }
+
   function natalDetail(chart){
     const sel=natalSelection,h=chart.houses;
     const fmt=lng=>safe(chart.approximateNoon?'≈ '+E.formatSign(lng):E.formatSignExact(lng));
     if(!sel)return '<div class="natal-selected-empty">Sélectionne une planète, une maison ou un aspect pour afficher ses données et leur lecture astrologique.</div>';
-    let text=null,technical='',aspectHelp='';
+    let text=null,technical='',aspectHelp='',dignities='';
     if(sel.kind==='planet'){
       const lng=chart.positions[sel.id];
       if(!Number.isFinite(lng))return '';
       const house=h?E.houseOf(lng,h.cusps):null;
       text=E.describeNatalPlanet(sel.id,lng,house,chart.approximateNoon);
+      dignities=renderNatalDignities(sel.id,lng,chart.approximateNoon);
       const related=E.filterNatalAspects(chart.aspects||[],state.natalAspectFilter).filter(a=>a.a===sel.id||a.b===sel.id);
       technical='<p class="natal-value">Position '+fmt(lng)+(house?' · Maison '+house:' · Maisons indisponibles')+'</p>'+
         '<p>Aspects du filtre : '+related.length+'</p>'+
@@ -1385,7 +1423,7 @@
         E.describeNatalPillar(pillarBody,longitude):null;
       const symbolic='<div class="natal-symbolic"><b>Lecture astrologique traditionnelle</b><p>'+safe(text.convention)+'</p>'+aspectHelp+'</div>';
       return '<article class="natal-detail-body">'+
-        '<h3>'+safe(pillar?.title||text.title)+'</h3>'+
+        '<h3>'+safe(pillar?.title||text.title)+'</h3>'+dignities+
         (pillar?'<p class="natal-pillar-role">'+safe(pillar.role)+'</p>'+
           '<ul class="natal-pillar-keywords" aria-label="Mots-clés symboliques">'+pillar.keywords.map(word=>'<li>'+safe(word)+'</li>').join('')+'</ul>':symbolic)+
         '<details class="astra-disclosure natal-reading-more"><summary>Approfondir</summary><div class="astra-disclosure-body">'+
@@ -1396,7 +1434,7 @@
         '</div></details></article>';
     }
     return '<article class="natal-detail-body">'+
-      '<h3>'+safe(text.title)+'</h3>'+technical+
+      '<h3>'+safe(text.title)+'</h3>'+dignities+technical+
       '<div class="natal-fact"><b>Donnée calculée</b><p>'+safe(text.astronomy)+'</p></div>'+
       '<div class="natal-symbolic"><b>Lecture astrologique traditionnelle</b><p>'+safe(text.convention)+'</p>'+aspectHelp+'</div>'+
       '<div class="natal-reflection"><b>Pour réfléchir</b><p>'+safe(text.question)+'</p></div>'+
@@ -1644,7 +1682,7 @@
         overviewContent+
         '<div class="natal-home-actions natal-home-actions--primary"><button type="button" class="natal-main-action" data-profile-screen="explore"><span class="action-label"><strong>Explorer les positions</strong></span><span class="action-arrow" aria-hidden="true">→</span></button></div>'+
         '<div class="natal-home-actions natal-home-actions--secondary"><button type="button" class="natal-secondary-action" data-explore-transits="1"><span class="action-label"><strong>Comparer deux dates</strong></span><span class="action-arrow" aria-hidden="true">→</span></button></div>'+
-        contextSheet+
+        renderNatalDistribution(chart)+contextSheet+
         (h?.polarFallback?'<p class="notice">Maisons égales utilisées à cette latitude.</p>':'')+
         '</section>';
     }

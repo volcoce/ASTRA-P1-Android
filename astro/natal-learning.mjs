@@ -60,6 +60,43 @@ export function describeNatalPillar(body,longitude){
     keywords:pillar.entries[index].split('|')};
 }
 
+// Count only the ten natal bodies, without weighting, angles or transits.
+const NATAL_BODIES=Object.freeze(['Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto']);
+const ELEMENTS=Object.freeze(['fire','earth','air','water']);
+const MODALITIES=Object.freeze(['cardinal','fixed','mutable']);
+export function natalDistribution(positions){
+  const elements=Object.fromEntries(ELEMENTS.map(key=>[key,0]));
+  const modalities=Object.fromEntries(MODALITIES.map(key=>[key,0]));
+  let total=0;
+  for(const body of NATAL_BODIES){
+    const longitude=positions?.[body];
+    if(!Number.isFinite(longitude))continue;
+    const sign=Math.floor(mod(longitude)/30);
+    elements[ELEMENTS[sign%4]]++;
+    modalities[MODALITIES[sign%3]]++;
+    total++;
+  }
+  return {total,elements,modalities};
+}
+
+// Four classical sign-based dignities. Detriment and fall are opposite
+// domicile and exaltation. Modern outer-planet rulerships are not mixed in.
+const CLASSICAL_DIGNITIES=Object.freeze({
+  Sun:[[4],0],Moon:[[3],1],Mercury:[[2,5],5],Venus:[[1,6],11],
+  Mars:[[0,7],9],Jupiter:[[8,11],3],Saturn:[[9,10],6]
+});
+export function natalDignities(body,longitude){
+  if(!NATAL_BODIES.includes(body)||!Number.isFinite(longitude))throw Error('Position natale invalide');
+  const sign=Math.floor(mod(longitude)/30),rule=CLASSICAL_DIGNITIES[body];
+  if(!rule)return {traditional:false,statuses:[]};
+  const [domiciles,exaltation]=rule,statuses=[];
+  if(domiciles.includes(sign))statuses.push('Domicile');
+  if(sign===exaltation)statuses.push('Exaltation');
+  if(domiciles.some(index=>(index+6)%12===sign))statuses.push('Exil');
+  if((exaltation+6)%12===sign)statuses.push('Chute');
+  return {traditional:true,statuses};
+}
+
 /** Exact to the nearest arcsecond, with correct rounding at 29°59′59.5″. */
 export function formatSignExact(longitude){
   if(!Number.isFinite(longitude))throw Error('Longitude invalide');

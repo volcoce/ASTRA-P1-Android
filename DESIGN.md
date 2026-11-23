@@ -170,3 +170,8 @@ Les mêmes secteurs rétro pop servent aux roues natales, sans heure et doubles 
 Le ruban solaire couvre les **semaines visibles entières**, y compris les dates du mois précédent et suivant. Les jours adjacents conservent leur signe solaire et leur phase lunaire à midi local, obtenus par `dailySky` et `sunSignIngress` (cache léger), mais leurs couleurs sont atténuées avec `--solar-{fire,earth,air,water}-muted`. Le changement de saturation à la frontière d'un mois **ne crée jamais d'arrondi artificiel**. Les coins ne s'arrondissent que lors d'un véritable changement de signe; le partage 50/50 reste une convention visuelle de la journée de transit. Terre passe à un olive chaud (`#D9D6B8`), Eau à un bleu aquatique (`#BDD7E3`), également dans la roue zodiacale et les exports.
 
 Le bouton « + Événement » au-dessus de la grille a été supprimé : sélectionner une date ouvre sa fiche, qui conserve « Ajouter un événement ». Les données et sauvegardes personnelles ne changent pas.
+
+
+### Répartition et dignités natales
+
+Sous la roue et les actions existantes de Mon ciel, une seule section présente les éléments (anneau et légende) et les modalités (barres), calculés à partir des dix astres du thème actif, sans pondération ni angles. Si l'heure manque, les comptes sont indicatifs à midi. Les quatre dignités classiques par signe figurent uniquement dans la fiche de la planète sélectionnée (domicile, exaltation, exil, chute, éventuellement cumulés). Uranus, Neptune et Pluton n'ont pas de statut dans ce référentiel classique. Ces statuts sont symboliques et ne sont pas des scores.
