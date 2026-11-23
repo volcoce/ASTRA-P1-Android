@@ -280,6 +280,39 @@ if __name__ == '__main__':
             })""")
             assert all(x['width']>=48 and x['height']>=48 for x in nav_targets),nav_targets
             assert page.locator('.bottom-nav').evaluate('e=>parseFloat(getComputedStyle(e).gap)')==8
+            # Simulate Android's cutout/system-bar insets in CSS pixels.
+            # The background may bleed, but the H1 and navigation targets may not.
+            edge=page.evaluate("""() => {
+              const root=document.documentElement;
+              const values={'top':'32px','bottom':'30px','left':'0px','right':'0px'};
+              for(const [edge,pixels] of Object.entries(values)){
+                root.style.setProperty('--astra-native-inset-'+edge,pixels);
+              }
+              const shell=document.querySelector('.app-shell');
+              const intro=document.querySelector('.main > .screen-intro');
+              const nav=document.querySelector('.bottom-nav');
+              const r=nav.getBoundingClientRect();
+              const style=getComputedStyle(nav);
+              return {
+                safeTop:parseFloat(getComputedStyle(shell).paddingTop),
+                titleTop:intro.getBoundingClientRect().top,
+                navBottom:r.bottom,
+                viewportBottom:innerHeight,
+                navInset:parseFloat(style.paddingBottom),
+                firstTouchTop:nav.querySelector('button').getBoundingClientRect().top
+              };
+            }""")
+            assert edge['safeTop']==32,edge
+            assert edge['titleTop']>=32,edge
+            assert abs(edge['navBottom']-edge['viewportBottom'])<=1,edge
+            assert edge['navInset']==41,edge
+            assert edge['firstTouchTop']<edge['viewportBottom']-30,edge
+            page.evaluate("""() => {
+              for(const edge of ['top','bottom','left','right']){
+                document.documentElement.style.removeProperty('--astra-native-inset-'+edge);
+              }
+            }""")
+
             assert page.locator('[data-tab="month"]').get_attribute('aria-label')=='Ce mois'
             assert page.locator('[data-tab="calendar"]').get_attribute('aria-label')=='Calendrier'
             assert page.locator('.bottom-nav [data-tab="journal"]').count()==0
