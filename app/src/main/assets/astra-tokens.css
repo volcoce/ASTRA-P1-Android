@@ -126,29 +126,29 @@
   --astra-shadow-soft:0 5px 18px #1E404F18;
   --astra-motion:150ms cubic-bezier(.2,.75,.35,1);
 
-  /* Single, daylight zodiac palette for wheel, solar ribbon and local exports.
-     Night-mode ribbons use separate, darker --solar-*-bg values. */
-  --astra-zodiac-fire:#F4C78F;
-  --astra-zodiac-earth:#C8C36A;
-  --astra-zodiac-air:#8FB9D6;
-  --astra-zodiac-water:#5B9BC7;
+  /* Second supplied reference: Fire red-orange, Air yellow, Water blue, Earth green.
+     One semantic palette feeds wheel, solar ribbon and SVG exports. */
+  --astra-zodiac-fire:#FF3D14;
+  --astra-zodiac-earth:#46CD17;
+  --astra-zodiac-air:#F7FC35;
+  --astra-zodiac-water:#159BF2;
 
-  /* Calendar sign ribbon: muted backgrounds, not day-card fills. */
-  --element-fire:#E6692A;
-  --element-earth:#988A20;
-  --element-air:#82AAC7;
-  --element-water:#286B9C;
+  /* Calendar ribbon uses these same hues, with subdued outside-month variants. */
+  --element-fire:var(--astra-zodiac-fire);
+  --element-earth:var(--astra-zodiac-earth);
+  --element-air:var(--astra-zodiac-air);
+  --element-water:var(--astra-zodiac-water);
   --solar-fire-bg:var(--astra-zodiac-fire);
   --solar-earth-bg:var(--astra-zodiac-earth);
   --solar-air-bg:var(--astra-zodiac-air);
   --solar-water-bg:var(--astra-zodiac-water);
-  --solar-fire-muted:#E4D1BC;
-  --solar-earth-muted:#D9D6B8;
-  --solar-air-muted:#C7D9E5;
-  --solar-water-muted:#BDD7E3;
-  --solar-fire-ink:#5C3722;
-  --solar-earth-ink:#45411F;
-  --solar-air-ink:#23485F;
+  --solar-fire-muted:#EFB8A8;
+  --solar-earth-muted:#B9E5AF;
+  --solar-air-muted:#F0F3AE;
+  --solar-water-muted:#A4D6F5;
+  --solar-fire-ink:#101F2A;
+  --solar-earth-ink:#102A34;
+  --solar-air-ink:#102A34;
   --solar-water-ink:#102A34;
 }
 :root[data-astra-theme="dark"] {
@@ -203,18 +203,19 @@
   --astra-transit:#F59A80;
   --astra-shadow-pop:3px 3px 0 #050E14;
   --astra-shadow-soft:0 6px 20px #00000040;
-  --solar-fire-bg:#8C5A37;
-  --solar-earth-bg:#6E6A33;
-  --solar-air-bg:#3E6E90;
-  --solar-water-bg:#315E85;
-  --solar-fire-muted:#4C4038;
-  --solar-earth-muted:#4A4936;
-  --solar-air-muted:#334756;
-  --solar-water-muted:#315674;
-  --solar-fire-ink:#FFF1E5;
-  --solar-earth-ink:#F5F0C8;
-  --solar-air-ink:#E7F4FF;
-  --solar-water-ink:#F8EFD5;
+  /* Dark surfaces preserve each elemental hue; cream text reaches WCAG AA. */
+  --solar-fire-bg:#96331D;
+  --solar-earth-bg:#326B1A;
+  --solar-air-bg:#776A0D;
+  --solar-water-bg:#185E9E;
+  --solar-fire-muted:#552B24;
+  --solar-earth-muted:#24452C;
+  --solar-air-muted:#514E21;
+  --solar-water-muted:#264664;
+  --solar-fire-ink:var(--astra-plate-cream);
+  --solar-earth-ink:var(--astra-plate-cream);
+  --solar-air-ink:var(--astra-plate-cream);
+  --solar-water-ink:var(--astra-plate-cream);
   --atlas-night:#101F2A;
   --atlas-sea:#82AAC7;
   --atlas-gold:#F0BE57;

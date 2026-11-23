@@ -99,3 +99,10 @@ Le modèle partagé `DayEventSummary` (`.astra-event-day-list`, `.astra-event-da
 Pour le mois en cours, les journées antérieures à aujourd'hui (dans le fuseau du profil) ne sont pas proposées dans l'aperçu, mais restent disponibles dans le calendrier ; pour les mois passés ou futurs, la liste commence au début du mois. La sélection est chronologique et garde au maximum cinq journées, quel que soit le nombre d'aspects sur chacune. Chaque ligne montre une date, le nombre d'événements et un court résumé de deux intitulés maximum ; une Nouvelle/Pleine Lune peut être signalée par une icône discrète. Cliquer sur une ligne ouvre la journée dans le calendrier.
 
 Il n'y a **pas de développement de sous-liste dans « Ce mois »** : « Ce jour » et « Calendrier » restent les vues de détail. Les tests interdisent à la fois les anciennes listes individuelles et les CSS locaux réintroduisant leur apparence.
+
+### Couleurs des quatre éléments
+
+La **deuxième image fournie** est la référence pour l'ensemble des écrans.
+Feu rouge-orangé (`#FF3D14`), Air jaune (`#F7FC35`), Eau bleu (`#159BF2`), Terre vert (`#46CD17`).
+
+`astra-tokens.css` est le propriétaire unique des tokens `--astra-zodiac-fire/air/water/earth`. Les secteurs de la roue, l'export SVG, le ruban solaire et les bandes du Soleil réutilisent exactement la même correspondance. Les jours hors du mois ont une variante désaturée **du même élément**. Les variantes sombres abaissent la luminosité sans échanger de couleurs ; elles utilisent le texte crème pour préserver un contraste WCAG AA. Éviter tout hexadécimal élémentaire local.

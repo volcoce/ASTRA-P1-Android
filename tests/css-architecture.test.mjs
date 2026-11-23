@@ -111,11 +111,17 @@ test('Shared card geometry spans Journal, natal and event details',()=>{
  assert.doesNotMatch(read('style.css'),/\.natal-home\{\s*padding:/);
  assert.doesNotMatch(read('atlas-ui.css'),/\.natal-settings\.card,\.natal-explore\.card,\.natal-compare\.card\{/);
 });
-test('Water palette has one source and no duplicates in feature CSS',()=>{
+test('Four-element palette has one source and no duplicates in feature CSS',()=>{
  const tokens=read('astra-tokens.css'),wheel=read('astra-p4-wheel.css');
- assert.match(tokens,/--astra-zodiac-water:#5B9BC7/);
- assert.match(tokens,/--solar-water-muted:#BDD7E3/);
- assert.match(tokens,/--solar-earth-muted:#D9D6B8/);
+ for(const [element,hue] of Object.entries({
+   fire:'#FF3D14',air:'#F7FC35',water:'#159BF2',earth:'#46CD17'
+ })){
+   assert.ok(tokens.includes('--astra-zodiac-'+element+':'+hue),element+' wheel color');
+   assert.ok(tokens.includes('--solar-'+element+'-bg:var(--astra-zodiac-'+element+')'),element+' ribbon');
+   assert.ok(tokens.includes('--element-'+element+':var(--astra-zodiac-'+element+')'),element+' alias');
+ }
+ assert.match(tokens,/--solar-water-muted:#A4D6F5/);
+ assert.match(tokens,/--solar-earth-muted:#B9E5AF/);
  assert.match(wheel,/zodiac-element-water\{fill:var\(--astra-zodiac-water\)\}/);
  assert.match(read('app.js'),/zodiacFill\('water'\)/);
  assert.doesNotMatch(read('solar-ribbon.css'),/:root\s*\{[^}]*--solar-water-bg/s);
