@@ -429,14 +429,16 @@ test('Wheel remains interactive and legible without any degree annotations',()=>
  const app=read('app.js'),wheelCss=read('astra-p4-wheel.css');
  const detail=app.slice(app.indexOf('  function wheelSvg(chart,quiet=false)'),
    app.indexOf('  function natalDetail(chart)'));
- assert.match(app,/function wheelPlanetLabel\(body,lng,placed,asc,/);
+ assert.match(app,/function wheelPlanetLabel\(body,lng,asc,/);
  assert.match(app,/wheelZodiacGlyph=index=>zodiacSymbols\[index\]\+'\\uFE0E'/);
  assert.match(detail,/\.slice\(0,6\)/);
- assert.match(detail,/E\.layoutPlanetLabels\(chart\.positions,16\)/);
+ assert.match(detail,/wheelLabels\(chart\.positions,asc\)/);
+ assert.doesNotMatch(app,/layoutPlanetLabels|groupWheelPlanets|wheelClusterLabel|wheelGroupedLabels/);
+ assert.match(app,/data-wheel-radius=/);
  assert.match(app,/data-true-longitude=/);
  assert.match(app,/data-label-longitude=/);
  assert.match(app,/isOverview\?\(h\?wheelSvg\(chart,state\.natalView!=='complete'\)/);
- assert.match(wheelCss,/\.natal-leader path\{/);
+
  assert.match(wheelCss,/\.zodiac-symbol\{[\s\S]*?font-family:"Noto Sans Symbols 2"/);
  assert.doesNotMatch(app,/wheelDegreeText|wheelDegreeTicks|wheel-planet-degree|wheel-degree-tick/);
  for(const file of CSS_SOURCES){
