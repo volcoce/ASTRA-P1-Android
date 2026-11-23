@@ -91,3 +91,11 @@ Cette itération retire les deux feuilles P5/P6, retire les exceptions de naviga
 
 Les temps sont alignés à droite, les événements sont triés avant affichage, et l’information d’angle se lit sous le titre plutôt qu’être répétée en surtitre. Aucun CSS de page ne doit repeindre cette structure ou ajouter une deuxième carte. Un test Chromium force un jeu de **cinq événements** pour vérifier l’ouverture, la fermeture, l’alignement des heures et l’absence de débordement à 320, 393 et 1280 px.
 
+
+### Résumés de journées dans « Ce mois »
+
+Le modèle partagé `DayEventSummary` (`.astra-event-day-list`, `.astra-event-day-row`, `.astra-event-day-date`, etc.) appartient exclusivement à `astra-components.css`. La vue « Ce mois » n'affiche plus les cinq premiers **événements**, mais jusqu'aux cinq premières **journées** contenant des événements. Les regroupements utilisent les dates civiles déjà produites par les calculs mensuels dans le fuseau du profil.
+
+Pour le mois en cours, les journées antérieures à aujourd'hui (dans le fuseau du profil) ne sont pas proposées dans l'aperçu, mais restent disponibles dans le calendrier ; pour les mois passés ou futurs, la liste commence au début du mois. La sélection est chronologique et garde au maximum cinq journées, quel que soit le nombre d'aspects sur chacune. Chaque ligne montre une date, le nombre d'événements et un court résumé de deux intitulés maximum ; une Nouvelle/Pleine Lune peut être signalée par une icône discrète. Cliquer sur une ligne ouvre la journée dans le calendrier.
+
+Il n'y a **pas de développement de sous-liste dans « Ce mois »** : « Ce jour » et « Calendrier » restent les vues de détail. Les tests interdisent à la fois les anciennes listes individuelles et les CSS locaux réintroduisant leur apparence.

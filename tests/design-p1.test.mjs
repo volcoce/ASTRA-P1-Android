@@ -62,3 +62,18 @@ test('P1 handles compact screens and both themes',()=>{
   assert.match(p1,/:root\[data-astra-theme="dark"\]/);
   assert.ok(!p1.includes('position:fixed'));
 });
+
+
+test('P1 month overview groups future days and preserves major lunar phase cards',()=>{
+ const month=slice('  function monthOverview() {','  function personalCalendarWeek(');
+ assert.match(month,/const eventDays=records\.map/);
+ assert.match(month,/const daysWithEvents=eventDays\.length/);
+ assert.match(month,/featuredDays=upcomingDays\.slice\(0,5\)/);
+ assert.match(month,/isCurrentMonth\?'Prochains jours avec événements':'Journées du mois'/);
+ assert.match(month,/featuredDays\.map\(\(\{day,events\}\)=>/);
+ assert.match(month,/majorMoon\(events\)/);
+ assert.match(month,/class="astra-month-phase /);
+ assert.match(month,/data-month-open-day/);
+ assert.match(month,/class="astra-event-day-list"/);
+ assert.doesNotMatch(month,/Premiers événements du mois/);
+});

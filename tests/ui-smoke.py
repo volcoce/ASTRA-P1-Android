@@ -978,7 +978,16 @@ if __name__ == '__main__':
                     assert page.locator('.astra-month-phase.new').count()==1
                     assert page.locator('.astra-month-phase.full').count()==1
                     assert 'Pleine Lune en Gémeaux' in page.locator('.astra-month-phase.full').inner_text()
-                    assert page.locator('.astra-month-event').count()==5
+                    assert page.locator('.astra-month-event').count()==0
+                    assert page.locator('.astra-event-day-list').count()==1
+                    rows=page.locator('.astra-event-day-row')
+                    assert rows.count()<=5
+                    days=rows.evaluate_all("(els)=>els.map(e=>e.dataset.monthOpenDay)")
+                    assert days==sorted(set(days)),days
+                    for item in rows.all():
+                        assert item.locator('.astra-event-day-date strong').inner_text().isdigit()
+                        assert 'événement' in item.locator('.astra-event-day-heading').inner_text()
+                        assert item.locator('.astra-event-day-preview').inner_text()
                     assert page.locator('.calendar').count()==0
                     assert page.locator('.astra-lunar-milestone').count()==0
                     capture('month-320')
@@ -998,6 +1007,25 @@ if __name__ == '__main__':
             page.locator('.astra-month-navigation [data-month="-1"]').click()
             page.wait_for_timeout(140)
             assert page.locator('.astra-month-navigation h2').inner_text()!=initial_month
+            assert page.locator('#monthEventsTitle').inner_text()=='Journées du mois'
+            rows=page.locator('.astra-event-day-row')
+            assert rows.count()==5
+            grouped_days=rows.evaluate_all("(els)=>els.map(e=>e.dataset.monthOpenDay)")
+            assert grouped_days==sorted(set(grouped_days)),grouped_days
+            assert len(grouped_days)==5
+            assert all('événement' in text for text in rows.locator('.astra-event-day-heading').all_inner_texts())
+            first_day=grouped_days[0]
+            rows.first.click()
+            assert page.locator('[data-tab="calendar"]').get_attribute('aria-current')=='page'
+            assert page.locator('.calendar .day.selected').get_attribute('data-day')==first_day
+            # Calendar is exhaustive: the monthly list is only a preview by day.
+            page.locator('[data-tab="month"]').click()
+            assert page.locator('.astra-month-navigation h2').inner_text()==initial_month
+            page.locator('.astra-month-navigation [data-month="1"]').click()
+            page.wait_for_timeout(140)
+            assert page.locator('#monthEventsTitle').inner_text()=='Journées du mois'
+            future_days=page.locator('.astra-event-day-row').evaluate_all("(els)=>els.map(e=>e.dataset.monthOpenDay)")
+            assert len(future_days)==5 and future_days==sorted(set(future_days)),future_days
             # "Ce jour" is not allowed to inherit the browsed month.
             page.locator('[data-tab="today"]').click()
             page.locator('.astra-day-hero').wait_for(timeout=2500)
@@ -1007,6 +1035,16 @@ if __name__ == '__main__':
             page.locator('[data-tab="month"]').click()
             page.locator('.astra-month-hero').wait_for(timeout=2500)
             assert page.locator('.astra-month-navigation h2').inner_text()==initial_month
+            assert page.locator('#monthEventsTitle').inner_text()=='Prochains jours avec événements'
+            month_group_days=page.locator('.astra-event-day-row').evaluate_all("(els)=>els.map(e=>e.dataset.monthOpenDay)")
+            assert month_group_days==sorted(set(month_group_days)),month_group_days
+            assert len(month_group_days)<=5
+            # A busy date (23 November) still occupies just ONE day row.
+            if '2026-11-23' in month_group_days:
+                assert month_group_days.count('2026-11-23')==1
+                crowded=page.locator('.astra-event-day-row[data-month-open-day="2026-11-23"]')
+                assert crowded.locator('.astra-event-day-heading').inner_text()=='5 événements'
+                assert crowded.locator('.astra-event-day-preview').inner_text().count(' · ')>=1
             chosen=page.locator('.astra-month-phase.new').get_attribute('data-month-open-day')
             page.locator('.astra-month-phase.new').click()
             assert page.locator('[data-tab="calendar"]').get_attribute('aria-current')=='page'

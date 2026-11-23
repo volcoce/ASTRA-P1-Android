@@ -160,3 +160,40 @@ test('Today EventList is single-surface and controlled by one accessible footer'
   });
  }
 });
+
+
+test('Monthly event summaries are grouped by day before applying the five-row limit',()=>{
+ const app=read('app.js'),shared=read('astra-components.css');
+ const p1=read('astra-p1-screens.css'),legacy=read('atlas-ui.css');
+ const month=app.slice(app.indexOf('  function monthOverview() {'),
+   app.indexOf('  function personalCalendarWeek('));
+ assert.match(month,/eventDays=records\.map\(/);
+ assert.match(month,/upcomingDays=isCurrentMonth\?eventDays\.filter/);
+ assert.match(month,/featuredDays=upcomingDays\.slice\(0,5\)/);
+ assert.match(month,/const profileToday=/);
+ assert.match(month,/majorMoon=events=>/);
+ assert.match(month,/dayPreview=events=>/);
+ assert.match(month,/data-month-open-day=/);
+ assert.match(month,/astra-event-day-row/);
+ assert.match(month,/Prochains jours avec événements/);
+ assert.match(month,/Journées du mois/);
+ assert.doesNotMatch(month,/exactEvents\.slice\(0,5\)/);
+ assert.doesNotMatch(month,/Premiers événements du mois/);
+ for(const css of [legacy,p1]){
+   assert.doesNotMatch(css,/\.astra-month-event(?:s|-day|-text)?(?:\s*[{>,:]|\.)/);
+ }
+ for(const classname of ['astra-event-day-list','astra-event-day-row',
+   'astra-event-day-date','astra-event-day-content','astra-event-day-heading',
+   'astra-event-day-preview','astra-event-day-moon','astra-event-day-arrow']){
+   assert.ok(shared.includes('.'+classname),classname+' owned by shared component CSS');
+ }
+ for(const file of CSS_SOURCES.filter(file=>file!=='astra-components.css')){
+   postcss.parse(read(file),{from:file}).walkRules(rule=>{
+     if(!rule.selector.includes('.astra-event-day-'))return;
+     rule.walkDecls(decl=>{
+       assert.doesNotMatch(decl.prop,/^(?:padding|background|border|margin|min-height)/,
+         file+' must not override DayEventSummary '+rule.selector);
+     });
+   });
+ }
+});
