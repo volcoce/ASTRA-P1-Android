@@ -414,7 +414,7 @@
     const startLabel=caption.format(new Date(monday+'T12:00:00Z'));
     const endLabel=caption.format(new Date(last+'T12:00:00Z'));
     return '<section class="astra-week" aria-label="Choisir un jour de la semaine">'+
-      '<div class="astra-week-title"><span class="astra-week-caption">Choisir une date</span>'+
+      '<div class="astra-week-title">'+
       '<div class="astra-week-controls"><button type="button" class="arrow" data-week-shift="-7" aria-label="Semaine précédente">‹</button>'+
       '<span>'+safe(startLabel)+' – '+safe(endLabel)+'</span>'+
       '<button type="button" class="arrow" data-week-shift="7" aria-label="Semaine suivante">›</button></div></div>'+
