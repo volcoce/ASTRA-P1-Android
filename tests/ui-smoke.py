@@ -649,16 +649,14 @@ if __name__ == '__main__':
                       'Jupiter':123,'Saturn':141,'Uranus':175,'Neptune':203,'Pluto':270}
             for item in labels:
                 assert abs(item['actual']-expected[item['body']])<1e-5
-            # The original solver spreads the 9-degree Moon/Mercury pair symmetrically.
+            # The original 14-degree solver spreads the adjacent Sun/Moon/Mercury
+            # group together, while leaving the isolated bodies unchanged.
+            expected_labels={**expected,'Sun':20/3,'Moon':62/3,'Mercury':104/3}
             for item in labels:
-                shift=abs((item['label']-item['actual']+180)%360-180)
-                if item['body'] in ('Moon','Mercury'):
-                    assert abs(shift-2.5)<1e-5, item
-                else:
-                    assert shift<1e-5,item
+                assert abs(item['label']-expected_labels[item['body']])<1e-5,item
             ordered=sorted(x['label'] for x in labels)
             assert min((ordered[(i+1)%len(ordered)]-v)%360 for i,v in enumerate(ordered))>=14-1e-5
-            assert page.locator('.natal-home .wheel-planet-leader').count()==2
+            assert page.locator('.natal-home .wheel-planet-leader').count()==3
             assert page.locator('.natal-home .wheel-true-anchor').count()==10
             assert len({x['radius'] for x in labels})==1,labels
             assert page.locator('.wheel-cluster-hit').count()==0
