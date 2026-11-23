@@ -152,12 +152,19 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
 :root[data-astra-theme="dark"] .calendar .astra-calendar-date-week .day{color:var(--color-cream)}
 :root[data-astra-theme="dark"] .calendar .astra-calendar-date-week .day.selected{color:var(--color-cream)}
 @media(max-width:360px){
-  .bottom-nav .nav-label{font-size:10px}
-  .bottom-nav .nav{min-height:52px;padding-inline:1px}
+  .bottom-nav .nav-label{font-size:.75rem}
+  .bottom-nav .nav{min-height:var(--astra-control-min);padding-inline:1px}
 }
 @media(orientation:landscape) and (max-height:500px){
-  .bottom-nav .nav{min-height:46px;gap:1px}
+  .bottom-nav .nav{min-height:var(--astra-control-min);gap:2px;padding-block:3px}
   .bottom-nav .nav-ico,.bottom-nav .nav-ico svg{width:19px;height:19px}
+}
+/* Immediate pressed feedback without changing the selected state or layout. */
+@media(hover:none){
+  :is(.bottom-nav .nav,.arrow,.astra-settings-choice,.ghost,.primary,
+  .natal-zoom button,.natal-filter-items button,.astra-week-day,.calendar .day):active:not(:disabled){
+    filter:brightness(.94)
+  }
 }
 @media(prefers-reduced-motion:reduce){
   .bottom-nav .nav{transition:none!important}
