@@ -166,7 +166,7 @@
     ['http:','https:'].includes(window.location.protocol) &&
     typeof window.history?.pushState === 'function';
   const routeTabs = new Set(['today','month','calendar','journal','profile']);
-  const routeScreens = new Set(['overview','explore','compare','settings','progressions','composite']);
+  const routeScreens = new Set(['overview','explore','compare','settings']);
   function validRouteDay(value){
     if(!/^\d{4}-\d{2}-\d{2}$/.test(value||'')||+value.slice(0,4)<1900||+value.slice(0,4)>2100)return false;
     const date=new Date(value+'T12:00:00Z');
@@ -239,29 +239,23 @@
   let calendarInterval = null; // Only shown when a multi-day event bar is selected.
   let overviewPane='wheel';
   let transitRange='all';
-  let progressionDay=isoDay(new Date());
-  let compositeDraft={date:'',time:'',city:'',timeKnown:true,place:null};
-  let compositeSearch={options:[],error:'',loading:false,requestId:0,open:false,active:-1};
-  let compositeResult=null;
   let result = null, error='', busy=false, calcToken=0, openDetail=null, journalDraft=null, journalDraftDate='', searchTerm='';
   // Non-persisted form state. Only a selected city can supply coordinates/timezone.
   let birthDraft=null;
   let placeSearch={options:[],selected:null,loading:false,error:'',needFold:false,requestId:0,open:false,active:-1};
-  let birthValidation=null, compositeValidation=null;
+  let birthValidation=null;
   const validationAttrs=(field,error)=>error?.field===field?
-    ' aria-invalid="true"'+(['birthCity','secondCity'].includes(field)?'':
+    ' aria-invalid="true"'+(field==='birthCity'?'':
       ' aria-describedby="'+field+'Error"'):'';
   const validationMessage=(field,error)=>error?.field===field?
     '<p id="'+field+'Error" class="form-field-error" role="alert">'+safe(error.message)+'</p>':'';
   function showValidationError(scope,field,message){
-    if(scope==='birth')birthValidation={field,message};
-    else compositeValidation={field,message};
+    birthValidation={field,message};
     render();
     $(field)?.focus({preventScroll:false});
   }
   function clearValidationError(field){
     if(birthValidation?.field===field)birthValidation=null;
-    if(compositeValidation?.field===field)compositeValidation=null;
     const control=$(field);
     control?.removeAttribute('aria-invalid');
     control?.removeAttribute('aria-describedby');
@@ -283,23 +277,15 @@
     if($('birthCity'))d.city=$('birthCity').value;
     if($('fold'))d.fold=$('fold').value===''?null:Number($('fold').value);
   }
-  function captureCompositeForm(){
-    const d=compositeDraft;
-    if($('secondDate'))d.date=$('secondDate').value;
-    if($('secondTime'))d.time=$('secondTime').value;
-    if($('secondCity'))d.city=$('secondCity').value;
-    if($('secondUnknownTime'))d.timeKnown=!$('secondUnknownTime').checked;
-  }
-  // One accessible city autocomplete for the birth and composite forms.
   // Presets don't claim any coordinates: every selection resolves through the
   // existing geocoding provider, which supplies verified timezone information.
   const cityPresets=['Paris','Lyon','Marseille','Toulouse','Bordeaux','Lille','Nantes','Nice'];
-  const cityTimers={birth:null,composite:null};
-  const cityControllers={birth:null,composite:null};
-  const cityState=kind=>kind==='birth'?placeSearch:compositeSearch;
-  const cityInputId=kind=>kind==='birth'?'birthCity':'secondCity';
-  const cityText=kind=>kind==='birth'?draft().city:compositeDraft.city;
-  const citySelected=kind=>kind==='birth'?placeSearch.selected:compositeDraft.place;
+  const cityTimers={birth:null};
+  const cityControllers={birth:null};
+  const cityState=()=>placeSearch;
+  const cityInputId=()=>'birthCity';
+  const cityText=()=>draft().city;
+  const citySelected=()=>placeSearch.selected;
   function cancelCityLookup(kind){
     const state=cityState(kind);
     state.requestId++;
@@ -369,31 +355,20 @@
   }
   function chooseCity(kind,place){
     if(!place)return;
-    if(kind==='birth')captureBirthForm();
-    else captureCompositeForm();
+    captureBirthForm();
     const state=cityState(kind);
     cancelCityLookup(kind);
     state.options=[];state.error='';state.loading=false;state.open=false;state.active=-1;
-    if(kind==='birth'){
-      birthValidation=null;state.selected=place;state.needFold=false;
-      birthDraft.fold=null;birthDraft.city=place.label;
-    }else{
-      compositeValidation=null;compositeDraft.place=place;
-      compositeDraft.city=place.label;compositeResult=null;
-    }
+    birthValidation=null;state.selected=place;state.needFold=false;
+    birthDraft.fold=null;birthDraft.city=place.label;
     render();
     $(cityInputId(kind))?.focus({preventScroll:true});
   }
   function chooseCityPreset(kind,name){
     if(!cityPresets.includes(name))return;
-    if(kind==='birth'){
-      captureBirthForm();birthValidation=null;
-      placeSearch.selected=null;placeSearch.needFold=false;
-      birthDraft.fold=null;birthDraft.city=name;
-    }else{
-      captureCompositeForm();compositeValidation=null;
-      compositeDraft.place=null;compositeDraft.city=name;compositeResult=null;
-    }
+    captureBirthForm();birthValidation=null;
+    placeSearch.selected=null;placeSearch.needFold=false;
+    birthDraft.fold=null;birthDraft.city=name;
     const input=$(cityInputId(kind));
     if(input){input.value=name;input.focus({preventScroll:true});}
     queueCityLookup(kind,true);
@@ -1539,7 +1514,6 @@
 
   function renderNatalChart(chart){
     const isOverview=profileScreen==='overview',isSettings=profileScreen==='settings',isCompare=profileScreen==='compare';
-    const isProgressions=profileScreen==='progressions',isComposite=profileScreen==='composite';
     const h=chart.houses,isFull=state.natalView==='complete'||profileScreen==='explore',isTropical=state.natalZodiac==='tropical';
     const uncertain=chart.approximateNoon===true;
     const fmt=lng=>safe(uncertain?'≈ '+E.formatSign(lng):isFull?E.formatSignExact(lng):E.formatSign(lng));
@@ -1673,9 +1647,6 @@
         '<div class="natal-home-actions natal-home-actions--primary"><button type="button" class="natal-main-action" data-profile-screen="explore"><span class="action-label"><strong>Explorer les positions</strong><small>Planètes, signes et maisons</small></span><span class="action-arrow" aria-hidden="true">→</span></button></div>'+
         viewTabs+overviewContent+contextSheet+glossary+
         '<div class="natal-home-actions natal-home-actions--secondary"><button type="button" class="natal-secondary-action" data-explore-transits="1"><span class="action-label"><strong>Comparer deux dates</strong><small>Le ciel d’un autre jour</small></span><span class="action-arrow" aria-hidden="true">→</span></button></div>'+
-        '<details class="natal-extras astra-disclosure"><summary>Outils astrologiques avancés</summary>'+
-        '<div class="astra-disclosure-body astra-disclosure-actions"><button type="button" data-profile-screen="progressions">Progressions secondaires →</button>'+
-        '<button type="button" data-profile-screen="composite">Carte composite →</button></div></details>'+
         (h?.polarFallback?'<p class="notice">Maisons égales utilisées à cette latitude.</p>':'')+
         '</section>';
     }
@@ -1690,53 +1661,6 @@
         '<p class="natal-home-hint">Sélectionne une planète sur la roue pour en consulter les détails.</p></div></details>'+
         (transitError?'<p class="notice" role="alert">'+safe(transitError)+'</p>':'')+
         '</section>';
-    }
-    if(isProgressions){
-      let prog=null,err='';
-      try{
-        const target=E.localToUtc(progressionDay,'12:00',detectedZone);
-        prog=E.secondaryProgressions(state.profile,target,state.natalZodiac);
-      }catch(error){err=error?.message||'Calcul des progressions impossible';}
-      return '<section class="card natal-card astra-reading-card natal-progressions" id="natalChart">'+
-        '<div class="natal-subpage-heading">'+pageBack+'<h2 class="card-title">Progressions secondaires</h2>'+
-        '<p class="natal-section-lead">Convention astrologique : un jour d’éphéméride après la naissance représente une année de vie. Ce n’est pas une prévision scientifique.</p></div>'+
-        '<div class="natal-progress-controls"><label for="progressionDay">Date à étudier</label>'+
-        '<input id="progressionDay" type="date" min="1900-01-01" max="2100-12-31" value="'+safe(progressionDay)+'"></div>'+
-        (err?'<p class="notice" role="alert">'+safe(err)+'</p>':prog?
-          '<p class="natal-section-lead">Instant d’éphéméride correspondant : '+safe(new Intl.DateTimeFormat('fr-FR',{dateStyle:'medium',timeZone:'UTC'}).format(new Date(prog.progressedAt)))+'.</p>'+
-          '<div class="natal-positions">'+Object.entries(prog.positions).map(([body,lng])=>
-            '<div class="natal-position natal-progression-row"><span class="position-planet">'+natalGlyphs[body]+' '+safe(planets[body])+'</span>'+
-            '<span class="position-value">'+safe(E.formatSignExact(lng))+'</span></div>').join('')+'</div>'+
-          (prog.moonUncertain?'<p class="natal-warning">Lune non présentée sans heure de naissance.</p>':''):'')+
-        '<p class="tiny">Sans maisons progressées, sans thèmes prédictifs automatiques. Les longitudes sont calculées au moyen de la convention jour-pour-an.</p></section>';
-    }
-    if(isComposite){
-      const d=compositeDraft;
-      const compositeCityError=compositeValidation?.field==='secondCity'?compositeValidation:
-        compositeSearch.error?{field:'secondCity',message:compositeSearch.error}:null;
-      return '<section class="card natal-card astra-reading-card natal-composite" id="natalChart">'+
-        '<div class="natal-subpage-heading">'+pageBack+'<h2 class="card-title">Carte composite</h2>'+
-        '<p class="natal-section-lead">Milieux zodiacaux calculés entre deux thèmes de naissance. Les positions composites sont conventionnelles : ce n’est pas une carte du ciel à un instant réel.</p></div>'+
-        '<form id="compositeForm" novalidate><h3 class="natal-subtitle">Seconde personne</h3>'+
-        '<div class="field-grid"><div class="field"><label for="secondDate">Date de naissance</label>'+
-        '<input type="date" id="secondDate" required min="1900-01-01" max="2100-12-31" value="'+safe(d.date)+'"'+validationAttrs('secondDate',compositeValidation)+'>'+validationMessage('secondDate',compositeValidation)+'</div>'+
-        '<div class="field"><label for="secondTime">Heure de naissance</label>'+
-        '<input type="time" id="secondTime" '+(d.timeKnown?'required':'disabled')+' value="'+safe(d.time)+'"'+validationAttrs('secondTime',compositeValidation)+'>'+validationMessage('secondTime',compositeValidation)+'</div></div>'+
-        '<label class="unknown-time-toggle" for="secondUnknownTime"><input type="checkbox" id="secondUnknownTime" '+(!d.timeKnown?'checked':'')+'> Je ne connais pas l’heure</label>'+
-        '<div class="field"><label for="secondCity">Ville de naissance</label>'+
-        '<div class="astra-city-picker" data-city-picker="composite"><div class="city-search"><input type="search" id="secondCity" autocomplete="off" required role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-expanded="false" aria-controls="secondCityOptions" aria-describedby="secondCityStatus'+(compositeCityError?' secondCityError':'')+'" value="'+safe(d.city)+'" placeholder="Choisir ou rechercher une ville…"'+validationAttrs('secondCity',compositeCityError)+'></div>'+
-        '<div class="astra-city-menu" id="secondCityOptions" role="listbox" aria-label="Villes proposées" hidden></div>'+
-        '<p class="astra-city-status" id="secondCityStatus" role="status" aria-live="polite"></p></div></div>'+
-        validationMessage('secondCity',compositeCityError)+
-        (d.place?'<p class="city-confirmed">Ville confirmée · '+safe(d.place.label)+'</p>':'<p class="field-help">Sélectionne la ville trouvée dans les résultats.</p>')+
-        '<button type="submit" class="primary full">Calculer la carte composite</button></form>'+
-        (compositeResult?'<section class="natal-composite-result" aria-label="Positions composites">'+
-          '<h3>Positions composites</h3><div class="natal-positions">'+Object.entries(compositeResult.positions).map(([body,lng])=>
-            '<div class="natal-position natal-progression-row"><span class="position-planet">'+natalGlyphs[body]+' '+safe(planets[body])+'</span>'+
-            '<span class="position-value">'+safe(E.formatSignExact(lng))+'</span></div>').join('')+'</div>'+
-          (compositeResult.moonUncertain?'<p class="natal-warning">Lune exclue : au moins une heure de naissance est inconnue.</p>':'')+
-          '<p class="tiny">Maisons et angles non calculés : des milieux planétaires ne suffisent pas à les déterminer.</p></section>':'')+
-        '<p class="tiny">Les données de la seconde personne ne sont pas enregistrées dans le journal ni dans le profil ASTRA.</p></section>';
     }
     if(isCompare){
       const contacts=transitSnapshot?.contacts||[];
@@ -1933,12 +1857,10 @@
           chart?'Personnalise ta carte et retrouve tes informations.':'Entre ta date et ta ville de naissance pour commencer.')
       : header(profileScreen==='explore'?'Comprendre mon thème':
           profileScreen==='compare'?'Comparer deux dates':
-          profileScreen==='progressions'?'Progressions secondaires':
-          profileScreen==='composite'?'Carte composite':'Mon ciel',
+          'Mon ciel',
           profileScreen==='explore'?'Planètes, maisons et liens entre les planètes.':
           profileScreen==='compare'?'Le ciel d’une autre date comparé à ta naissance.':
-          profileScreen==='progressions'?'Une technique astrologique de progression jour-pour-an.':
-          profileScreen==='composite'?'Comparer les positions de deux cartes.':'Ton thème de naissance, en clair.'))+
+          'Ton thème de naissance, en clair.'))+
       (chart?renderNatalChart(chart):'')+
       (showSettings?
       `<section class="card astra-reading-card astra-birth-settings"><h2 class="card-title">Tes informations de naissance</h2><form id="birthForm" novalidate><div class="field-grid"><div class="field"><label for="birthDate">Date de naissance</label><input required type="date" id="birthDate" name="date" min="1900-01-01" max="2100-12-31" value="${safe(d.date)}"${validationAttrs('birthDate',birthValidation)}>${validationMessage('birthDate',birthValidation)}</div><div class="field"><label for="birthTime">Heure de naissance</label><input ${d.timeKnown?'required':''} type="time" id="birthTime" name="time" value="${safe(d.time)}" ${d.timeKnown?'':'disabled'}${validationAttrs('birthTime',birthValidation)}>${validationMessage('birthTime',birthValidation)}</div></div>`+
@@ -1954,7 +1876,7 @@
     const renderStart=diagnosticsEnabled?perfClock():0;
     renderedEvents=[];
     $('app').innerHTML=({today,month:monthOverview,calendar,journal,profile})[activeTab]();
-    if(activeTab==='profile'){renderCityMenu('birth');renderCityMenu('composite');}
+    if(activeTab==='profile')renderCityMenu('birth');
     if(activeTab==='calendar'){
       const dlg=personalEditor!==null?$('personalEventDialog'):$('calendarDayDialog');
       if(dlg?.showModal&&!dlg.open)dlg.showModal();
@@ -2198,7 +2120,7 @@
       return;
     }
     if(a.profileScreen){
-      if(!['overview','explore','compare','settings','progressions','composite'].includes(a.profileScreen))return;
+      if(!['overview','explore','compare','settings'].includes(a.profileScreen))return;
       captureBirthForm();
       profileScreen=state.profile?a.profileScreen:'settings';
       if(profileScreen==='explore'){exploreSection='planets';exploreWheelOpen=false;}
@@ -2254,10 +2176,10 @@
     if(a.natalAspect){natalChoose('aspect',a.natalAspect,event.detail===0);return;}
     if(a.natalBody){natalChoose('planet',a.natalBody,event.detail===0);return;}
     if(a.natalHouse){natalChoose('house',Number(a.natalHouse),event.detail===0);return;}
-    if(a.cityPreset!==undefined&&['birth','composite'].includes(a.cityKind)){
+    if(a.cityPreset!==undefined&&a.cityKind==='birth'){
       chooseCityPreset(a.cityKind,a.cityPreset);return;
     }
-    if(a.cityChoice!==undefined&&['birth','composite'].includes(a.cityKind)){
+    if(a.cityChoice!==undefined&&a.cityKind==='birth'){
       const state=cityState(a.cityKind);
       if(state.open)chooseCity(a.cityKind,state.options[Number(a.cityChoice)]);
       return;
@@ -2329,7 +2251,7 @@
     }
   },true);
   $('app').addEventListener('keydown',event=>{
-    const kind=event.target.id==='birthCity'?'birth':event.target.id==='secondCity'?'composite':null;
+    const kind=event.target.id==='birthCity'?'birth':null;
     if(kind){
       const state=cityState(kind),value=cityText(kind).trim();
       const confirmed=citySelected(kind)?.label===cityText(kind);
@@ -2380,21 +2302,6 @@
       return;
     }
     if(event.target.id==='energyRange'){initDraft();journalDraft.energy=Number(event.target.value);$('energyValue').textContent=journalDraft.energy+'/5';}
-    if(event.target.id==='secondCity'){
-      clearValidationError('secondCity');
-      compositeDraft.city=event.target.value;
-      if(compositeDraft.place&&compositeDraft.city!==compositeDraft.place.label){
-        compositeDraft.place=null;compositeResult=null;
-        const notice=$('app').querySelector('.natal-composite .city-confirmed');
-        if(notice){notice.className='city-unselected';notice.textContent='Ville modifiée : sélectionne une suggestion.';}
-      }
-      queueCityLookup('composite');return;
-    }
-    if(event.target.id==='secondDate'||event.target.id==='secondTime'){
-      clearValidationError(event.target.id);
-      compositeDraft[event.target.id==='secondDate'?'date':'time']=event.target.value;
-      compositeResult=null;
-    }
     if(event.target.id==='birthCity'){
       clearValidationError('birthCity');
       const d=draft();d.city=event.target.value;
@@ -2416,7 +2323,7 @@
   // Opening a blank picker immediately shows common cities. No keypress or
   // submit button is required. Closing never destroys the current form input.
   $('app').addEventListener('click',event=>{
-    const kind=event.target.id==='birthCity'?'birth':event.target.id==='secondCity'?'composite':null;
+    const kind=event.target.id==='birthCity'?'birth':null;
     if(!kind)return;
     const state=cityState(kind);
     if(citySelected(kind)?.label===cityText(kind)){
@@ -2424,7 +2331,7 @@
     }
   });
   $('app').addEventListener('focusin',event=>{
-    const kind=event.target.id==='birthCity'?'birth':event.target.id==='secondCity'?'composite':null;
+    const kind=event.target.id==='birthCity'?'birth':null;
     if(!kind)return;
     const state=cityState(kind);
     if(citySelected(kind)?.label===cityText(kind))return;
@@ -2434,7 +2341,7 @@
     else renderCityMenu(kind);
   });
   $('app').addEventListener('focusout',event=>{
-    const kind=event.target.id==='birthCity'?'birth':event.target.id==='secondCity'?'composite':null;
+    const kind=event.target.id==='birthCity'?'birth':null;
     if(!kind)return;
     setTimeout(()=>{
       const picker=$(cityInputId(kind))?.closest('[data-city-picker]');
@@ -2445,17 +2352,6 @@
     },120);
   });
   document.addEventListener('change',async event=>{
-    if(event.target.id==='progressionDay'){
-      if(/^\d{4}-\d{2}-\d{2}$/.test(event.target.value)){
-        progressionDay=event.target.value;render();
-        $('progressionDay')?.focus({preventScroll:true});
-      }
-      return;
-    }
-    if(event.target.id==='secondUnknownTime'){
-      clearValidationError('secondTime');captureCompositeForm();compositeDraft.timeKnown=!event.target.checked;
-      compositeResult=null;render();return;
-    }
     if(event.target.id==='transitDay'||event.target.id==='transitTime'){
       captureBirthForm();
       const date=$('transitDay')?.value||state.transitDay;
@@ -2526,34 +2422,6 @@
       }else render();
       writeBrowserRoute('replace');
       show(existing?'Événement modifié':'Événement créé');
-      return;
-    }
-    if(event.target.id==='compositeForm'){
-      event.preventDefault();captureCompositeForm();
-      try{
-        const d=compositeDraft;
-        if(!/^\d{4}-\d{2}-\d{2}$/.test(d.date)){
-          showValidationError('composite','secondDate','Indique une date de naissance valide.');return;
-        }
-        if(d.timeKnown&&!/^\d{2}:\d{2}$/.test(d.time)){
-          showValidationError('composite','secondTime','Indique une heure de naissance valide.');return;
-        }
-        if(!d.place||d.city!==d.place.label){
-          showValidationError('composite','secondCity','Sélectionne la ville dans les résultats de recherche.');return;
-        }
-        const second={date:d.date,time:d.timeKnown?d.time:null,timeKnown:d.timeKnown,
-          timezone:d.place.timezone,latitude:d.place.latitude,longitude:d.place.longitude,
-          place:d.place,fold:null};
-        E.validateProfile(second);
-        compositeResult=E.compositeMidpoints(state.profile,second,state.natalZodiac);
-        compositeSearch.error='';compositeValidation=null;render();
-        $('app').querySelector('.natal-composite-result')?.scrollIntoView({block:'nearest'});
-      }catch(error){
-        const message=error?.message||'Calcul composite impossible';
-        const field=/date|période natale/i.test(message)?'secondDate':
-          /heure|occurrence/i.test(message)?'secondTime':'secondCity';
-        showValidationError('composite',field,message);
-      }
       return;
     }
     if(event.target.id!=='birthForm')return;
