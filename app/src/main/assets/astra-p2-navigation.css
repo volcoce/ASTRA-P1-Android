@@ -76,11 +76,7 @@
   background:var(--astra-secondary-surface)
 }
 .astra-event-feed .event-button:focus-visible{outline-offset:-1px}
-.astra-event-detail{
-  max-width:840px;margin:18px auto;scroll-margin-top:24px;
-  border:2px solid var(--astra-border);border-radius:var(--astra-radius-xl);
-  background:var(--astra-surface)
-}
+.astra-event-detail{scroll-margin-top:24px}
 .astra-event-detail .detail-head{gap:10px;flex-wrap:wrap}
 .astra-event-detail .card-title{font-family:var(--astra-font-display);color:var(--astra-ink)}
 .astra-event-detail .detail-tone{color:var(--astra-ink);font-size:15px}

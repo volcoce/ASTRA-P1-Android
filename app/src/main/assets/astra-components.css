@@ -25,17 +25,17 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
 }
 
 /* Shared surfaces; keep feature-specific pastel heroes and natal wheel intact. */
-:is(.card,.calendar,.natal-settings,.natal-overview-panel,.natal-explore,.natal-compare,
-.natal-focus,.natal-context-sheet,.astra-event-feed,.astra-active-panel,
-.astra-month-events,.natal-glossary,.natal-selection,.natal-composite-result){
-  background:var(--astra-surface);border-color:var(--astra-divider);color:var(--astra-ink);
-  border-radius:var(--astra-radius-lg);box-shadow:none
+:is(.calendar,.natal-overview-panel,.natal-focus,.natal-context-sheet,
+.astra-event-feed,.astra-active-panel,.astra-month-events,.natal-selection,
+.natal-composite-result){
+  background:var(--astra-surface);border-color:var(--astra-divider);
+  color:var(--astra-ink);border-radius:var(--astra-radius-lg);box-shadow:none
 }
-:is(.card,.calendar,.natal-settings,.natal-overview-panel,.natal-explore,.natal-compare,
-.natal-focus,.astra-event-feed,.astra-month-events){border-width:1px;border-style:solid}
-:root[data-astra-theme="dark"] :is(.card,.calendar,.natal-settings,.natal-overview-panel,
-.natal-explore,.natal-compare,.natal-focus,.natal-context-sheet,
-.astra-event-feed,.astra-active-panel,.astra-month-events,.natal-glossary){
+:is(.calendar,.natal-focus,.astra-event-feed,.astra-month-events){
+  border-width:1px;border-style:solid
+}
+:root[data-astra-theme="dark"] :is(.calendar,.natal-overview-panel,
+.natal-focus,.natal-context-sheet,.astra-event-feed,.astra-active-panel,.astra-month-events){
   background:var(--astra-surface);border-color:var(--astra-border);color:var(--astra-ink)
 }
 

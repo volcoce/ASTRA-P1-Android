@@ -28,17 +28,12 @@
   padding:24px 0 2px;
   box-sizing:border-box;
 }
-/* Cards own only their internal padding and surface, never page width. */
+/* Reading cards inherit all paint and insets from the shared .card.
+   This layer owns ONLY the width of their slot in the global content column. */
 .card.astra-reading-card{
   width:100%;
   min-width:0;
-  margin:0 0 24px;
-  padding:var(--astra-card-padding);
   box-sizing:border-box;
-  background:var(--astra-surface);color:var(--astra-ink);
-  border:1px solid var(--astra-border);
-  border-radius:var(--astra-radius-xl);
-  box-shadow:none;
 }
 .bottom-nav{
   position:fixed;z-index:40;
