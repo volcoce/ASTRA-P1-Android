@@ -11,6 +11,9 @@ import android.window.OnBackInvokedDispatcher;
 import android.content.pm.ApplicationInfo;
 import android.content.Intent;
 import android.graphics.Color;
+import android.content.res.Configuration;
+import android.graphics.Insets;
+import android.view.WindowInsetsController;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -39,6 +42,62 @@ public final class MainActivity extends Activity {
     private static final String HOST = "appassets.androidplatform.net";
     private static final String BASE = "https://" + HOST + "/assets/";
     private WebView webView;
+    private FrameLayout root;
+    // Raw physical pixels from Android, converted to CSS pixels for the WebView.
+    private int insetTop, insetBottom, insetLeft, insetRight;
+
+    private static final int LIGHT_BAR_FLAGS =
+            WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
+            | WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS;
+
+    private void applySystemBarTheme(boolean dark) {
+        int background = dark ? Color.rgb(16, 31, 42) : Color.rgb(248, 239, 213);
+        if (root != null) root.setBackgroundColor(background);
+        if (webView != null) webView.setBackgroundColor(background);
+        if (Build.VERSION.SDK_INT >= 30) {
+            WindowInsetsController controller = getWindow().getInsetsController();
+            if (controller != null) {
+                controller.setSystemBarsAppearance(dark ? 0 : LIGHT_BAR_FLAGS, LIGHT_BAR_FLAGS);
+            }
+        } else {
+            int layout = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
+            int light = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+            getWindow().getDecorView().setSystemUiVisibility(layout | (dark ? 0 : light));
+        }
+    }
+
+    /** Keep the unpadded WebView edge-to-edge, but tell the page where NOT to
+     * place text and touch targets. Do not duplicate CSS env() insets. */
+    private void publishSafeArea() {
+        if (webView == null || !(BASE + "index.html").equals(webView.getUrl())) return;
+        float density = getResources().getDisplayMetrics().density;
+        int top = (int) Math.ceil(insetTop / density);
+        int bottom = (int) Math.ceil(insetBottom / density);
+        int left = (int) Math.ceil(insetLeft / density);
+        int right = (int) Math.ceil(insetRight / density);
+        webView.evaluateJavascript(
+                "(function(){var el=document.documentElement;if(!el)return;"
+                + "el.classList.add('astra-native-webview');"
+                + "el.style.setProperty('--astra-native-inset-top','" + top + "px');"
+                + "el.style.setProperty('--astra-native-inset-bottom','" + bottom + "px');"
+                + "el.style.setProperty('--astra-native-inset-left','" + left + "px');"
+                + "el.style.setProperty('--astra-native-inset-right','" + right + "px');"
+                + "})();", null);
+    }
+
+    /** Constrained native styling channel. It never reads user data or files. */
+    private final class NativeUiBridge {
+        @JavascriptInterface
+        public void setDarkMode(boolean dark) {
+            runOnUiThread(() -> {
+                if (webView != null && (BASE + "index.html").equals(webView.getUrl())) {
+                    applySystemBarTheme(dark);
+                }
+            });
+        }
+    }
     private static final int REQUEST_EXPORT_CHART = 7291;
     private byte[] pendingChartBytes;
 
@@ -134,36 +193,67 @@ public final class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        getWindow().setStatusBarColor(Color.rgb(248, 245, 252));
-        getWindow().setNavigationBarColor(Color.rgb(248, 245, 252));
-        getWindow().getDecorView().setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
-        );
-
-        FrameLayout root = new FrameLayout(this);
-        root.setBackgroundColor(Color.rgb(248, 245, 252));
-        // Android 15+ impose l'edge-to-edge : réserver les zones des barres système.
-        // Android 15+ draws behind the status/navigation bars. The keyboard is
-        // another inset: without it the journal and date fields can be covered
-        // by Samsung One UI's IME even though the system bars look correct.
+        // Draw the actual WebView behind the notch/status bar AND the three
+        // navigation buttons. Android 15+ enforces this; make older devices match.
+        if (Build.VERSION.SDK_INT >= 30) {
+            getWindow().setDecorFitsSystemWindows(false);
+        } else {
+            getWindow().getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+            );
+        }
+        getWindow().setStatusBarColor(Color.TRANSPARENT);
+        getWindow().setNavigationBarColor(Color.TRANSPARENT);
+        if (Build.VERSION.SDK_INT >= 29) {
+            getWindow().setNavigationBarContrastEnforced(false); // no three-button scrim
+            getWindow().setStatusBarContrastEnforced(false);
+        }
+        if (Build.VERSION.SDK_INT >= 28) {
+            WindowManager.LayoutParams params = getWindow().getAttributes();
+            params.layoutInDisplayCutoutMode =
+                    WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+            getWindow().setAttributes(params);
+        }
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+
+        root = new FrameLayout(this);
+        webView = new WebView(this);
+        boolean dark = (getResources().getConfiguration().uiMode
+                & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;
+        applySystemBarTheme(dark);
+
         root.setOnApplyWindowInsetsListener((view, insets) -> {
             if (Build.VERSION.SDK_INT >= 30) {
-                android.graphics.Insets bars = insets.getInsets(
-                        WindowInsets.Type.systemBars() | WindowInsets.Type.displayCutout()
-                );
-                android.graphics.Insets ime = insets.getInsets(WindowInsets.Type.ime());
-                int bottom = Math.max(bars.bottom, ime.bottom);
-                root.setPadding(bars.left, bars.top, bars.right, bottom);
-            } else {
-                root.setPadding(insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(),
-                        insets.getSystemWindowInsetRight(), insets.getSystemWindowInsetBottom());
+                Insets safe = insets.getInsets(
+                        WindowInsets.Type.systemBars() | WindowInsets.Type.displayCutout());
+                insetLeft = safe.left;
+                insetTop = safe.top;
+                insetRight = safe.right;
+                insetBottom = safe.bottom;
+
+                // The keyboard is a separate inset: resize the WebView, not the
+                // system-bar margins. Pass IME=0 to WebView to prevent double resize.
+                int imeBottom = insets.isVisible(WindowInsets.Type.ime())
+                        ? insets.getInsets(WindowInsets.Type.ime()).bottom : 0;
+                root.setPadding(0, 0, 0, imeBottom);
+                publishSafeArea();
+                return new WindowInsets.Builder(insets)
+                        .setInsets(WindowInsets.Type.ime(), Insets.NONE).build();
             }
-            return insets;
+            // adjustResize handles the keyboard on Android 8-10.
+            root.setPadding(0, 0, 0, 0);
+            insetLeft = insets.getSystemWindowInsetLeft();
+            insetTop = insets.getSystemWindowInsetTop();
+            insetRight = insets.getSystemWindowInsetRight();
+            insetBottom = insets.getSystemWindowInsetBottom();
+            publishSafeArea();
+            return insets; // never consume system bars: WebView also needs them
         });
 
-        webView = new WebView(this);
         webView.addJavascriptInterface(new ChartExportBridge(), "ASTRA_CHART_EXPORT");
+        webView.addJavascriptInterface(new NativeUiBridge(), "ASTRA_NATIVE_UI");
         root.addView(webView, new FrameLayout.LayoutParams(-1, -1));
         setContentView(root);
         root.requestApplyInsets();
@@ -193,6 +283,12 @@ public final class MainActivity extends Activity {
                 .addPathHandler("/assets/", new WebViewAssetLoader.AssetsPathHandler(this))
                 .build();
         webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                if ((BASE + "index.html").equals(url)) publishSafeArea();
+            }
+
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 Uri uri = request.getUrl();
@@ -257,6 +353,7 @@ public final class MainActivity extends Activity {
             webView.destroy();
             webView = null;
         }
+        root = null;
         super.onDestroy();
     }
 }
