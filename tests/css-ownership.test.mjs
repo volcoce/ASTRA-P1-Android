@@ -465,3 +465,18 @@ test('Natal planet rows use a shared column layout and a saved degree preference
  assert.ok(css.includes('.natal-position-table.has-degrees.has-houses'));
  for(const file of CSS_SOURCES.filter(file=>file!=='astra-natal.css'))assert.ok(!read(file).includes('.natal-position-table'),file);
 });
+
+test('Calendar help and display options live exclusively in global settings',()=>{
+ const app=read('app.js');
+ const section=(from,to)=>app.slice(app.indexOf(from),app.indexOf(to,app.indexOf(from)));
+ const calendar=section('function calendar()','function initDraft()');
+ const appearance=section('function appearancePanel()','function diagnosticsPanel()');
+ const help=section('function settingsHelpPanel()','function renderGlobalSettings()');
+ assert.doesNotMatch(calendar,/solarCalendarExplanation|calendar-options|filters\(\)/);
+ assert.match(appearance,/calendar-options astra-disclosure/);
+ assert.match(appearance,/filters\(\)/);
+ assert.match(help,/solarCalendarExplanation\(\)/);
+ assert.equal((app.match(/Comprendre le calendrier/g)||[]).length,1);
+ assert.equal((app.match(/Options d’affichage/g)||[]).length,1);
+ assert.match(app,/event\.target\.id==='eventFilter'\)\{state\.filter=event\.target\.value;persist\(\);openDetail=null;render\(\)/);
+});
