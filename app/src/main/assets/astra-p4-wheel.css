@@ -78,6 +78,59 @@
 .natal-wheel.wheel-modern .angle-label{
   fill:var(--color-deep-ocean);stroke:var(--astra-plate-cream)
 }
+/* Technical reading from the reference wheel, without its visual overload.
+   Emoji-suppressed zodiac glyphs remain typography, not purple icon badges.
+   Touch targets retain their 34-SVG-unit invisible circles; only their
+   visual discs are simplified. No position is changed by these styles. */
+.natal-wheel.wheel-modern .zodiac-symbol{
+  font-family:"Noto Sans Symbols 2","Segoe UI Symbol","DejaVu Sans",sans-serif;
+  font-size:21px;font-weight:600;letter-spacing:0;
+  stroke:var(--astra-plate-cream);stroke-width:.35;
+  paint-order:stroke
+}
+.natal-wheel.wheel-modern .natal-planet-hit .wheel-planet-disc{
+  fill:transparent;stroke:transparent;stroke-width:1.25
+}
+.natal-wheel.wheel-modern .natal-planet-hit .natal-planet{
+  font-family:"Noto Sans Symbols 2","DejaVu Sans","Segoe UI Symbol",serif;
+  font-size:21px;font-weight:600
+}
+.natal-wheel.wheel-modern .natal-planet-hit.is-sun .wheel-planet-disc{
+  fill:color-mix(in srgb,var(--color-dandelion) 23%,var(--astra-plate-cream));
+  stroke:#BD8B43
+}
+.natal-wheel.wheel-modern .natal-planet-hit.is-moon .wheel-planet-disc{
+  fill:color-mix(in srgb,var(--color-cornflower) 23%,var(--astra-plate-cream));
+  stroke:#6188A7
+}
+.natal-wheel.wheel-modern .natal-planet-hit.is-active .wheel-planet-disc{
+  fill:var(--color-deep-ocean);stroke:var(--color-retro-red);stroke-width:2.4
+}
+.natal-wheel.wheel-modern .natal-planet-hit.is-active .natal-planet{
+  fill:var(--astra-plate-cream)
+}
+.natal-wheel.wheel-modern .wheel-planet-degree{
+  font:750 12px/1 var(--astra-font-body);
+  letter-spacing:-.2px;font-variant-numeric:tabular-nums;
+  fill:var(--color-deep-ocean);stroke:var(--astra-plate-cream);
+  stroke-width:1.8;stroke-linejoin:round;paint-order:stroke;
+  pointer-events:none
+}
+.natal-wheel.wheel-modern .natal-planet-hit.is-active .wheel-planet-degree{
+  fill:var(--color-retro-red)
+}
+.natal-wheel.wheel-modern .natal-leader path{
+  stroke:#66818C;stroke-width:1.1;fill:none;
+  stroke-linejoin:round;stroke-linecap:round;
+  pointer-events:none
+}
+.natal-wheel.wheel-modern .natal-leader.is-active path{
+  stroke:var(--color-retro-red);stroke-width:1.8
+}
+.natal-wheel.wheel-modern .wheel-aspect-line{
+  stroke-linecap:round;pointer-events:none
+}
+
 /* Double wheel: warm cream natal ring, cool blue transit ring, red transit glyphs. */
 .natal-double-wheel.wheel-modern .wheel-paper{
   fill:var(--color-cream);stroke:var(--color-deep-ocean)
