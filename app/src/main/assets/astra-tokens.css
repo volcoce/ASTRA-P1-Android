@@ -54,7 +54,9 @@
   --astra-plate-cream:#FFF9EA;
   --astra-calendar-ink:#102A34;
   --astra-calendar-focus:#17465D;
-  --astra-control-min:44px;
+  /* Android-oriented interactive target and separation, shared on every screen. */
+  --astra-control-min:48px;
+  --astra-touch-gap:8px;
   /* New and full Moon colour roles shared by calendar and lunar widgets. */
   --astra-phase-new-bg:#DDD6F4;
   --astra-phase-new-border:#927CB0;
