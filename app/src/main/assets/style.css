@@ -397,54 +397,6 @@ html{background:radial-gradient(ellipse at 10% 12%,#f3e8ee 0%,transparent 56%),
   .natal-compare .natal-wheel-viewport{max-width:650px;margin:18px auto 0}
 }
 
-/* P2.1 — dedicated, uncluttered chart reading surface. */
-body.astra-focus-open{overflow:hidden}
-.natal-focus-launch{display:flex;justify-content:center;margin:7px 0 14px}
-.natal-focus-launch button{min-height:44px;padding:9px 16px;display:flex;align-items:center;gap:10px;background:#fff;
-  color:#49375b;border:1px solid #cbbad9;border-radius:999px;font:700 14px/1.3 Arial,sans-serif;cursor:pointer}
-.natal-focus-launch span{font-size:20px;line-height:1}
-.natal-focus-launch button:focus-visible{outline:3px solid var(--astra-focus-ring);outline-offset:3px}
-.natal-focus{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;box-sizing:border-box;
-  height:100dvh;min-height:0;overflow:hidden;
-  padding:calc(12px + var(--astra-safe-top)) 14px calc(12px + var(--astra-safe-bottom));
-  background:linear-gradient(150deg,#fbf9f6 0%,#f6f1fa 58%,#fdfbfa 100%)}
-.natal-focus-header{flex:none;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;
-  width:100%;max-width:1024px;margin:0 auto 10px}
-.natal-focus-kicker{font:750 11px/1.3 Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase;
-  color:#886a93;margin:0 0 4px}
-.natal-focus-header h2{font:650 clamp(20px,3.5vw,29px)/1.2 Georgia,serif;color:#352543;margin:0}
-.natal-focus-moment{font-size:12px;line-height:1.4;color:#5d4b6e;margin:6px 0 0}
-.natal-focus-close{min-width:84px;min-height:46px;flex:none;display:flex;align-items:center;justify-content:center;gap:var(--astra-space-2);
-  border:1px solid #bdaccd;border-radius:var(--astra-radius-md);background:white;color:#49345d;
-  font:700 14px/1 Arial,sans-serif;cursor:pointer}
-.natal-focus-close span{font-size:22px}
-.natal-focus-stage{flex:1;min-height:0;min-width:0;display:flex;align-items:center;justify-content:center}
-.natal-focus .natal-wheel-viewport{box-sizing:border-box;flex:none;width:min(100%,min(900px,calc(100dvh - 235px)));
-  max-width:100%;max-height:100%;overflow:auto;overscroll-behavior:contain;
-  padding:7px;margin:0;border:1px solid #d7cae1;border-radius:var(--astra-radius-xl);
-  background:radial-gradient(circle at center,#fff,#faf6fd 85%)}
-.natal-focus .natal-wheel-viewport .natal-wheel{display:block;height:auto;margin:0 auto;max-width:none}
-.natal-focus-footer{flex:none;width:100%;max-width:1024px;margin:9px auto 0}
-.natal-focus-legend,.natal-focus-warning{text-align:center;color:#62526e;font-size:12px;line-height:1.4;margin:5px 0}
-.natal-focus-footer .wheel-ring-legend{margin-bottom:6px}
-.natal-focus-tools{display:flex;align-items:center;justify-content:center;gap:var(--astra-space-3);flex-wrap:wrap}
-.natal-focus-tools .natal-zoom,.natal-focus-tools .natal-downloads{display:flex;gap:var(--astra-space-1)}
-.natal-focus-tools button{min-height:44px;min-width:44px;padding:9px 13px;border-radius:9px;
-  font:700 14px/1 Arial,sans-serif;cursor:pointer}
-.natal-focus-tools .natal-downloads button{border:1px solid #bdaaca;background:#fff;color:#513b65}
-.natal-focus-tools button:focus-visible,.natal-focus-close:focus-visible{outline:3px solid var(--astra-focus-ring);outline-offset:3px}
-.natal-focus .natal-context-sheet{z-index:4}
-@media(max-width:480px){
-  .natal-focus{padding-left:8px;padding-right:8px}
-  .natal-focus-header h2{font-size:20px}
-  .natal-focus .natal-wheel-viewport{border-radius:var(--astra-radius-md);padding:2px}
-  .natal-focus-tools{gap:7px}
-  .natal-focus-tools button{padding:9px 11px}
-}
-@media(prefers-reduced-motion:reduce){
-  .natal-focus *, .natal-focus-launch *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
-}
-
 /* P0.2 — reading hierarchy and surface simplification */
 /* One deliberately scoped visual-quality layer; no changed chart geometry. */
 html{background:#f5f1ee}
@@ -454,13 +406,11 @@ html{background:#f5f1ee}
 .metric{background:var(--astra-secondary-surface);border:1px solid var(--astra-rule);border-radius:var(--astra-radius-lg)}
 .natal-advanced{background:transparent;border:0;border-top:1px solid var(--astra-rule);border-radius:0}
 .natal-wheel-viewport,
-.natal-home .natal-wheel-viewport,
-.natal-focus .natal-wheel-viewport{background:var(--astra-surface);border-color:var(--astra-rule)}
+.natal-home .natal-wheel-viewport{background:var(--astra-surface);border-color:var(--astra-rule)}
 .natal-home .natal-primary-cards{
   background:transparent;border:0;border-bottom:1px solid var(--astra-rule);border-radius:0
 }
 .natal-preview-disclosure{background:var(--astra-surface)}
-.natal-focus{background:var(--astra-paper)}
 
 
 
@@ -489,14 +439,12 @@ html{background:#f5f1ee}
 .detail-group h3,.detail-group p{font-size:14px;line-height:1.55}
 .natal-matrix .matrix-empty{color:#766b83;font-size:13px}
 .natal-contact-list button small{font-size:13px}
-.natal-focus-kicker{font-size:12px}
-.natal-focus-moment,.natal-focus-legend,.natal-focus-warning{font-size:13px;line-height:1.45}
 /* P1 — one interaction language for focus, selection, and motion. */
 :where(button,[role="button"],summary,input,select,textarea):focus-visible{
   outline:3px solid var(--astra-focus-ring);outline-offset:2px
 }
-:where(.primary,.ghost,.natal-settings-link,.natal-focus-close,
-  .natal-home-actions button,.natal-back,.natal-focus-launch button):focus-visible{
+:where(.primary,.ghost,.natal-settings-link,
+  .natal-home-actions button,.natal-back):focus-visible{
   outline:3px solid var(--astra-focus-ring);outline-offset:3px
 }
 .natal-summary-item[aria-pressed="true"],
@@ -517,7 +465,7 @@ html{background:#f5f1ee}
 }
 @media(hover:hover) and (pointer:fine){
   .ghost:not(:disabled):hover,.natal-settings-link:hover,
-  .natal-back:hover,.natal-focus-launch button:hover,.natal-focus-close:hover{
+  .natal-back:hover{
     background:var(--astra-secondary-surface)
   }
   .natal-contact-list button:not([aria-pressed="true"]):hover,
@@ -531,8 +479,7 @@ html{background:#f5f1ee}
     from{opacity:.4;transform:translateY(8px)}
     to{opacity:1;transform:translateY(0)}
   }
-  .ghost,.natal-settings-link,.natal-back,.natal-focus-launch button,
-  .natal-focus-close{transition:background-color var(--astra-motion)}
+  .ghost,.natal-settings-link,.natal-back,
 }
 @media(prefers-reduced-motion:reduce){
   .natal-context-sheet{animation:none!important;transform:none!important}
@@ -553,18 +500,6 @@ html,body{width:100%;min-width:0;max-width:100%}
 .top{gap:8px}
 .identity{flex:1 1 auto}
 .top-today{flex:0 0 auto}
-
-
-
-
-.natal-focus{overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain}
-.natal-focus-header{align-items:flex-start}
-.natal-focus-header>div{min-width:0;overflow-wrap:anywhere}
-.natal-focus-stage{flex:0 0 auto;min-height:0}
-.natal-focus .natal-wheel-viewport{
-  width:min(100%,max(240px,calc(100dvh - 260px)));max-height:none;
-  overflow:auto;flex:0 1 auto
-}
 
 .field input,.field select,.field textarea,.natal-transit-time input{max-width:100%}
 .field-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -601,8 +536,6 @@ html,body{width:100%;min-width:0;max-width:100%}
   .natal-aspect{flex-wrap:wrap}
   .natal-contact-list button{flex-wrap:wrap;gap:4px 10px}
   .natal-contact-list button small{white-space:normal}
-  .natal-focus{padding-left:8px;padding-right:8px}
-  .natal-focus-footer{flex:none}
 }
 @media(max-width:400px){
   
@@ -616,27 +549,13 @@ html,body{width:100%;min-width:0;max-width:100%}
 }
 @media(max-height:650px) and (max-width:600px){
   .top{padding-top:9px}
-  .natal-focus{padding-top:8px;padding-bottom:8px}
-  .natal-focus-header{margin-bottom:5px}
-  .natal-focus-header h2{font-size:18px}
-  .natal-focus .natal-wheel-viewport{
-    width:min(100%,max(220px,calc(100dvh - 250px)))
-  }
   .natal-context-sheet{max-height:45dvh}
 }
 @media(orientation:landscape) and (max-height:500px){
-  
-  
-  
-  .natal-focus .natal-wheel-viewport{width:min(100%,max(200px,calc(100dvh - 180px)))}
-  .natal-focus-header{align-items:center}
-  .natal-focus-header h2{font-size:18px}
   .natal-context-sheet{max-height:62dvh;}
 }
 
 /* P0 accessibility: native modal (top layer makes background inert). */
-dialog.natal-focus{margin:0;width:100%;max-width:none;max-height:none;border:0;color:var(--ink)}
-dialog.natal-focus::backdrop{background:rgba(18,31,44,.62)}
 
 /* P0: accessible field validation (not colour-only). */
 .form-field-error{margin:7px 0 0;color:#983f42;font-size:13px;line-height:1.5;font-weight:650}
