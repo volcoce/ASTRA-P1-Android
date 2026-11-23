@@ -23,10 +23,15 @@ const ctx={state,pad,safe,displayDate:dateLabel,result:{days:{}},detectedZone:'E
   calendarColors:['blue','purple','green','orange','rose','slate'],
   dayEvents:()=>[],currentDay:()=>({exact:[],sky:[],active:[]}),
   calendarInterval:null,month:new Date(2026,10,1),row:()=>'',zodiacNames:[]};
+// The extracted renderer also needs its real draft-key helper and session store.
+ctx.personalDrafts=new Map();
+const draftKeyStart=app.indexOf('  const personalDraftKey=');
+const draftKeyEnd=app.indexOf('\n',draftKeyStart);
+assert.ok(draftKeyStart>=0&&draftKeyEnd>draftKeyStart);
 const start=app.indexOf('  function personalCalendarWeek(');
 const stop=app.indexOf('  function calendar() {',start);
 assert.ok(start>=0&&stop>start);
-const factory=new Function('ctx','with(ctx){'+app.slice(start,stop)+
+const factory=new Function('ctx','with(ctx){'+app.slice(draftKeyStart,draftKeyEnd)+'\n'+app.slice(start,stop)+
   ';return {personalCalendarWeek,personalEventEditor,calendarDayInspector};}');
 const personal=factory(ctx);
 const mondayOffset=(year,m)=>((new Date(year,m,1).getDay()+6)%7);
@@ -115,6 +120,27 @@ test('personal calendar: editor has accessible date, time, color and delete cont
   assert.match(personal.personalEventEditor(),/data-personal-delete="visit_1"/);
   assert.match(personal.personalEventEditor(),/Voyage de fin de mois/);
   ctx.personalEditor=null;
+});
+
+test('personal calendar: unsaved editor content is isolated by date and event ID',()=>{
+  const originalDay=ctx.selected;
+  try{
+    ctx.personalEditor='new';
+    ctx.personalDrafts.set('new:'+originalDay,{title:'Brouillon <privé>',note:'Note provisoire',allDay:false});
+    const markup=personal.personalEventEditor();
+    assert.match(markup,/Brouillon &lt;privé&gt;/);
+    assert.match(markup,/Note provisoire/);
+    assert.doesNotMatch(markup,/id="personalAllDay" checked/);
+    ctx.selected='2026-11-25';
+    assert.doesNotMatch(personal.personalEventEditor(),/Brouillon/);
+    ctx.personalEditor='visit_1';
+    assert.match(personal.personalEventEditor(),/Voyage de fin de mois/);
+    ctx.personalDrafts.set('visit_1',{title:'Modification non enregistrée'});
+    assert.match(personal.personalEventEditor(),/Modification non enregistrée/);
+    assert.equal(state.calendarEvents[0].title,fixture.title);
+  }finally{
+    ctx.selected=originalDay;ctx.personalEditor=null;ctx.personalDrafts.clear();
+  }
 });
 
 test('personal calendar: date inspector is a modal, not a second event list under grid',()=>{
