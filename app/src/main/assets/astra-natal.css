@@ -221,41 +221,9 @@
   background:var(--astra-surface);
   margin:0 0 16px;
 }
-.natal-explore .natal-position{
-  display:grid;
-  grid-template-columns:minmax(0,1fr) minmax(0,auto) minmax(36px,auto);
-  align-items:center;column-gap:12px;row-gap:4px;
-  min-width:0;width:100%;min-height:58px;
-  padding:12px 15px;box-sizing:border-box;
-  text-align:left;background:var(--astra-surface);
-  color:var(--astra-ink);border:0;border-radius:0;
-  border-bottom:1px solid var(--astra-divider);
-  font:600 14px/1.4 var(--astra-font-body);
-}
-.natal-explore .natal-position:last-child{border-bottom:0}
-.natal-explore .natal-position .position-planet{
-  min-width:0;display:flex;align-items:center;gap:10px;
-  color:var(--astra-ink);font:750 14px/1.4 var(--astra-font-body);
-  overflow-wrap:anywhere;
-}
-.natal-explore .natal-position .position-planet>span{
-  flex:0 0 24px;min-width:24px;text-align:center;
-  font-size:20px;color:var(--astra-brand);line-height:1.1;
-}
-.natal-explore .natal-position .position-value{
-  min-width:0;text-align:right;color:var(--astra-ink);
-  font-size:13px;font-weight:600;
-  font-variant-numeric:tabular-nums;overflow-wrap:normal;
-}
-.natal-explore .natal-position .position-house{
-  min-width:36px;text-align:right;color:var(--astra-muted);
-  font-size:13px;font-weight:650;white-space:nowrap;
-}
-.natal-explore .natal-position[aria-pressed="true"],
 .natal-explore :is(.natal-house-chip,.natal-aspect)[aria-pressed="true"]{
   background:var(--astra-selected);color:var(--astra-ink);
 }
-.natal-explore .natal-position:hover:not([aria-pressed="true"]),
 .natal-explore :is(.natal-house-chip,.natal-aspect):hover:not([aria-pressed="true"]){
   background:var(--astra-secondary-surface);
 }
@@ -354,18 +322,6 @@
   
   .natal-explore .natal-explore-tabs{gap:4px;padding:4px}
   .natal-explore .natal-explore-tabs>button{min-height:44px;padding:8px 5px;font-size:13px}
-  .natal-explore .natal-position{
-    grid-template-columns:minmax(0,1fr) auto;
-    row-gap:3px;min-height:66px;padding:11px 12px;
-  }
-  .natal-explore .natal-position .position-planet{grid-column:1/-1;grid-row:1;min-width:0}
-  .natal-explore .natal-position .position-value{
-    grid-column:1;grid-row:2;text-align:left;
-    padding-left:34px;font-size:12px;overflow-wrap:anywhere;
-  }
-  .natal-explore .natal-position .position-house{
-    grid-column:2;grid-row:2;text-align:right;font-size:12px;
-  }
   .natal-explore .natal-houses{grid-template-columns:repeat(2,minmax(0,1fr))}
   .natal-explore .natal-aspect{padding:12px;flex-direction:column;align-items:flex-start}
   .natal-explore .natal-aspect>span:last-child{text-align:left}
@@ -467,4 +423,79 @@
   .natal-home>.natal-primary-cards{padding:5px 3px;gap:4px}
 }
 
+
+/* One aligned natal table for overview and exploration. R has a permanent
+   reserved column; the optional degrees and houses change header/rows together. */
+.natal-position-table{
+  --position-columns:minmax(0,1fr) 1em minmax(0,1fr);
+  --position-row-pad:clamp(5px,1.5vw,14px);
+  --position-gap:clamp(3px,1vw,10px);
+  width:100%;min-width:0;overflow:hidden;
+  border:1px solid var(--astra-divider);border-radius:var(--astra-radius-lg);
+  background:var(--astra-surface);container-type:inline-size;
+}
+.natal-position-table.has-houses{
+  --position-columns:minmax(0,1fr) 1em minmax(0,1fr) 3.25em
+}
+.natal-position-table.has-degrees{
+  --position-columns:minmax(0,1fr) 1em minmax(0,1fr) 3.6em
+}
+.natal-position-table.has-degrees.has-houses{
+  --position-columns:minmax(0,1fr) 1em minmax(0,1fr) 3.6em 3.25em
+}
+.natal-position-table :is(.natal-position-heading,.natal-position){
+  display:grid;grid-template-columns:var(--position-columns);
+  align-items:center;gap:var(--position-gap);
+  width:100%;min-width:0;box-sizing:border-box;
+  padding:10px var(--position-row-pad);
+  font:600 clamp(.75rem,2.8cqi,.875rem)/1.35 var(--astra-font-body);
+  text-align:left;color:var(--astra-ink);
+  border:0;border-radius:0;margin:0;
+}
+.natal-position-table .natal-position-heading{
+  background:var(--astra-secondary-surface);font-weight:750;min-height:40px
+}
+.natal-position-table .natal-position{
+  min-height:var(--astra-control-min);background:var(--astra-surface);cursor:pointer
+}
+.natal-position-table .natal-position:nth-of-type(odd){
+  background:color-mix(in srgb,var(--astra-secondary-surface) 40%,var(--astra-surface))
+}
+.natal-position-table .natal-position[aria-pressed="true"],
+.natal-position-table .natal-position:hover{background:var(--astra-selected)}
+.natal-position-table .natal-position:focus-visible{outline-offset:-3px}
+.natal-position-table .natal-position :is(.position-planet,.position-value){
+  display:flex;align-items:center;gap:clamp(3px,1cqi,8px);
+  min-width:0;grid-column:auto;grid-row:auto;padding:0;
+  font:inherit;color:var(--astra-ink);text-align:left;overflow-wrap:anywhere
+}
+.natal-position-table :is(.position-glyph,.position-sign-glyph){
+  flex:0 0 1.15em;text-align:center;font:600 1.4em/1 "Noto Sans Symbols 2","Segoe UI Symbol","DejaVu Sans",sans-serif;
+  color:var(--astra-brand)
+}
+.natal-position-table .position-glyph{color:var(--astra-ink)}
+.natal-position-table [data-natal-body="Sun"] .position-glyph{color:color-mix(in srgb,var(--color-dandelion) 48%,var(--astra-ink))}
+.natal-position-table [data-natal-body="Moon"] .position-glyph,
+.natal-position-table [data-natal-body="Jupiter"] .position-glyph,
+.natal-position-table [data-natal-body="Neptune"] .position-glyph{color:color-mix(in srgb,var(--color-cornflower) 48%,var(--astra-ink))}
+.natal-position-table :is([data-natal-body="Mars"],[data-natal-body="Venus"],[data-natal-body="Pluto"]) .position-glyph{color:var(--astra-danger)}
+.natal-position-table [data-element="fire"]{--sign-color:var(--astra-zodiac-fire)}
+.natal-position-table [data-element="earth"]{--sign-color:var(--astra-zodiac-earth)}
+.natal-position-table [data-element="air"]{--sign-color:var(--astra-zodiac-air)}
+.natal-position-table [data-element="water"]{--sign-color:var(--astra-zodiac-water)}
+.natal-position-table .position-sign-glyph{color:color-mix(in srgb,var(--sign-color) 36%,var(--astra-ink))}
+.natal-position-table .position-retrograde,.natal-position-legend span{
+  color:var(--astra-danger);font-weight:750;text-align:center
+}
+.natal-position-table .position-retrograde{min-width:0}
+.natal-position-table .natal-position :is(.position-degree,.position-house){
+  font:inherit;min-width:0;grid-column:auto;grid-row:auto;
+  color:var(--astra-ink);text-align:center;white-space:normal;font-variant-numeric:tabular-nums
+}
+.natal-position-table .natal-position-heading>span:nth-child(n+4){text-align:center;overflow-wrap:anywhere}
+.natal-position-legend{font-size:.75rem;color:var(--astra-muted);margin:8px 0 0}
+@container(max-width:330px){
+  .natal-position-table :is(.natal-position-heading,.natal-position){font-size:.75rem;gap:3px;padding-inline:5px}
+  .natal-position-table :is(.position-glyph,.position-sign-glyph){font-size:1.25em}
+}
 }
