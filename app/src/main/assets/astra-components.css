@@ -11,6 +11,18 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
 .lead,.muted,.tiny,.field-help{color:var(--astra-muted)}
 .eyebrow,.mini-cap{color:var(--astra-brand);font-family:var(--astra-font-body)}
 
+/* Shared card contract. Outer geometry belongs to astra-layout.css. */
+.card{
+  min-width:0;
+  margin:0 0 var(--astra-space-6);
+  padding:var(--astra-card-padding);
+  background:var(--astra-surface);
+  color:var(--astra-ink);
+  border:1px solid var(--astra-border);
+  border-radius:var(--astra-radius-xl);
+  box-shadow:none;
+}
+
 /* Shared surfaces; keep feature-specific pastel heroes and natal wheel intact. */
 :is(.card,.calendar,.natal-settings,.natal-overview-panel,.natal-explore,.natal-compare,
 .natal-focus,.natal-context-sheet,.astra-event-feed,.astra-active-panel,

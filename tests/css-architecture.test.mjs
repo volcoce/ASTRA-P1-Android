@@ -94,6 +94,18 @@ test('AppShell, BottomNavigation and natal reading surfaces have one owner',()=>
  assert.doesNotMatch(read('astra-natal.css'),/\.natal-home\.card\s*\{/);
  assert.doesNotMatch(read('astra-natal.css'),/\.natal-explore\.card,\.natal-compare\.card,\.natal-settings\.card/);
 });
+test('Shared card geometry spans Journal, natal and event details',()=>{
+ const app=read('app.js'),layout=read('astra-layout.css'),tokens=read('astra-tokens.css');
+ const components=read('astra-components.css');
+ for(const name of ['astra-journal-editor','astra-journal-summary','astra-journal-history'])
+   assert.ok(app.includes('card astra-reading-card '+name),name);
+ assert.match(app,/class="card astra-reading-card detail astra-event-detail/);
+ assert.match(tokens,/--astra-card-padding:var\(--astra-card-gutter\)/);
+ assert.match(components,/\.card\{[^}]*padding:var\(--astra-card-padding\)/s);
+ assert.match(layout,/\.main>\*\{min-width:0;max-width:100%/);
+ assert.doesNotMatch(read('style.css'),/\.natal-home\{\s*padding:/);
+ assert.doesNotMatch(read('atlas-ui.css'),/\.natal-settings\.card,\.natal-explore\.card,\.natal-compare\.card\{/);
+});
 test('Water palette has one source and no duplicates in feature CSS',()=>{
  const tokens=read('astra-tokens.css'),wheel=read('astra-p4-wheel.css');
  assert.match(tokens,/--astra-zodiac-water:#5B9BC7/);

@@ -21,14 +21,14 @@
 
 /* Journal: the editor is the primary task; statistics and history are secondary. */
 .astra-journal-editor,.astra-journal-summary,.astra-journal-history{
-  margin:0 0 16px;background:var(--astra-surface);
-  border:1px solid var(--astra-divider);border-radius:var(--astra-radius-xl);
+  background:var(--astra-surface);
+  border-radius:var(--astra-radius-xl);
   box-shadow:none
 }
-.astra-journal-editor{
-  border:2px solid var(--astra-border);
-  background:var(--astra-surface);
+.card.astra-reading-card.astra-journal-editor{
+  border-width:2px;
 }
+.astra-journal-editor{background:var(--astra-surface)}
 .astra-journal-editor>.card-title{font-family:var(--astra-font-display);font-size:23px}
 .astra-journal-editor .actions{margin:8px 0 19px;gap:8px}
 .astra-journal-editor .actions .ghost{min-height:44px}
@@ -241,7 +241,6 @@
   border:1px solid var(--astra-divider);
   border-radius:var(--astra-radius-xl);
   background:var(--astra-surface);
-  max-width:650px;
 }
 .astra-event-detail--compact .astra-event-compact-top{margin-bottom:10px;align-items:center}
 .astra-event-detail--compact .astra-event-kicker{
