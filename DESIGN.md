@@ -58,10 +58,10 @@ Create semantic CSS custom properties before changing shared colors. Do not mult
 ## Information hierarchy by screen
 
 **Mon ciel / Overview**
-1. One page heading, then **Soleil / Lune / Ascendant** as three plainly named signs, not unexplained zodiac glyphs.
-2. Primary **Comprendre mon thème** action must be visible without scrolling on a 360 × 780 CSS-pixel screen.
-3. Clean, interactive natal wheel with one short instruction for selecting a planet.
-4. Secondary **Comparer deux dates** action below the wheel, with everyday-language explanation.
+1. One page heading and compact view selector, then the interactive natal wheel as the dominant visual element.
+2. A compact shared **Soleil / Lune / Ascendant** selector below the wheel; keep named signs and element colors.
+3. Selection opens the existing contextual sheet with a short symbolic reading; detailed measurements and reflection are disclosed on demand.
+4. Keep **Explorer les positions** and **Comparer deux dates** available below the visual overview.
 5. A discreet **Réglages** access; technical parameters are **not** displayed on the home screen.
 
 **Explorer**

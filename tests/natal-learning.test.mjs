@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   formatSignExact,formatOrbExact,filterNatalAspects,
-  describeNatalPlanet,describeNatalHouse,describeNatalAspect
+  describeNatalPillar,describeNatalPlanet,describeNatalHouse,describeNatalAspect
 } from '../astro/natal-learning.mjs';
 
 test('zodiac DMS formatting handles boundaries, wrap and rounding',()=>{
@@ -41,4 +41,20 @@ test('planet, house and aspect cards keep measurements distinct from symbols',()
   assert.match(aspect.astronomy,/1°30′00″/);
   assert.ok(aspect.convention.length>20);
   assert.throws(()=>describeNatalHouse(13,20));
+});
+
+
+test('three natal pillars have distinct roles and three keywords for every sign',()=>{
+  for(const [body,role] of [['Sun','Identité'],['Moon','Émotions'],['Ascendant','Comportement']]){
+    for(let i=0;i<12;i++){
+      const reading=describeNatalPillar(body,i*30+1);
+      assert.equal(reading.role,role);
+      assert.equal(reading.keywords.length,3);
+      assert.equal(new Set(reading.keywords).size,3);
+    }
+  }
+  assert.equal(describeNatalPillar('Ascendant',151).title,'Ascendant en Vierge');
+  assert.deepEqual(describeNatalPillar('Moon',151).keywords,['Analyse','Organisation','Sécurité']);
+  assert.throws(()=>describeNatalPillar('Mars',0));
+  assert.throws(()=>describeNatalPillar('Sun',NaN));
 });

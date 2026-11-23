@@ -23,6 +23,7 @@ window.ASTRA_ENGINE = {
   [{at:day+'T13:09:00Z',fromSign:'Taureau',toSign:'Gémeaux',fromIndex:1,toIndex:2,mode}]:[]},
  formatSignExact(){return '07°00′00″ Bélier'},formatOrbExact(orb){return orb.toFixed(2)+'°'},
  filterNatalAspects(list,filter){return filter==='all'?[...list]:list.filter(a=>a.aspect===filter)},
+ describeNatalPillar(body,lng){return {title:body==='Moon'?'Lune en Bélier':body==='Ascendant'?'Ascendant en Vierge':'Soleil en Bélier',role:'Identité',keywords:['Initiative','Courage','Affirmation']}},
  describeNatalPlanet(body,lng,house,approx){return {title:body==='Moon'?'Lune':'Soleil',astronomy:approx?'Position indicative à midi local':'Longitude calculée',convention:'Lecture astrologique traditionnelle du signe et de la planète.',question:'Quel sens pour ce domaine ?',disclaimer:'Lecture symbolique non prédictive'}},
  describeNatalHouse(n){return {title:'Maison '+n,astronomy:'Cuspide calculée',convention:'Domaine traditionnel de la maison.',question:'Comment cette maison est-elle vécue ?',disclaimer:'Lecture symbolique'}},
  describeNatalAspect(a){return {title:'Aspect natal '+a.aspect,astronomy:'Écart calculé',convention:'Symbolisme conventionnel de l’aspect.',question:'Comment ces thèmes interagissent-ils ?',disclaimer:'Lecture symbolique'}},
@@ -587,7 +588,7 @@ if __name__ == '__main__':
             page.set_viewport_size({'width':360,'height':780})
             # The primary purpose must be visible without having to scroll,
             # above the fixed bottom navigation on a Galaxy A15-like screen.
-            first=page.locator('.natal-main-action').bounding_box()
+            first=page.locator('.natal-wheel-viewport').bounding_box()
             navtop=page.locator('.bottom-nav').bounding_box()
             assert first and navtop and first['y']+first['height']<navtop['y'],(first,navtop)
             text_style=page.add_style_tag(content=
@@ -617,7 +618,7 @@ if __name__ == '__main__':
             assert page.locator('.bottom-nav').is_visible()
             head=page.locator('.natal-primary-cards').bounding_box()
             wheel=page.locator('.natal-wheel-viewport').bounding_box()
-            assert head is not None and wheel is not None and head['y']<wheel['y']
+            assert head is not None and wheel is not None and wheel['y']<head['y']
             assert page.locator('.natal-summary-name').first.evaluate("e => parseFloat(getComputedStyle(e).fontSize)")>=12
             assert page.locator('.natal-main-action').evaluate("e => e.getBoundingClientRect().height")>=48
             assert page.locator('.wheel-zodiac-sector').count()==12
@@ -986,6 +987,9 @@ if __name__ == '__main__':
             page.locator('[data-profile-screen="overview"]').click()
             page.locator('.natal-wheel [data-natal-body="Sun"]').click()
             assert page.locator('#natalSelectionInfo').is_visible()
+            assert page.locator('.natal-pillar-keywords li').count()==3
+            assert page.locator('.natal-reading-more').get_attribute('open') is None
+            page.locator('.natal-reading-more summary').click()
             reading=page.evaluate("""() => {
               const sheet=document.querySelector('#natalSelectionInfo');
               const nav=document.querySelector('.bottom-nav');

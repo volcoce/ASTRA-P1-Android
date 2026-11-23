@@ -1392,6 +1392,26 @@
         ' · Orbe '+safe(E.formatOrbExact(aspect.orb))+'</p>';
     }
     if(!text)return '';
+    // Overview is visual-first: a brief symbolic reading, with measurements
+    // and reflection accessible on demand. Explorer retains its full reading.
+    if(profileScreen==='overview'){
+      const pillarBody=sel.kind==='planet'&&['Sun','Moon'].includes(sel.id)?sel.id:
+        sel.kind==='house'&&Number(sel.id)===1?'Ascendant':null;
+      const longitude=pillarBody==='Ascendant'?h?.ascendant:chart.positions[pillarBody];
+      const pillar=pillarBody&&Number.isFinite(longitude)&&E.describeNatalPillar?
+        E.describeNatalPillar(pillarBody,longitude):null;
+      const symbolic='<div class="natal-symbolic"><b>Lecture astrologique traditionnelle</b><p>'+safe(text.convention)+'</p>'+aspectHelp+'</div>';
+      return '<article class="natal-detail-body">'+
+        '<h3>'+safe(pillar?.title||text.title)+'</h3>'+
+        (pillar?'<p class="natal-pillar-role">'+safe(pillar.role)+'</p>'+
+          '<ul class="natal-pillar-keywords" aria-label="Mots-clés symboliques">'+pillar.keywords.map(word=>'<li>'+safe(word)+'</li>').join('')+'</ul>':symbolic)+
+        '<details class="astra-disclosure natal-reading-more"><summary>Approfondir</summary><div class="astra-disclosure-body">'+
+        (pillarBody==='Ascendant'?'<p>La lecture de la maison I complète celle de l’Ascendant.</p>':'')+
+        technical+'<div class="natal-fact"><b>Donnée calculée</b><p>'+safe(text.astronomy)+'</p></div>'+
+        (pillar?symbolic:'')+
+        '<div class="natal-reflection"><b>Pour réfléchir</b><p>'+safe(text.question)+'</p></div>'+
+        '<p class="natal-disclaimer">'+safe(text.disclaimer)+'</p></div></details></article>';
+    }
     return '<article class="natal-detail-body">'+
       '<h3>'+safe(text.title)+'</h3>'+technical+
       '<div class="natal-fact"><b>Donnée calculée</b><p>'+safe(text.astronomy)+'</p></div>'+
@@ -1615,7 +1635,7 @@
         ' aria-label="'+safe(label+' en '+signLabels[signIndex]+(approx?', position indicative':''))+'">'+
         '<span class="natal-summary-icon" aria-hidden="true">'+glyph+'</span>'+
         '<span class="natal-summary-name">'+safe(label)+'</span>'+
-        '<span class="natal-summary-sign" aria-hidden="true">'+sign+'</span>'+
+        '<span class="natal-summary-sign" data-element="'+['fire','earth','air','water'][signIndex%4]+'" aria-hidden="true">'+sign+'</span>'+
         '<span class="natal-summary-value">'+safe(signLabels[signIndex])+(approx?' ≈':'')+'</span>'+
         '</button>';
     }).join('');
@@ -1624,9 +1644,7 @@
       '<div class="natal-context-bar"><h2 id="natalContextTitle">Fiche de lecture</h2>'+
       '<button type="button" data-close-natal-detail="1" aria-label="Fermer la fiche">Fermer <span aria-hidden="true">×</span></button></div>'+
       '<div class="natal-context-content">'+selectedDetail+'</div></section>':'';
-    const shortCaption='<p class="natal-home-hint">Les points indiquent les positions exactes. '+
-      (state.natalView==='complete'?'Tous les aspects du filtre sont affichés. ':'Jusqu’à six aspects sont affichés. ')+
-      (uncertain?'Heure inconnue : Lune indicative, sans maisons.':'')+'</p>';
+    const shortCaption='<p class="natal-home-hint">Sélectionne un astre ou un aspect.</p>';
     const pageBack='<button type="button" class="natal-back" data-profile-screen="overview" aria-label="Retour à Mon ciel">'+
       '<span aria-hidden="true">←</span><span>Mon ciel</span></button>';
     if(isOverview){
@@ -1655,12 +1673,13 @@
         '</dl><p class="tiny">Les interprétations astrologiques sont symboliques, non scientifiquement prédictives.</p></div></details>';
       return '<section class="card natal-card astra-reading-card natal-home" id="natalChart">'+
         '<div class="natal-home-header"><div><h2 class="card-title">Ta carte de naissance</h2>'+
-        '<p class="natal-home-subtitle">Positions à ta naissance · '+(isTropical?'Tropical':'Sidéral')+'</p></div></div>'+
+        '<p class="natal-home-subtitle">'+(isTropical?'Tropical':'Sidéral')+'</p></div></div>'+
         (uncertain?notice:'')+
+        viewTabs+overviewContent+
         '<div class="natal-primary-cards'+(h?'':' natal-primary-cards--two')+'" role="group" aria-label="Soleil, Lune et Ascendant en signes astrologiques">'+quickCards+'</div>'+
-        '<div class="natal-home-actions natal-home-actions--primary"><button type="button" class="natal-main-action" data-profile-screen="explore"><span class="action-label"><strong>Explorer les positions</strong><small>Planètes, signes et maisons</small></span><span class="action-arrow" aria-hidden="true">→</span></button></div>'+
-        viewTabs+overviewContent+contextSheet+glossary+
-        '<div class="natal-home-actions natal-home-actions--secondary"><button type="button" class="natal-secondary-action" data-explore-transits="1"><span class="action-label"><strong>Comparer deux dates</strong><small>Le ciel d’un autre jour</small></span><span class="action-arrow" aria-hidden="true">→</span></button></div>'+
+        '<div class="natal-home-actions natal-home-actions--primary"><button type="button" class="natal-main-action" data-profile-screen="explore"><span class="action-label"><strong>Explorer les positions</strong></span><span class="action-arrow" aria-hidden="true">→</span></button></div>'+
+        contextSheet+glossary+
+        '<div class="natal-home-actions natal-home-actions--secondary"><button type="button" class="natal-secondary-action" data-explore-transits="1"><span class="action-label"><strong>Comparer deux dates</strong></span><span class="action-arrow" aria-hidden="true">→</span></button></div>'+
         (h?.polarFallback?'<p class="notice">Maisons égales utilisées à cette latitude.</p>':'')+
         '</section>';
     }

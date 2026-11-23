@@ -31,6 +31,35 @@ const HOUSES=Object.freeze([
   'retrait, intériorité et expériences discrètes'
 ]);
 
+// Compact symbolic readings for the three principal placements, in zodiac order.
+const PILLARS=Object.freeze({
+  Sun:{label:'Soleil',role:'Identité',entries:[
+    'Initiative|Courage|Affirmation','Stabilité|Construction|Persévérance','Curiosité|Échange|Apprentissage',
+    'Protection|Attachement|Transmission','Créativité|Rayonnement|Affirmation','Méthode|Discernement|Utilité',
+    'Harmonie|Coopération|Équilibre','Volonté|Profondeur|Transformation','Exploration|Liberté|Sens',
+    'Ambition|Structure|Endurance','Indépendance|Innovation|Collectif','Imagination|Empathie|Inspiration'
+  ]},
+  Moon:{label:'Lune',role:'Émotions',entries:[
+    'Action|Spontanéité|Réactivité','Calme|Affection|Stabilité','Mobilité|Communication|Curiosité',
+    'Intimité|Protection|Attachement','Reconnaissance|Chaleur|Générosité','Analyse|Organisation|Sécurité',
+    'Harmonie|Douceur|Réciprocité','Confiance|Intuition|Intensité','Liberté|Optimisme|Mouvement',
+    'Maîtrise|Fiabilité|Prudence','Autonomie|Amitié|Créativité','Empathie|Imagination|Sensibilité'
+  ]},
+  Ascendant:{label:'Ascendant',role:'Comportement',entries:[
+    'Spontanéité|Initiative|Franchise','Calme|Constance|Détermination','Curiosité|Adaptation|Échange',
+    'Réceptivité|Observation|Retenue','Rayonnement|Générosité|Présence','Observation|Précision|Fiabilité',
+    'Diplomatie|Charme|Harmonie','Intuition|Sélectivité|Profondeur','Enthousiasme|Ouverture|Élan',
+    'Prudence|Structure|Réserve','Originalité|Indépendance|Ouverture','Douceur|Empathie|Intuition'
+  ]}
+});
+export function describeNatalPillar(body,longitude){
+  const pillar=PILLARS[body];
+  if(!pillar||!Number.isFinite(longitude))throw Error('Pilier natal invalide');
+  const index=Math.floor(mod(longitude)/30);
+  return {title:pillar.label+' en '+signNames[index],role:pillar.role,
+    keywords:pillar.entries[index].split('|')};
+}
+
 /** Exact to the nearest arcsecond, with correct rounding at 29°59′59.5″. */
 export function formatSignExact(longitude){
   if(!Number.isFinite(longitude))throw Error('Longitude invalide');

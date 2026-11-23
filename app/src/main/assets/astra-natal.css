@@ -18,7 +18,7 @@
   width:100%;margin:0 0 14px
 }
 .natal-home .natal-summary-item{
-  min-width:0;min-height:122px;display:flex;flex-direction:column;justify-content:center;
+  min-width:0;min-height:76px;display:flex;flex-direction:column;justify-content:center;
   align-items:center;gap:3px;padding:10px 4px 9px;white-space:normal;
   background:#fff;border:1px solid #d7e1e6;border-radius:14px;
   color:var(--ink);font-family:inherit;box-sizing:border-box
@@ -124,9 +124,30 @@
   background:var(--astra-surface);border:1px solid var(--astra-divider);
   border-radius:var(--astra-radius-lg);padding:8px 6px
 }
-.natal-home .natal-summary-item{background:transparent;border-color:var(--astra-divider)}
+.natal-home .natal-summary-item{background:transparent;border-color:transparent}
+.natal-home .natal-summary-item[aria-pressed="true"]{
+  background:var(--astra-selected);border-color:var(--astra-selected-border);
+  box-shadow:none
+}
 .natal-home .natal-summary-value{color:var(--astra-ink)}
-.natal-home .natal-summary-sign{color:var(--astra-brand-strong)}
+.natal-home .natal-summary-sign{
+  color:var(--astra-ink);border-bottom:3px solid var(--pillar-element);
+  padding:0 7px 2px
+}
+.natal-summary-sign[data-element="fire"]{--pillar-element:var(--astra-zodiac-fire)}
+.natal-summary-sign[data-element="earth"]{--pillar-element:var(--astra-zodiac-earth)}
+.natal-summary-sign[data-element="air"]{--pillar-element:var(--astra-zodiac-air)}
+.natal-summary-sign[data-element="water"]{--pillar-element:var(--astra-zodiac-water)}
+.natal-detail-body .natal-pillar-role{color:var(--astra-muted);margin:0}
+.natal-detail-body .natal-pillar-keywords{
+  display:flex;flex-wrap:wrap;gap:8px;list-style:none;padding:0;margin:12px 0 16px
+}
+.natal-pillar-keywords li{
+  background:var(--astra-secondary-surface);color:var(--astra-ink);
+  border-radius:var(--astra-radius-md);padding:5px 9px;font-size:13px
+}
+.natal-reading-more{margin-top:12px}
+.natal-reading-more>summary{min-height:44px}
 .natal-home .natal-home-actions--primary{margin:0 0 18px}
 .natal-home .natal-home-actions--primary button{
   min-height:64px;background:var(--astra-primary);color:var(--astra-primary-ink);
@@ -144,7 +165,7 @@
 :root[data-astra-theme="dark"] .natal-home .natal-primary-cards{
   background:var(--astra-surface);border-color:var(--astra-border)
 }
-:root[data-astra-theme="dark"] .natal-home .natal-summary-sign{color:var(--color-cornflower)}
+
 :root[data-astra-theme="dark"] .natal-home .natal-home-actions--primary button{
   background:var(--astra-primary);color:var(--astra-primary-ink)
 }
@@ -358,8 +379,8 @@
 }
 .natal-home>.natal-primary-cards{
   display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
-  margin-top:0;margin-bottom:14px;padding:8px;
-  gap:8px
+  margin-top:12px;margin-bottom:14px;padding:4px;
+  gap:4px
 }
 .natal-home>.natal-primary-cards--two{
   grid-template-columns:repeat(2,minmax(0,1fr))
