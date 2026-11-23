@@ -879,9 +879,10 @@ if __name__ == '__main__':
             page.locator('[data-profile-screen="explore"]').click()
             page.locator('[data-explore-section="houses"]').click()
             assert page.locator('#natalChart .natal-house-chip').count()==12
-            page.locator('.natal-explore-wheel summary').click()
-            assert audit_disclosures('natal-explorer')>=1
-            assert page.locator('#natalChart .natal-wheel').count()==1
+            assert page.locator('.natal-explore-wheel, .natal-explore .natal-wheel').count()==0
+            assert page.locator('.natal-explore [data-explore-transits]').count()==1
+            page.locator('.natal-explore .natal-back').click()
+            assert page.locator('.natal-home .natal-wheel').count()==1
             page.locator('.natal-wheel [data-natal-house="1"]').click()
             assert 'Maison 1' in page.locator('#natalSelectionInfo').inner_text()
             page.locator('[data-close-natal-detail]').click()
