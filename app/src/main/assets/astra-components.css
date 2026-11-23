@@ -109,7 +109,51 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
   background:var(--astra-secondary-surface);border-color:var(--astra-border);color:var(--astra-ink)
 }
 
-/* Form inputs and state. No behavioral changes to date or city search. */
+/* One city autocomplete for birth and composite forms.
+   Suggestions occupy normal document flow so the keyboard can resize the WebView
+   without clipping menu actions. No page-specific search button or overrides. */
+.astra-city-picker{width:100%;min-width:0;position:relative}
+.astra-city-picker .city-search{display:flex;min-width:0;width:100%;position:relative}
+.astra-city-picker .city-search input{
+  width:100%;min-width:0;min-height:var(--astra-control-min);
+  padding-inline-end:40px;font-size:1rem
+}
+.astra-city-picker .city-search::after{
+  content:'⌄';position:absolute;right:14px;top:50%;transform:translateY(-50%);
+  color:var(--astra-muted);font-size:21px;line-height:1;pointer-events:none
+}
+.astra-city-picker .city-search:focus-within::after{color:var(--astra-ink)}
+.astra-city-menu{
+  display:flex;flex-direction:column;max-height:min(37dvh,312px);
+  overflow-y:auto;overscroll-behavior:contain;margin-top:8px;
+  background:var(--astra-surface);color:var(--astra-ink);
+  border:1px solid var(--astra-border);border-radius:var(--astra-radius-lg);
+  box-shadow:var(--astra-shadow-pop)
+}
+.astra-city-menu[hidden]{display:none!important}
+.astra-city-option{
+  display:flex;flex-direction:column;align-items:flex-start;
+  justify-content:center;gap:3px;min-width:0;width:100%;
+  min-height:var(--astra-control-min);padding:11px 14px;
+  font:600 .925rem/1.35 var(--astra-font-body);text-align:left;
+  background:var(--astra-surface);color:var(--astra-ink);
+  border:0;border-bottom:1px solid var(--astra-divider);
+  border-radius:0;cursor:pointer
+}
+.astra-city-option:last-child{border-bottom:0}
+.astra-city-option strong{font-weight:750;overflow-wrap:anywhere}
+.astra-city-option span{font-size:.8125rem;color:var(--astra-muted);overflow-wrap:anywhere}
+.astra-city-option:is(:hover,[aria-selected="true"]){
+  background:var(--astra-selected);color:var(--astra-ink)
+}
+.astra-city-option:focus-visible{outline:3px solid var(--astra-focus);outline-offset:-3px}
+.astra-city-status{font-size:.8125rem;color:var(--astra-muted);line-height:1.45;margin:6px 0 0}
+.astra-city-status:empty{display:none}
+@media(max-width:380px){
+  .astra-city-menu{max-height:min(32dvh,252px)}
+}
+
+/* Form inputs and state. Shared validation and form states. */
 :is(.field label,.filter-wrap label,.tags-field legend){color:var(--astra-ink);font-size:var(--astra-font-size-sm);font-weight:700}
 :is(.field input,.field select,.field textarea,.filter-wrap select,
 .city-search input,.natal-transit-time input,.natal-progress-controls input,
