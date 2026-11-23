@@ -483,10 +483,13 @@ if __name__ == '__main__':
                 aligned=page.locator('.natal-position-table').evaluate("""e=>{
                     const rows=[...e.children];
                     const first=[...rows[0].children].map(c=>c.getBoundingClientRect().left);
-                    return rows.every(r=>[...r.children].every((c,i)=>Math.abs(c.getBoundingClientRect().left-first[i])<=1))
-                        && document.documentElement.scrollWidth<=innerWidth+2;
+                    return {ok:rows.every(r=>[...r.children].every((c,i)=>Math.abs(c.getBoundingClientRect().left-first[i])<=1))
+                        && document.documentElement.scrollWidth<=innerWidth+2,
+                        positions:rows.slice(0,2).map(r=>[...r.children].map(c=>c.getBoundingClientRect().left)),
+                        columns:rows.slice(0,2).map(r=>getComputedStyle(r).gridTemplateColumns),
+                        documentWidth:document.documentElement.scrollWidth,viewportWidth:innerWidth};
                 }""")
-                assert aligned, width
+                assert aligned['ok'], (width,aligned)
             page.set_viewport_size({'width':393,'height':844})
             page.locator('#settingsButton').click()
             page.locator('[data-settings-section="astrology"]').click()

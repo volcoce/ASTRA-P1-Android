@@ -232,7 +232,7 @@
 .natal-explore :is(.natal-positions,.natal-aspects,.natal-houses){
   min-width:0;width:100%;box-sizing:border-box;
 }
-.natal-explore :is(.natal-positions,.natal-aspects){
+.natal-explore :is(.natal-positions:not(.natal-position-table),.natal-aspects){
   padding:0;overflow:hidden;
   border:1px solid var(--astra-divider);
   border-radius:var(--astra-radius-lg);
@@ -465,6 +465,10 @@
   font:600 clamp(.75rem,2.8cqi,.875rem)/1.35 var(--astra-font-body);
   text-align:left;color:var(--astra-ink);
   border:0;border-radius:0;margin:0;
+  justify-items:stretch;appearance:none;
+}
+ .natal-position-table :is(.natal-position-heading,.natal-position)>span{
+  grid-column:auto;grid-row:auto;justify-self:stretch;min-width:0;width:100%;box-sizing:border-box
 }
 .natal-position-table .natal-position-heading{
   background:var(--astra-secondary-surface);font-weight:750;min-height:40px
@@ -511,6 +515,11 @@
 @container(max-width:330px){
   .natal-position-table :is(.natal-position-heading,.natal-position){font-size:.75rem;gap:3px;padding-inline:5px}
   .natal-position-table :is(.position-glyph,.position-sign-glyph){font-size:1.25em}
-  .natal-position-table.has-degrees.has-houses :is(.natal-position-heading,.natal-position){min-width:310px}
+  .natal-position-table.has-degrees.has-houses{
+    --position-columns:82px 12px 82px 56px 56px
+  }
+  .natal-position-table.has-degrees.has-houses :is(.natal-position-heading,.natal-position){
+    min-width:310px;width:max(100%,310px);grid-template-columns:minmax(82px,1fr) 12px minmax(82px,1fr) 56px 56px
+  }
 }
 }

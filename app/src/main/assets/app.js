@@ -1567,7 +1567,7 @@
         (showDegrees?'<span class="position-degree">'+(uncertain?'≈ ':'')+degree+'</span>':'')+
         (h?'<span class="position-house">'+(roman[houseNumber]||'—')+'</span>':'')+'</button>';
     }).join('');
-    const planetTable='<div class="natal-positions natal-position-table'+(showDegrees?' has-degrees':'')+(h?' has-houses':'')+'">'+
+    const planetTable='<div class="natal-positions natal-position-table'+(showDegrees?' has-degrees':'')+(h?' has-houses':'')+'" role="region" aria-label="Positions planétaires" tabindex="0">'+
       '<div class="natal-position-heading" aria-hidden="true"><span>Planète</span><span></span><span>Signe</span>'+
       (showDegrees?'<span>Degrés</span>':'')+(h?'<span>Maison</span>':'')+'</div>'+bodyButtons+'</div>'+
       '<p class="natal-position-legend"><span>R</span> — rétrograde'+(uncertain?' · Positions indicatives à midi.':'')+'</p>';
