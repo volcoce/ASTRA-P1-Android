@@ -1,3 +1,4 @@
+import {CSS_SOURCES} from '../scripts/css-sources.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -118,7 +119,7 @@ test('Water palette has one source and no duplicates in feature CSS',()=>{
 
 test('Responsive widths use only the shared breakpoint contract',()=>{
  const html=read('index.html');
- const styles=[...html.matchAll(/href="([^"]+\.css)"/g)].map(m=>m[1]);
+ const styles=[...CSS_SOURCES];
  const allowed=new Set([360,400,480,799,800,1100]);
  for(const file of styles){
    const css=read(file);
@@ -153,7 +154,7 @@ test('Feature styles do not repaint generic Journal and detail card surfaces',()
 
 test('Cascade layers cover every linked stylesheet in a stable order',()=>{
  const html=read('index.html');
- const styles=[...html.matchAll(/href="([^"]+\.css)"/g)].map(m=>m[1]);
+ const styles=[...CSS_SOURCES];
  const legacy=new Set(['style.css','atlas-ui.css','theme.css','wheel-ui.css',
    'solar-ribbon.css','calendar-p0.css','personal-calendar.css']);
  const features=new Set(['astra-p1-screens.css','astra-p2-navigation.css',
@@ -178,7 +179,7 @@ test('Calendar phase fills, category inks and focus colours come from semantic t
  assert.match(calendar,/background:var\(--astra-phase-new-bg\)/);
  assert.match(calendar,/background:var\(--astra-phase-full-bg\)/);
  assert.doesNotMatch(accessibility,/:root\s*\{\s*--astra-calendar-ink:/);
- const styles=[...read('index.html').matchAll(/href="([^"]+\.css)"/g)].map(m=>m[1]);
+ const styles=[...CSS_SOURCES];
  const count=styles.reduce((sum,file)=>sum+(read(file).match(/!important/g)||[]).length,0);
  assert.ok(count<=55,'important budget exceeded: '+count);
 });

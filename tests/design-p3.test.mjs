@@ -1,3 +1,4 @@
+import {CSS_SOURCES} from '../scripts/css-sources.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -14,7 +15,7 @@ function contrast(a,b){
 }
 test('P3 last CSS layer loads after P0/P1/P2',()=>{
   const files=['astra-tokens.css','astra-components.css','astra-p1-screens.css','astra-p2-navigation.css','astra-p3-accessibility.css'];
-  const positions=files.map(f=>html.indexOf('href="'+f+'"'));
+  const positions=files.map(f=>CSS_SOURCES.indexOf(f));
   assert.ok(positions.every(x=>x>=0));
   assert.deepEqual(positions,[...positions].sort((a,b)=>a-b));
 });

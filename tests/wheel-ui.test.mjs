@@ -1,3 +1,4 @@
+import {CSS_SOURCES} from '../scripts/css-sources.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -136,8 +137,9 @@ test('P4: Retro Pop element ring preserves zodiac geometry across all wheel mode
 
 });
 test('Chart UI: all visual layers load in app and Chromium; exports embed wheel styling',()=>{
-  assert.match(html,/href="wheel-ui.css"/);
-  assert.ok(smoke.includes("ROOT/'wheel-ui.css'"));
+  assert.match(html,/href="astra\.bundle\.css"/);
+  assert.ok(CSS_SOURCES.includes('wheel-ui.css'));
+  assert.ok(smoke.includes("ROOT/'astra.bundle.css'"));
   assert.match(wheelCss,/\.wheel-degree-tick\.is-major/);
   assert.match(wheelCss,/\.natal-transit-hit \.wheel-planet-disc/);
   assert.match(app,/\.wheel-modern \.wheel-zodiac-sector\.is-even/);

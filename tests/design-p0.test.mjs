@@ -1,3 +1,4 @@
+import {CSS_SOURCES} from '../scripts/css-sources.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -9,7 +10,8 @@ const solar=asset('solar-ribbon.css');
 test('P0 CSS layers are loaded after feature styles, tokens before components',()=>{
   const order=['style.css','atlas-ui.css','theme.css','wheel-ui.css','solar-ribbon.css',
     'calendar-p0.css','personal-calendar.css','astra-tokens.css','astra-components.css'];
-  const indices=order.map(name=>html.indexOf('href="'+name+'"'));
+  assert.match(html,/href="astra\.bundle\.css"/);
+  const indices=order.map(name=>CSS_SOURCES.indexOf(name));
   assert.ok(indices.every(i=>i>=0),'Missing stylesheet');
   assert.deepEqual([...indices].sort((a,b)=>a-b),indices,'Stylesheet order');
 });

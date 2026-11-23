@@ -1,3 +1,4 @@
+import {CSS_SOURCES} from '../scripts/css-sources.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -7,7 +8,7 @@ const p2=asset('astra-p2-navigation.css'),p1=asset('astra-p1-screens.css');
 const components=asset('astra-components.css'),solar=asset('solar-ribbon.css');
 test('P2 sub-screen stylesheet is loaded after P0 and P1',()=>{
   const links=['astra-tokens.css','astra-components.css','astra-p1-screens.css','astra-p2-navigation.css'];
-  const positions=links.map(n=>html.indexOf('href="'+n+'"'));
+  const positions=links.map(n=>CSS_SOURCES.indexOf(n));
   assert.ok(positions.every(n=>n>=0));
   assert.deepEqual(positions,[...positions].sort((a,b)=>a-b));
 });

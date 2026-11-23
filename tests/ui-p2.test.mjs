@@ -1,3 +1,4 @@
+import {CSS_SOURCES} from '../scripts/css-sources.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -21,8 +22,9 @@ function initialTheme(appearance,prefersDark){
 
 test('P2: saved light/dark/system themes apply before the main stylesheet',()=>{
   assert.match(html,/<script src="theme-bootstrap.js"><\/script>/);
-  assert.match(html,/<link rel="stylesheet" href="theme.css">/);
-  assert.ok(html.indexOf('theme-bootstrap.js')<html.indexOf('theme.css'));
+  assert.match(html,/<link rel="stylesheet" href="astra\.bundle\.css">/);
+  assert.ok(CSS_SOURCES.includes('theme.css'));
+  assert.ok(html.indexOf('theme-bootstrap.js')<html.indexOf('astra.bundle.css'));
   assert.equal(initialTheme('dark',false).root.dataset.astraTheme,'dark');
   assert.equal(initialTheme('light',true).root.dataset.astraTheme,'light');
   assert.equal(initialTheme('system',true).root.dataset.astraTheme,'dark');

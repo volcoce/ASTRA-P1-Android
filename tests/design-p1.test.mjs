@@ -1,3 +1,4 @@
+import {CSS_SOURCES} from '../scripts/css-sources.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -7,7 +8,7 @@ const solar=read('solar-ribbon.css');
 const slice=(start,end)=>app.slice(app.indexOf(start),app.indexOf(end,app.indexOf(start)));
 test('P1 theme layer loads last after P0 semantic tokens and components',()=>{
   const order=['astra-tokens.css','astra-components.css','astra-p1-screens.css'];
-  const indices=order.map(n=>html.indexOf('href="'+n+'"'));
+  const indices=order.map(n=>CSS_SOURCES.indexOf(n));
   assert.ok(indices.every(n=>n>=0));
   assert.ok(indices[0]<indices[1]&&indices[1]<indices[2]);
 });
