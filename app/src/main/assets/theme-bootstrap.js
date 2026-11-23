@@ -9,9 +9,11 @@
     document.documentElement.dataset.astraTheme=theme;
     document.documentElement.dataset.astraPalette=['classic','vivid'].includes(raw.elementPalette)?raw.elementPalette:'vivid';
     document.documentElement.style.colorScheme=theme;
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content',dark?'#101d2a':'#172b3e');
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content',dark?'#101F2A':'#F8EFD5');
   } catch {
     document.documentElement.dataset.astraTheme='light';
     document.documentElement.dataset.astraPalette='vivid';
   }
+  // Initial bar contrast before the main application boots.
+  window.ASTRA_NATIVE_UI?.setDarkMode?.(document.documentElement.dataset.astraTheme==='dark');
 })();
