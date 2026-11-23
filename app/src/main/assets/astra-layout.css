@@ -40,7 +40,7 @@
   bottom:0;left:50%;right:auto;
   transform:translateX(-50%);
   display:grid;grid-template-columns:repeat(5,minmax(0,1fr));
-  gap:3px;width:100%;max-width:var(--astra-nav-width);
+  gap:var(--astra-touch-gap);width:100%;max-width:var(--astra-nav-width);
   margin:0;padding:9px 9px max(11px,var(--astra-safe-bottom));
   box-sizing:border-box;
   border:1px solid var(--astra-divider);
@@ -59,6 +59,25 @@
 }
 @media(max-height:500px) and (orientation:landscape){
   :root{--astra-nav-clearance:68px}
+}
+
+/* All routes share the same interactive geometry.
+   Seven-day grids intentionally use their full tall cell as the hit area:
+   seven 48px-wide buttons cannot fit a 320px viewport without hiding days.
+   They remain at least 48px tall and pass the WCAG spacing method. */
+button{min-height:var(--astra-control-min)}
+button:not(.day):not(.astra-week-day){min-width:var(--astra-control-min)}
+:is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),select,textarea,summary){
+  min-height:var(--astra-control-min)
+}
+/* Consistent gaps for neighboring choices, navigation and opposite actions. */
+:is(.switch,.natal-segments,.natal-overview-tabs,.natal-transit-filters,
+.natal-filter-items,.natal-related,.natal-advanced-buttons,.natal-downloads,
+.natal-zoom,.astra-week-controls,.astra-settings-tabs){
+  gap:var(--astra-touch-gap)
+}
+@media(max-width:480px){
+  .astra-week-title{flex-wrap:wrap}
 }
 
 /* These are global interaction states, not route-specific exceptions. */
