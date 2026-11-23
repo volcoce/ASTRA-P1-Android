@@ -1246,8 +1246,7 @@
   }
   // Signs are typographic glyphs, not native emoji badges.
   const wheelZodiacGlyph=index=>zodiacSymbols[index]+'\uFE0E';
-  // No angular anti-collision: symbols and position ticks always use their
-  // true astronomical longitude. Only a second radial lane is used for pairs.
+  // No anti-collision: all symbols use their true longitude and a fixed ring radius.
   function wheelPlanetLabel(body,lng,asc,{center=210,radius=150,markerRadius=166,dateOnly=false,transit=false}={}){
     const angle=(180-(lng-asc))*Math.PI/180;
     const polarPoint=r=>[(center+r*Math.cos(angle)).toFixed(2),(center+r*Math.sin(angle)).toFixed(2)];
@@ -1265,39 +1264,10 @@
       '<circle class="wheel-planet-disc" cx="'+x+'" cy="'+y+'" r="17"/>'+
       '<text x="'+x+'" y="'+y+'" text-anchor="middle" dominant-baseline="central" pointer-events="none" class="natal-planet">'+(natalGlyphs[body]||body)+'</text></g>';
   }
-  function wheelClusterLabel(group,asc,{center=210,radius=145,markerRadius=166,transit=false}={}){
-    const coord=(lng,r)=>{
-      const angle=(180-(lng-asc))*Math.PI/180;
-      return [(center+r*Math.cos(angle)).toFixed(2),(center+r*Math.sin(angle)).toFixed(2)];
-    };
-    const bodies=group.items.map(item=>item.body);
-    const [x,y]=coord(group.longitude,radius);
-    const selectedKind=transit?'transit-cluster':'cluster';
-    const active=natalSelection?.kind===selectedKind&&natalSelection.id===bodies.join(',');
-    const markers=group.items.map(item=>{
-      const [tx,ty]=coord(item.longitude,markerRadius);
-      return '<circle class="wheel-true-anchor" cx="'+tx+'" cy="'+ty+'" r="2.7"/>';
-    }).join('');
-    const names=bodies.map(body=>planets[body]).join(', ');
-    return markers+'<g class="natal-hit wheel-cluster-hit'+(active?' is-active':'')+
-      '" data-'+(transit?'transit':'natal')+'-cluster="'+bodies.join(',')+
-      '" tabindex="0" focusable="true" role="button" aria-pressed="'+active+
-      '" aria-label="Afficher '+bodies.length+' planètes proches : '+safe(names)+'">'+
-      '<circle class="wheel-cluster-disc" cx="'+x+'" cy="'+y+'" r="19"/>'+
-      '<text class="wheel-cluster-symbol" x="'+x+'" y="'+y+
-      '" text-anchor="middle" dominant-baseline="central" pointer-events="none">⋯</text>'+
-      '<text class="wheel-cluster-count" x="'+(Number(x)+14).toFixed(2)+'" y="'+(Number(y)-13).toFixed(2)+
-      '" text-anchor="middle" dominant-baseline="central" pointer-events="none">'+bodies.length+'</text></g>';
-  }
-  function wheelGroupedLabels(positions,asc,{center=210,outerRadius=150,innerRadius=130,markerRadius=166,dateOnly=false,transit=false}={}){
-    return E.groupWheelPlanets(positions).map(group=>{
-      if(group.items.length>=3)
-        return wheelClusterLabel(group,asc,{center,radius:(outerRadius+innerRadius)/2,markerRadius,transit});
-      return group.items.map((item,index)=>wheelPlanetLabel(item.body,item.longitude,asc,{
-        center,radius:group.items.length===2&&index===1?innerRadius:outerRadius,
-        markerRadius,dateOnly,transit
-      })).join('');
-    }).join('');
+  function wheelLabels(positions,asc,options={}){
+    return Object.entries(positions)
+      .filter(([,lng])=>Number.isFinite(lng))
+      .map(([body,lng])=>wheelPlanetLabel(body,lng,asc,options)).join('');
   }
 
   function wheelSvg(chart,quiet=false) {
@@ -1354,7 +1324,7 @@
       return '<line class="wheel-aspect-line'+(sel?' is-emphasized':'')+'" data-aspect-kind="'+safe(a.aspect)+'" x1="'+p[0]+'" y1="'+p[1]+'" x2="'+q[0]+'" y2="'+q[1]+'" stroke="'+(aspectColors[a.aspect]||'#84639d')+'" stroke-width="'+(sel?2.3:1.3)+'" stroke-opacity="'+(sel?'1':quiet?'.70':'.82')+'"/>';
     });
 
-    const glyphs=wheelGroupedLabels(chart.positions,asc);
+    const glyphs=wheelLabels(chart.positions,asc);
     const ascPoint=polar(asc,194,asc),mcPoint=polar(h.midheaven,194,asc);
     const mcX=Math.max(32,Math.min(388,mcPoint[0]));
     const mcY=Math.max(20,Math.min(397,mcPoint[1]-8));
@@ -1394,7 +1364,7 @@
       const p=polar(chart.positions[a.a],85,asc),q=polar(chart.positions[a.b],85,asc);
       return '<line class="wheel-aspect-line" x1="'+p[0]+'" y1="'+p[1]+'" x2="'+q[0]+'" y2="'+q[1]+'" stroke="'+(aspectColors[a.aspect]||'#84639d')+'" stroke-width="1.5" stroke-opacity="'+(quiet&&!sel?'.62':'.85')+'"/>';
     });
-    const bodies=wheelGroupedLabels(chart.positions,asc,{outerRadius:149,innerRadius:129,markerRadius:164,dateOnly:true});
+    const bodies=wheelLabels(chart.positions,asc,{radius:149,markerRadius:164,dateOnly:true});
     return '<svg class="natal-wheel wheel-modern wheel-date-only" viewBox="0 0 420 420" role="group" aria-label="Roue du zodiaque sans maisons ni Ascendant, heure natale inconnue" xmlns="http://www.w3.org/2000/svg">'+
       '<title>Positions zodiacales indicatives pour midi local ; heure inconnue</title>'+
       '<circle class="wheel-paper" cx="210" cy="210" r="198" fill="#fff"/>'+segments.join('')+
@@ -1494,8 +1464,8 @@
       return '<line class="wheel-transit-contact" x1="'+a[0]+'" y1="'+a[1]+'" x2="'+b[0]+'" y2="'+b[1]+
         '" stroke="#7386a9" stroke-width="'+(sel?2:1.1)+'" stroke-opacity="'+(sel?'.72':'.34')+'"/>';
     }).join('');
-    const glyphRing=(positions,transit)=>wheelGroupedLabels(positions,asc,{
-      center:270,outerRadius:transit?247:172,innerRadius:transit?225:150,
+    const glyphRing=(positions,transit)=>wheelLabels(positions,asc,{
+      center:270,radius:transit?247:172,
       markerRadius:transit?234:189,transit
     });
     return '<svg class="natal-wheel natal-double-wheel wheel-modern" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 540" role="group" aria-label="Roue double : planètes natales en violet à l’intérieur, transits en bleu à l’extérieur">'+
@@ -1655,7 +1625,7 @@
       '<div class="natal-context-bar"><h2 id="natalContextTitle">Fiche de lecture</h2>'+
       '<button type="button" data-close-natal-detail="1" aria-label="Fermer la fiche">Fermer <span aria-hidden="true">×</span></button></div>'+
       '<div class="natal-context-content">'+selectedDetail+'</div></section>':'';
-    const shortCaption='<p class="natal-home-hint">Les points indiquent les positions exactes ; les symboles sont espacés pour rester lisibles. '+
+    const shortCaption='<p class="natal-home-hint">Les planètes sont affichées à leur position exacte. '+
       (state.natalView==='complete'?'Tous les aspects du filtre sont affichés. ':'Jusqu’à six aspects sont affichés. ')+
       (uncertain?'Heure inconnue : Lune indicative, sans maisons.':'Sélectionne une planète pour afficher ses détails.')+'</p>';
     const pageBack='<button type="button" class="natal-back" data-profile-screen="overview" aria-label="Retour à Mon ciel">'+
