@@ -1273,7 +1273,7 @@
   }
   // Reuse the same precise glyph/degree treatment in known-hour and date-only
   // wheels. All offsets belong to the LABEL, never the real position marker.
-  function wheelPlanetLabel(body,lng,placed,asc,{center=210,glyphRadius=149,degreeRadius=130,precise=false,dateOnly=false}={}){
+  function wheelPlanetLabel(body,lng,placed,asc,{center=210,glyphRadius=149,degreeRadius=130,anchorRadius=165,precise=false,dateOnly=false}={}){
     const item=placed[body],active=natalSelection?.kind==='planet'&&natalSelection.id===body;
     const coord=(longitude,r)=>{
       const angle=(180-(longitude-asc))*Math.PI/180;
@@ -1281,7 +1281,7 @@
     };
     const [x,y]=coord(item.labelLongitude,glyphRadius);
     const [dx,dy]=coord(item.labelLongitude,degreeRadius);
-    const [bx,by]=coord(lng,167),[hx,hy]=coord(item.labelLongitude,166);
+    const [bx,by]=coord(lng,anchorRadius),[hx,hy]=coord(item.labelLongitude,anchorRadius);
     const leader='<g class="natal-leader'+(active?' is-active':'')+'">'+
       '<path d="M '+bx+' '+by+' L '+hx+' '+hy+' L '+x+' '+y+'"/>'+
       '<circle cx="'+bx+'" cy="'+by+'" r="2.8"/></g>';
@@ -1394,7 +1394,7 @@
       return '<line class="wheel-aspect-line" x1="'+p[0]+'" y1="'+p[1]+'" x2="'+q[0]+'" y2="'+q[1]+'" stroke="'+(aspectColors[a.aspect]||'#84639d')+'" stroke-width="1.5" stroke-opacity="'+(quiet&&!sel?'.62':'.85')+'"/>';
     });
     const bodies=Object.entries(chart.positions)
-      .map(([body,lng])=>wheelPlanetLabel(body,lng,aligned,asc,{precise,dateOnly:true}));
+      .map(([body,lng])=>wheelPlanetLabel(body,lng,aligned,asc,{precise,dateOnly:true,anchorRadius:163}));
     return '<svg class="natal-wheel wheel-modern wheel-date-only" viewBox="0 0 420 420" role="group" aria-label="Roue du zodiaque sans maisons ni Ascendant, heure natale inconnue" xmlns="http://www.w3.org/2000/svg">'+
       '<title>Positions zodiacales indicatives pour midi local ; heure inconnue</title>'+
       '<circle class="wheel-paper" cx="210" cy="210" r="198" fill="#fff"/>'+segments.join('')+
@@ -1501,11 +1501,15 @@
         const point=arrangement[body],glyph=p(point.labelLongitude,radius),anchor=p(lng,markerRadius);
         const active=sel?.kind===(attr==='data-transit-body'?'transit':'planet')&&sel.id===body;
         const ink=attr==='data-transit-body'?'#396a83':'#62477e';
+        const transit=attr==='data-transit-body';
+        const [degreeX,degreeY]=p(point.labelLongitude,transit?224:147);
+        const degreeLabel=full?'<text class="wheel-planet-degree '+(transit?'wheel-transit-degree':'wheel-natal-degree')+
+          '" x="'+degreeX+'" y="'+degreeY+'" text-anchor="middle" dominant-baseline="central" pointer-events="none">'+wheelDegreeText(lng,true)+'</text>':'';
         return '<line class="wheel-planet-leader" x1="'+anchor[0]+'" y1="'+anchor[1]+'" x2="'+glyph[0]+'" y2="'+glyph[1]+'" stroke="'+ink+'" stroke-width="1.1"/>'+
           '<circle class="wheel-true-anchor" cx="'+anchor[0]+'" cy="'+anchor[1]+'" r="2.8" fill="'+ink+'"/>'+
-          '<g class="natal-hit '+className+' '+(body==='Sun'?'is-sun':body==='Moon'?'is-moon':'is-other')+(active?' is-active':'')+'" '+attr+'="'+body+'" role="button" tabindex="0" focusable="true" aria-pressed="'+active+'" aria-label="'+safe(planets[body])+(attr==='data-transit-body'?' en transit':' natal')+', '+safe(E.formatSign(lng))+'">'+
+          '<g class="natal-hit '+className+' '+(body==='Sun'?'is-sun':body==='Moon'?'is-moon':'is-other')+(active?' is-active':'')+'" '+attr+'="'+body+'" role="button" tabindex="0" focusable="true" aria-pressed="'+active+'" aria-label="'+safe(planets[body])+(transit?' en transit':' natal')+', '+safe(E.formatSign(lng))+' · '+wheelDegreeText(lng,true)+'">'+
           '<circle class="wheel-planet-disc" cx="'+glyph[0]+'" cy="'+glyph[1]+'" r="14" fill="'+(active?'#d8e8ef':'transparent')+'"/>'+
-          '<text x="'+glyph[0]+'" y="'+glyph[1]+'" text-anchor="middle" dominant-baseline="central" pointer-events="none" class="natal-planet" fill="'+ink+'">'+natalGlyphs[body]+'</text></g>';
+          '<text x="'+glyph[0]+'" y="'+glyph[1]+'" text-anchor="middle" dominant-baseline="central" pointer-events="none" class="natal-planet" fill="'+ink+'">'+natalGlyphs[body]+'</text>'+degreeLabel+'</g>';
       }).join('');
     };
     return '<svg class="natal-wheel natal-double-wheel wheel-modern" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 540" role="group" aria-label="Roue double : planètes natales en violet à l’intérieur, transits en bleu à l’extérieur">'+
