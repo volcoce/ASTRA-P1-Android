@@ -111,7 +111,10 @@
     document.documentElement.dataset.astraTheme=resolved;
     document.documentElement.style.colorScheme=resolved;
     document.querySelector('meta[name="theme-color"]')?.setAttribute(
-      'content',resolved==='dark'?'#101d2a':'#172b3e');
+      'content',resolved==='dark'?'#101F2A':'#F8EFD5');
+    // System icons track the actual background shown behind transparent bars.
+    // The bridge is absent in browsers, so the web preview remains unchanged.
+    window.ASTRA_NATIVE_UI?.setDarkMode?.(resolved==='dark');
   }
   function applyElementPalette(){
     document.documentElement.dataset.astraPalette=state.elementPalette;
