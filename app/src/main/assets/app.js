@@ -1182,6 +1182,7 @@
   // The display mode changes presentation only; astronomical positions stay identical.
   // The natal zodiac is independent of the transit zodiac selection.
   let natalSelection=null;
+  const natalDistributionOpen={elements:null,modalities:null};
   // Rebuilding the SVG must preserve where the reader was looking.
   function renderKeepingWheelPosition(){
     const before=$('natalChart')?.querySelector('.natal-wheel-viewport');
@@ -1345,28 +1346,44 @@
     if(!data.total)return '';
     const elements=[['fire','Feu'],['earth','Terre'],['air','Air'],['water','Eau']];
     const modalities=[['cardinal','Cardinal'],['fixed','Fixe'],['mutable','Mutable']];
+    const selected=natalDistributionOpen.elements;
+    const percent=count=>new Intl.NumberFormat('fr-FR',{style:'percent',maximumFractionDigits:1}).format(count/data.total);
+    const chevron='<svg class="natal-distribution-chevron" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6 3.5 10.5 8 6 12.5"/></svg>';
+    const button=(group,key,label,value,extra='')=>{
+      const expanded=natalDistributionOpen[group]===key;
+      return '<button type="button" class="natal-distribution-toggle" data-distribution-group="'+group+'" data-distribution-key="'+key+'" aria-expanded="'+expanded+'" aria-controls="natal-distribution-'+group+'">'+
+        extra+'<span>'+label+'</span><strong>'+value+'</strong>'+chevron+'</button>';
+    };
+    const members=(group,labels)=>{
+      const key=natalDistributionOpen[group],entry=labels.find(([id])=>id===key);
+      const rows=entry?data.members[group][key]:[];
+      return '<div class="natal-distribution-members" id="natal-distribution-'+group+'"'+(entry?'':' hidden')+'>'+
+        (entry?'<div class="natal-distribution-members-head"><strong>'+entry[1]+'</strong><span>'+rows.length+' / '+data.total+' astres</span></div>'+
+          (rows.length?rows.map(({body,sign})=>'<button type="button" class="natal-distribution-member" data-natal-body="'+body+'"><span class="natal-distribution-glyph" aria-hidden="true">'+natalGlyphs[body]+'\uFE0E</span><span>'+safe(planets[body])+'</span><span>'+safe(sign)+'</span></button>').join(''):
+            '<p class="natal-distribution-empty">Aucun astre</p>'):'')+'</div>';
+    };
     let offset=0;
     const segments=elements.map(([key])=>{
       const length=100*data.elements[key]/data.total;
       const start=offset;offset+=length;
-      return length?'<circle class="natal-distribution-segment" data-element="'+key+'" cx="60" cy="60" r="46" pathLength="100" stroke-dasharray="'+length+' '+(100-length)+'" stroke-dashoffset="'+(-start)+'" transform="rotate(-90 60 60)"/>':'';
+      return length?'<circle class="natal-distribution-segment'+(selected?(selected===key?' is-selected':' is-muted'):'')+'" data-element="'+key+'" cx="60" cy="60" r="46" pathLength="100" stroke-dasharray="'+length+' '+(100-length)+'" stroke-dashoffset="'+(-start)+'" transform="rotate(-90 60 60)"/>':'';
     }).join('');
     return '<section class="natal-distribution" aria-label="Répartition du thème natal">'+
       '<div class="natal-distribution-grid">'+
       '<figure class="natal-distribution-figure"><h3>Éléments</h3><div class="natal-element-layout">'+
       '<svg class="natal-element-donut" viewBox="0 0 120 120" aria-hidden="true" focusable="false">'+
       '<circle class="natal-distribution-track" cx="60" cy="60" r="46"/>'+segments+
-      '<text class="natal-distribution-total" x="60" y="58" text-anchor="middle">'+data.total+'</text>'+
-      '<text class="natal-distribution-unit" x="60" y="75" text-anchor="middle">astres</text></svg>'+
+      '<text class="natal-distribution-total" x="60" y="58" text-anchor="middle">'+(selected?percent(data.elements[selected]):data.total)+'</text>'+
+      '<text class="natal-distribution-unit" x="60" y="75" text-anchor="middle">'+(selected?elements.find(([key])=>key===selected)[1]:'astres')+'</text></svg>'+
       '<ul class="natal-element-legend">'+elements.map(([key,label])=>
-        '<li data-element="'+key+'"><span class="natal-element-dot" aria-hidden="true"></span><span>'+label+'</span><strong>'+data.elements[key]+'</strong></li>').join('')+
-      '</ul></div></figure>'+
+        '<li data-element="'+key+'">'+button('elements',key,label,percent(data.elements[key]),'<span class="natal-element-dot" aria-hidden="true"></span>')+'</li>').join('')+
+      '</ul></div>'+members('elements',elements)+'</figure>'+
       '<figure class="natal-distribution-figure"><h3>Modalités</h3><ul class="natal-modality-list">'+
-      modalities.map(([key,label])=>'<li><span>'+label+'</span><strong>'+data.modalities[key]+'</strong>'+
+      modalities.map(([key,label])=>'<li>'+button('modalities',key,label,data.modalities[key])+
         '<svg viewBox="0 0 100 8" preserveAspectRatio="none" aria-hidden="true" focusable="false">'+
         '<rect class="natal-modality-track" width="100" height="8" rx="2"/>'+
         '<rect class="natal-modality-fill" width="'+(100*data.modalities[key]/data.total)+'" height="8" rx="2"/></svg></li>').join('')+
-      '</ul></figure></div>'+
+      '</ul>'+members('modalities',modalities)+'</figure></div>'+
       '<p class="natal-distribution-caption">'+data.total+' astres · Sans pondération'+(chart.approximateNoon?' · Positions indicatives à midi':'')+'</p></section>';
   }
 
@@ -2137,6 +2154,16 @@
       if(a.exploreSection==='houses'&&state.profile?.timeKnown===false)return;
       exploreSection=a.exploreSection;natalSelection=null;render();
       if(event.detail===0)$('app').querySelector('[data-explore-section="'+exploreSection+'"]')?.focus({preventScroll:true});
+      return;
+    }
+    if(a.distributionGroup){
+      const group=a.distributionGroup,key=a.distributionKey;
+      const valid=group==='elements'?['fire','earth','air','water']:
+        group==='modalities'?['cardinal','fixed','mutable']:[];
+      if(!valid.includes(key))return;
+      natalDistributionOpen[group]=natalDistributionOpen[group]===key?null:key;
+      renderKeepingWheelPosition();
+      $('natalChart')?.querySelector('[data-distribution-group="'+group+'"][data-distribution-key="'+key+'"]')?.focus({preventScroll:true});
       return;
     }
     if(a.closeNatalDetail){

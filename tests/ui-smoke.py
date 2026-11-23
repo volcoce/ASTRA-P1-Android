@@ -26,10 +26,12 @@ window.ASTRA_ENGINE = {
  natalDistribution(positions){
   const elements={fire:0,earth:0,air:0,water:0},modalities={cardinal:0,fixed:0,mutable:0};
   const bodies=['Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto'];
+  const signs=['Bélier','Taureau','Gémeaux','Cancer','Lion','Vierge','Balance','Scorpion','Sagittaire','Capricorne','Verseau','Poissons'];
+  const members={elements:Object.fromEntries(Object.keys(elements).map(k=>[k,[]])),modalities:Object.fromEntries(Object.keys(modalities).map(k=>[k,[]]))};
   let total=0;for(const body of bodies){if(!Number.isFinite(positions[body]))continue;
-    const sign=Math.floor(((positions[body]%360)+360)%360/30);
-    elements[Object.keys(elements)[sign%4]]++;modalities[Object.keys(modalities)[sign%3]]++;total++;}
-  return {total,elements,modalities};
+    const sign=Math.floor(((positions[body]%360)+360)%360/30),e=Object.keys(elements)[sign%4],m=Object.keys(modalities)[sign%3];
+    elements[e]++;modalities[m]++;members.elements[e].push({body,sign:signs[sign]});members.modalities[m].push({body,sign:signs[sign]});total++;}
+  return {total,elements,modalities,members};
  },
  natalDignities(body,lng){return {traditional:!['Uranus','Neptune','Pluto'].includes(body),statuses:body==='Sun'&&lng<30?['Exaltation']:[]}},
  describeNatalPillar(body,lng){return {title:body==='Moon'?'Lune en Bélier':body==='Ascendant'?'Ascendant en Vierge':'Soleil en Bélier',role:'Identité',keywords:['Initiative','Courage','Affirmation']}},
@@ -458,8 +460,25 @@ if __name__ == '__main__':
             assert page.locator('.natal-distribution').count()==1
             assert page.locator('.natal-element-legend li').count()==4
             assert page.locator('.natal-modality-list li').count()==3
-            for selector in ('.natal-element-legend strong','.natal-modality-list strong'):
-                assert sum(int(x) for x in page.locator(selector).all_text_contents())==10
+            assert sum(int(x.replace('%','').strip()) for x in page.locator('.natal-element-legend strong').all_text_contents())==100
+            assert sum(int(x) for x in page.locator('.natal-modality-list strong').all_text_contents())==10
+            fire=page.locator('[data-distribution-key="fire"]')
+            fire.click()
+            assert fire.get_attribute('aria-expanded')=='true'
+            assert page.locator('#natal-distribution-elements').is_visible()
+            assert page.locator('#natal-distribution-elements [data-natal-body="Sun"]').is_visible()
+            assert page.locator('.natal-distribution-total').inner_text().endswith('%')
+            assert page.locator('.natal-distribution-segment.is-selected[data-element="fire"]').count()==1
+            page.locator('#natal-distribution-elements [data-natal-body="Sun"]').click()
+            assert page.locator('#natalSelectionInfo').is_visible()
+            page.locator('[data-close-natal-detail]').click()
+            fire.click()
+            assert fire.get_attribute('aria-expanded')=='false'
+            cardinal=page.locator('[data-distribution-key="cardinal"]')
+            cardinal.click()
+            assert page.locator('#natal-distribution-modalities [data-natal-body="Sun"]').is_visible()
+            cardinal.click()
+            assert not page.locator('#natal-distribution-modalities').is_visible()
             page.locator('.natal-main-action').click()
             assert page.locator('.natal-explore').count()==1
             assert page.locator('.natal-explore-list > p').count()==0

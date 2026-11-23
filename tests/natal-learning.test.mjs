@@ -61,8 +61,14 @@ test('three natal pillars have distinct roles and three keywords for every sign'
 
 test('natal distributions count only ten bodies, one vote each, and wrap longitudes',()=>{
   const positions={Sun:0,Moon:30,Mercury:60,Venus:90,Mars:120,Jupiter:150,Saturn:180,Uranus:210,Neptune:240,Pluto:270,Ascendant:300,MC:330};
-  assert.deepEqual(natalDistribution(positions),{total:10,elements:{fire:3,earth:3,air:2,water:2},modalities:{cardinal:4,fixed:3,mutable:3}});
-  assert.deepEqual(natalDistribution({Sun:-1,Moon:360,Venus:NaN}),{total:2,elements:{fire:1,earth:0,air:0,water:1},modalities:{cardinal:1,fixed:0,mutable:1}});
+  const {members,...counts}=natalDistribution(positions);
+  assert.deepEqual(counts,{total:10,elements:{fire:3,earth:3,air:2,water:2},modalities:{cardinal:4,fixed:3,mutable:3}});
+  assert.deepEqual(members.elements.fire,[{body:'Sun',sign:'Bélier'},{body:'Mars',sign:'Lion'},{body:'Neptune',sign:'Sagittaire'}]);
+  assert.deepEqual(members.modalities.mutable.map(x=>x.body),['Mercury','Jupiter','Neptune']);
+  for(const group of ['elements','modalities'])for(const key of Object.keys(counts[group]))assert.equal(members[group][key].length,counts[group][key]);
+  const {members:wrappedMembers,...wrapped}=natalDistribution({Sun:-1,Moon:360,Venus:NaN});
+  assert.deepEqual(wrapped,{total:2,elements:{fire:1,earth:0,air:0,water:1},modalities:{cardinal:1,fixed:0,mutable:1}});
+  assert.deepEqual(wrappedMembers.elements.water,[{body:'Sun',sign:'Poissons'}]);
   assert.equal(natalDistribution({Ascendant:5}).total,0);
 });
 test('classical dignities include dual statuses and exclude modern rulerships',()=>{

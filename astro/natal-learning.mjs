@@ -67,6 +67,7 @@ const MODALITIES=Object.freeze(['cardinal','fixed','mutable']);
 export function natalDistribution(positions){
   const elements=Object.fromEntries(ELEMENTS.map(key=>[key,0]));
   const modalities=Object.fromEntries(MODALITIES.map(key=>[key,0]));
+  const members={elements:Object.fromEntries(ELEMENTS.map(key=>[key,[]])),modalities:Object.fromEntries(MODALITIES.map(key=>[key,[]]))};
   let total=0;
   for(const body of NATAL_BODIES){
     const longitude=positions?.[body];
@@ -74,9 +75,12 @@ export function natalDistribution(positions){
     const sign=Math.floor(mod(longitude)/30);
     elements[ELEMENTS[sign%4]]++;
     modalities[MODALITIES[sign%3]]++;
+    const member={body,sign:signNames[sign]};
+    members.elements[ELEMENTS[sign%4]].push(member);
+    members.modalities[MODALITIES[sign%3]].push(member);
     total++;
   }
-  return {total,elements,modalities};
+  return {total,elements,modalities,members};
 }
 
 // Four classical sign-based dignities. Detriment and fall are opposite

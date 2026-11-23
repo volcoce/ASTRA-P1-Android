@@ -529,30 +529,72 @@
   font:700 1rem/1.4 var(--astra-font-body);margin:0 0 var(--astra-space-2)
 }
 .natal-element-layout{
-  display:grid;grid-template-columns:minmax(88px,120px) minmax(0,1fr);
+  display:grid;grid-template-columns:minmax(76px,120px) minmax(0,1fr);
   gap:var(--astra-space-2);align-items:center
 }
 .natal-element-donut{display:block;width:100%;height:auto}
 .natal-distribution-track,.natal-distribution-segment{fill:none;stroke-width:20}
 .natal-distribution-track{stroke:var(--astra-secondary-surface)}
 .natal-distribution-segment{stroke:var(--distribution-element)}
+.natal-distribution-segment.is-muted{opacity:.25}
+.natal-distribution-segment.is-selected{stroke-width:24}
 .natal-distribution [data-element="fire"]{--distribution-element:var(--astra-zodiac-fire)}
 .natal-distribution [data-element="earth"]{--distribution-element:var(--astra-zodiac-earth)}
 .natal-distribution [data-element="air"]{--distribution-element:var(--astra-zodiac-air)}
 .natal-distribution [data-element="water"]{--distribution-element:var(--astra-zodiac-water)}
-.natal-distribution-total{fill:var(--astra-ink);font:750 24px var(--astra-font-body)}
+.natal-distribution-total{fill:var(--astra-ink);font:750 20px var(--astra-font-body)}
 .natal-distribution-unit{fill:var(--astra-muted);font:12px var(--astra-font-body)}
 .natal-element-legend,.natal-modality-list{
   list-style:none;margin:0;padding:0;display:grid;gap:var(--astra-space-2);
   font:600 .875rem/1.4 var(--astra-font-body)
 }
-.natal-element-legend li{display:grid;grid-template-columns:12px minmax(0,1fr) auto;align-items:center;gap:6px}
+.natal-element-legend li,.natal-modality-list li{min-width:0}
+.natal-distribution-toggle{
+  display:flex;align-items:center;gap:4px;
+  width:100%;min-width:0;min-height:var(--astra-control-min);
+  padding:4px;border:0;border-radius:var(--astra-radius-sm);
+  background:transparent;color:var(--astra-ink);font:inherit;text-align:left;
+  box-sizing:border-box;cursor:pointer
+}
+.natal-distribution-toggle strong{margin-inline-start:auto;white-space:nowrap;font-size:.8125rem}
+.natal-distribution-toggle[aria-expanded="true"]{background:var(--astra-selected)}
+.natal-distribution-chevron{
+  width:14px;height:14px;flex:none;fill:none;stroke:currentColor;
+  stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round
+}
+.natal-distribution-toggle[aria-expanded="true"] .natal-distribution-chevron{transform:rotate(90deg)}
+.natal-distribution-members:not([hidden]){
+  display:grid;gap:0;margin-top:var(--astra-space-2);
+  padding-top:var(--astra-space-2);border-top:1px solid var(--astra-divider)
+}
+.natal-distribution-members[hidden]{display:none}
+.natal-distribution-members-head{
+  display:flex;justify-content:space-between;gap:8px;align-items:center;
+  font-size:.8125rem;color:var(--astra-muted);margin-bottom:4px
+}
+.natal-distribution-member{
+  display:grid;grid-template-columns:1.5em minmax(0,1fr) auto;gap:6px;align-items:center;
+  width:100%;min-height:var(--astra-control-min);padding:4px;
+  border:0;border-radius:var(--astra-radius-sm);
+  background:transparent;color:var(--astra-ink);font:600 .875rem/1.4 var(--astra-font-body);
+  text-align:left;box-sizing:border-box;cursor:pointer
+}
+.natal-distribution-member>span:last-child{color:var(--astra-muted);font-weight:400}
+.natal-distribution-glyph{font-size:1.2em;text-align:center}
+.natal-distribution-empty{font-size:.875rem;color:var(--astra-muted);margin:8px 0}
+@media(hover:hover){
+  .natal-distribution-toggle:hover,.natal-distribution-member:hover{background:var(--astra-secondary-surface)}
+}
+@media(max-width:360px){
+  .natal-element-layout{grid-template-columns:minmax(66px,32%) minmax(0,1fr)}
+  .natal-distribution-toggle{gap:3px}
+}
 .natal-element-dot{
-  width:12px;height:12px;border-radius:50%;background:var(--distribution-element);
+  width:10px;height:10px;flex:none;border-radius:50%;background:var(--distribution-element);
   border:1px solid var(--astra-border);box-sizing:border-box
 }
-.natal-modality-list li{display:grid;grid-template-columns:1fr auto;gap:4px 8px;align-items:center}
-.natal-modality-list svg{grid-column:1/-1;width:100%;height:8px;display:block}
+.natal-modality-list li{display:grid;gap:2px}
+.natal-modality-list li>svg{width:100%;height:8px;display:block}
 .natal-modality-track{fill:var(--astra-secondary-surface)}
 .natal-modality-fill{fill:var(--astra-brand)}
 .natal-distribution strong{font-variant-numeric:tabular-nums}
