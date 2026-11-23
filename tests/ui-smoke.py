@@ -124,6 +124,11 @@ if __name__ == '__main__':
                     # resting screen; they obscure widget hierarchy.
                     page.evaluate("document.getElementById('toast').hidden=true")
                     page.screenshot(path=str(shots / (name+'.png')),full_page=True,animations='disabled')
+            def capture_element(name,selector):
+                if shots:
+                    page.evaluate("document.getElementById('toast').hidden=true")
+                    page.locator(selector).first.screenshot(path=str(shots / (name+'.png')),
+                                                             animations='disabled')
             def audit_disclosures(route):
                 """Check every disclosure on this rendered route, open or closed."""
                 items=page.evaluate("""() => [...document.querySelectorAll('details.astra-disclosure')].map(el=>{
@@ -779,6 +784,39 @@ if __name__ == '__main__':
             page.locator('[data-profile-screen="overview"]').click()
             settings=page.evaluate("JSON.parse(localStorage.getItem('astra-public-v1'))")
             assert settings['natalView']=='essential' and settings['natalZodiac']=='tropical'
+            # Compare the two reference palettes on the SAME natal wheel and
+            # calendar geometry. Persisted choices must affect live CSS & export.
+            page.set_viewport_size({'width':393,'height':844})
+            assert page.locator('[data-element-palette]').count()==2
+            light_palettes={
+                'classic':{'fire':'#FAB617','air':'#E7F6FD','water':'#00ADEF','earth':'#896B49'},
+                'vivid':{'fire':'#FF3D14','air':'#F7FC35','water':'#159BF2','earth':'#46CD17'},
+            }
+            for palette,hues in light_palettes.items():
+                option=page.locator('[data-element-palette="'+palette+'"]')
+                option.click()
+                assert option.get_attribute('aria-pressed')=='true',palette
+                assert page.evaluate('document.documentElement.dataset.astraPalette')==palette
+                assert page.evaluate("JSON.parse(localStorage.getItem('astra-public-v1')).elementPalette")==palette
+                actual=page.evaluate("""() => {
+                  const root=getComputedStyle(document.documentElement);
+                  return Object.fromEntries(['fire','air','water','earth'].map(e=>
+                    [e,root.getPropertyValue('--astra-zodiac-'+e).trim()]));
+                }""")
+                assert actual==hues,(palette,actual)
+                capture('palette-'+palette+'-settings-light-393')
+                page.locator('[data-profile-screen="overview"]').click()
+                for element,colour in hues.items():
+                    expected_fill='rgb('+', '.join(str(int(colour[i:i+2],16)) for i in (1,3,5))+')'
+                    actual_fill=page.locator('.natal-home .wheel-zodiac-sector.zodiac-element-'+element).first.evaluate(
+                        'el=>getComputedStyle(el).fill'
+                    )
+                    assert actual_fill==expected_fill,(palette,element,actual_fill)
+                capture_element('palette-'+palette+'-wheel-light-393','.natal-home .natal-wheel')
+                page.locator('[data-tab="calendar"]').click()
+                capture_element('palette-'+palette+'-calendar-light-393','.astra-calendar-board')
+                page.locator('[data-tab="profile"]').click()
+                page.locator('[data-profile-screen="settings"]').click()
             # P3: both appearance modes, readable ribbon ink and reduced motion.
             page.locator('[data-profile-screen="settings"]').click()
             page.locator('[data-appearance="dark"]').click()
@@ -786,6 +824,31 @@ if __name__ == '__main__':
             page.wait_for_timeout(200)  # let any theme surface transitions settle
             for item in page.evaluate(CONTRAST_JS):
                 assert item.get('ratio',0)>=4.5,('dark',item)
+            # The classical option must also work in night mode.
+            page.locator('[data-element-palette="classic"]').click()
+            assert page.evaluate("""() => {
+              const style=getComputedStyle(document.documentElement);
+              return document.documentElement.dataset.astraPalette==='classic' &&
+                style.getPropertyValue('--solar-fire-bg').trim()==='#7C5217' &&
+                style.getPropertyValue('--solar-earth-bg').trim()==='#6D5136' &&
+                style.getPropertyValue('--solar-air-bg').trim()==='#395665' &&
+                style.getPropertyValue('--solar-water-bg').trim()==='#105D87';
+            }""")
+            page.locator('[data-profile-screen="overview"]').click()
+            capture_element('palette-classic-wheel-dark-393','.natal-home .natal-wheel')
+            page.locator('[data-tab="calendar"]').click()
+            capture_element('palette-classic-calendar-dark-393','.astra-calendar-board')
+            page.locator('[data-tab="profile"]').click()
+            page.locator('[data-profile-screen="settings"]').click()
+            page.locator('[data-element-palette="vivid"]').click()
+            capture('palette-vivid-settings-dark-393')
+            page.locator('[data-profile-screen="overview"]').click()
+            capture_element('palette-vivid-wheel-dark-393','.natal-home .natal-wheel')
+            page.locator('[data-tab="calendar"]').click()
+            capture_element('palette-vivid-calendar-dark-393','.astra-calendar-board')
+            page.locator('[data-tab="profile"]').click()
+            page.locator('[data-profile-screen="settings"]').click()
+            assert page.evaluate('document.documentElement.dataset.astraPalette')=='vivid'
             assert page.evaluate(
                 "getComputedStyle(document.documentElement).getPropertyValue('--astra-calendar-ink').trim()"
             )=='#F8EFD5'
