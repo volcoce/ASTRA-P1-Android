@@ -222,3 +222,40 @@ test('Week, month and calendar chevrons share one global arrow component',()=>{
   });
  }
 });
+
+test('Global settings have one responsive dialog and single owners for shared preferences',()=>{
+ const html=read('index.html'),app=read('app.js');
+ const css=postcss.parse(read('astra-components.css'),{from:'astra-components.css'});
+ assert.match(html,/id="settingsButton"[^>]+aria-haspopup="dialog"/);
+ assert.match(html,/<dialog id="astraSettingsDialog" class="astra-settings-dialog"/);
+ for(const category of ['astrology','appearance','data','advanced']){
+  assert.ok(app.includes("['"+category+"'"),category+' settings tab missing');
+ }
+ assert.match(app,/globalSettingsDialog\.showModal\(\)/);
+ assert.match(app,/if\(\$\('astraSettingsDialog'\)\?\.open\)/);
+ assert.match(app,/function updateGlobalSettings\(/);
+ const profile=app.slice(app.indexOf('  function profile() {'),app.indexOf('  function render() {'));
+ for(const orphan of ['appearancePanel()','diagnosticsPanel()','astra-privacy-settings',
+   'data-element-palette=','data-appearance=','data-house-system=','data-natal-zodiac=']){
+  assert.ok(!profile.includes(orphan),'Global preference leaked into Mon ciel: '+orphan);
+ }
+ const natal=app.slice(app.indexOf('  function renderNatalChart(chart)'),app.indexOf('  function appearancePanel()'));
+ assert.ok(!natal.includes('data-house-system='));
+ assert.ok(!natal.includes('data-natal-zodiac='));
+ const global=app.slice(app.indexOf('  function settingsAstrologyPanel()'),app.indexOf('  function profile() {'));
+ for(const pref of ['data-mode','data-house-system','data-natal-zodiac']){
+  assert.ok(global.includes(pref),'Astrology settings missing '+pref);
+ }
+ let dialogRule=0,triggerRule=0;
+ css.walkRules(rule=>{
+  if(rule.selector==='.astra-settings-dialog')dialogRule++;
+  if(rule.selector==='.top .astra-settings-trigger')triggerRule++;
+ });
+ assert.equal(dialogRule,1);assert.equal(triggerRule,1);
+ for(const filename of CSS_SOURCES.filter(f=>f!=='astra-components.css')){
+  postcss.parse(read(filename),{from:filename}).walkRules(rule=>{
+   assert.ok(!rule.selector.includes('.astra-settings-dialog'),
+     filename+' overrides the global settings dialog');
+  });
+ }
+});
