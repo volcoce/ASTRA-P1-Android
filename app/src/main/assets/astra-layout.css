@@ -86,7 +86,7 @@ label:has(>input:is([type="checkbox"],[type="radio"])){
 }
 /* Consistent gaps for neighboring choices, navigation and opposite actions. */
 :is(.switch,.natal-segments,.natal-overview-tabs,.natal-transit-filters,
-.natal-filter-items,.natal-related,.natal-advanced-buttons,.natal-downloads,
+.natal-filter-items,.natal-related,.natal-advanced-buttons,
 .natal-zoom,.astra-week-controls,.astra-settings-tabs){
   gap:var(--astra-touch-gap)
 }
