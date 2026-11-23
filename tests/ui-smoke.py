@@ -89,7 +89,7 @@ CONTRAST_JS = """() => {
     const x=raw/255;
     return sum+(x<=0.04045?x/12.92:Math.pow((x+0.055)/1.055,2.4))*[0.2126,0.7152,0.0722][i];
   },0);
-  return ['.top .brand','.bottom-nav .nav.active','.bottom-nav .nav:not(.active)',
+  return ['.bottom-nav .nav.active','.bottom-nav .nav:not(.active)',
           '.screen-intro .page-title','.card .card-title'].map(selector=>{
     const el=document.querySelector(selector);
     if(!el)return {selector,error:'missing'};
@@ -261,6 +261,10 @@ if __name__ == '__main__':
                 "el => parseFloat(getComputedStyle(el).fontSize)"
             )
             assert px('.nav')>=12
+            # The screen H1 replaces the former global ASTRA masthead.
+            assert page.locator('.app-shell > .top').count()==0
+            assert page.locator('.app-shell > .main').count()==1
+            assert page.locator('.main > .screen-intro h1.page-title').count()==1
             assert page.locator('[data-tab="today"]').get_attribute('aria-label')=='Ce jour'
             assert page.locator('[data-tab="today"] .nav-label').inner_text()=='Ce jour'
             assert page.locator('.bottom-nav [data-tab]').count()==4
