@@ -448,6 +448,7 @@ if __name__ == '__main__':
             assert page.locator('.natal-home .natal-wheel').count()==1
             page.locator('.natal-main-action').click()
             assert page.locator('.natal-explore').count()==1
+            assert page.locator('.natal-explore-list > p').count()==0
             assert page.locator('.natal-explore .natal-position').count()==10
             assert page.locator('.natal-explore .position-retrograde').count()==10
             assert page.locator('.natal-explore [data-natal-body="Mercury"].natal-position .position-retrograde').inner_text()=='R'
@@ -493,6 +494,7 @@ if __name__ == '__main__':
             assert page.locator('.natal-explore .natal-aspect').count()==1
             page.locator('.natal-back').click()
             assert page.locator('.natal-home .natal-wheel').count()==1
+            assert page.locator('.natal-home-hint, .natal-section-lead').count()==0
             assert page.locator('.natal-overview-tabs, .natal-home .natal-position, .natal-home .natal-aspect').count()==0
             assert page.locator('.natal-home .natal-glossary').count()==0
             page.locator('#settingsButton').click()
@@ -529,8 +531,7 @@ if __name__ == '__main__':
                   const cardStyle=getComputedStyle(document.querySelector('.natal-home'));
                   const selectors=[
                     '.natal-primary-cards','.natal-home-actions--primary',
-                    '.natal-wheel-viewport',
-                    '.natal-home-hint'];
+                    '.natal-wheel-viewport'];
                   return {
                     intro:{left:intro.left+parseFloat(introStyle.paddingLeft),
                       right:intro.right-parseFloat(introStyle.paddingRight)},
