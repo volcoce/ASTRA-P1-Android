@@ -178,7 +178,12 @@ public final class MainActivity extends Activity {
                         ? insets.getInsets(WindowInsets.Type.ime()).bottom : 0;
                 root.setPadding(0, 0, 0, imeBottom);
                 publishSafeArea();
+                // JS/CSS has already received the bar and cutout dimensions.
+                // Zero these types for the child WebView, preserving dispatch.
+                // Otherwise recent WebViews can apply a second safe-area offset.
                 return new WindowInsets.Builder(insets)
+                        .setInsets(WindowInsets.Type.systemBars()
+                                | WindowInsets.Type.displayCutout(), Insets.NONE)
                         .setInsets(WindowInsets.Type.ime(), Insets.NONE).build();
             }
             // adjustResize handles the keyboard on Android 8-10.
@@ -188,7 +193,9 @@ public final class MainActivity extends Activity {
             insetRight = insets.getSystemWindowInsetRight();
             insetBottom = insets.getSystemWindowInsetBottom();
             publishSafeArea();
-            return insets; // never consume system bars: WebView also needs them
+            // CSS owns the bar padding here too. Keep notification delivery
+            // but clear duplicate insets before they reach older WebViews.
+            return insets.replaceSystemWindowInsets(0, 0, 0, 0);
         });
 
         webView.addJavascriptInterface(new NativeUiBridge(), "ASTRA_NATIVE_UI");
