@@ -67,6 +67,16 @@ jobs:
       - name: Audit P1 de la géométrie et de l’accessibilité
         if: ${{ !cancelled() }}
         run: python tests/ui-referential.py
+      - name: Tester le catalogue des composants P2
+        if: ${{ !cancelled() }}
+        run: python tests/ui-catalog.py
+      - name: Publier le catalogue P2
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ASTRA-P2-component-catalog
+          path: tests/artifacts/ui-catalog/
+          if-no-files-found: warn
       - name: Publier le rapport P1
         if: always()
         uses: actions/upload-artifact@v4

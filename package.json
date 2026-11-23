@@ -12,7 +12,8 @@
     "build:css": "node scripts/build-css.mjs",
     "lint:css": "stylelint 'app/src/main/assets/*.css' && node --test tests/css-ownership.test.mjs tests/css-debt.test.mjs",
     "check:css": "npm run lint:css && npm run build:css",
-    "test:ui": "python tests/ui-smoke.py && python tests/ui-referential.py"
+    "test:ui": "python tests/ui-smoke.py && python tests/ui-referential.py && python tests/ui-catalog.py",
+    "dev:ui": "npm run build:css && node scripts/dev-server.mjs"
   },
   "dependencies": {
     "astronomy-engine": "2.1.19"

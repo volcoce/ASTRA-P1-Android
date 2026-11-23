@@ -1,0 +1,8 @@
+/* Layout of the internal catalogue only. No production component is
+   redeclared here: all paint, focus and sizing come from astra.bundle.css. */
+.catalog-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:var(--astra-space-4)}
+.catalog-actions{display:flex;flex-wrap:wrap;align-items:center;gap:var(--astra-touch-gap);margin-block-end:var(--astra-space-4)}
+.catalog-stack{display:grid;gap:var(--astra-space-3)}
+.catalog-swatches{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,140px),1fr));gap:var(--astra-space-2);margin-block-end:var(--astra-space-4)}
+.catalog-swatch{min-width:0;overflow-wrap:anywhere;border:1px solid var(--astra-border);border-radius:var(--astra-radius-md);padding:var(--astra-space-2)}
+.catalog-swatch-sample{display:block;min-height:var(--astra-control-min);border-radius:var(--astra-radius-sm);border:1px solid var(--astra-border);margin-block-end:var(--astra-space-1)}

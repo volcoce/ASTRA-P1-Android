@@ -10,6 +10,13 @@ import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
 export const DEFAULT_ASSET_DIR = resolve(here, '../app/src/main/assets');
+const CATALOG_DIR = resolve(here, '../dev/ui-catalog');
+const CATALOG_FILES = new Map([
+  ['/ui-catalog', 'index.html'],
+  ['/ui-catalog/', 'index.html'],
+  ['/ui-catalog/catalog.js', 'catalog.js'],
+  ['/ui-catalog/catalog.css', 'catalog.css'],
+]);
 const TYPES = {
   '.html': 'text/html; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
@@ -35,8 +42,12 @@ export function createPreviewServer(assets = DEFAULT_ASSET_DIR) {
       const filename = decodeURIComponent(url.pathname);
       if (filename.includes('\0') || filename.includes('\\')) throw new Error('Invalid filename');
       const relative = filename === '/' ? 'index.html' : filename.replace(/^\/+/, '');
-      const pathname = resolve(join(root, relative));
-      if (!pathname.startsWith(root + sep)) {
+      // Only the local development server serves these exact files. They are
+      // outside Android assets and never included in an APK.
+      const catalogFile = root === DEFAULT_ASSET_DIR ? CATALOG_FILES.get(filename) : undefined;
+      const allowedRoot = catalogFile ? CATALOG_DIR : root;
+      const pathname = resolve(join(allowedRoot, catalogFile || relative));
+      if (!pathname.startsWith(allowedRoot + sep)) {
         response.writeHead(403); response.end('Forbidden'); return;
       }
       const info = await stat(pathname).catch(() => null);
@@ -71,6 +82,7 @@ if (invokedDirectly) {
     });
     server.listen(port, '127.0.0.1', () => {
       console.log('\nASTRA Preview PC : http://127.0.0.1:' + port + '/');
+      console.log('Catalogue UI interne : http://127.0.0.1:' + port + '/ui-catalog/');
       console.log('Ouvrez cette adresse dans votre navigateur. Arrêt : Ctrl+C.');
       console.log('Le calcul reste local. La recherche de ville exige une connexion Internet.\n');
     });

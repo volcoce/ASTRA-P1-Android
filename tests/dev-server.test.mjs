@@ -21,6 +21,12 @@ test('local preview serves HTML, JS, CSS and rejects invalid methods', async () 
     const css = await fetch(url + '/style.css');
     assert.equal(css.status, 200);
     assert.equal((await fetch(url + '/missing-file')).status, 404);
+    const catalog=await fetch(url+'/ui-catalog/');
+    assert.equal(catalog.status,200);
+    assert.match(await catalog.text(),/href="\/astra\.bundle\.css"/);
+    assert.equal((await fetch(url+'/ui-catalog/catalog.js')).status,200);
+    assert.equal((await fetch(url+'/ui-catalog/catalog.css')).status,200);
+    assert.equal((await fetch(url+'/ui-catalog/private.txt')).status,404);
     assert.equal((await fetch(url, { method: 'POST' })).status, 405);
   } finally {
     server.close();
