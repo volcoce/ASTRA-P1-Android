@@ -74,7 +74,7 @@ Quatre destinations persistantes, dans cet ordre :
 3. **Calendrier** (icône calendrier) — grille complète, sélection et événements détaillés.
 4. **Mon ciel** (icône étoile) — thème natal, compréhension et comparaison.
 
-La navigation doit toujours afficher **icône + texte**. L'état actif se distingue par fond et typographie, pas seulement la couleur. La barre demeure accessible sauf quand le clavier virtuel couvre la zone utile ou qu'une vue immersive modale est ouverte.
+La navigation doit toujours afficher **icône + texte**. L'état actif se distingue par fond et typographie, pas seulement la couleur. La barre demeure accessible sauf quand le clavier virtuel couvre la zone utile ou qu’une fenêtre de paramètres est affichée au premier plan.
 
 ### Navigation secondaire
 
@@ -95,7 +95,7 @@ La navigation doit toujours afficher **icône + texte**. L'état actif se distin
 5. Le style, le responsive, la palette sombre/claire et les marges de cette fenêtre appartiennent **exclusivement** à `astra-components.css`. Aucune règle spécifique à Ce jour, Ce mois, Calendrier ou Mon ciel.
 6. La sauvegarde et l'effacement restent dans Données, jamais dans le formulaire de naissance ou les commandes de roue.
 
-**Retour Android :** fermer un panneau contextuel, puis la roue immersive, puis revenir de la sous-page à Mon ciel, puis à Ce jour. Ne jamais quitter l'app sur un simple retour depuis un détail.
+**Retour Android :** fermer la fenêtre de paramètres ou un panneau contextuel, puis revenir de la sous-page à Mon ciel, puis à Ce jour. Ne jamais quitter l'app sur un simple retour depuis un détail.
 
 ### Répartition selon l'écran
 
@@ -117,8 +117,8 @@ Ne jamais afficher une barre latérale **et** une barre basse concurrentes ; il 
 - `ScreenIntro` — un titre H1, sous-titre d'une phrase maximum, aucun titre répété à l'identique.
 - `PageContent` — flux vertical commun, sections accessibles avec titres H2.
 - `BottomNavigation` — quatre vues et une entrée Paramètres à droite de Mon ciel ; icônes et libellés, `aria-current="page"` pour les vues, `aria-expanded` pour les paramètres.
-- `ContextSheet` / `FullScreenChart` — détails et lecture agrandie, focus géré et bouton fermer.
-- `GlobalSettingsDialog` — préférences globales en quatre rubriques accessibles depuis l’en-tête, un seul propriétaire CSS et restauration du focus.
+- `ContextSheet` — lecture d’un objet de la roue sur la page courante, avec fermeture et restauration du focus. Aucune deuxième roue en plein écran ; le zoom intégré et les exports SVG/PNG restent dans les outils de la carte.
+- `GlobalSettingsDialog` — préférences globales en quatre rubriques accessibles depuis la dernière entrée de la barre inférieure, un seul propriétaire CSS et restauration du focus.
 
 ### Bibliothèque de composants
 
