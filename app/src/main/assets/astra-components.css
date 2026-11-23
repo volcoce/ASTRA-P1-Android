@@ -318,4 +318,43 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
 }
 .astra-event-day-arrow{font-size:21px;line-height:1;color:var(--astra-muted)}
 
+
+/* Global palette-preview component in Appearance settings, not a route override. */
+.astra-palette-heading{margin:20px 0 5px;color:var(--astra-ink);font:750 16px/1.35 var(--astra-font-body)}
+.astra-palette-options{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--astra-space-3);margin-top:12px
+}
+.astra-palette-choice{
+  min-width:0;min-height:124px;display:flex;flex-direction:column;
+  align-items:stretch;gap:7px;padding:12px;
+  border:1px solid var(--astra-divider);border-radius:var(--astra-radius-lg);
+  background:var(--astra-surface);color:var(--astra-ink);text-align:left;cursor:pointer
+}
+.astra-palette-choice:hover{background:var(--astra-secondary-surface)}
+.astra-palette-choice[aria-pressed="true"]{border:2px solid var(--astra-selected-border);background:var(--astra-selected)}
+.astra-palette-choice strong{font:750 14px/1.35 var(--astra-font-body)}
+.astra-palette-choice small{color:var(--astra-muted);font:500 12px/1.45 var(--astra-font-body)}
+.astra-palette-samples{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:3px;
+  min-width:0;min-height:26px;overflow:hidden;
+  border-radius:var(--astra-radius-sm);border:1px solid var(--astra-border)
+}
+.astra-palette-choice[data-element-palette="classic"]{
+  --palette-preview-fire:var(--astra-elements-classic-fire);
+  --palette-preview-air:var(--astra-elements-classic-air);
+  --palette-preview-water:var(--astra-elements-classic-water);
+  --palette-preview-earth:var(--astra-elements-classic-earth)
+}
+.astra-palette-choice[data-element-palette="vivid"]{
+  --palette-preview-fire:var(--astra-elements-vivid-fire);
+  --palette-preview-air:var(--astra-elements-vivid-air);
+  --palette-preview-water:var(--astra-elements-vivid-water);
+  --palette-preview-earth:var(--astra-elements-vivid-earth)
+}
+.astra-palette-swatch[data-element="fire"]{background:var(--palette-preview-fire)}
+.astra-palette-swatch[data-element="air"]{background:var(--palette-preview-air)}
+.astra-palette-swatch[data-element="water"]{background:var(--palette-preview-water)}
+.astra-palette-swatch[data-element="earth"]{background:var(--palette-preview-earth)}
+@media(max-width:480px){.astra-palette-options{grid-template-columns:minmax(0,1fr)}}
+
 }

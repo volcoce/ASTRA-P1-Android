@@ -126,12 +126,21 @@
   --astra-shadow-soft:0 5px 18px #1E404F18;
   --astra-motion:150ms cubic-bezier(.2,.75,.35,1);
 
-  /* Second supplied reference: Fire red-orange, Air yellow, Water blue, Earth green.
-     One semantic palette feeds wheel, solar ribbon and SVG exports. */
-  --astra-zodiac-fire:#FF3D14;
-  --astra-zodiac-earth:#46CD17;
-  --astra-zodiac-air:#F7FC35;
-  --astra-zodiac-water:#159BF2;
+  /* Palette 1 uses approximate solid fills sampled from the first image.
+     Earth is slightly darkened to permit accessible cream text. Palette 2
+     retains the four vivid hues already shipped. */
+  --astra-elements-classic-fire:#FAB617;
+  --astra-elements-classic-air:#E7F6FD;
+  --astra-elements-classic-water:#00ADEF;
+  --astra-elements-classic-earth:#896B49;
+  --astra-elements-vivid-fire:#FF3D14;
+  --astra-elements-vivid-air:#F7FC35;
+  --astra-elements-vivid-water:#159BF2;
+  --astra-elements-vivid-earth:#46CD17;
+  --astra-zodiac-fire:var(--astra-elements-vivid-fire);
+  --astra-zodiac-earth:var(--astra-elements-vivid-earth);
+  --astra-zodiac-air:var(--astra-elements-vivid-air);
+  --astra-zodiac-water:var(--astra-elements-vivid-water);
 
   /* Calendar ribbon uses these same hues, with subdued outside-month variants. */
   --element-fire:var(--astra-zodiac-fire);
@@ -227,6 +236,37 @@
   --pale:var(--astra-bg);
   --plum:var(--astra-secondary-surface);
   --border:var(--astra-border);
+}
+
+/* Palette choice only overrides element roles, not UI/theme colors.
+   The same roles are consumed by the wheel, Sun band and SVG exports. */
+:root[data-astra-palette="classic"]{
+  --astra-zodiac-fire:var(--astra-elements-classic-fire);
+  --astra-zodiac-earth:var(--astra-elements-classic-earth);
+  --astra-zodiac-air:var(--astra-elements-classic-air);
+  --astra-zodiac-water:var(--astra-elements-classic-water);
+  --solar-fire-muted:#EEE0AA;
+  --solar-earth-muted:#D2C1A9;
+  --solar-air-muted:#ECF7FA;
+  --solar-water-muted:#AEDFF2;
+  --solar-fire-ink:#102A34;
+  --solar-earth-ink:var(--astra-plate-cream);
+  --solar-air-ink:#102A34;
+  --solar-water-ink:#102A34;
+}
+:root[data-astra-theme="dark"][data-astra-palette="classic"]{
+  --solar-fire-bg:#7C5217;
+  --solar-earth-bg:#6D5136;
+  --solar-air-bg:#395665;
+  --solar-water-bg:#105D87;
+  --solar-fire-muted:#574722;
+  --solar-earth-muted:#493B31;
+  --solar-air-muted:#334A55;
+  --solar-water-muted:#28485E;
+  --solar-fire-ink:var(--astra-plate-cream);
+  --solar-earth-ink:var(--astra-plate-cream);
+  --solar-air-ink:var(--astra-plate-cream);
+  --solar-water-ink:var(--astra-plate-cream);
 }
 
 /* Enhanced contrast changes token roles, not feature-specific paint rules. */
