@@ -1246,28 +1246,39 @@
   }
   // Signs are typographic glyphs, not native emoji badges.
   const wheelZodiacGlyph=index=>zodiacSymbols[index]+'\uFE0E';
-  // No anti-collision: all symbols use their true longitude and a fixed ring radius.
-  function wheelPlanetLabel(body,lng,asc,{center=210,radius=150,markerRadius=166,dateOnly=false,transit=false}={}){
-    const angle=(180-(lng-asc))*Math.PI/180;
-    const polarPoint=r=>[(center+r*Math.cos(angle)).toFixed(2),(center+r*Math.sin(angle)).toFixed(2)];
-    const [x,y]=polarPoint(radius),[tx,ty]=polarPoint(markerRadius);
+  // Minimal visual spacing only: never move the astronomical anchor or change rings.
+  function wheelPlanetLabel(body,lng,asc,{center=210,radius=150,markerRadius=166,dateOnly=false,transit=false,labelLongitude=lng}={}){
+    const polarPoint=(longitude,r)=>{
+      const angle=(180-(longitude-asc))*Math.PI/180;
+      return [(center+r*Math.cos(angle)).toFixed(2),(center+r*Math.sin(angle)).toFixed(2)];
+    };
+    const [x,y]=polarPoint(labelLongitude,radius),[tx,ty]=polarPoint(lng,markerRadius);
     const active=natalSelection?.kind===(transit?'transit':'planet')&&natalSelection.id===body;
     const classes='natal-hit '+(transit?'natal-transit-hit':'natal-planet-hit')+
       ' '+(body==='Sun'?'is-sun':body==='Moon'?'is-moon':'is-other')+(active?' is-active':'');
     const attr=transit?'data-transit-body':'data-natal-body';
     const accessible=safe(planets[body]+(transit?' en transit':'')+' · '+
       (dateOnly&&body==='Moon'?'position indicative · ':'')+E.formatSign(lng));
-    return '<circle class="wheel-true-anchor" cx="'+tx+'" cy="'+ty+'" r="2.7"/>'+
+    const shifted=Math.abs(((labelLongitude-lng+540)%360)-180)>1e-5;
+    const [lx,ly]=polarPoint(labelLongitude,radius+(markerRadius>=radius?12:-12));
+    const leader=shifted?'<line class="wheel-planet-leader" x1="'+tx+'" y1="'+ty+
+      '" x2="'+lx+'" y2="'+ly+'" pointer-events="none"/>':'';
+    return leader+'<circle class="wheel-true-anchor" cx="'+tx+'" cy="'+ty+'" r="2.7"/>'+
       '<g class="'+classes+'" '+attr+'="'+body+'" data-true-longitude="'+lng.toFixed(6)+
-      '" data-label-longitude="'+lng.toFixed(6)+'" data-wheel-radius="'+radius+
+      '" data-label-longitude="'+labelLongitude.toFixed(6)+'" data-wheel-radius="'+radius+
       '" tabindex="0" focusable="true" role="button" aria-label="Voir '+accessible+'" aria-pressed="'+active+'">'+
       '<circle class="wheel-planet-disc" cx="'+x+'" cy="'+y+'" r="17"/>'+
       '<text x="'+x+'" y="'+y+'" text-anchor="middle" dominant-baseline="central" pointer-events="none" class="natal-planet">'+(natalGlyphs[body]||body)+'</text></g>';
   }
   function wheelLabels(positions,asc,options={}){
+    const radius=options.radius??150;
+    // A 26 SVG-unit chord is just wider than the 21-unit glyph. Unlike a
+    // fixed 14–19° gap, this scales with each ring and leaves clear glyphs alone.
+    const minDegrees=2*Math.asin(26/(2*radius))*180/Math.PI;
+    const labels=E.layoutPlanetLabels(positions,minDegrees);
     return Object.entries(positions)
       .filter(([,lng])=>Number.isFinite(lng))
-      .map(([body,lng])=>wheelPlanetLabel(body,lng,asc,options)).join('');
+      .map(([body,lng])=>wheelPlanetLabel(body,lng,asc,{...options,labelLongitude:labels[body].labelLongitude})).join('');
   }
 
   function wheelSvg(chart,quiet=false) {
@@ -1625,7 +1636,7 @@
       '<div class="natal-context-bar"><h2 id="natalContextTitle">Fiche de lecture</h2>'+
       '<button type="button" data-close-natal-detail="1" aria-label="Fermer la fiche">Fermer <span aria-hidden="true">×</span></button></div>'+
       '<div class="natal-context-content">'+selectedDetail+'</div></section>':'';
-    const shortCaption='<p class="natal-home-hint">Les planètes sont affichées à leur position exacte. '+
+    const shortCaption='<p class="natal-home-hint">Les points indiquent les positions exactes. '+
       (state.natalView==='complete'?'Tous les aspects du filtre sont affichés. ':'Jusqu’à six aspects sont affichés. ')+
       (uncertain?'Heure inconnue : Lune indicative, sans maisons.':'Sélectionne une planète pour afficher ses détails.')+'</p>';
     const pageBack='<button type="button" class="natal-back" data-profile-screen="overview" aria-label="Retour à Mon ciel">'+
