@@ -1,6 +1,6 @@
 @layer layout {
 /* ASTRA — single global shell & navigation contract.
-   Applies identically to Ce jour, Ce mois, Calendrier, Journal, Mon ciel and
+   Applies identically to Ce jour, Calendrier, Journal, Mon ciel and
    its sub-pages. CSS geometry never depends on which route is open. */
 .app-shell{
   width:100%;max-width:1000px;min-width:0;min-height:100dvh;
@@ -22,21 +22,25 @@
   padding-inline:var(--astra-card-gutter);
   box-sizing:border-box;
   overflow-wrap:break-word;
+  display:grid;grid-template-columns:minmax(0,1fr);
+  align-content:start;gap:var(--astra-space-4);
 }
 /* Every screen uses this single content column, including direct panels. */
 .main>*{min-width:0;max-width:100%;box-sizing:border-box}
+/* The page and nested stacks own vertical rhythm; dialog centering is untouched. */
+.main>*:not(dialog){margin-block:0}
 /* Reusable vertical section flow: the parent owns all inter-section spacing. */
 .astra-section-stack{
   display:grid;grid-template-columns:minmax(0,1fr);gap:var(--astra-space-4);
   width:100%;min-width:0;box-sizing:border-box;
-  margin-block:var(--astra-space-4)
+  margin:0
 }
 .astra-section-stack>*{min-width:0;max-width:100%;margin:0;box-sizing:border-box}
 .main>.screen-intro{
   width:100%;
   min-width:0;
-  margin:0 0 14px;
-  padding:24px 0 2px;
+  margin:0;
+  padding:var(--astra-space-6) 0 2px;
   box-sizing:border-box;
 }
 /* Reading cards inherit all paint and insets from the shared .card.
