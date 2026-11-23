@@ -2,11 +2,6 @@
 /* ASTRA P0 — Common component contract, layered after legacy CSS.
    Avoid altering astronomical SVG geometry or functional calendar ribbons. */
 html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--astra-font-body);line-height:var(--astra-line-height)}
-.top{background:var(--color-deep-ocean);color:var(--color-cream)}
-.top .emblem{background:var(--color-dandelion);color:var(--color-deep-ocean);border:2px solid var(--color-cream);border-radius:var(--astra-radius-md)}
-.top .brand{color:var(--color-cream);font-family:var(--astra-font-display);font-weight:800;letter-spacing:.08em}
-.top .brand-sub{color:var(--astra-masthead-subtitle)}
-:root[data-astra-theme="dark"] .top{background:var(--atlas-night)}
 .page-title{font-family:var(--astra-font-display);font-size:var(--astra-font-size-title);font-weight:700;letter-spacing:-.025em;color:var(--astra-ink)}
 .card-title,.section-title,.month-head h2{font-family:var(--astra-font-display);color:var(--astra-ink);font-weight:700}
 .lead,.muted,.tiny,.field-help{color:var(--astra-muted)}
