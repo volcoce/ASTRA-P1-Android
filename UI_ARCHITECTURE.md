@@ -84,14 +84,14 @@ La navigation doit toujours afficher **icône + texte**. L'état actif se distin
 - **Journal (secondaire)** — accès depuis une carte ou une fiche, retour à Ce jour, jour précédent/suivant, sauvegarde et historique sous la saisie.
 - **Mon ciel** — trois vues de la même carte : « Roue / Planètes / Aspects ». Deux parcours à intitulés compréhensibles restent disponibles : « Comprendre mon thème » et « Comparer deux dates ». Le glossaire est contextuel ; les progressions et la carte composite sont repliées dans les outils avancés.
 - **Paramètres généraux** — un cinquième bouton « Paramètres » dans la barre de navigation, immédiatement à droite de « Mon ciel », visible depuis tous les écrans. Fenêtre modale native à quatre rubriques : **Astrologie** (zodiaques prévisionnel et natal, maisons, raccourci vers la naissance), **Apparence** (thème et palettes), **Données** (confidentialité, import/export, effacement), **Avancé** (diagnostics et limites). Fermeture explicite, touche Échap, bouton Retour Android, focus restauré.
-- **Paramètres → Astrologie → Personnaliser mon thème** — accès unique à l’éditeur de naissance et aux commandes de personnalisation de la roue (niveau de détail, disposition natale/double, date de comparaison, zoom, export graphique). Les vues de « Mon ciel » n’affichent plus d’action « Personnaliser » en doublon.
+- **Paramètres → Astrologie → Personnaliser mon thème** — accès unique à l’éditeur de naissance et aux commandes de personnalisation de la roue (niveau de détail, disposition natale/double, date de comparaison et zoom). Les vues de « Mon ciel » n’affichent plus d’action « Personnaliser » en doublon.
 
 ### Contrat de la fenêtre de paramètres
 
 1. Les préférences globales ont **un seul emplacement de modification** ; elles sont sauvegardées et immédiatement appliquées aux écrans concernés. L’éditeur du thème est accessible depuis la rubrique Astrologie, y compris pour modifier les données de naissance.
 2. La fenêtre se superpose à l'écran courant, sans changer de date ou d'onglet. Sur mobile, elle devient une feuille adaptée à l'écran, sans doublonner la barre de navigation.
 3. Les sections ne sont pas simultanément ouvertes ; les quatre onglets ont un état sélectionné visible et se pilotent au clavier (flèches, Début, Fin).
-4. Après l'enregistrement d'un réglage, le focus revient au contrôle modifié. Fermer la fenêtre rend le focus au bouton du bandeau. Accéder au formulaire de naissance conserve le focus du nouveau parcours.
+4. Après l'enregistrement d'un réglage, le focus revient au contrôle modifié. Fermer la fenêtre rend le focus au bouton Paramètres de la barre inférieure. Accéder au formulaire de naissance conserve le focus du nouveau parcours.
 5. Le style, le responsive, la palette sombre/claire et les marges de cette fenêtre appartiennent **exclusivement** à `astra-components.css`. Aucune règle spécifique à Ce jour, Ce mois, Calendrier ou Mon ciel.
 6. La sauvegarde et l'effacement restent dans Données, jamais dans le formulaire de naissance ou les commandes de roue.
 
@@ -117,7 +117,7 @@ Ne jamais afficher une barre latérale **et** une barre basse concurrentes ; il 
 - `ScreenIntro` — un titre H1, sous-titre d'une phrase maximum, aucun titre répété à l'identique.
 - `PageContent` — flux vertical commun, sections accessibles avec titres H2.
 - `BottomNavigation` — quatre vues et une entrée Paramètres à droite de Mon ciel ; icônes et libellés, `aria-current="page"` pour les vues, `aria-expanded` pour les paramètres.
-- `ContextSheet` — lecture d’un objet de la roue sur la page courante, avec fermeture et restauration du focus. Aucune deuxième roue en plein écran ; le zoom intégré et les exports SVG/PNG restent dans les outils de la carte.
+- `ContextSheet` — lecture d’un objet de la roue sur la page courante, avec fermeture et restauration du focus. Aucune deuxième roue en plein écran ; le zoom intégré reste disponible dans les outils de la carte, sans exports PNG/SVG.
 - `GlobalSettingsDialog` — préférences globales en quatre rubriques accessibles depuis la dernière entrée de la barre inférieure, un seul propriétaire CSS et restauration du focus.
 
 ### Bibliothèque de composants
@@ -125,12 +125,12 @@ Ne jamais afficher une barre latérale **et** une barre basse concurrentes ; il 
 | Composant | Données / rôle | Contraintes |
 | --- | --- | --- |
 | `WeekPicker` | semaine de 7 jours + sélection d'une date | UTC à midi pour les étiquettes calendaires, accès clavier, boutons 44 px |
-| `DayHero` | Lune en signe, phase à midi, date et nombre réel d'événements | un seul exemplaire par écran, heure/fuseau explicités, état de chargement et zéro événement |
+| `DayHero` | Lune en signe, phase à midi et date, sans compteur d'événements redondant | un seul exemplaire par écran, heure/fuseau explicités, état de chargement et zéro événement |
 | `InsightCard` | Soleil du jour, Journal, Mon ciel | titre concret, 1 idée/carte, rail défilable avec indication de continuité |
 | `EventList` / `EventRow` | corps, angle, moment, détails | description accessible, ne pas confondre observation et interprétation |
 | `ExpandSection` | détails longs et réglages | `summary` explicite, état ouvert lisible et préservé si pertinent |
 | `NatalSignTile` | Soleil, Lune, Ascendant | symbole + **nom en toutes lettres** + signe, option incertitude |
-| `ChartViewport` | SVG natal / transits, zoom et export | lisible à 100% sans défilement latéral de page |
+| `ChartViewport` | SVG natal / transits et zoom interactif (sans export graphique) | lisible à 100% sans défilement latéral de page |
 | `DateMonthPicker` | calendrier mensuel avec phases lunaires, fonds solaires continus par élément et événements personnels | 7 colonnes fixes, cases de 55 px, numéro en haut, icône lunaire SVG centrée, événements personnels en bandes sur plusieurs jours ; Nouvelle Lune et Pleine Lune distinctes. Aucun marqueur d’« Aspect solaire exact ». Préfixer les classes SVG pour éviter la collision avec `.calendar`. Légende, `aria-label` et notes distinctes |
 | `MoodPicker` / `JournalEditor` | humeur, énergie, note, sauvegarde | labels explicites, persistance de brouillon lors d'une navigation |
 | `BirthForm` / `CityPicker` | saisie date/heure/ville | erreurs au champ, aucune ville non confirmée, heure inconnue possible |
@@ -194,7 +194,8 @@ Ces rapports sont calculés sur fond blanc à partir des couleurs proposées. Co
 - Reflow sans défilement horizontal de page à **320 CSS px** (sauf roue zoomée / rail explicitement défilable).
 - Tester 320×700, 360×780 (Galaxy A15 simulé), 393×844, 412×915, 768×1024, 1280×800, ainsi que paysage et texte agrandi. Vérifier les rectangles interactifs réels (`getBoundingClientRect`) de la barre basse, des menus, des flèches et des commandes de roue.
 - Tester agrandissement de police et de l'affichage Android, portrait/paysage, clavier ouvert et fermeture, barres système.
-- Pas de CTA essentiel sous la barre basse; `env(safe-area-inset-*)` ou insets natifs gérés **une seule fois**.
+- Android Edge-to-Edge : la WebView et ses fonds se prolongent sous l'encoche, la barre d'état et les boutons de navigation. L'Activity dessine avec des barres transparentes et désactive le contraste forcé de la barre inférieure ; les insets physiques (`systemBars | displayCutout`) sont convertis en pixels CSS et publiés sur `--astra-native-inset-*`. Les variables `--astra-safe-*` emploient les insets natifs ou `env(safe-area-inset-*)` sur navigateur, **jamais les deux en addition**. Les boutons restent dans la zone sûre, la barre inférieure conserve son fond sous la navigation système et l'IME est géré séparément.
+- Pas de CTA essentiel sous la barre basse ; vérifier les deux systèmes de navigation Android (gestes et 3 boutons), le mode clair/sombre et les découpes latérales.
 - Champs toujours associés à `label`, titres sémantiques, progression `aria-live`, `aria-expanded` et `aria-pressed` si adaptés.
 - Focus visible et correctement restauré après re-render. Navigation TalkBack et clavier. Toutes les informations essentielles doivent être accessibles sans geste horizontal.
 - Animations fonctionnelles de 120–180 ms, désactivées avec `prefers-reduced-motion`. Aucune roue en mouvement sans interaction explicite.
