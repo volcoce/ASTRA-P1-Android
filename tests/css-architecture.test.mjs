@@ -20,7 +20,7 @@ test('Birth and settings cards share the global reading-column gutters',()=>{
    'astra-preferences astra-settings-section','astra-performance astra-settings-section']){
    assert.ok(app.includes('class="card astra-reading-card '+component+'"'),component);
  }
- assert.match(layout,/\.main\s*\{[^}]*max-width:\s*calc\(var\(--astra-reading-width\)\s*\+\s*2\s*\*\s*var\(--astra-card-gutter\)\)/s);
+ assert.match(layout,/\.main\s*\{[^}]*max-width:\s*calc\(var\(--astra-reading-width\)\s*\+\s*var\(--astra-card-gutter\)\s*\+\s*var\(--astra-card-gutter\)\)/s);
  assert.doesNotMatch(layout,/\.card\.astra-reading-card\s*\{[^}]*max-width:/s);
  assert.doesNotMatch(navigation,/\.astra-settings-section,.astra-birth-settings,.astra-privacy-settings\s*\{[^}]*\b(?:max-width|margin)\s*:/s);
 });
