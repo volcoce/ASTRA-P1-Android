@@ -7,9 +7,11 @@
     const dark=choice==='dark'||(choice==='system'&&window.matchMedia?.('(prefers-color-scheme: dark)').matches);
     const theme=dark?'dark':'light';
     document.documentElement.dataset.astraTheme=theme;
+    document.documentElement.dataset.astraPalette=['classic','vivid'].includes(raw.elementPalette)?raw.elementPalette:'vivid';
     document.documentElement.style.colorScheme=theme;
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content',dark?'#101d2a':'#172b3e');
   } catch {
     document.documentElement.dataset.astraTheme='light';
+    document.documentElement.dataset.astraPalette='vivid';
   }
 })();

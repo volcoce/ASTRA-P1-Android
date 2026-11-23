@@ -11,7 +11,7 @@
   const pad = n => String(n).padStart(2, '0');
   const isoDay = date => `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
   const detectedZone = (() => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'; } catch { return 'UTC'; } })();
-  const defaultState = () => ({profile:null, mode:'tropical', natalView:'essential', natalZodiac:'tropical', natalAspectFilter:'all', houseSystem:'placidus',wheelLayout:'natal',natalZoom:1,transitDay:isoDay(new Date()),transitTime:'12:00', orb:'auto', filter:'all', appearance:'system', journal:{},calendarEvents:[]});
+  const defaultState = () => ({profile:null, mode:'tropical', natalView:'essential', natalZodiac:'tropical', natalAspectFilter:'all', houseSystem:'placidus',wheelLayout:'natal',natalZoom:1,transitDay:isoDay(new Date()),transitTime:'12:00', orb:'auto', filter:'all', appearance:'system', elementPalette:'vivid', journal:{},calendarEvents:[]});
   const moodSymbols = ['','☹','◔','◯','◕','☺'];
   const themes = {relations:'Relations',travail:'Travail',sante:'Bien-être',creation:'Créativité',repos:'Repos',autre:'Autre'};
   const planets = {Sun:'Soleil',Moon:'Lune',Mercury:'Mercure',Venus:'Vénus',Mars:'Mars',Jupiter:'Jupiter',Saturn:'Saturne',Uranus:'Uranus',Neptune:'Neptune',Pluto:'Pluton'};
@@ -100,7 +100,7 @@
       natalZoom:[1,1.25,1.5,1.75,2].includes(raw.natalZoom)?raw.natalZoom:1,
       transitDay:typeof raw.transitDay==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(raw.transitDay)?raw.transitDay:isoDay(new Date()),
       transitTime:typeof raw.transitTime==='string'&&/^([01]\d|2[0-3]):[0-5]\d$/.test(raw.transitTime)?raw.transitTime:'12:00',orb:'auto',
-      filter:Object.hasOwn(filtersMap,raw.filter)?raw.filter:'all',appearance:['system','light','dark'].includes(raw.appearance)?raw.appearance:'system',journal:sanitizeJournal(raw.journal),calendarEvents:sanitizeCalendarEvents(raw.calendarEvents)};
+      filter:Object.hasOwn(filtersMap,raw.filter)?raw.filter:'all',appearance:['system','light','dark'].includes(raw.appearance)?raw.appearance:'system',elementPalette:['classic','vivid'].includes(raw.elementPalette)?raw.elementPalette:'vivid',journal:sanitizeJournal(raw.journal),calendarEvents:sanitizeCalendarEvents(raw.calendarEvents)};
   }
   function loadState() { try { return cleanState(JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}')); } catch { return defaultState(); } }
   let state = loadState();
@@ -113,7 +113,11 @@
     document.querySelector('meta[name="theme-color"]')?.setAttribute(
       'content',resolved==='dark'?'#101d2a':'#172b3e');
   }
+  function applyElementPalette(){
+    document.documentElement.dataset.astraPalette=state.elementPalette;
+  }
   applyAppearance();
+  applyElementPalette();
   colorSchemeQuery?.addEventListener?.('change',()=>{
     if(state.appearance==='system')applyAppearance();
   });
@@ -1906,6 +1910,17 @@
       '<div class="astra-appearance-options" role="group" aria-label="Thème visuel">'+
       choices.map(([id,label])=>'<button type="button" data-appearance="'+id+
         '" aria-pressed="'+(mode===id)+'" class="'+(mode===id?'selected':'')+'">'+label+'</button>').join('')+
+      '</div>'+
+      '<h3 class="astra-palette-heading" id="astraPaletteTitle">Couleurs des quatre éléments</h3>'+
+      '<p class="tiny">Compare les couleurs sur la roue et le calendrier. Le choix est enregistré sur cet appareil.</p>'+
+      '<div class="astra-palette-options" role="group" aria-labelledby="astraPaletteTitle">'+
+      [['classic','Palette 1 · Classique','Feu doré · Air bleu pâle · Eau cyan · Terre brune'],
+       ['vivid','Palette 2 · Vive','Feu rouge · Air jaune · Eau bleue · Terre verte']]
+       .map(([id,label,description])=>
+          '<button type="button" class="astra-palette-choice" data-element-palette="'+id+'" aria-pressed="'+(state.elementPalette===id)+'">'+
+          '<span class="astra-palette-samples" aria-hidden="true">'+
+          ['fire','air','water','earth'].map(e=>'<i class="astra-palette-swatch" data-element="'+e+'"></i>').join('')+'</span>'+
+          '<strong>'+label+'</strong><small>'+description+'</small></button>').join('')+
       '</div></section>';
   }
   function diagnosticsPanel(){
@@ -2135,6 +2150,12 @@
       $('app').querySelector('[data-today-expand]')?.focus({preventScroll:true});
       return;
     }
+    if(a.elementPalette){
+      if(!['classic','vivid'].includes(a.elementPalette))return;
+      captureBirthForm();state.elementPalette=a.elementPalette;persist();applyElementPalette();render();
+      $('app').querySelector('[data-element-palette="'+a.elementPalette+'"]')?.focus({preventScroll:true});
+      return;
+    }
     if(a.appearance){
       if(!['system','light','dark'].includes(a.appearance))return;
       captureBirthForm();state.appearance=a.appearance;persist();applyAppearance();render();
@@ -2344,7 +2365,7 @@
     if(a['deleteNote'] && confirm('Supprimer cette journée du journal ?')){delete state.journal[selected];persist();journalDraft=null;render();show('Note supprimée');return;}
     if(a.export){const data={format:'astra-public-v1',exportedAt:new Date().toISOString(),...state};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='ASTRA-sauvegarde.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1500);return;}
     if(a.import){$('importFile')?.click();return;}
-    if(a.clear&&confirm('Effacer le thème natal et toutes les notes locales ?')){localStorage.removeItem(STORAGE_KEY);state=defaultState();applyAppearance();diagnosticsEnabled=false;performanceSamples.clear();cache.clear();natalCache.clear();journalDraft=null;birthDraft=null;placeSearch={options:[],selected:null,loading:false,error:'',needFold:false,requestId:placeSearch.requestId+1};openDetail=null;refresh();show('Données supprimées');}
+    if(a.clear&&confirm('Effacer le thème natal et toutes les notes locales ?')){localStorage.removeItem(STORAGE_KEY);state=defaultState();applyAppearance();applyElementPalette();diagnosticsEnabled=false;performanceSamples.clear();cache.clear();natalCache.clear();journalDraft=null;birthDraft=null;placeSearch={options:[],selected:null,loading:false,error:'',needFold:false,requestId:placeSearch.requestId+1};openDetail=null;refresh();show('Données supprimées');}
   });
   $('app').addEventListener('cancel',event=>{
     if(event.target.id==='personalEventDialog'){
@@ -2472,7 +2493,7 @@
         const backup=JSON.parse(await file.text());if(backup.format!=='astra-public-v1')throw Error('Format non reconnu');
         if(backup.profile)E.validateProfile(backup.profile);
         if(!confirm('Remplacer les données locales par la sauvegarde ?'))return;
-        state=cleanState(backup);applyAppearance();diagnosticsEnabled=false;performanceSamples.clear();journalDraft=null;birthDraft=null;placeSearch={options:[],selected:null,loading:false,error:'',needFold:false,requestId:placeSearch.requestId+1};openDetail=null;cache.clear();natalCache.clear();persist();refresh();show('Sauvegarde importée');
+        state=cleanState(backup);applyAppearance();applyElementPalette();diagnosticsEnabled=false;performanceSamples.clear();journalDraft=null;birthDraft=null;placeSearch={options:[],selected:null,loading:false,error:'',needFold:false,requestId:placeSearch.requestId+1};openDetail=null;cache.clear();natalCache.clear();persist();refresh();show('Sauvegarde importée');
       } catch(err){show('Import impossible : '+(err?.message||'Erreur'));}
     }
   });
