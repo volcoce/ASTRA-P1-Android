@@ -263,15 +263,18 @@
 .natal-explore .natal-houses{
   display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;
 }
-.natal-explore .natal-house-chip{
-  min-width:0;min-height:72px;padding:12px;
+.natal-house-chip{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-width:0;min-height:100px;padding:12px 6px;gap:4px;text-align:center;
   border:1px solid var(--astra-divider);
   background:var(--astra-surface);color:var(--astra-ink);
   border-radius:var(--astra-radius-md);font-size:14px;
 }
-.natal-explore .natal-house-chip small{
-  font-size:12px;line-height:1.45;color:var(--astra-muted);
-  overflow-wrap:anywhere;
+.natal-house-chip .natal-house-number{font-size:1.45rem;font-weight:750;line-height:1.2}
+.natal-house-chip .natal-house-sign{font-size:.875rem;font-weight:650;line-height:1.4;overflow-wrap:normal}
+.natal-house-chip .natal-house-angle{
+  font-size:.75rem;line-height:1.4;color:var(--astra-muted);
+  font-weight:400;white-space:nowrap;font-variant-numeric:tabular-nums
 }
 .natal-explore .natal-filter-items{gap:7px}
 .natal-explore .natal-filter-items button{
