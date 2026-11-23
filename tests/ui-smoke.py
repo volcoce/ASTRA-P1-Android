@@ -43,8 +43,6 @@ window.ASTRA_ENGINE = {
   });
  },
  transitContactWindow(p,at,body,natal,angle){return {body,natal,angle,orb:2,start:new Date(new Date(at).getTime()-2*86400000).toISOString(),end:new Date(new Date(at).getTime()+2*86400000).toISOString(),limited:false}},
- secondaryProgressions(p,target,mode){return {target:new Date(target).toISOString(),progressedAt:'1994-06-13T12:00:00.000Z',moonUncertain:p.timeKnown===false,positions:{Sun:40,Mercury:60,Venus:90,Mars:120,Jupiter:150,Saturn:180,Uranus:210,Neptune:240,Pluto:270,...(p.timeKnown!==false?{Moon:45}:{})},convention:'jour-pour-an'}},
- compositeMidpoints(a,b,mode){return {mode,positions:{Sun:37,Mercury:60,Venus:90,Mars:120,Jupiter:150,Saturn:180,Uranus:210,Neptune:240,Pluto:270,...(a.timeKnown!==false&&b.timeKnown!==false?{Moon:45}:{})},moonUncertain:a.timeKnown===false||b.timeKnown===false,houses:null}},
 
  natalChart(profile,mode,houseSystem='placidus'){const known=profile?.timeKnown!==false;const asc=151.5,mc=53.1,start=houseSystem==='whole'?150:asc;return {timeKnown:known,approximateNoon:!known,positions:{Sun:7,Moon:23,Mercury:32,Venus:55,Mars:91,Jupiter:123,Saturn:141,Uranus:175,Neptune:203,Pluto:270},houses:known?{ascendant:asc,midheaven:mc,system:houseSystem==='whole'?'Signes entiers':houseSystem==='equal'?'Maisons égales':'Placidus',cusps:houseSystem==='placidus'?[151.5,172,199,233,270,304,331.5,352,19,53.1,90,124]:Array.from({length:12},(_,i)=>(start+i*30)%360),polarFallback:false}:null,aspects:[{a:'Sun',b:'Mars',aspect:'Carré',glyph:'□',orb:1}]}},
  transitSnapshot(profile,instant,mode,houseSystem){
@@ -794,40 +792,8 @@ if __name__ == '__main__':
             saved=page.evaluate("JSON.parse(localStorage.getItem('astra-public-v1'))")
             assert saved['transitTime']=='13:30'
             page.locator('[data-profile-screen="overview"]').click()
-            page.locator('.natal-extras summary').click()
-            page.locator('[data-profile-screen="progressions"]').click()
-            assert page.locator('.natal-progressions').count()==1
-            assert page.locator('.natal-progression-row').count()==10
-            assert page.locator('[data-progression-step]').count()==0
-            assert page.locator('#progressionDay').count()==1
-            page.locator('[data-profile-screen="overview"]').click()
-            page.locator('.natal-extras summary').click()
-            page.locator('[data-profile-screen="composite"]').click()
-            assert page.locator('.natal-composite').count()==1
-            page.locator('#secondDate').fill('1996-07-19')
-            page.locator('#secondTime').fill('06:30')
-            # The second birth form shares live autocomplete and keyboard
-            # selection, and does not re-create the input during typing.
-            assert page.locator('[data-search-composite-place]').count()==0
-            page.locator('#secondCity').fill('Par')
-            assert page.locator('#secondCity').input_value()=='Par'
-            page.locator('[data-city-kind="composite"][data-city-choice]').first.wait_for(timeout=3000)
-            page.locator('#secondCity').press('ArrowDown')
-            assert page.locator('#secondCity').get_attribute('aria-activedescendant')=='secondCityOption0'
-            page.locator('#secondCity').press('Enter')
-            assert page.locator('#secondCity').get_attribute('aria-expanded')=='false'
-            assert 'Paris' in page.locator('.natal-composite .city-confirmed').inner_text()
-            # Changing the confirmed city invalidates its old coordinates;
-            # the dropdown can reopen on click without clearing the field.
-            page.locator('#secondCity').click()
-            assert page.locator('[data-city-kind="composite"][data-city-preset]').count()==8
-            page.locator('#secondCity').press('Escape')
-            assert page.locator('#secondCity').get_attribute('aria-expanded')=='false'
-            assert page.locator('#secondCity').input_value().startswith('Paris')
-            page.locator('#compositeForm button[type="submit"]').click()
-            assert page.locator('.natal-composite-result').count()==1
-            assert page.locator('.natal-composite-result .natal-progression-row').count()==10
-            page.locator('[data-profile-screen="overview"]').click()
+            assert page.locator('.natal-extras').count()==0
+            assert page.locator('[data-profile-screen="progressions"], [data-profile-screen="composite"]').count()==0
             page.locator('#settingsButton').click()
             page.locator('[data-settings-birth]').click()
             # The editor has one correctly sized return control and no
