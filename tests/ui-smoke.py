@@ -429,7 +429,7 @@ if __name__ == '__main__':
                   const selectors=[
                     '.natal-primary-cards','.natal-home-actions--primary',
                     '.natal-overview-tabs','.natal-wheel-viewport',
-                    '.natal-home-hint','.natal-focus-launch',
+                    '.natal-home-hint',
                     '.natal-glossary','.natal-home-actions--secondary',
                     '.natal-extras'];
                   return {
@@ -533,33 +533,11 @@ if __name__ == '__main__':
             assert page.evaluate(
                 "getComputedStyle(document.documentElement).getPropertyValue('--astra-focus-ring').trim()"
             )=='#1E404F'  # Retro Pop P0/P3 focus token
-            # P2.1: immersive reading keeps home uncluttered and restores focus.
-            page.locator('.natal-home [data-open-focus]').click()
-            # P0 uses a native HTML dialog opened with showModal().
-            assert page.locator('dialog.natal-focus[open][aria-modal="true"]').count()==1
-            assert page.locator('.bottom-nav').evaluate("e => getComputedStyle(e).visibility")=='hidden'
-            capture('focus-natal-393')
-            assert page.locator('.natal-focus .natal-wheel').count()==1
-            assert page.evaluate("document.body.classList.contains('astra-focus-open')")
-            assert page.evaluate("document.activeElement.hasAttribute('data-close-focus')")
-            # Samsung's system back gesture closes the full-screen chart first.
-            assert page.evaluate('window.ASTRA_HANDLE_BACK()') is True
-            assert page.locator('.natal-focus').count()==0
-            assert page.locator('.natal-home').count()==1
-            page.locator('.natal-home [data-open-focus]').click()
-            for width,height in ((320,480),(360,580),(360,780)):
-                page.set_viewport_size({'width':width,'height':height})
-                assert page.locator('.natal-focus-close').is_visible()
-                assert page.evaluate('document.documentElement.scrollWidth')<=width+2
-                capture('focus-'+str(width)+'x'+str(height))
-            page.set_viewport_size({'width':393,'height':844})
-            page.locator('.natal-focus [data-natal-zoom="0.25"]').click()
-            assert '125 %' in page.locator('.natal-focus .natal-zoom').inner_text()
-            page.locator('.natal-focus [data-natal-zoom="reset"]').click()
-            page.keyboard.press('Escape')
-            assert page.locator('.natal-focus').count()==0
-            assert page.locator('.natal-home').count()==1
-            assert page.evaluate("document.activeElement.hasAttribute('data-open-focus')")
+            # One chart surface; no redundant fullscreen route or launch CTA.
+            assert page.locator('[data-open-focus]').count()==0
+            assert page.locator('dialog.natal-focus').count()==0
+            assert page.locator('.natal-home .natal-wheel').count()==1
+            assert page.locator('.bottom-nav').is_visible()
             head=page.locator('.natal-primary-cards').bounding_box()
             wheel=page.locator('.natal-wheel-viewport').bounding_box()
             assert head is not None and wheel is not None and head['y']<wheel['y']
@@ -722,11 +700,9 @@ if __name__ == '__main__':
             capture('compare-393')
             assert page.locator('.natal-double-wheel').count()==1
             assert page.locator('.natal-transit-hit').count()==10
-            page.locator('.natal-compare [data-open-focus]').click()
-            assert page.locator('.natal-focus .natal-double-wheel').count()==1
-            assert page.locator('.natal-focus .natal-transit-hit').count()==10
-            page.locator('.natal-focus [data-close-focus]').click()
+            assert page.locator('.natal-compare [data-open-focus]').count()==0
             assert page.locator('.natal-compare .natal-double-wheel').count()==1
+            assert page.locator('.natal-compare .natal-transit-hit').count()==10
             assert page.locator('.natal-contact-section').count()==1
             assert page.locator('[data-transit-step]').count()==0
             assert page.locator('#transitDay').count()==1
