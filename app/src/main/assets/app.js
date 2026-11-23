@@ -364,9 +364,9 @@
     const endLabel=caption.format(new Date(last+'T12:00:00Z'));
     return '<section class="astra-week" aria-label="Choisir un jour de la semaine">'+
       '<div class="astra-week-title"><span class="astra-week-caption">Choisir une date</span>'+
-      '<div class="astra-week-controls"><button type="button" data-week-shift="-7" aria-label="Semaine précédente">‹</button>'+
+      '<div class="astra-week-controls"><button type="button" class="arrow" data-week-shift="-7" aria-label="Semaine précédente">‹</button>'+
       '<span>'+safe(startLabel)+' – '+safe(endLabel)+'</span>'+
-      '<button type="button" data-week-shift="7" aria-label="Semaine suivante">›</button></div></div>'+
+      '<button type="button" class="arrow" data-week-shift="7" aria-label="Semaine suivante">›</button></div></div>'+
       '<div class="astra-week-days">'+Array.from({length:7},(_,i)=>{
         const day=shiftDay(monday,i);
         const dt=new Date(day+'T12:00:00Z');
