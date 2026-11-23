@@ -1,3 +1,4 @@
+import {CSS_SOURCES} from '../scripts/css-sources.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -129,7 +130,8 @@ test('personal calendar: date inspector is a modal, not a second event list unde
 });
 
 test('personal calendar: resources and interaction contracts are wired',()=>{
-  assert.match(html,/href="personal-calendar.css"/);
+  assert.ok(CSS_SOURCES.includes('personal-calendar.css'));
+  assert.match(html,/href="astra\.bundle\.css"/);
   assert.match(css,/\.astra-personal-calendar-week/);
   assert.match(css,/\.astra-personal-calendar-event/);
   assert.match(css,/\.astra-personal-dialog::backdrop/);

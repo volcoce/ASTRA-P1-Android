@@ -1,3 +1,4 @@
+import {CSS_SOURCES} from '../scripts/css-sources.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -113,7 +114,9 @@ test('Calendar: category styles, astronomical detail and responsive assets remai
     'exact-aspect','active'])
     assert.ok(app.includes(type)&&css.includes('event-kind-'+type),type);
   assert.match(app,/astra-event-facts/);
-  assert.match(html,/href="calendar-p0.css"/);
-  assert.match(html,/href="personal-calendar.css"/);
+  assert.ok(CSS_SOURCES.includes('calendar-p0.css'));
+  assert.match(html,/href="astra\.bundle\.css"/);
+  assert.ok(CSS_SOURCES.includes('personal-calendar.css'));
+  assert.match(html,/href="astra\.bundle\.css"/);
   assert.ok(browser.includes("ROOT/'personal-calendar.css'"));
 });
