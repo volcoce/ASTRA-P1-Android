@@ -261,3 +261,15 @@ test('calendar preserves physical lunar phase at local noon for each civil day',
   assert.ok(dates.every(day=>out.days[day].exact.every(e=>e.body!=='Sun')),
     'The removed exact solar aspect feature must not generate calendar events');
 });
+
+ test('Natal retrograde flags describe geocentric motion at birth',()=>{
+ const chart=natalChart(p),birth=Date.parse(chart.birth);
+ assert.equal(Object.keys(chart.retrogrades).length,10);
+ assert.equal(chart.retrogrades.Sun,false);
+ assert.equal(chart.retrogrades.Moon,false);
+ for(const body of Object.keys(chart.positions)){
+   const delta=tropicalLongitude(body,new Date(birth+3600000))-tropicalLongitude(body,new Date(birth-3600000));
+   assert.equal(chart.retrogrades[body],((delta+540)%360)-180<0);
+ }
+ assert.deepEqual(natalChart(p,'sidereal').retrogrades,chart.retrogrades);
+});
