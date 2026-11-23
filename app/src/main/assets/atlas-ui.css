@@ -198,9 +198,8 @@ textarea:focus-visible,select:focus-visible{outline:3px solid #237b99;outline-of
 /* Home information architecture, inspired by Flo's scannable today / week /
    daily insights / details sequence. No Flo imagery or styling is reused. */
 .astra-week{margin:5px 0 16px}
-.astra-week-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
-.astra-week-caption{color:#556a7b;font-size:12px;font-weight:750;letter-spacing:.025em}
-.astra-week-controls{display:flex;align-items:center;gap:7px;font-size:12px;
+.astra-week-title{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px}
+.astra-week-controls{display:flex;align-items:center;justify-content:space-between;width:100%;gap:7px;font-size:12px;
   color:#4c6575;font-variant-numeric:tabular-nums;white-space:nowrap}
 .astra-week-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
 .astra-week-day{display:flex;align-items:center;justify-content:center;flex-direction:column;
