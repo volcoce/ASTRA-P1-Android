@@ -6,8 +6,9 @@ const root=new URL('../app/src/main/assets/',import.meta.url);
 const read=n=>readFileSync(new URL(n,root),'utf8');
 test('Navigation is owned by the global layout, not natal routes',()=>{
  const html=read('index.html'),layout=read('astra-layout.css'),natal=read('astra-natal.css');
+ assert.match(html,/href="astra\.bundle\.css"/);
  for(const name of ['astra-layout.css','astra-natal.css'])
-   assert.match(html,new RegExp(name.replaceAll('.','\\.')));
+   assert.ok(CSS_SOURCES.includes(name),name);
  for(const dead of ['astra-p5-explore-responsive.css','astra-p6-home-spacing.css'])
    assert.ok(!html.includes(dead));
  assert.match(layout,/\.bottom-nav\s*\{[^}]*position:fixed/s);

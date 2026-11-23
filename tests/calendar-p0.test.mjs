@@ -118,5 +118,5 @@ test('Calendar: category styles, astronomical detail and responsive assets remai
   assert.match(html,/href="astra\.bundle\.css"/);
   assert.ok(CSS_SOURCES.includes('personal-calendar.css'));
   assert.match(html,/href="astra\.bundle\.css"/);
-  assert.ok(browser.includes("ROOT/'personal-calendar.css'"));
+  assert.ok(browser.includes("ROOT/'astra.bundle.css'"));
 });
