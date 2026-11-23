@@ -122,8 +122,8 @@ Ne jamais afficher une barre latérale **et** une barre basse concurrentes ; il 
 ### Roue de naissance — contrat de visualisation
 
 - **Trois anneaux lisibles** — douze signes égaux à l'extérieur, positions des planètes sans étiquettes de degrés, maisons Placidus/égales/signes entiers dans leur anneau distinct ; le centre est réservé aux aspects.
-- **Glyphes typographiques** — les signes SVG utilisent la variante Unicode texte (FE0E), sans carrés emoji. Les palettes restent sélectionnables ; les symboles peuvent se superposer lorsque les planètes sont proches.
-- **Position vraie préservée** — chaque planète est dessinée à sa longitude exacte, sur un rayon fixe pour son anneau. Aucun décalage angulaire ou radial, aucun regroupement anticollision. Les superpositions sont acceptées ; les fiches restent accessibles dans la liste des planètes.
+- **Glyphes typographiques** — les signes SVG utilisent la variante Unicode texte (FE0E), sans carrés emoji. Les palettes restent sélectionnables ; les glyphes proches bénéficient uniquement d’un espacement visuel minimal.
+- **Position vraie préservée** — les points et aspects utilisent les longitudes exactes. Les glyphes conservent le rayon de leur anneau, avec un espacement minimal de 26 unités SVG entre centres (calculé selon le rayon), optimisé par `layoutPlanetLabels` ; les glyphes isolés ne bougent pas. Un trait discret relie les seuls glyphes décalés à leur point exact. Aucun regroupement ni changement de rayon.
 - **Essentiel (par défaut)** — symboles et jusqu'à six aspects retenus par orbe faible ; **Complet** — tous les aspects du filtre, sans ajouter d'étiquettes de degrés. Pas de classement énergétique inventé ; les positions exactes restent dans les fiches.
 - **Roue double** — conserve deux anneaux distincts natal / transits ; aucun degré ou minute superposé au dessin, même en mode Complet.
 - **Sans heure de naissance** — pas de maisons ni d'Ascendant ; la Lune reste indicative et sa fiche le précise. Aucun changement de calcul des éphémérides.
