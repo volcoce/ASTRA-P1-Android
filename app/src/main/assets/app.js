@@ -467,9 +467,9 @@
     if(value<292.5)return 'Dernier quartier';
     return 'Dernier croissant';
   }
-  const header = (name,description) => `<header class="screen-intro"><h1 tabindex="-1" class="page-title">${name}</h1><p class="lead">${description}</p></header>`;
+  const header = name => `<header class="screen-intro"><h1 tabindex="-1" class="page-title">${name}</h1></header>`;
   const status = () => busy ? '<p class="loading" role="status">Calcul astronomique à la demande…</p>' : error ? `<p class="notice" role="alert">${safe(error)}</p>` : '';
-  const unconfigured = () => header('Bienvenue dans ASTRA','Explore le ciel à partir de ta date de naissance.') + '<section class="card astra-reading-card welcome-card"><div class="welcome-illustration" aria-hidden="true">☉ <span>☾</span></div><h2 class="card-title">Ton thème commence ici</h2><p>Indique ta date, ton heure et ta ville de naissance pour obtenir ta carte et ton calendrier.</p><button class="primary full" data-goto="profile">Configurer mon thème natal</button><button class="ghost full" data-goto="journal">Ouvrir mon journal sans créer de thème</button><p class="tiny">Pas de compte à créer. Tes données restent sur cet appareil.</p></section>';
+  const unconfigured = () => header('Bienvenue dans ASTRA') + '<section class="card astra-reading-card welcome-card"><div class="welcome-illustration" aria-hidden="true">☉ <span>☾</span></div><h2 class="card-title">Ton thème commence ici</h2><p>Indique ta date, ton heure et ta ville de naissance pour obtenir ta carte et ton calendrier.</p><button class="primary full" data-goto="profile">Configurer mon thème natal</button><button class="ghost full" data-goto="journal">Ouvrir mon journal sans créer de thème</button><p class="tiny">Pas de compte à créer. Tes données restent sur cet appareil.</p></section>';
 
   function matchesFilter(body,type) {
     const filter=state.filter;
@@ -764,7 +764,7 @@
     // The daily summary is never affected by filters from the Calendar.
     // A missing month is loading/failed data, not a legitimate zero-event day.
     if(!result){
-      return header('Ce jour','Les informations du '+safe(displayDate(selected))+'.')+
+      return header('Ce jour')+
         weekStrip()+birthTimeWarning()+status()+
         (!busy?'<p class="astra-empty">Aucune donnée calculée pour cette journée. Reviens au calendrier ou vérifie ta carte de naissance.</p>':'');
     }
@@ -832,8 +832,7 @@
     const count=events.length;
     const initialLimit=3,remaining=events.length-initialLimit;
     const displayed=todayExpanded?events:events.slice(0,initialLimit);
-    return header(isCurrent?'Ce jour':'Le ciel du '+new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'long',timeZone:'UTC'}).format(new Date(selected+'T12:00:00Z')),
-        'Choisis un jour, puis découvre ses événements et tes notes.')+
+    return header(isCurrent?'Ce jour':'Le ciel du '+new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'long',timeZone:'UTC'}).format(new Date(selected+'T12:00:00Z')))+
       weekStrip()+birthTimeWarning()+
       '<section class="astra-day-hero" aria-label="Ciel lunaire de cette date">'+
         '<div class="astra-day-hero-copy"><p class="astra-hero-kicker">LE CIEL DU '+safe(new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'long',timeZone:'UTC'}).format(new Date(selected+'T12:00:00Z')).toLocaleUpperCase('fr-FR'))+'</p>'+
@@ -874,7 +873,7 @@
     const monthKey=y+'-'+pad(m);
     const monthLabel=new Intl.DateTimeFormat('fr-FR',{month:'long',year:'numeric'}).format(month);
     if(!result){
-      return header('Ce mois','Le ciel de '+safe(monthLabel)+'.')+
+      return header('Ce mois')+
         '<div class="month-head astra-month-navigation" aria-label="Choisir un mois">'+
           '<button type="button" class="arrow" data-month="-1" aria-label="Mois précédent">‹</button>'+
           '<h2>'+safe(monthLabel)+'</h2>'+
@@ -916,7 +915,7 @@
       const hidden=events.length-titles.length;
       return titles.join(' · ')+(hidden?' · +'+hidden+' autre'+(hidden>1?'s':''):'');
     };
-    return header('Ce mois','Les phases lunaires et les événements astronomiques de '+safe(monthLabel)+'.')+
+    return header('Ce mois')+
       '<div class="month-head astra-month-navigation" aria-label="Choisir un mois">'+
         '<button type="button" class="arrow" data-month="-1" aria-label="Mois précédent">‹</button>'+
         '<h2>'+safe(monthLabel)+'</h2>'+
@@ -1136,7 +1135,7 @@
         (visiblePeriods?solarCalendarBackdropWeek(year,m,weekday,week,visiblePeriods):'')+
         dates.join('')+'</div>');
     }
-    return header('Calendrier','Repère les phases et événements, puis choisis une date.')+
+    return header('Calendrier')+
       birthTimeWarning()+
       '<div class="month-head astra-calendar-month-head">'+
       '<button type="button" class="arrow" data-month="-1" aria-label="Mois précédent">‹</button>'+
@@ -1177,7 +1176,7 @@
     initDraft();
     const d=journalDraft;
     const history=Object.entries(state.journal).sort((a,b)=>b[0].localeCompare(a[0])).filter(([day,item])=>!searchTerm||`${day} ${item.note} ${(item.tags||[]).map(t=>themes[t]).join(' ')}`.toLocaleLowerCase('fr').includes(searchTerm.toLocaleLowerCase('fr'))).slice(0,30);
-    return '<button type="button" class="astra-journal-back" data-goto="today">← Retour à Ce jour</button>'+header('Mon journal','Un espace pour noter ta journée et ton ressenti.')+
+    return '<button type="button" class="astra-journal-back" data-goto="today">← Retour à Ce jour</button>'+header('Mon journal')+
       `<section class="card astra-reading-card astra-journal-editor astra-card--emphasis" aria-labelledby="journalEditorTitle"><h2 class="card-title" id="journalEditorTitle">${safe(displayDate(selected))}</h2><div class="actions"><button class="ghost" data-offset="-1">Jour précédent</button><button class="ghost" data-offset="1">Jour suivant</button></div>`+
       `<div class="field"><label>Comment tu te sens ?</label><div class="mood-row" role="group" aria-label="Évaluer son humeur sur cinq niveaux">${[1,2,3,4,5].map(n=>`<button type="button" data-mood="${n}" aria-pressed="${d.mood===n}" aria-label="Humeur ${n} sur 5" class="mood ${d.mood===n?'on':''}"><span class="mood-symbol" aria-hidden="true">${moodSymbols[n]}</span><span>${['','Très bas','Bas','Moyen','Bien','Très bien'][n]}</span></button>`).join('')}</div></div>`+
       `<div class="field"><label for="energyRange">Ton énergie · <output id="energyValue">${d.energy}/5</output></label><input id="energyRange" type="range" min="1" max="5" value="${d.energy}" step="1"></div>`+
@@ -1627,7 +1626,7 @@
       '<div class="natal-context-content">'+selectedDetail+'</div></section>':'';
     const shortCaption='<p class="natal-home-hint">Les points indiquent les positions exactes. '+
       (state.natalView==='complete'?'Tous les aspects du filtre sont affichés. ':'Jusqu’à six aspects sont affichés. ')+
-      (uncertain?'Heure inconnue : Lune indicative, sans maisons.':'Sélectionne une planète pour afficher ses détails.')+'</p>';
+      (uncertain?'Heure inconnue : Lune indicative, sans maisons.':'')+'</p>';
     const pageBack='<button type="button" class="natal-back" data-profile-screen="overview" aria-label="Retour à Mon ciel">'+
       '<span aria-hidden="true">←</span><span>Mon ciel</span></button>';
     if(isOverview){
@@ -1638,10 +1637,10 @@
           '<button type="button" data-overview-pane="'+id+'" aria-pressed="'+(overviewPane===id)+'" class="'+
           (overviewPane===id?'selected':'')+'">'+name+'</button>').join('')+'</div>';
       const overviewContent=overviewPane==='planets'
-        ?'<section class="natal-overview-panel" aria-label="Positions planétaires"><p class="natal-panel-lead">Appuie sur une planète pour voir sa position et sa signification.</p>'+
+        ?'<section class="natal-overview-panel" aria-label="Positions planétaires">'+
           planetTable+'</section>'
         :overviewPane==='aspects'
-        ?'<section class="natal-overview-panel" aria-label="Aspects de naissance"><p class="natal-panel-lead">Les aspects sont les angles entre deux planètes au moment de ta naissance.</p>'+
+        ?'<section class="natal-overview-panel" aria-label="Aspects de naissance">'+
           '<div class="natal-aspects">'+(aspects||'<p class="astra-empty">Aucun aspect avec le filtre sélectionné.</p>')+'</div>'+
           '<button type="button" class="natal-more-link" data-profile-screen="explore">Explorer les aspects en détail →</button></section>'
         :'<div class="natal-wheel-viewport" role="region" tabindex="0" aria-label="Roue natale interactive">'+homeSvg+'</div>'+
@@ -1668,12 +1667,12 @@
     if(isSettings){
       return '<section class="card natal-card astra-reading-card natal-settings" id="natalChart">'+
         '<div class="natal-subpage-heading">'+pageBack+'<h2 class="card-title">Personnaliser la carte</h2>'+
-        '<p class="natal-section-lead">Choisis ton affichage. Tes informations de naissance sont plus bas.</p></div>'+
+        '</div>'+
         '<div class="natal-settings-controls">'+controls+
         '<details class="natal-more-options astra-disclosure"'+(settingsAdvancedOpen?' open':'')+'><summary>Options avancées</summary><div class="astra-disclosure-body">'+advancedControls+'</div></details></div>'+
         '<details class="natal-preview-disclosure astra-disclosure"'+(settingsPreviewOpen?' open':'')+'><summary>Aperçu de la carte</summary>'+
         '<div class="astra-disclosure-body"><div class="natal-wheel-viewport" role="region" tabindex="0" aria-label="Aperçu de la carte astrologique">'+resized+'</div>'+
-        '<p class="natal-home-hint">Sélectionne une planète sur la roue pour en consulter les détails.</p></div></details>'+
+        '</div></details>'+
         (transitError?'<p class="notice" role="alert">'+safe(transitError)+'</p>':'')+
         '</section>';
     }
@@ -1736,12 +1735,11 @@
     const contents=choice==='aspects'?aspectsList:choice==='houses'?housesList:planetList;
     return '<section class="card natal-card astra-reading-card natal-explore" id="natalChart">'+
       '<div class="natal-explore-toolbar" role="group" aria-label="Navigation du thème">'+pageBack+'</div>'+
-      '<p class="natal-section-lead natal-explore-intro">Choisis une rubrique, puis un élément pour découvrir sa signification.</p>'+
       notice+selector+'<div id="natalExplorerPanel" class="natal-explorer-panel">'+contents+'</div>'+
       '<details class="natal-explore-wheel astra-disclosure"'+(exploreWheelOpen?' open':'')+'>'+
       '<summary>Voir aussi la carte du ciel</summary>'+
       '<div class="astra-disclosure-body"><div class="natal-wheel-viewport" role="region" tabindex="0" aria-label="Roue natale interactive">'+resized+'</div>'+
-      '<p class="natal-home-hint">Les petites marques montrent les positions exactes. Appuie sur un symbole pour en savoir plus.</p>'+
+      '<p class="natal-home-hint">Les petites marques montrent les positions exactes.</p>'+
       '</div></details>'+contextSheet+
       (h?.polarFallback?'<p class="notice">À cette latitude, les maisons égales remplacent Placidus.</p>':'')+
       (h?.approximateSidereal?'<p class="tiny">Le zodiaque sidéral utilise ici un ayanamsa Lahiri approximatif.</p>':'')+
@@ -1870,14 +1868,10 @@
     const foldPicker=placeSearch.needFold&&d.timeKnown?`<div class="field"><label for="fold">Cette heure locale a existé deux fois</label><select id="fold" name="fold" required${validationAttrs('fold',birthValidation)}><option value="">Choisir l’occurrence</option><option value="0" ${d.fold===0?'selected':''}>Première occurrence (avant le retour à l’heure d’hiver)</option><option value="1" ${d.fold===1?'selected':''}>Deuxième occurrence (après le retour à l’heure d’hiver)</option></select>${validationMessage('fold',birthValidation)}<p class="field-help">Ce cas rare ne peut pas être déduit de la ville et de l’heure seules. Consulte l’heure indiquée sur l’acte de naissance.</p></div>`:'';
     const showSettings=!chart||profileScreen==='settings';
     return (showSettings
-      ? header(chart?'Personnaliser mon thème':'Créer mon thème natal',
-          chart?'Personnalise ta carte et retrouve tes informations.':'Entre ta date et ta ville de naissance pour commencer.')
+      ? header(chart?'Personnaliser mon thème':'Créer mon thème natal')
       : header(profileScreen==='explore'?'Comprendre mon thème':
           profileScreen==='compare'?'Comparer deux dates':
-          'Mon ciel',
-          profileScreen==='explore'?'Planètes, maisons et liens entre les planètes.':
-          profileScreen==='compare'?'Le ciel d’une autre date comparé à ta naissance.':
-          'Ton thème de naissance, en clair.'))+
+          'Mon ciel'))+
       (chart?renderNatalChart(chart):'')+
       (showSettings?
       `<section class="card astra-reading-card astra-birth-settings"><h2 class="card-title">Tes informations de naissance</h2><form id="birthForm" novalidate><div class="field-grid"><div class="field"><label for="birthDate">Date de naissance</label><input required type="date" id="birthDate" name="date" min="1900-01-01" max="2100-12-31" value="${safe(d.date)}"${validationAttrs('birthDate',birthValidation)}>${validationMessage('birthDate',birthValidation)}</div><div class="field"><label for="birthTime">Heure de naissance</label><input ${d.timeKnown?'required':''} type="time" id="birthTime" name="time" value="${safe(d.time)}" ${d.timeKnown?'':'disabled'}${validationAttrs('birthTime',birthValidation)}>${validationMessage('birthTime',birthValidation)}</div></div>`+
