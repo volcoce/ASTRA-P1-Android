@@ -20,15 +20,10 @@
 .natal-section-lead{color:var(--astra-muted);line-height:1.5}
 
 /* Journal: the editor is the primary task; statistics and history are secondary. */
-.astra-journal-editor,.astra-journal-summary,.astra-journal-history{
-  background:var(--astra-surface);
-  border-radius:var(--astra-radius-xl);
-  box-shadow:none
-}
 .card.astra-reading-card.astra-journal-editor{
   border-width:2px;
 }
-.astra-journal-editor{background:var(--astra-surface)}
+
 .astra-journal-editor>.card-title{font-family:var(--astra-font-display);font-size:23px}
 .astra-journal-editor .actions{margin:8px 0 19px;gap:8px}
 .astra-journal-editor .actions .ghost{min-height:44px}
@@ -236,12 +231,6 @@
 }
 
 /* P5 — compact aspect sheet. No card-in-card, technical-first hierarchy or duplicate titles. */
-.astra-event-detail--compact{
-  padding:18px 16px 22px;
-  border:1px solid var(--astra-divider);
-  border-radius:var(--astra-radius-xl);
-  background:var(--astra-surface);
-}
 .astra-event-detail--compact .astra-event-compact-top{margin-bottom:10px;align-items:center}
 .astra-event-detail--compact .astra-event-kicker{
   font-size:13px;font-weight:750;letter-spacing:.01em;color:var(--astra-muted);
