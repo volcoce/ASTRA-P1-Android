@@ -61,6 +61,15 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
   background:var(--astra-surface);color:var(--astra-ink);border:1px solid var(--astra-border);
   border-radius:var(--astra-radius-md);box-shadow:none
 }
+/* Single icon-button contract for week, month and calendar navigation. */
+.arrow{
+  display:inline-grid;place-items:center;flex:none;
+  width:var(--astra-control-min);min-width:var(--astra-control-min);
+  height:var(--astra-control-min);min-height:var(--astra-control-min);
+  padding:0;font-family:var(--astra-font-body);font-size:1.5rem;
+  font-weight:700;line-height:1;text-align:center;
+  transition:background-color var(--astra-motion),border-color var(--astra-motion)
+}
 :is(.ghost,.arrow,.astra-personal-create,.natal-secondary-action,.natal-settings-link):hover:not(:disabled){
   background:var(--astra-secondary-surface)
 }
