@@ -78,12 +78,9 @@
 .natal-explore-list h3,.natal-contact-section h3{font:750 20px/1.3 system-ui,sans-serif;
   color:var(--ink);letter-spacing:-.025em;margin-bottom:6px}
 .natal-explore-list>p,.natal-contact-section>p{font-size:14px;color:var(--secondary);line-height:1.5}
-.natal-position,.natal-explore-list .natal-position,.natal-house-chip,
+.natal-house-chip,
 .natal-explore-list .natal-aspect{background:#fff;border-bottom:1px solid var(--astra-rule);
   font:600 14px/1.4 system-ui,sans-serif;color:var(--ink);min-height:59px}
-.natal-position .position-planet{font:650 14px/1.4 system-ui,sans-serif;color:#243c4f}
-.natal-position .position-value{font-size:12px;color:#506779}
-.natal-position .position-house{font-size:12px;color:#657988}
 .natal-positions,.natal-aspects{border-color:var(--astra-rule);border-radius:13px}
 .natal-house-chip[aria-pressed="true"],.natal-position[aria-pressed="true"],
 .natal-aspect[aria-pressed="true"]{background:#eaf3f6;color:#17455b}
@@ -302,18 +299,11 @@
 :is(.natal-home,.natal-explore) .natal-glossary :is(dt,dd,.tiny){color:var(--astra-ink)}
 :is(.natal-home,.natal-explore) .natal-glossary dd{color:var(--astra-muted)}
 .natal-home :is(.natal-overview-panel,.natal-positions,.natal-aspects){min-width:0}
-.natal-home .natal-overview-panel .natal-position,
 .natal-home .natal-overview-panel .natal-aspect{
   background:var(--astra-surface);color:var(--astra-ink);
   border-color:var(--astra-divider);
 }
-.natal-home .natal-overview-panel .natal-position .position-planet,
-.natal-home .natal-overview-panel .natal-position .position-value,
 .natal-home .natal-overview-panel .natal-aspect>span{color:var(--astra-ink)}
-.natal-home .natal-overview-panel .natal-position .position-house{
-  color:var(--astra-muted);
-}
-.natal-home .natal-overview-panel .natal-position[aria-pressed="true"],
 .natal-home .natal-overview-panel .natal-aspect[aria-pressed="true"]{
   background:var(--astra-selected);
 }
@@ -430,7 +420,7 @@
   --position-columns:minmax(0,1fr) 1em minmax(0,1fr);
   --position-row-pad:clamp(5px,1.5vw,14px);
   --position-gap:clamp(3px,1vw,10px);
-  width:100%;min-width:0;overflow:hidden;
+  width:100%;min-width:0;overflow:auto;padding:0;
   border:1px solid var(--astra-divider);border-radius:var(--astra-radius-lg);
   background:var(--astra-surface);container-type:inline-size;
 }
@@ -467,7 +457,7 @@
 .natal-position-table .natal-position :is(.position-planet,.position-value){
   display:flex;align-items:center;gap:clamp(3px,1cqi,8px);
   min-width:0;grid-column:auto;grid-row:auto;padding:0;
-  font:inherit;color:var(--astra-ink);text-align:left;overflow-wrap:anywhere
+  font:inherit;color:var(--astra-ink);text-align:left;overflow-wrap:normal
 }
 .natal-position-table :is(.position-glyph,.position-sign-glyph){
   flex:0 0 1.15em;text-align:center;font:600 1.4em/1 "Noto Sans Symbols 2","Segoe UI Symbol","DejaVu Sans",sans-serif;
@@ -497,5 +487,6 @@
 @container(max-width:330px){
   .natal-position-table :is(.natal-position-heading,.natal-position){font-size:.75rem;gap:3px;padding-inline:5px}
   .natal-position-table :is(.position-glyph,.position-sign-glyph){font-size:1.25em}
+  .natal-position-table.has-degrees.has-houses :is(.natal-position-heading,.natal-position){min-width:310px}
 }
 }
