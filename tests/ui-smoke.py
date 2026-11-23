@@ -608,11 +608,9 @@ if __name__ == '__main__':
                 )
                 assert actual==expected_fill,(element,actual,expected_fill)
             assert page.locator('.wheel-house-sector').count()==12
-            # Reference-inspired wheel: one degree per natal planet, text-form
-            # zodiac glyphs, a readable aspect core and unchanged real anchors.
-            degree_nodes=page.locator('.natal-home .wheel-planet-degree')
-            assert degree_nodes.count()==10
-            assert all(text.endswith('°') and len(text)==3 for text in degree_nodes.all_text_contents())
+            # A clean graphic, with no degree captions or tick clutter.
+            # Actual planet positions are still retained for selection/detail.
+            assert page.locator('.natal-home .wheel-planet-degree, .natal-home .wheel-degree-tick').count()==0
             assert page.locator('.natal-home .wheel-aspect-line').count()==1
             assert page.locator('.natal-home .wheel-aspect-line').first.get_attribute('data-aspect-kind')=='Carré'
             assert page.locator('.natal-home .zodiac-symbol').count()==12
@@ -837,18 +835,15 @@ if __name__ == '__main__':
             assert audit_disclosures('natal-preview')>=1
             assert page.locator('.natal-settings .natal-wheel').count()==1
             assert page.locator('.natal-preview-disclosure summary').inner_text()=='Aperçu de la carte'
-            assert page.locator('.natal-settings .wheel-planet-degree').count()==0 or (
-                all(text.endswith('°') for text in page.locator('.natal-settings .wheel-planet-degree').all_text_contents()))
+            assert page.locator('.natal-settings .wheel-planet-degree, .natal-settings .wheel-degree-tick').count()==0
             page.locator('[data-natal-view="complete"]').click()
-            precise_labels=page.locator('.natal-settings .wheel-planet-degree')
-            assert precise_labels.count()==10
-            assert all('′' in text for text in precise_labels.all_text_contents())
+            assert page.locator('.natal-settings .wheel-planet-degree').count()==0
             page.locator('[data-wheel-layout="double"]').click()
             assert page.locator('.natal-settings .natal-double-wheel').count()==1
-            assert page.locator('.natal-settings .wheel-planet-degree').count()==20
+            assert page.locator('.natal-settings .wheel-planet-degree, .natal-settings .wheel-degree-tick').count()==0
             page.locator('[data-wheel-layout="natal"]').click()
             page.locator('[data-natal-view="essential"]').click()
-            assert all(text.endswith('°') for text in page.locator('.natal-settings .wheel-planet-degree').all_text_contents())
+            assert page.locator('.natal-settings .wheel-planet-degree').count()==0
             page.locator('[data-profile-screen="overview"]').click()
             assert page.locator('.natal-double-wheel').count()==0
             page.locator('[data-profile-screen="explore"]').click()
@@ -1687,7 +1682,7 @@ if __name__ == '__main__':
             assert page.locator('#natalChart .natal-wheel').count()==1
             assert page.locator('#natalChart .wheel-house-sector').count()==0
             assert page.locator('#natalChart [data-natal-house]').count()==0
-            assert page.locator('#natalChart .wheel-planet-degree').count()==10
+            assert page.locator('#natalChart .wheel-planet-degree, #natalChart .wheel-degree-tick').count()==0
             assert page.locator('#natalChart .zodiac-symbol').count()==12
             assert 'Heure de naissance inconnue' in page.locator('#natalChart').inner_text()
             assert 'Ascendant' not in page.locator('.natal-primary-cards').inner_text()
