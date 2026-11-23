@@ -424,3 +424,29 @@ test('City autocomplete is shared, keyboard-operable and removes manual search',
   });
  }
 });
+
+test('Natal wheel combines precise reference geometry with one progressive interactive SVG',()=>{
+ const app=read('app.js'),wheelCss=read('astra-p4-wheel.css');
+ const detail=app.slice(app.indexOf('  function wheelSvg(chart,quiet=false)'),
+   app.indexOf('  function natalDetail(chart)'));
+ assert.match(app,/function wheelDegreeText\(longitude,minutes=false\)/);
+ assert.match(app,/function wheelPlanetLabel\(body,lng,placed,asc,/);
+ assert.match(app,/wheelZodiacGlyph=index=>zodiacSymbols\[index\]\+'\\uFE0E'/);
+ assert.match(app,/Math\.min\(1799,Math\.floor\(within\*60\+1e-7\)\)/);
+ assert.match(detail,/\.slice\(0,6\)/);
+ assert.match(detail,/E\.layoutPlanetLabels\(chart\.positions,precise\?19:16\)/);
+ assert.match(detail,/class="wheel-planet-degree"/);
+ assert.match(detail,/data-true-longitude=/);
+ assert.match(detail,/data-label-longitude=/);
+ assert.match(app,/isOverview\?\(h\?wheelSvg\(chart,state\.natalView!=='complete'\)/);
+ assert.match(wheelCss,/\.wheel-planet-degree\{/);
+ assert.match(wheelCss,/\.natal-leader path\{/);
+ assert.match(wheelCss,/\.zodiac-symbol\{[\s\S]*?font-family:"Noto Sans Symbols 2"/);
+ assert.match(wheelCss,/\.wheel-transit-degree\{/);
+ for(const file of CSS_SOURCES.filter(f=>f!=='astra-p4-wheel.css')){
+  postcss.parse(read(file),{from:file}).walkRules(rule=>{
+   assert.ok(!rule.selector.includes('.wheel-planet-degree'),
+     file+' owns new degree labels outside shared feature stylesheet');
+  });
+ }
+});
