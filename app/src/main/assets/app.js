@@ -237,7 +237,6 @@
   // The home feed is a glanceable overview, with detail revealed on request.
   let todayExpanded = false;
   let calendarInterval = null; // Only shown when a multi-day event bar is selected.
-  let overviewPane='wheel';
   let transitRange='all';
   let result = null, error='', busy=false, calcToken=0, openDetail=null, journalDraft=null, journalDraftDate='', searchTerm='';
   // Non-persisted form state. Only a selected city can supply coordinates/timezone.
@@ -1650,18 +1649,7 @@
     if(isOverview){
       const homeSvg=svg.replace(/class="natal-wheel([^"]*)"/,(_,rest)=>
         'class="natal-wheel'+rest+'" style="width:100%;min-width:0;max-width:none"');
-      const viewTabs='<div class="natal-overview-tabs" role="group" aria-label="Choisir la vue du thème">'+
-        [['wheel','Roue'],['planets','Planètes'],['aspects','Aspects']].map(([id,name])=>
-          '<button type="button" data-overview-pane="'+id+'" aria-pressed="'+(overviewPane===id)+'" class="'+
-          (overviewPane===id?'selected':'')+'">'+name+'</button>').join('')+'</div>';
-      const overviewContent=overviewPane==='planets'
-        ?'<section class="natal-overview-panel" aria-label="Positions planétaires">'+
-          planetTable+'</section>'
-        :overviewPane==='aspects'
-        ?'<section class="natal-overview-panel" aria-label="Aspects de naissance">'+
-          '<div class="natal-aspects">'+(aspects||'<p class="astra-empty">Aucun aspect avec le filtre sélectionné.</p>')+'</div>'+
-          '<button type="button" class="natal-more-link" data-profile-screen="explore">Explorer les aspects en détail →</button></section>'
-        :'<div class="natal-wheel-viewport" role="region" tabindex="0" aria-label="Roue natale interactive">'+homeSvg+'</div>'+
+      const overviewContent='<div class="natal-wheel-viewport" role="region" tabindex="0" aria-label="Roue natale interactive">'+homeSvg+'</div>'+
           shortCaption;
       const glossary='<details class="natal-glossary astra-disclosure"><summary>Comprendre les mots astrologiques</summary>'+
         '<div class="astra-disclosure-body"><dl><dt>Planète</dt><dd>Corps céleste représenté à sa position dans le zodiaque.</dd>'+
@@ -1676,7 +1664,7 @@
         '<p class="natal-home-subtitle">'+(isTropical?'Tropical':'Sidéral')+'</p></div></div>'+
         (uncertain?notice:'')+
         '<div class="natal-primary-cards'+(h?'':' natal-primary-cards--two')+'" role="group" aria-label="Soleil, Lune et Ascendant en signes astrologiques">'+quickCards+'</div>'+
-        viewTabs+overviewContent+
+        overviewContent+
         '<div class="natal-home-actions natal-home-actions--primary"><button type="button" class="natal-main-action" data-profile-screen="explore"><span class="action-label"><strong>Explorer les positions</strong></span><span class="action-arrow" aria-hidden="true">→</span></button></div>'+
         contextSheet+glossary+
         '<div class="natal-home-actions natal-home-actions--secondary"><button type="button" class="natal-secondary-action" data-explore-transits="1"><span class="action-label"><strong>Comparer deux dates</strong></span><span class="action-arrow" aria-hidden="true">→</span></button></div>'+
@@ -2130,12 +2118,6 @@
     if(a.lunarDay){selectDay(a.lunarDay);go('calendar');return;}
     if(a.monthOpenDay){selectDay(a.monthOpenDay);go('calendar');return;}
     if(a.resetToday){selectDay(isoDay(new Date()));return;}
-    if(a.overviewPane){
-      if(!['wheel','planets','aspects'].includes(a.overviewPane))return;
-      overviewPane=a.overviewPane;natalSelection=null;render();
-      if(event.detail===0)$('app').querySelector('[data-overview-pane="'+a.overviewPane+'"]')?.focus({preventScroll:true});
-      return;
-    }
     if(a.exploreSection){
       if(!['planets','houses','aspects'].includes(a.exploreSection))return;
       if(a.exploreSection==='houses'&&state.profile?.timeKnown===false)return;
