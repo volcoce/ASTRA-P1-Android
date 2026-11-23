@@ -1,3 +1,4 @@
+@layer legacy {
 /* ASTRA / Atlas — Visual language v0.7.0
    A calm, contemporary astronomical notebook. Not a generic gradient landing page.
    Applied after the legacy stylesheet until component migration is complete. */
@@ -676,3 +677,5 @@ html,body{font-size:100%;min-width:0}
 
 /* WCAG AA: secondary heading text must retain 4.5:1 contrast on paper. */
 .astra-section-head>span{color:#536879}
+
+}

@@ -1,3 +1,4 @@
+@layer legacy {
 /* ASTRA Personal Calendar — events live inside each calendar week.
    Bars represent complete saved date ranges and continue across week/month edges. */
 .astra-personal-create{
@@ -166,4 +167,6 @@
   .astra-personal-calendar-week{gap:2px 1px}
   .astra-personal-calendar-event{padding:3px;font-size:10px}
   .astra-personal-date-fields,.astra-personal-time-fields{gap:7px}
+}
+
 }

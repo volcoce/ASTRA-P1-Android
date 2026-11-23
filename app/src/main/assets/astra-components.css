@@ -1,3 +1,4 @@
+@layer components {
 /* ASTRA P0 — Common component contract, layered after legacy CSS.
    Avoid altering astronomical SVG geometry or functional calendar ribbons. */
 html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--astra-font-body);line-height:var(--astra-line-height)}
@@ -40,7 +41,7 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
 
 /* Buttons and navigation. Visual focus must remain independent of selection. */
 :is(button,input,textarea,select,summary):focus-visible{
-  outline:3px solid var(--astra-focus)!important;outline-offset:2px
+  outline:3px solid var(--astra-focus);outline-offset:2px
 }
 :is(button,.nav,summary){-webkit-tap-highlight-color:transparent}
 :is(.primary,.natal-main-action,.astra-month-calendar-link,.astra-personal-save){
@@ -133,9 +134,9 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
    The specific calendar geometry remains owned by solar-ribbon.css. */
 .calendar .moon-phase-badge,
 :root[data-astra-theme="dark"] .calendar .moon-phase-badge{
-  background:transparent!important;border:0!important;box-shadow:none!important
+  background:transparent;border:0;box-shadow:none
 }
-.calendar .astra-calendar-date-week .day{background:transparent!important}
+.calendar .astra-calendar-date-week .day{background:transparent}
 :root[data-astra-theme="dark"] .calendar .astra-calendar-date-week .day{color:#F8EFD5}
 :root[data-astra-theme="dark"] .calendar .astra-calendar-date-week .day.selected{color:#F8EFD5}
 @media(max-width:360px){
@@ -170,3 +171,5 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
   box-sizing:border-box;
 }
 .astra-disclosure>summary:focus-visible{outline:3px solid var(--astra-focus);outline-offset:-3px}
+
+}

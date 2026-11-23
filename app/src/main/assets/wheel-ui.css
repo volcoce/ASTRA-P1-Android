@@ -1,3 +1,4 @@
+@layer legacy {
 /* ASTRA — wheel visual refresh.
    SVG coordinates and scientific positions remain owned by app.js.
    This stylesheet is deliberately self-contained for offline Android WebView. */
@@ -226,4 +227,6 @@
 }
 @media(prefers-reduced-motion:reduce){
   .natal-wheel.wheel-modern *{animation:none!important;transition:none!important}
+}
+
 }

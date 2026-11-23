@@ -1,3 +1,4 @@
+@layer legacy {
 /* ASTRA P2 — semantic appearance tokens and optional, local diagnostics. */
 .astra-preferences,.astra-performance{min-width:0}
 .astra-appearance-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:14px}
@@ -222,4 +223,6 @@
 }
 @media(prefers-reduced-motion:reduce){
   .astra-appearance-options button,.astra-performance button{transition:none!important}
+}
+
 }

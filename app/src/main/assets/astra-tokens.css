@@ -1,3 +1,4 @@
+@layer tokens {
 /* ASTRA P0 — Retro Pop Celestial / single semantic source of truth.
    Load after legacy styles. No remote fonts; Android and web render offline. */
 :root {
@@ -157,4 +158,6 @@
   --pale:var(--astra-bg);
   --plum:var(--astra-secondary-surface);
   --border:var(--astra-border);
+}
+
 }

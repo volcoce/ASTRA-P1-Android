@@ -1,3 +1,4 @@
+@layer legacy {
 /* ASTRA solar periods: continuous bands inside the calendar grid.
    Each civil date has two half columns to represent an ingress 50/50. */
 .solar-sign-0,.solar-sign-4,.solar-sign-8{--solar-bg:var(--solar-fire-bg);--solar-ink:var(--solar-fire-ink)}
@@ -12,7 +13,7 @@
 .solar-element-air{--solar-bg:var(--solar-air-bg);--solar-muted-bg:var(--solar-air-muted);--solar-ink:var(--solar-air-ink)}
 .solar-element-water{--solar-bg:var(--solar-water-bg);--solar-muted-bg:var(--solar-water-muted);--solar-ink:var(--solar-water-ink)}
 .solar-element-unknown{--solar-bg:transparent}
-.calendar .cal-grid{grid-auto-flow:row;column-gap:0!important;row-gap:7px}
+.calendar .cal-grid{grid-auto-flow:row;column-gap:0;row-gap:7px}
 .calendar .astra-calendar-date-week{
   grid-column:1/-1;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));
   position:relative;min-width:0;isolation:isolate;gap:0;
@@ -42,8 +43,8 @@
 }
 .calendar .astra-calendar-date-week .day{
   position:relative;z-index:1;min-width:0;
-  background:transparent!important;background-image:none!important;
-  border:0!important;border-radius:0!important;box-shadow:none!important;
+  background:transparent;background-image:none;
+  border:0;border-radius:0;box-shadow:none;
 }
 /* Light solar ribbons require dark, readable day numbers even in night mode. */
 :root[data-astra-theme="dark"] .calendar .astra-calendar-date-week .day{
@@ -52,7 +53,7 @@
 .calendar .astra-calendar-date-week .day.selected,
 :root[data-astra-theme="dark"] .calendar .astra-calendar-date-week .day.selected{
   outline:2px solid #235e81;outline-offset:-3px;
-  color:inherit;box-shadow:none!important;
+  color:inherit;box-shadow:none;
 }
 .calendar .astra-calendar-date-week .day.today:not(.selected){
   outline:2px dashed #235e81;outline-offset:-3px;
@@ -62,13 +63,13 @@
 }
 .calendar .astra-calendar-date-week .day.moon-new,
 .calendar .astra-calendar-date-week .day.moon-full{
-  background:transparent!important;
+  background:transparent;
 }
 .calendar .astra-calendar-date-week .moon-phase-badge,
 :root[data-astra-theme="dark"] .calendar .astra-calendar-date-week .moon-phase-badge{
-  background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0!important;
+  background:transparent;border:0;box-shadow:none;border-radius:0;
 }
-.calendar .astra-calendar-date-week .astra-phase-graphic{background:transparent!important}
+.calendar .astra-calendar-date-week .astra-phase-graphic{background:transparent}
 
 
 .astra-calendar-blank-day{min-width:0;height:55px}
@@ -88,3 +89,5 @@
 .astra-solar-daily-degree{margin-left:auto;flex:none;font-size:12px;font-weight:750}
 .astra-solar-daily-band.is-unknown{background:#e8edf1;color:#405566}
 
+
+}

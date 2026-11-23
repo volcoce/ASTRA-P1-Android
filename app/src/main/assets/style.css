@@ -1,3 +1,7 @@
+/* Cascade layers: legacy < tokens < shared components < features < shell. */
+@layer legacy, tokens, components, features, layout;
+
+@layer legacy {
 :root{
   /* Shared P1 semantic tokens; older names remain as compatible aliases. */
   --ink:#252036;--secondary:#5e536a;--violet:#644c80;--deep:#48345f;
@@ -128,7 +132,7 @@ button[data-goto="profile"]{margin-top:16px}.field input[type="date"],.field inp
 .natal-reflection{border-color:#9b8254}
 .natal-fact>b,.natal-symbolic>b,.natal-reflection>b{font-size:12px;color:#3a2c49}
 .natal-fact p,.natal-symbolic p,.natal-reflection p{margin:5px 0 0;line-height:1.6}
-.natal-disclaimer{font-size:10.5px!important;color:#60546b!important}
+.natal-disclaimer{font-size:10.5px;color:#60546b}
 .natal-related{display:flex;flex-wrap:wrap;gap:6px;margin:9px 0}
 .natal-related button{border:1px solid #c9b7dc;border-radius:9px;background:white;
   color:#3c2e4f;padding:8px 10px;min-height:38px;font-size:11px}
@@ -501,7 +505,7 @@ html{background:#f5f1ee}
 .history-item button{font-size:13px}
 .tiny,.natal-card .tiny{font-size:13px;line-height:1.55}
 .natal-highlight span{font-size:13px}
-.natal-disclaimer{font-size:12.5px!important}
+.natal-disclaimer{font-size:12.5px}
 .detail-group h3,.detail-group p{font-size:14px;line-height:1.55}
 .natal-matrix .matrix-empty{color:#766b83;font-size:13px}
 .natal-contact-list button small{font-size:13px}
@@ -661,3 +665,5 @@ dialog.natal-focus::backdrop{background:rgba(18,31,44,.62)}
 .form-field-error{margin:7px 0 0;color:#983f42;font-size:13px;line-height:1.5;font-weight:650}
 .field input[aria-invalid="true"],.field select[aria-invalid="true"]{border:2px solid #a43d42;background:#fff9f8}
 .field input[aria-invalid="true"]:focus-visible,.field select[aria-invalid="true"]:focus-visible{outline:3px solid var(--astra-focus-ring);outline-offset:2px}
+
+}
