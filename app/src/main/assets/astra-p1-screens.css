@@ -26,8 +26,7 @@
   box-shadow:var(--astra-shadow-soft)
 }
 .astra-day-hero:before,.astra-day-hero:after{display:none}
-.astra-hero-kicker,.astra-moon-title,.astra-moon-phase,.astra-sky-reference,
-.astra-hero-stat strong,.astra-hero-stat span{color:var(--color-deep-ocean)}
+.astra-hero-kicker,.astra-moon-title,.astra-moon-phase,.astra-sky-reference{color:var(--color-deep-ocean)}
 .astra-hero-kicker{font-weight:800;letter-spacing:.09em}
 .astra-moon-title{font-family:var(--astra-font-display);font-size:clamp(24px,5vw,34px);line-height:1.12}
 .astra-hero-moon{gap:16px}
@@ -41,12 +40,6 @@
   display:inline-flex;max-width:100%;background:var(--color-dandelion);
   border:1px solid var(--color-deep-ocean);color:var(--color-deep-ocean);
   padding:8px 12px;border-radius:var(--astra-radius-md);margin:18px 0 0
-}
-.astra-hero-stat{border-top:1px solid var(--astra-day-hero-rule);margin-top:15px;gap:9px}
-.astra-hero-stat strong{font-size:22px}
-.astra-hero-link{
-  background:var(--color-cream);color:var(--color-deep-ocean);
-  border:1px solid var(--color-deep-ocean);border-radius:var(--astra-radius-md)
 }
 /* Lunar path and exact phases are integrated into the only daily hero.
    The noon phase icon is retained; event-phase icons show exact moments. */
@@ -132,11 +125,10 @@
   background:var(--astra-day-hero-bg);border-color:var(--astra-border);box-shadow:none
 }
 :root[data-astra-theme="dark"] .astra-day-hero :is(.astra-hero-kicker,.astra-moon-title,
-  .astra-moon-phase,.astra-sky-reference,.astra-hero-stat strong,.astra-hero-stat span){color:var(--astra-plate-cream)}
+  .astra-moon-phase,.astra-sky-reference){color:var(--astra-plate-cream)}
 :root[data-astra-theme="dark"] .astra-day-hero .astra-solar-daily-band{
   background:var(--color-dandelion);color:var(--color-deep-ocean)
 }
-:root[data-astra-theme="dark"] .astra-hero-stat{border-color:var(--astra-day-hero-rule)}
 
 /* CE MOIS — month navigation, summary, major phases, supporting metrics,
    then first chronological events and calendar entry */
