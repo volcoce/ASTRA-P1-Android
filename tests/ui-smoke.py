@@ -453,6 +453,19 @@ if __name__ == '__main__':
             assert page.locator('.natal-explore [data-natal-body="Mercury"].natal-position .position-retrograde').inner_text()=='R'
             assert page.locator('.natal-explore [data-natal-body="Sun"].natal-position .position-retrograde').inner_text()==''
             assert page.locator('.natal-explore .position-degree').count()==0
+            def assert_position_headers_fit():
+                for width in (320,360,393,768,1280):
+                    page.set_viewport_size({'width':width,'height':844})
+                    result=page.locator('.natal-position-heading').evaluate("""e=>{
+                      return [...e.children].filter(c=>['Maison','Degrés'].includes(c.textContent)).map(c=>{
+                        const range=document.createRange();range.selectNodeContents(c);
+                        return {label:c.textContent,lines:range.getClientRects().length,
+                          text:range.getBoundingClientRect().width,cell:c.getBoundingClientRect().width};
+                      });
+                    }""")
+                    assert result and all(x['lines']==1 and x['text']<=x['cell']+1 for x in result),(width,result)
+                page.set_viewport_size({'width':393,'height':844})
+            assert_position_headers_fit()
             page.locator('#settingsButton').click()
             page.locator('[data-settings-section="astrology"]').click()
             page.locator('[data-natal-degrees="on"]').click()
@@ -460,6 +473,7 @@ if __name__ == '__main__':
             page.locator('[data-settings-close]').click()
             assert page.locator('.natal-explore .position-degree').count()==10
             assert page.locator('.natal-explore .position-degree').first.inner_text()=='07°00'
+            assert_position_headers_fit()
             for width in (320,393,1280):
                 page.set_viewport_size({'width':width,'height':844})
                 aligned=page.locator('.natal-position-table').evaluate("""e=>{
