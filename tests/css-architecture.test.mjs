@@ -31,3 +31,10 @@ test('Reading surfaces and disclosures reuse global component classes',()=>{
  assert.match(app,/calendarOptionsOpen\?' open':'/);
  assert.match(read('astra-components.css'),/\.astra-disclosure\{/);
 });
+
+test('Welcome onboarding reuses reading geometry and a compact visual',()=>{
+ const app=read('app.js'),css=read('atlas-ui.css');
+ assert.match(app,/class="card astra-reading-card welcome-card"/);
+ assert.match(css,/\.welcome-illustration\s*\{[^}]*height:64px/s);
+ assert.match(css,/\.welcome-card>\.ghost\.full\s*\{[^}]*width:100%/s);
+});
