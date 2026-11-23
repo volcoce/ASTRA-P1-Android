@@ -479,7 +479,7 @@ html{background:#f5f1ee}
     from{opacity:.4;transform:translateY(8px)}
     to{opacity:1;transform:translateY(0)}
   }
-  .ghost,.natal-settings-link,.natal-back,
+  .ghost,.natal-back{transition:background-color var(--astra-motion)}
 }
 @media(prefers-reduced-motion:reduce){
   .natal-context-sheet{animation:none!important;transform:none!important}
