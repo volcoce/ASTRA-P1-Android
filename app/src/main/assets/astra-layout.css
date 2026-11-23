@@ -39,7 +39,7 @@
   position:fixed;z-index:40;
   bottom:0;left:50%;right:auto;
   transform:translateX(-50%);
-  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+  display:grid;grid-template-columns:repeat(5,minmax(0,1fr));
   gap:3px;width:100%;max-width:var(--astra-nav-width);
   margin:0;padding:9px 9px max(11px,var(--astra-safe-bottom));
   box-sizing:border-box;
