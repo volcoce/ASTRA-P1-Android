@@ -787,6 +787,7 @@ if __name__ == '__main__':
             # Compare the two reference palettes on the SAME natal wheel and
             # calendar geometry. Persisted choices must affect live CSS & export.
             page.set_viewport_size({'width':393,'height':844})
+            page.locator('[data-profile-screen="settings"]').click()
             assert page.locator('[data-element-palette]').count()==2
             light_palettes={
                 'classic':{'fire':'#FAB617','air':'#E7F6FD','water':'#00ADEF','earth':'#896B49'},
