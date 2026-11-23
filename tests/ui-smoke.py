@@ -439,9 +439,10 @@ if __name__ == '__main__':
             assert_birth_heading_alignment()
             capture('natal-heading-aligned-desktop-1280')
             page.set_viewport_size({'width':393,'height':844})
-            assert page.locator('.natal-home-actions button').count()==2
+            assert page.locator('.natal-home-actions button').count()==1
             assert 'Explorer les positions' in page.locator('.natal-main-action').inner_text()
-            assert 'Comparer deux dates' in page.locator('.natal-secondary-action').inner_text()
+            assert page.locator('.natal-home [data-explore-transits]').count()==0
+            assert page.locator('.natal-home .natal-glossary').count()==0
             assert page.locator('.natal-summary-item').first.get_attribute('aria-label')=='Soleil en Bélier'
             assert page.locator('.natal-overview-tabs, .natal-home .natal-position, .natal-home .natal-aspect').count()==0
             assert page.locator('.natal-home .natal-wheel').count()==1
@@ -479,15 +480,22 @@ if __name__ == '__main__':
             page.locator('.natal-back').click()
             assert page.locator('.natal-home .natal-wheel').count()==1
             assert page.locator('.natal-overview-tabs, .natal-home .natal-position, .natal-home .natal-aspect').count()==0
-            assert page.locator('.natal-glossary').get_attribute('open') is None
-            page.locator('.natal-glossary summary').click()
-            assert audit_disclosures('natal-home')>=2
-            assert 'Orbe' in page.locator('.natal-glossary').inner_text()
+            assert page.locator('.natal-home .natal-glossary').count()==0
+            page.locator('#settingsButton').click()
+            page.locator('[data-settings-section="help"]').click()
+            glossary=page.locator('#astraSettingsDialog .natal-glossary')
+            assert glossary.count()==1
+            assert glossary.get_attribute('open') is None
+            glossary.locator('summary').click()
+            assert glossary.locator('dt').count()==6
+            assert 'Orbe' in glossary.inner_text()
+            page.locator('[data-settings-section="astrology"]').click()
+            page.locator('[data-settings-close]').click()
             assert page.locator('.natal-advanced').count()==0
             assert page.locator('.natal-control-stack').count()==0
             assert page.locator('.natal-filter').count()==0
             assert page.locator('#birthForm').count()==0
-            assert page.locator('.natal-home-actions button').count()==2
+            assert page.locator('.natal-home-actions button').count()==1
             # A15 layout (~360 CSS px) plus compact and large phones, tablets
             # and desktop. These are simulated responsive layouts, not
             # measurements taken on a physical Samsung A15.
@@ -508,9 +516,7 @@ if __name__ == '__main__':
                   const selectors=[
                     '.natal-primary-cards','.natal-home-actions--primary',
                     '.natal-wheel-viewport',
-                    '.natal-home-hint',
-                    '.natal-glossary','.natal-home-actions--secondary',
-                    '.natal-extras'];
+                    '.natal-home-hint'];
                   return {
                     intro:{left:intro.left+parseFloat(introStyle.paddingLeft),
                       right:intro.right-parseFloat(introStyle.paddingRight)},
@@ -523,7 +529,7 @@ if __name__ == '__main__':
                       const r=box('.natal-home>'+selector);
                       return {selector,left:r.left,right:r.right};
                     }),
-                    actions:['.natal-main-action','.natal-secondary-action'].map(s=>({
+                    actions:['.natal-main-action'].map(s=>({
                       selector:s,left:box(s).left,right:box(s).right
                     }))};
                 }""")
@@ -790,6 +796,9 @@ if __name__ == '__main__':
             page.locator('[data-wheel-layout="double"]').click()
             page.locator('[data-profile-screen="overview"]').click()
             assert page.locator('.natal-home').count()==1
+            assert page.locator('[data-explore-transits]').count()==0
+            page.locator('.natal-main-action').click()
+            assert page.locator('.natal-explore [data-explore-transits]').count()==1
             page.locator('[data-explore-transits]').click()
             assert page.locator('.natal-compare').count()==1
             assert page.locator('h1.page-title').inner_text()=='Comparer deux dates'
@@ -822,7 +831,9 @@ if __name__ == '__main__':
             assert page.evaluate("document.activeElement.id")=='transitTime'
             saved=page.evaluate("JSON.parse(localStorage.getItem('astra-public-v1'))")
             assert saved['transitTime']=='13:30'
-            page.locator('[data-profile-screen="overview"]').click()
+            page.locator('.natal-compare .natal-back').click()
+            assert page.locator('.natal-explore').count()==1
+            page.locator('.natal-explore .natal-back').click()
             assert page.locator('.natal-extras').count()==0
             assert page.locator('[data-profile-screen="progressions"], [data-profile-screen="composite"]').count()==0
             page.locator('#settingsButton').click()
@@ -892,7 +903,7 @@ if __name__ == '__main__':
             page.locator('[data-settings-birth]').click()
             page.locator('#settingsButton').click()
             assert page.locator('#astraSettingsDialog[open]').count()==1
-            assert page.locator('#astraSettingsDialog [role="tab"]').count()==4
+            assert page.locator('#astraSettingsDialog [role="tab"]').count()==5
             assert page.locator('#app [data-element-palette]').count()==0
             assert page.locator('#app [data-appearance]').count()==0
             assert page.locator('#app [data-house-system]').count()==0
@@ -1039,9 +1050,11 @@ if __name__ == '__main__':
             capture('natal-reading-dark-desktop-1280')
             page.set_viewport_size({'width':393,'height':844})
             page.locator('[data-close-natal-detail]').click()
-            # The old pale accordion still leaked into dark Mon ciel.
+            # The glossary must use the dark settings surface.
+            page.locator('#settingsButton').click()
+            page.locator('[data-settings-section="help"]').click()
             overview_colors=page.evaluate("""() => {
-              const items=['.natal-home .natal-glossary','.natal-home .natal-extras'];
+              const items=['#astraSettingsDialog .natal-glossary'];
               return items.map(s=>{
                 const e=document.querySelector(s);
                 const x=getComputedStyle(e);
@@ -1050,6 +1063,8 @@ if __name__ == '__main__':
               });
             }""")
             assert all(item['background']!='rgb(255, 255, 255)' for item in overview_colors),overview_colors
+            page.locator('[data-settings-section="astrology"]').click()
+            page.locator('[data-settings-close]').click()
             page.locator('[data-profile-screen="explore"]').click()
             assert page.locator('.natal-explore-toolbar .natal-settings-link').count()==0
             explore_colors=page.evaluate("""() => {
