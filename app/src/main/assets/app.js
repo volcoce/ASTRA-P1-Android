@@ -2122,6 +2122,7 @@
   // Samsung system back / Android gesture back should navigate ASTRA, not
   // close the app while a sheet or subpage is still open.
   window.ASTRA_HANDLE_BACK=()=>{
+    if($('astraSettingsDialog')?.open){$('astraSettingsDialog').close();return true;}
     if(activeTab==='profile'&&natalSelection){
       $('app').querySelector('[data-close-natal-detail]')?.click();
       return true;
@@ -2169,12 +2170,16 @@
   window.addEventListener('resize',syncKeyboardVisibility);
   $('homeButton')?.addEventListener('click',()=>{selectDay(isoDay(new Date()));go('today');});
   const globalSettingsDialog=$('astraSettingsDialog');
+  let restoreSettingsTriggerFocus=true;
   $('settingsButton')?.addEventListener('click',()=>{
     if(globalSettingsDialog.open)return;
     captureBirthForm();renderGlobalSettings();globalSettingsDialog.showModal();
     globalSettingsDialog.querySelector('[data-settings-section="'+globalSettingsSection+'"]')?.focus({preventScroll:true});
   });
-  globalSettingsDialog.addEventListener('close',()=>{$('settingsButton')?.focus({preventScroll:true});});
+  globalSettingsDialog.addEventListener('close',()=>{
+    if(restoreSettingsTriggerFocus)$('settingsButton')?.focus({preventScroll:true});
+    restoreSettingsTriggerFocus=true;
+  });
   globalSettingsDialog.addEventListener('keydown',e=>{
     const tab=e.target.closest('[role="tab"][data-settings-section]');
     if(!tab||!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;
@@ -2213,7 +2218,7 @@
       updateGlobalSettings('[data-settings-section="'+globalSettingsSection+'"]');return;
     }
     if(a.settingsBirth){
-      globalSettingsDialog.close();go('profile');profileScreen='settings';render();
+      restoreSettingsTriggerFocus=false;globalSettingsDialog.close();go('profile');profileScreen='settings';render();
       writeBrowserRoute('replace');window.scrollTo({top:0,behavior:'instant'});
       $('app').querySelector('h1.page-title')?.focus({preventScroll:true});return;
     }
