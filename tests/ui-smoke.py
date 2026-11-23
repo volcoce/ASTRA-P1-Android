@@ -573,6 +573,16 @@ if __name__ == '__main__':
                       padding:parseFloat(cardStyle.paddingLeft),
                       background:cardStyle.backgroundColor},
                     header:{left:header.left,right:header.right},
+                    vertical:(()=>{
+                      const wheel=box('.natal-home>.natal-wheel-viewport');
+                      const explorer=box('.natal-main-action');
+                      const compare=box('.natal-secondary-action');
+                      const [elements,modalities]=[...document.querySelectorAll('.natal-distribution-figure')].map(el=>el.getBoundingClientRect());
+                      return {wheelGap:explorer.top-wheel.bottom,actionGap:compare.top-explorer.bottom,
+                        distributionGap:modalities.top-elements.bottom,
+                        elementsLeft:elements.left,modalitiesLeft:modalities.left,
+                        elementsWidth:elements.width,modalitiesWidth:modalities.width};
+                    })(),
                     regions:selectors.map(selector=>{
                       const r=box('.natal-home>'+selector);
                       return {selector,left:r.left,right:r.right};
@@ -581,6 +591,12 @@ if __name__ == '__main__':
                       selector:s,left:box(s).left,right:box(s).right
                     }))};
                 }""")
+                vertical=geometry['vertical']
+                assert vertical['wheelGap']>=15,(width,vertical)
+                assert abs(vertical['wheelGap']-vertical['actionGap'])<=1,(width,vertical)
+                assert vertical['distributionGap']>=23,(width,vertical)
+                assert abs(vertical['elementsLeft']-vertical['modalitiesLeft'])<=1,(width,vertical)
+                assert abs(vertical['elementsWidth']-vertical['modalitiesWidth'])<=1,(width,vertical)
                 assert geometry['card']['border']>=1,(width,geometry)
                 assert geometry['card']['padding']>=14,(width,geometry)
                 assert geometry['card']['background'] not in ('rgba(0, 0, 0, 0)','transparent'),(width,geometry)

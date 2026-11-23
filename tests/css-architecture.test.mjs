@@ -249,3 +249,10 @@ test('Reference palettes are selectable without route-specific colours',()=>{
  for(const css of ['style.css','atlas-ui.css','solar-ribbon.css','astra-p4-wheel.css'])
    assert.doesNotMatch(read(css),/data-astra-palette=/);
 });
+
+test('Natal overview actions share one vertical spacing and distributions remain stacked',()=>{
+ const css=read('astra-natal.css'),atlas=read('atlas-ui.css');
+ assert.match(css,/\.natal-home>\.natal-home-actions--primary,\s*\.natal-home>\.natal-home-actions--secondary\s*\{[^}]*margin:var\(--astra-space-4\) 0 0/s);
+ assert.match(css,/\.natal-distribution-grid\s*\{[^}]*grid-template-columns:minmax\(0,1fr\)/s);
+ assert.doesNotMatch(atlas,/\.natal-home-actions--(?:primary|secondary)\s*\{[^}]*margin:/s);
+});

@@ -177,3 +177,5 @@ Le bouton « + Événement » au-dessus de la grille a été supprimé : sélect
 Sous la roue et les actions existantes de Mon ciel, une seule section présente les éléments (anneau et légende en pourcentage) et les modalités (barres), calculés à partir des dix astres du thème actif, sans pondération ni angles. Si l'heure manque, les comptes sont indicatifs à midi. Les quatre dignités classiques par signe figurent uniquement dans la fiche de la planète sélectionnée (domicile, exaltation, exil, chute, éventuellement cumulés). Uranus, Neptune et Pluton n'ont pas de statut dans ce référentiel classique. Ces statuts sont symboliques et ne sont pas des scores.
 
 La sélection d’une ligne de répartition affiche les astres et leurs signes ; un seul groupe par répartition reste ouvert. La sélection d’un astre ouvre sa fiche existante.
+
+Les répartitions Éléments et Modalités se succèdent verticalement sur tous les écrans. Les boutons Explorer et Comparer gardent un espacement identique de 16 px après la roue et entre eux, via le token global d’espacement.
