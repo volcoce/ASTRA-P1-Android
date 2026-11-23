@@ -296,3 +296,19 @@ test('Shared touch targets and action spacing are governed by global tokens',()=
  assert.ok(read('astra-components.css').includes('font-size:.75rem'),
    'Tiny navigation should retain legible labels');
 });
+
+test('Today lunar hero contains no duplicate event counter or jump action',()=>{
+ const app=read('app.js');
+ const hero=app.slice(app.indexOf("'<section class=\"astra-day-hero\""),
+   app.indexOf("'<section class=\"astra-feed\" id=\"todayEvents\""));
+ assert.ok(hero.length>0,'Daily lunar hero must exist');
+ assert.doesNotMatch(hero,/astra-hero-stat|astra-hero-link|événements calculés pour cette date/);
+ assert.doesNotMatch(app,/data-scroll-to="todayEvents"/);
+ assert.match(app,/<div class="astra-event-list-head"><h2 id="todayEventsTitle">Événements du jour<\/h2>/);
+ assert.match(app,/data-today-expand="1"/);
+ for(const file of CSS_SOURCES){
+  const css=read(file);
+  assert.doesNotMatch(css,/astra-hero-stat|astra-hero-link/,
+    file+' must not style the deleted hero actions');
+ }
+});
