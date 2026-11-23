@@ -5,104 +5,104 @@
 .natal-wheel-viewport:has(> .natal-wheel.wheel-modern),
 .natal-home .natal-wheel-viewport:has(> .natal-wheel.wheel-modern),
 :root[data-astra-theme="dark"] .natal-wheel-viewport:has(> .natal-wheel.wheel-modern){
-  background:#FFF9EA;
+  background:var(--astra-plate-cream);
   border:1px solid #C5B9A4;
   border-radius:var(--astra-radius-xl);
   box-shadow:0 2px 0 #1E404F15;
 }
-.natal-wheel.wheel-modern .wheel-paper{fill:#FFF9EA;stroke:#1E404F;stroke-width:1.8}
-.natal-wheel.wheel-modern .wheel-zodiac-sector{stroke:#1E404F;stroke-width:.85}
+.natal-wheel.wheel-modern .wheel-paper{fill:var(--astra-plate-cream);stroke:var(--color-deep-ocean);stroke-width:1.8}
+.natal-wheel.wheel-modern .wheel-zodiac-sector{stroke:var(--color-deep-ocean);stroke-width:.85}
 .natal-wheel.wheel-modern .wheel-zodiac-sector.zodiac-element-fire{fill:var(--astra-zodiac-fire)}
 .natal-wheel.wheel-modern .wheel-zodiac-sector.zodiac-element-earth{fill:var(--astra-zodiac-earth)}
 .natal-wheel.wheel-modern .wheel-zodiac-sector.zodiac-element-air{fill:var(--astra-zodiac-air)}
 .natal-wheel.wheel-modern .wheel-zodiac-sector.zodiac-element-water{fill:var(--astra-zodiac-water)}
 .natal-wheel.wheel-modern .zodiac-symbol{
-  fill:#1E404F;stroke:#FFF9EA;stroke-width:.5;
+  fill:var(--color-deep-ocean);stroke:var(--astra-plate-cream);stroke-width:.5;
   font-family:Georgia,"Times New Roman",serif;font-weight:800;
 }
 .natal-wheel.wheel-modern .wheel-degree-tick{stroke:#B6AFA0}
 .natal-wheel.wheel-modern .wheel-degree-tick.is-medium{stroke:#637881}
-.natal-wheel.wheel-modern .wheel-degree-tick.is-major{stroke:#1E404F}
+.natal-wheel.wheel-modern .wheel-degree-tick.is-major{stroke:var(--color-deep-ocean)}
 .natal-wheel.wheel-modern .wheel-zodiac-inner{
-  fill:#FFF9EA;stroke:#1E404F;stroke-width:1.35
+  fill:var(--astra-plate-cream);stroke:var(--color-deep-ocean);stroke-width:1.35
 }
 .natal-wheel.wheel-modern .wheel-house-backdrop{
-  fill:#FFF9EA;stroke:#9BAAA7
+  fill:var(--astra-plate-cream);stroke:#9BAAA7
 }
-.natal-wheel.wheel-modern .wheel-house-sector.is-even{fill:#FFF9EA}
+.natal-wheel.wheel-modern .wheel-house-sector.is-even{fill:var(--astra-plate-cream)}
 .natal-wheel.wheel-modern .wheel-house-sector.is-odd{fill:#F2E8D5}
 .natal-wheel.wheel-modern .wheel-active-house{
-  fill:#F0BE57;fill-opacity:.64
+  fill:var(--color-dandelion);fill-opacity:.64
 }
 .natal-wheel.wheel-modern .wheel-house-divider{stroke:#A3B0AD}
-.natal-wheel.wheel-modern .wheel-house-divider.is-major{stroke:#1E404F}
-.natal-wheel.wheel-modern .wheel-house-divider.is-active{stroke:#C03A22}
+.natal-wheel.wheel-modern .wheel-house-divider.is-major{stroke:var(--color-deep-ocean)}
+.natal-wheel.wheel-modern .wheel-house-divider.is-active{stroke:var(--color-retro-red)}
 .natal-wheel.wheel-modern .house-number{
-  fill:#1E404F;stroke:#FFF9EA
+  fill:var(--color-deep-ocean);stroke:var(--astra-plate-cream)
 }
 .natal-wheel.wheel-modern .natal-house-hit.is-active .house-number{
-  fill:#C03A22;stroke:#FFF9EA
+  fill:var(--color-retro-red);stroke:var(--astra-plate-cream)
 }
 .natal-wheel.wheel-modern .wheel-aspect-backdrop,
 .natal-wheel.wheel-date-only .wheel-aspect-backdrop{
-  fill:#FFF9EA;stroke:#9BAAA7
+  fill:var(--astra-plate-cream);stroke:#9BAAA7
 }
 .natal-wheel.wheel-modern .wheel-planet-leader,
 .natal-wheel.wheel-modern .natal-leader line{stroke:#66818C}
 .natal-wheel.wheel-modern .wheel-true-anchor,
 .natal-wheel.wheel-modern .natal-leader circle{
-  fill:#34685C;stroke:#FFF9EA
+  fill:var(--color-teal);stroke:var(--astra-plate-cream)
 }
 .natal-wheel.wheel-modern .natal-planet-hit .wheel-planet-disc{
-  fill:#FFF9EA;stroke:#66818C
+  fill:var(--astra-plate-cream);stroke:#66818C
 }
-.natal-wheel.wheel-modern .natal-planet-hit .natal-planet{fill:#1E404F}
+.natal-wheel.wheel-modern .natal-planet-hit .natal-planet{fill:var(--color-deep-ocean)}
 .natal-wheel.wheel-modern .natal-planet-hit.is-sun .wheel-planet-disc{
-  fill:#F0BE57;stroke:#A36D25
+  fill:var(--color-dandelion);stroke:#A36D25
 }
 .natal-wheel.wheel-modern .natal-planet-hit.is-sun .natal-planet{fill:#8F4C14}
 .natal-wheel.wheel-modern .natal-planet-hit.is-moon .wheel-planet-disc{
-  fill:#82AAC7;stroke:#365F79
+  fill:var(--color-cornflower);stroke:#365F79
 }
-.natal-wheel.wheel-modern .natal-planet-hit.is-moon .natal-planet{fill:#1E404F}
+.natal-wheel.wheel-modern .natal-planet-hit.is-moon .natal-planet{fill:var(--color-deep-ocean)}
 .natal-wheel.wheel-modern .natal-planet-hit.is-active .wheel-planet-disc{
-  fill:#1E404F;stroke:#C03A22;stroke-width:2.4
+  fill:var(--color-deep-ocean);stroke:var(--color-retro-red);stroke-width:2.4
 }
-.natal-wheel.wheel-modern .natal-planet-hit.is-active .natal-planet{fill:#FFF9EA}
+.natal-wheel.wheel-modern .natal-planet-hit.is-active .natal-planet{fill:var(--astra-plate-cream)}
 .natal-wheel.wheel-modern :is(.natal-planet-hit,.natal-transit-hit):focus-visible .wheel-planet-disc{
-  fill:#F0BE57;stroke:#C03A22;stroke-width:3.5
+  fill:var(--color-dandelion);stroke:var(--color-retro-red);stroke-width:3.5
 }
 .natal-wheel.wheel-modern :is(.natal-planet-hit,.natal-transit-hit):focus-visible .natal-planet{
-  fill:#1E404F
+  fill:var(--color-deep-ocean)
 }
 .natal-wheel.wheel-modern .angle-label{
-  fill:#1E404F;stroke:#FFF9EA
+  fill:var(--color-deep-ocean);stroke:var(--astra-plate-cream)
 }
 /* Double wheel: warm cream natal ring, cool blue transit ring, red transit glyphs. */
 .natal-double-wheel.wheel-modern .wheel-paper{
-  fill:#F8EFD5;stroke:#1E404F
+  fill:var(--color-cream);stroke:var(--color-deep-ocean)
 }
 .natal-double-wheel.wheel-modern .wheel-transit-band{
-  fill:#D1E7F0;stroke:#34685C;stroke-width:1.4
+  fill:#D1E7F0;stroke:var(--color-teal);stroke-width:1.4
 }
-.natal-double-wheel.wheel-modern .wheel-zodiac-inner{stroke:#1E404F}
-.natal-double-wheel.wheel-modern .wheel-house-backdrop{fill:#FFF9EA}
+.natal-double-wheel.wheel-modern .wheel-zodiac-inner{stroke:var(--color-deep-ocean)}
+.natal-double-wheel.wheel-modern .wheel-house-backdrop{fill:var(--astra-plate-cream)}
 .natal-double-wheel.wheel-modern .natal-planet-hit .wheel-planet-disc{
-  fill:#FFF9EA;stroke:#34685C
+  fill:var(--astra-plate-cream);stroke:var(--color-teal)
 }
-.natal-double-wheel.wheel-modern .natal-planet-hit .natal-planet{fill:#34685C}
+.natal-double-wheel.wheel-modern .natal-planet-hit .natal-planet{fill:var(--color-teal)}
 .natal-double-wheel.wheel-modern .natal-transit-hit .wheel-planet-disc{
-  fill:#FFF9EA;stroke:#C03A22
+  fill:var(--astra-plate-cream);stroke:var(--color-retro-red)
 }
-.natal-double-wheel.wheel-modern .natal-transit-hit .natal-planet{fill:#C03A22}
-.natal-double-wheel.wheel-modern .natal-transit-hit .wheel-true-anchor{fill:#C03A22}
-.natal-double-wheel.wheel-modern .natal-planet-hit .wheel-true-anchor{fill:#34685C}
+.natal-double-wheel.wheel-modern .natal-transit-hit .natal-planet{fill:var(--color-retro-red)}
+.natal-double-wheel.wheel-modern .natal-transit-hit .wheel-true-anchor{fill:var(--color-retro-red)}
+.natal-double-wheel.wheel-modern .natal-planet-hit .wheel-true-anchor{fill:var(--color-teal)}
 .natal-double-wheel.wheel-modern :is(.natal-planet-hit,.natal-transit-hit).is-active .wheel-planet-disc{
-  fill:#1E404F;stroke:#C03A22
+  fill:var(--color-deep-ocean);stroke:var(--color-retro-red)
 }
-.natal-double-wheel.wheel-modern :is(.natal-planet-hit,.natal-transit-hit).is-active .natal-planet{fill:#FFF9EA}
+.natal-double-wheel.wheel-modern :is(.natal-planet-hit,.natal-transit-hit).is-active .natal-planet{fill:var(--astra-plate-cream)}
 :root[data-astra-theme="dark"] .natal-wheel.wheel-modern{
-  color:#1E404F;
+  color:var(--color-deep-ocean);
 }
 :root[data-astra-theme="dark"] .natal-wheel-viewport:has(> .natal-wheel.wheel-modern){
   box-shadow:inset 0 0 0 1px #66818C

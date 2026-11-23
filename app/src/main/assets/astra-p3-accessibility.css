@@ -1,15 +1,6 @@
 @layer features {
 /* ASTRA P3 — contrast, keyboard, zoom and screen reader friendly layout.
    Runs after P2. Never changes astronomy or the actual continuous solar ribbon. */
-:root{
-  --astra-calendar-ink:#102A34;
-  --astra-calendar-focus:#17465D;
-  --astra-control-min:44px;
-}
-:root[data-astra-theme="dark"]{
-  --astra-calendar-ink:#F8EFD5;
-  --astra-calendar-focus:#F0BE57;
-}
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 html,body{min-width:0;max-width:100%}
 /* The shell's gutters and widths are defined by astra-layout.css only. */
@@ -129,10 +120,6 @@ html,body{min-width:0;max-width:100%}
   .astra-personal-dialog{max-height:95dvh}
 }
 @media(prefers-contrast:more){
-  :root{--astra-border:#1E404F;--astra-muted:#294C57;--astra-focus:#C03A22}
-  :root[data-astra-theme="dark"]{
-    --astra-border:#F8EFD5;--astra-muted:#F8EFD5;--astra-focus:#F0BE57;
-  }
   .calendar.astra-calendar-board .astra-calendar-date-week .day.selected{
     outline-width:4px;
   }
@@ -160,12 +147,12 @@ html,body{min-width:0;max-width:100%}
 .astra-event-feed .event-button .event-arrow{
   color:var(--astra-muted);
 }
-:root[data-astra-theme="dark"] .event-button.event-kind-moon-new{--event-label-ink:#DAD0FB}
-:root[data-astra-theme="dark"] .event-button.event-kind-moon-full{--event-label-ink:#F5D59C}
-:root[data-astra-theme="dark"] .event-button.event-kind-moon-quarter{--event-label-ink:#BFD5FB}
-:root[data-astra-theme="dark"] .event-button.event-kind-station{--event-label-ink:#ACDFD1}
-:root[data-astra-theme="dark"] .event-button.event-kind-exact-aspect{--event-label-ink:#B7DFFC}
-:root[data-astra-theme="dark"] .event-button.event-kind-active{--event-label-ink:#CADAE7}
+:root[data-astra-theme="dark"] .event-button.event-kind-moon-new{--event-label-ink:var(--astra-event-label-moon-new)}
+:root[data-astra-theme="dark"] .event-button.event-kind-moon-full{--event-label-ink:var(--astra-event-label-moon-full)}
+:root[data-astra-theme="dark"] .event-button.event-kind-moon-quarter{--event-label-ink:var(--astra-event-label-moon-quarter)}
+:root[data-astra-theme="dark"] .event-button.event-kind-station{--event-label-ink:var(--astra-event-label-station)}
+:root[data-astra-theme="dark"] .event-button.event-kind-exact-aspect{--event-label-ink:var(--astra-event-label-exact-aspect)}
+:root[data-astra-theme="dark"] .event-button.event-kind-active{--event-label-ink:var(--astra-event-label-active)}
 :root[data-astra-theme="dark"] .event-button .event-body .event-category-label{
   color:var(--event-label-ink,var(--astra-muted));
 }

@@ -150,3 +150,35 @@ test('Feature styles do not repaint generic Journal and detail card surfaces',()
  assert.match(css,/\.card\.astra-reading-card\.astra-journal-editor\{/);
  assert.match(components,/\.card\s*\{[^}]*background:var\(--astra-surface\)/s);
 });
+
+test('Cascade layers cover every linked stylesheet in a stable order',()=>{
+ const html=read('index.html');
+ const styles=[...html.matchAll(/href="([^"]+\.css)"/g)].map(m=>m[1]);
+ const legacy=new Set(['style.css','atlas-ui.css','theme.css','wheel-ui.css',
+   'solar-ribbon.css','calendar-p0.css','personal-calendar.css']);
+ const features=new Set(['astra-p1-screens.css','astra-p2-navigation.css',
+   'astra-p3-accessibility.css','astra-p4-calendar.css','astra-p4-wheel.css','astra-natal.css']);
+ const expected=style=>legacy.has(style)?'legacy':features.has(style)?'features':
+   style==='astra-tokens.css'?'tokens':style==='astra-components.css'?'components':'layout';
+ assert.match(read('style.css'),/@layer legacy, tokens, components, features, layout;/);
+ for(const file of styles)assert.match(read(file),
+   new RegExp('^@layer '+expected(file)+'\\s*\\{|@layer '+expected(file)+'\\s*\\{'),
+   file);
+});
+test('Calendar phase fills, category inks and focus colours come from semantic tokens',()=>{
+ const tokens=read('astra-tokens.css'),calendar=read('astra-p4-calendar.css');
+ const accessibility=read('astra-p3-accessibility.css');
+ for(const role of ['--astra-calendar-ink','--astra-calendar-focus',
+   '--astra-phase-new-bg','--astra-phase-new-border',
+   '--astra-phase-full-bg','--astra-phase-full-border','--astra-phase-halo'])
+   assert.ok(tokens.includes(role+':'),role);
+ for(const hex of ['#DDD6F4','#927CB0','#F5DBA2','#AD742B',
+   '#C7B9E5','#F1DDFE','#EEC983','#FFF1CB'])
+   assert.ok(!calendar.includes(hex),'unscoped phase colour '+hex);
+ assert.match(calendar,/background:var\(--astra-phase-new-bg\)/);
+ assert.match(calendar,/background:var\(--astra-phase-full-bg\)/);
+ assert.doesNotMatch(accessibility,/:root\s*\{\s*--astra-calendar-ink:/);
+ const styles=[...read('index.html').matchAll(/href="([^"]+\.css)"/g)].map(m=>m[1]);
+ const count=styles.reduce((sum,file)=>sum+(read(file).match(/!important/g)||[]).length,0);
+ assert.ok(count<=55,'important budget exceeded: '+count);
+});

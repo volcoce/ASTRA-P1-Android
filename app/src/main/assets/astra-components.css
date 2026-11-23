@@ -5,8 +5,8 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
 .top{background:var(--color-deep-ocean);color:var(--color-cream)}
 .top .emblem{background:var(--color-dandelion);color:var(--color-deep-ocean);border:2px solid var(--color-cream);border-radius:var(--astra-radius-md)}
 .top .brand{color:var(--color-cream);font-family:var(--astra-font-display);font-weight:800;letter-spacing:.08em}
-.top .brand-sub{color:#E9DDD0}
-:root[data-astra-theme="dark"] .top{background:#101F2A}
+.top .brand-sub{color:var(--astra-masthead-subtitle)}
+:root[data-astra-theme="dark"] .top{background:var(--atlas-night)}
 .page-title{font-family:var(--astra-font-display);font-size:var(--astra-font-size-title);font-weight:700;letter-spacing:-.025em;color:var(--astra-ink)}
 .card-title,.section-title,.month-head h2{font-family:var(--astra-font-display);color:var(--astra-ink);font-weight:700}
 .lead,.muted,.tiny,.field-help{color:var(--astra-muted)}
@@ -137,8 +137,8 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
   background:transparent;border:0;box-shadow:none
 }
 .calendar .astra-calendar-date-week .day{background:transparent}
-:root[data-astra-theme="dark"] .calendar .astra-calendar-date-week .day{color:#F8EFD5}
-:root[data-astra-theme="dark"] .calendar .astra-calendar-date-week .day.selected{color:#F8EFD5}
+:root[data-astra-theme="dark"] .calendar .astra-calendar-date-week .day{color:var(--color-cream)}
+:root[data-astra-theme="dark"] .calendar .astra-calendar-date-week .day.selected{color:var(--color-cream)}
 @media(max-width:360px){
   .bottom-nav .nav-label{font-size:10px}
   .bottom-nav .nav{min-height:52px;padding-inline:1px}

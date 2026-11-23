@@ -39,6 +39,18 @@
   --astra-selected-border:#1E404F;
   --astra-sun:#F0BE57;
   --astra-moon:#82AAC7;
+  /* Fixed astronomical plate; unchanged by the interface dark theme. */
+  --astra-plate-cream:#FFF9EA;
+  --astra-calendar-ink:#102A34;
+  --astra-calendar-focus:#17465D;
+  --astra-control-min:44px;
+  /* New and full Moon colour roles shared by calendar and lunar widgets. */
+  --astra-phase-new-bg:#DDD6F4;
+  --astra-phase-new-border:#927CB0;
+  --astra-phase-full-bg:#F5DBA2;
+  --astra-phase-full-border:#AD742B;
+  --astra-phase-halo:#FFF9EA88;
+  --astra-masthead-subtitle:#E9DDD0;
   --astra-paper:var(--astra-bg);
   --astra-rule:var(--astra-border);
   --astra-brand:var(--color-teal);
@@ -129,6 +141,18 @@
   --astra-selected-border:#F0BE57;
   --astra-sun:#F0BE57;
   --astra-moon:#B8CBEF;
+  --astra-calendar-ink:#F8EFD5;
+  --astra-calendar-focus:#F0BE57;
+  --astra-phase-new-bg:#C7B9E5;
+  --astra-phase-new-border:#F1DDFE;
+  --astra-phase-full-bg:#EEC983;
+  --astra-phase-full-border:#FFF1CB;
+  --astra-event-label-moon-new:#DAD0FB;
+  --astra-event-label-moon-full:#F5D59C;
+  --astra-event-label-moon-quarter:#BFD5FB;
+  --astra-event-label-station:#ACDFD1;
+  --astra-event-label-exact-aspect:#B7DFFC;
+  --astra-event-label-active:#CADAE7;
   --astra-brand:#82AAC7;
   --astra-brand-strong:#F8EFD5;
   --astra-natal:#A9D5C5;
@@ -158,6 +182,15 @@
   --pale:var(--astra-bg);
   --plum:var(--astra-secondary-surface);
   --border:var(--astra-border);
+}
+
+/* Enhanced contrast changes token roles, not feature-specific paint rules. */
+@media(prefers-contrast:more){
+  :root{--astra-border:var(--color-deep-ocean);--astra-muted:#294C57;--astra-focus:var(--color-retro-red)}
+  :root[data-astra-theme="dark"]{
+    --astra-border:var(--color-cream);--astra-muted:var(--color-cream);
+    --astra-focus:var(--color-dandelion)
+  }
 }
 
 }

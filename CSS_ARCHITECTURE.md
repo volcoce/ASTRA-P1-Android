@@ -2,6 +2,22 @@
 
 Le code de production utilise **une seule navigation globale**, sans exceptions CSS par route. Les différences d'apparence sont des variantes de composants ; le positionnement de l'AppShell et du menu principal n'en fait pas partie.
 
+## Cascade CSS
+
+Chaque feuille est placée dans une couche CSS native. L'ordre, déclaré une seule fois en tête de `style.css`, est le suivant.
+
+```css
+@layer legacy, tokens, components, features, layout;
+```
+
+- `legacy` contient les sept feuilles historiques, sans priorité sur les nouveaux composants.
+- `tokens` contient **toutes les couleurs sémantiques**, les rôles du calendrier, des phases lunaires, des légendes et les variantes sombre / contraste renforcé.
+- `components` contient les états et surfaces réutilisables.
+- `features` contient la présentation des écrans, du calendrier et des roues sans modifier la géométrie commune.
+- `layout` possède la colonne, les gouttières, l'AppShell et la navigation fixe.
+
+Les couches ne sont **pas** des feuilles de surcharges supplémentaires. La priorité se détermine par cette hiérarchie, avant la spécificité du sélecteur. Attention : `!important` inverse la priorité des couches. Son emploi est limité à la dissimulation d'accessibilité, aux adaptations de mouvement réduit et aux éléments dont le focus est tronqué.
+
 ## Répartition des responsabilités
 
 - `astra-tokens.css` : couleurs, typographies et valeurs sémantiques, ainsi que `--astra-reading-width`, `--astra-card-gutter`, `--astra-nav-width` et `--astra-nav-clearance`.

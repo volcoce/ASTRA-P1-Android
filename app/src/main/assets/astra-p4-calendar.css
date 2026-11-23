@@ -56,21 +56,21 @@
 .calendar.astra-calendar-board .astra-calendar-date-week .day.moon-full .moon-phase-badge{
   width:29px;height:29px;display:grid;place-items:center;
   padding:3px;box-sizing:border-box;border-radius:50%;
-  background:#DDD6F4;border:1px solid #927CB0;
-  box-shadow:0 0 0 1px #FFF9EA88;z-index:2;
+  background:var(--astra-phase-new-bg);border:1px solid var(--astra-phase-new-border);
+  box-shadow:0 0 0 1px var(--astra-phase-halo);z-index:2;
 }
 .calendar.astra-calendar-board .astra-calendar-date-week .day.moon-full .moon-phase-badge{
-  background:#F5DBA2;border-color:#AD742B;
+  background:var(--astra-phase-full-bg);border-color:var(--astra-phase-full-border);
 }
 .calendar.astra-calendar-board .astra-calendar-date-week .day.moon-new .moon-phase-badge svg,
 .calendar.astra-calendar-board .astra-calendar-date-week .day.moon-full .moon-phase-badge svg{
   width:19px;height:19px
 }
 :root[data-astra-theme="dark"] .calendar.astra-calendar-board .astra-calendar-date-week .day.moon-new .moon-phase-badge{
-  background:#C7B9E5;border-color:#F1DDFE;
+  background:var(--astra-phase-new-bg);border-color:var(--astra-phase-new-border);
 }
 :root[data-astra-theme="dark"] .calendar.astra-calendar-board .astra-calendar-date-week .day.moon-full .moon-phase-badge{
-  background:#EEC983;border-color:#FFF1CB;
+  background:var(--astra-phase-full-bg);border-color:var(--astra-phase-full-border);
 }
 @media(max-width:360px){
   .calendar.astra-calendar-board{padding-inline:3px}
@@ -99,17 +99,17 @@
 .calendar.astra-calendar-board .astra-calendar-date-week .astra-adjacent-day.moon-new .moon-phase-badge,
 .calendar.astra-calendar-board .astra-calendar-date-week .astra-adjacent-day.moon-full .moon-phase-badge{
   width:26px;height:26px;box-sizing:border-box;
-  background:#DDD6F4;border:1px solid #927CB0;
+  background:var(--astra-phase-new-bg);border:1px solid var(--astra-phase-new-border);
   border-radius:50%;filter:saturate(.6);opacity:.9;
 }
 .calendar.astra-calendar-board .astra-calendar-date-week .astra-adjacent-day.moon-full .moon-phase-badge{
-  background:#F5DBA2;border-color:#AD742B;
+  background:var(--astra-phase-full-bg);border-color:var(--astra-phase-full-border);
 }
 :root[data-astra-theme="dark"] .calendar.astra-calendar-board .astra-calendar-date-week .astra-adjacent-day.moon-new .moon-phase-badge{
-  background:#C7B9E5;border-color:#F1DDFE;
+  background:var(--astra-phase-new-bg);border-color:var(--astra-phase-new-border);
 }
 :root[data-astra-theme="dark"] .calendar.astra-calendar-board .astra-calendar-date-week .astra-adjacent-day.moon-full .moon-phase-badge{
-  background:#EEC983;border-color:#FFF1CB;
+  background:var(--astra-phase-full-bg);border-color:var(--astra-phase-full-border);
 }
 
 /* Calendar footer: the meaning stays one line, explanations stay on demand. */

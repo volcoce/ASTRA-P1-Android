@@ -144,7 +144,7 @@
   color:var(--astra-ink);border-radius:var(--astra-radius-lg)
 }
 .natal-home .natal-secondary-action :is(strong,small){color:var(--astra-ink)}
-.natal-home .natal-wheel-viewport{background:#FFF9EA}
+.natal-home .natal-wheel-viewport{background:var(--astra-plate-cream)}
 :root[data-astra-theme="dark"] .natal-home .natal-primary-cards{
   background:var(--astra-surface);border-color:var(--astra-border)
 }
@@ -325,7 +325,7 @@
 .natal-explore .natal-explore-wheel .natal-wheel-viewport{
   min-width:0;max-width:100%;
   margin:10px auto;padding:8px;
-  background:#FFF9EA;
+  background:var(--astra-plate-cream);
   border-radius:var(--astra-radius-md);
 }
 .natal-explore .natal-explore-list .natal-contact-empty{

@@ -134,7 +134,7 @@
   background:#31566D;border-color:var(--astra-border);box-shadow:none
 }
 :root[data-astra-theme="dark"] .astra-day-hero :is(.astra-hero-kicker,.astra-moon-title,
-  .astra-moon-phase,.astra-sky-reference,.astra-hero-stat strong,.astra-hero-stat span){color:#FFF9EA}
+  .astra-moon-phase,.astra-sky-reference,.astra-hero-stat strong,.astra-hero-stat span){color:var(--astra-plate-cream)}
 :root[data-astra-theme="dark"] .astra-day-hero .astra-solar-daily-band{
   background:var(--color-dandelion);color:var(--color-deep-ocean)
 }
@@ -172,8 +172,8 @@
   background:var(--astra-surface);border-color:var(--astra-divider);
   border-radius:var(--astra-radius-lg);padding:15px
 }
-.astra-month-phase.new{background:#C9DDD5;border-color:#34685C}
-.astra-month-phase.full{background:#F5DBA2;border-color:#D58A4B}
+.astra-month-phase.new{background:#C9DDD5;border-color:var(--color-teal)}
+.astra-month-phase.full{background:var(--astra-phase-full-bg);border-color:var(--color-copper)}
 .astra-month-phase .astra-month-phase-copy strong,
 .astra-month-phase .astra-month-phase-copy small,
 .astra-month-phase>span:last-child{color:var(--color-deep-ocean)}
@@ -188,11 +188,11 @@
 }
 :root[data-astra-theme="dark"] .astra-month-hero :is(.astra-month-kicker,
   .astra-month-headline strong,.astra-month-headline span){color:var(--color-cream)}
-:root[data-astra-theme="dark"] .astra-month-hero>p:last-child{color:#F8EFD5}
+:root[data-astra-theme="dark"] .astra-month-hero>p:last-child{color:var(--color-cream)}
 :root[data-astra-theme="dark"] .astra-month-phase.new{background:#31574F;border-color:#88B4A5}
-:root[data-astra-theme="dark"] .astra-month-phase.full{background:#6E4E28;border-color:#F0BE57}
+:root[data-astra-theme="dark"] .astra-month-phase.full{background:#6E4E28;border-color:var(--color-dandelion)}
 :root[data-astra-theme="dark"] .astra-month-phase :is(.astra-month-phase-copy strong,
-  .astra-month-phase-copy small){color:#F8EFD5}
+  .astra-month-phase-copy small){color:var(--color-cream)}
 
 /* Calendar presentation belongs exclusively to astra-p4-calendar.css. */
 
