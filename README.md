@@ -13,8 +13,7 @@
 | Espace | Utilisation |
 | --- | --- |
 | **Ce jour** | Ciel à la date sélectionnée, Lune et phase à midi local, changements lunaires horodatés, événements et accès au journal. |
-| **Ce mois** | Synthèse mensuelle, phases et événements du mois. |
-| **Calendrier** | Grille mensuelle, nouvelles et pleines lunes, fond continu des cases sur plusieurs jours, coloré selon l'élément (Feu, Terre, Air, Eau), partagé 50/50 aux dates de transition, événements personnels sur plusieurs jours et consultation d'une date. |
+| **Calendrier** | Grille et synthèse mensuelles, phases majeures avec signe et heure locale, événements du mois, nouvelles et pleines lunes, fond continu des cases sur plusieurs jours, coloré selon l'élément (Feu, Terre, Air, Eau), partagé 50/50 aux dates de transition, événements personnels sur plusieurs jours et consultation d'une date. |
 | **Mon ciel** | Thème natal, roue interactive, positions et aspects, exploration, transits en double roue, systèmes de maisons et zoom intégré. |
 
 En complément : modes **tropical** et **sidéral** (Lahiri approximatif), fiches pédagogiques, journal local, import/export JSON, thèmes visuels et adaptation aux petits écrans.
@@ -110,7 +109,7 @@ Les fonds solaires du calendrier utilisent les quatre éléments astrologiques v
 
 ## Interface P1 — quatre espaces principaux
 
-La hiérarchie visuelle de **Ce jour**, **Ce mois**, **Calendrier** et **Mon ciel** est définie dans `app/src/main/assets/astra-p1-screens.css`, chargé après les tokens et les composants P0. Ce jour distingue carte lunaire, chronologie, journal puis événements ; Ce mois privilégie les phases majeures avant les indicateurs ; Calendrier garde **un ruban solaire de fond par semaine** avec extrémités arrondies aux changements de signe ; Mon ciel privilégie le triptyque natal et l’exploration progressive. Les calculs, filtres, données locales et destinations de navigation ne changent pas.
+La hiérarchie visuelle de **Ce jour**, **Calendrier** et **Mon ciel** est définie dans `app/src/main/assets/astra-p1-screens.css`, chargé après les tokens et les composants P0. Ce jour distingue carte lunaire, chronologie, journal puis événements ; Calendrier intègre la synthèse mensuelle et garde **un ruban solaire de fond par semaine** avec extrémités arrondies aux changements de signe ; Mon ciel privilégie le triptyque natal et l’exploration progressive. Les calculs, filtres et données locales restent disponibles.
 
 ## P2 — Navigation et sous-écrans
 

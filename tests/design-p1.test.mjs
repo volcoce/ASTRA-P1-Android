@@ -23,7 +23,7 @@ test('P1 daily Moon transition and exact phase share one hero',()=>{
   assert.match(today,/moonPhaseIcon\(lunarPhaseAngles\[event.name\],'cell'\)/);
   assert.match(today,/eventTitle\(event\)/);
   assert.match(today,/phaseHighlights\+\s*solarDayBand/);
-  assert.match(today,/astra-hero-link/);
+  assert.doesNotMatch(today,/astra-hero-link/);
   assert.match(today,/astra-day-journal-link/);
   assert.doesNotMatch(today,/dailyLunarMoments|astra-day-moon-moments|Évolution de la Lune dans la journée/);
   assert.match(p1,/\.astra-day-hero/);
@@ -51,7 +51,7 @@ test('P1 natal summary, progressive navigation and wheel remain available',()=>{
   const profile=slice('  function profile() {','  function render() {');
   const code=app.slice(app.indexOf('  function renderNatalChart('),app.indexOf('  function profile() {'));
   assert.match(code,/natal-primary-cards/);
-  assert.match(code,/natal-overview-panel/);
+  assert.match(code,/natal-home-actions--primary/);
   assert.match(code,/natal-wheel-viewport/);
   assert.match(code,/data-profile-screen="explore"/);
   assert.match(read('astra-natal.css'),/\.natal-home/);
@@ -76,4 +76,20 @@ test('P1 month overview groups future days and preserves major lunar phase cards
  assert.match(month,/data-month-open-day/);
  assert.match(month,/class="astra-event-day-list"/);
  assert.doesNotMatch(month,/Premiers événements du mois/);
+});
+
+test('Merged calendar lunar phases show the exact sign and local time, including accessibility labels',()=>{
+  const source=slice('  function monthOverview() {','  function personalCalendarWeek(');
+  const event={type:'moon',name:'Pleine Lune',at:'2026-11-24T14:53:00Z',moonLongitude:62};
+  const ctx={
+    state:{profile:{timezone:'Europe/Paris'},journal:{}},
+    result:{days:{'2026-11-24':{sky:[event],exact:[]}}},
+    month:new Date(2026,10,1),pad:n=>String(n).padStart(2,'0'),
+    safe:String,displayDate:d=>d,eventTitle:e=>e.name+' en Gémeaux',
+    moonPhaseIcon:angle=>'<svg data-angle="'+angle+'"></svg>'
+  };
+  const markup=new Function('ctx','with(ctx){'+source+'return monthOverview();}')(ctx);
+  assert.match(markup,/Pleine Lune en Gémeaux, le 2026-11-24 à 15 h 53/);
+  assert.match(markup,/<time datetime="2026-11-24T14:53:00Z">15 h 53<\/time>/);
+  assert.match(markup,/<svg data-angle="180">/);
 });

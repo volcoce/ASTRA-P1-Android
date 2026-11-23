@@ -7,6 +7,7 @@
   border:1px solid var(--astra-divider);
   border-radius:var(--astra-radius-xl);
   padding:16px 12px 18px;margin-inline:0;
+  container:astra-calendar / inline-size;
 }
 .calendar.astra-calendar-board .cal-grid{row-gap:8px}
 .calendar.astra-calendar-board .weekday{color:var(--astra-muted);font-size:12px}
@@ -22,6 +23,28 @@
   .calendar.astra-calendar-board{padding:10px 6px 13px}
   .calendar.astra-calendar-board .cal-grid{row-gap:6px}
 }
+
+/* The seven-column ribbon remains visible. A native date selector provides
+   full-size alternative targets when the grid is narrower than 336px. */
+.astra-calendar-date-picker{display:none}
+@container astra-calendar (max-width:335.99px){
+  .astra-calendar-date-picker{
+    display:block;width:100%;min-width:var(--astra-control-min);
+    min-height:var(--astra-control-min);margin-bottom:var(--astra-space-3);
+    padding:var(--astra-space-2);font:inherit;color:var(--astra-ink);
+    background:var(--astra-surface);border:1px solid var(--astra-border);
+    border-radius:var(--astra-radius-md);
+  }
+}
+/* Preserve the approved palette. Only low-contrast light labels get an
+   opaque backing, never the entire solar tile. */
+:root:not([data-astra-theme="dark"]):not([data-astra-palette="classic"]) .calendar.astra-calendar-board .day[data-solar-element="fire"] :is(.astra-calendar-date-number,.count),
+:root:not([data-astra-theme="dark"])[data-astra-palette="classic"] .calendar.astra-calendar-board .day[data-solar-element="earth"] :is(.astra-calendar-date-number,.count),
+:root:not([data-astra-theme="dark"]) .calendar.astra-calendar-board .day[data-solar-ingress="true"] :is(.astra-calendar-date-number,.count){
+  background:var(--astra-calendar-label-bg);color:var(--astra-calendar-ink);
+  border-radius:var(--astra-radius-sm);padding-inline:var(--astra-space-1);
+}
+.calendar.astra-calendar-board .day .count:empty{padding:0;background:transparent}
 
 /* ASTRA P4 — Calendar visual QA refinements.
    Adjacent-month dates remain inside the continuous solar ribbon, with

@@ -44,27 +44,27 @@ const sample={
   }
 };
 function renderers(){
-  const beginning=app.indexOf('  function wheelDegreeTicks(');
+  const beginning=app.indexOf('  const wheelZodiacGlyph=');
   const next=app.indexOf('  function natalDetail(',beginning);
   const dob=app.indexOf('  function doubleWheelSvg(');
   const dobEnd=app.indexOf('  const transitWindowCache=',dob);
   assert.ok(beginning>0&&next>beginning&&dob>next&&dobEnd>dob);
   const code=app.slice(beginning,next)+app.slice(dob,dobEnd);
   return new Function('ctx','with(ctx){'+code+
-    ';return {wheelSvg,wheelSvgDateOnly,doubleWheelSvg,wheelDegreeTicks};}')(sample);
+    ';return {wheelSvg,wheelSvgDateOnly,doubleWheelSvg};}')(sample);
 }
 const count=(html,pattern)=>(html.match(pattern)||[]).length;
 
-test('Chart UI: natal wheel shows 12 zodiac sectors, 12 house sectors and 72 graduated degrees',()=>{
+test('Chart UI: natal wheel shows 12 zodiac sectors, 12 house sectors and no degree clutter',()=>{
   const {wheelSvg}=renderers();
   const svg=wheelSvg(chart,true);
   assert.match(svg,/class="natal-wheel wheel-modern"/);
   assert.equal(count(svg,/class="wheel-zodiac-sector /g),12);
   assert.equal(count(svg,/class="wheel-house-sector /g),12);
-  assert.equal(count(svg,/class="wheel-degree-tick /g),72);
+  assert.equal(count(svg,/class="wheel-degree-tick /g),0);
   assert.equal(count(svg,/class="wheel-planet-disc"/g),10);
   assert.equal(count(svg,/data-true-longitude="/g),10);
-  assert.equal(count(svg,/class="wheel-aspect-line/g),3);
+  assert.equal(count(svg,/class="wheel-aspect-line/g),4);
   assert.match(svg,/class="angle-label"[^>]*>ASC<\/text>/);
 });
 
@@ -82,9 +82,9 @@ test('Chart UI: unknown birth time has no fictional houses or ascendant',()=>{
   const svg=renderers().wheelSvgDateOnly({...chart,houses:null},true);
   assert.match(svg,/wheel-modern wheel-date-only/);
   assert.equal(count(svg,/class="wheel-house-sector /g),0);
-  assert.equal(count(svg,/class="wheel-degree-tick /g),72);
+  assert.equal(count(svg,/class="wheel-degree-tick /g),0);
   assert.equal(count(svg,/class="wheel-planet-disc"/g),10);
-  assert.equal(count(svg,/class="wheel-aspect-line/g),3);
+  assert.equal(count(svg,/class="wheel-aspect-line/g),4);
   assert.ok(!svg.includes('class="angle-label"'));
 });
 
@@ -93,25 +93,27 @@ test('Chart UI: double wheel preserves distinct natal and transit interactions',
   const svg=renderers().doubleWheelSvg(snapshot);
   assert.match(svg,/natal-double-wheel wheel-modern/);
   assert.equal(count(svg,/class="wheel-zodiac-sector /g),12);
-  assert.equal(count(svg,/class="wheel-degree-tick /g),72);
+  assert.equal(count(svg,/class="wheel-degree-tick /g),0);
   assert.equal(count(svg,/class="wheel-planet-disc"/g),20);
   assert.equal(count(svg,/data-natal-body="/g),10);
   assert.equal(count(svg,/data-transit-body="/g),10);
 });
 
-test('Chart UI: five-degree tick markers stay inside SVG viewBoxes',()=>{
-  const {wheelDegreeTicks}=renderers();
-  for(const [center,radius,size] of [[210,206,420],[270,227,540]]){
-    const svg=wheelDegreeTicks(center,radius,0);
-    assert.equal(count(svg,/class="wheel-degree-tick /g),72);
-    assert.equal(count(svg,/is-major/g),12);
-    const nums=[...svg.matchAll(/(?:x1|y1|x2|y2)="([\d.]+)"/g)]
-      .map(matches=>Number(matches[1]));
-    assert.equal(nums.length,288);
-    assert.ok(nums.every(n=>Number.isFinite(n)&&n>=0&&n<=size));
+test('Chart UI: all wheel labels retain true longitude and safe geometry',()=>{
+  const {wheelSvg,wheelSvgDateOnly,doubleWheelSvg}=renderers();
+  for(const svg of [wheelSvg(chart,true),wheelSvgDateOnly({...chart,houses:null},true),
+      doubleWheelSvg({chart,positions:chart.positions,contacts:[]})]){
+    assert.ok(!svg.includes('wheel-degree-tick'));
+    assert.ok(!svg.includes('wheel-planet-degree'));
+    const groups=[...svg.matchAll(/data-true-longitude="([\d.]+)" data-label-longitude="([\d.]+)" data-wheel-radius="([\d.]+)"/g)];
+    assert.ok(groups.length>=10);
+    for(const [,actual,label,radius] of groups){
+      assert.ok(Number(actual)>=0&&Number(actual)<360);
+      assert.ok(Number(label)>=0&&Number(label)<360);
+      assert.ok(Number(radius)>0&&Number(radius)<=247);
+    }
   }
 });
-
 test('P4: Retro Pop element ring preserves zodiac geometry across all wheel modes',()=>{
   const skins=readFileSync(new URL('../app/src/main/assets/astra-p4-wheel.css',import.meta.url),'utf8');
   const expected=['fire','earth','air','water'];
@@ -128,22 +130,20 @@ test('P4: Retro Pop element ring preserves zodiac geometry across all wheel mode
   }
   assert.match(skins,/natal-transit-hit/);
   assert.ok(skins.includes(':root[data-astra-theme="dark"]'));
-  assert.match(app,/\.wheel-modern \.wheel-zodiac-sector\.zodiac-element-fire/);
-  assert.match(app,/const zodiacFill=name=>wheelPalette.getPropertyValue/);
   assert.ok(skins.includes('zodiac-element-earth{fill:var(--astra-zodiac-earth)}'));
   assert.ok(skins.includes('zodiac-element-water{fill:var(--astra-zodiac-water)}'));
-  assert.ok(app.includes("zodiacFill('earth')"));
-  assert.ok(app.includes("zodiacFill('water')"));
+  assert.match(app,/\['fire','earth','air','water'\]/);
 
 });
-test('Chart UI: all visual layers load in app and Chromium; exports embed wheel styling',()=>{
+test('Chart UI: all visual layers load in app and Chromium; wheel uses shared CSS',()=>{
   assert.match(html,/href="astra\.bundle\.css"/);
   assert.ok(CSS_SOURCES.includes('wheel-ui.css'));
   assert.ok(smoke.includes("ROOT/'astra.bundle.css'"));
-  assert.match(wheelCss,/\.wheel-degree-tick\.is-major/);
-  assert.match(wheelCss,/\.natal-transit-hit \.wheel-planet-disc/);
-  assert.match(app,/\.wheel-modern \.wheel-zodiac-sector\.is-even/);
-  assert.match(app,/\.wheel-modern\.natal-double-wheel \.natal-transit-hit/);
+  const skins=readFileSync(new URL('../app/src/main/assets/astra-p4-wheel.css',import.meta.url),'utf8');
+  assert.ok(CSS_SOURCES.includes('astra-p4-wheel.css'));
+  assert.match(skins,/\.natal-transit-hit \.wheel-planet-disc/);
+  assert.doesNotMatch(app,/wheelDegreeTicks\(/);
+
 });
 
 

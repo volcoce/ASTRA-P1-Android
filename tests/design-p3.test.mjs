@@ -50,7 +50,7 @@ test('P3 preserves full weekday names and readable navigation labels',()=>{
   assert.match(app,/class="astra-sr-only"/);
   assert.match(app,/aria-hidden="true"/);
   assert.match(css,/\.astra-sr-only/);
-  for(const name of ['Ce jour','Ce mois','Calendrier','Mon ciel'])assert.ok(html.includes('aria-label="'+name+'"'));
+  for(const name of ['Ce jour','Calendrier','Mon ciel'])assert.ok(html.includes('aria-label="'+name+'"'));
   assert.match(app,/role="group" aria-label="Évaluer son humeur/);
 });
 test('P3 supports focus, reduced motion, high contrast and small layouts',()=>{

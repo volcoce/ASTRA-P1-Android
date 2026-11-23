@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="fr" data-astra-theme="light" data-astra-palette="vivid">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow">
+  <title>ASTRA — Catalogue UI interne</title>
+  <link rel="stylesheet" href="/astra.bundle.css">
+  <link rel="stylesheet" href="/ui-catalog/catalog.css">
+  <script src="/ui-catalog/catalog.js" defer></script>
+</head>
+<body>
+<div class="app-shell">
+  <main class="main" id="catalog">
+    <header class="screen-intro"><h1 class="page-title">Catalogue UI ASTRA</h1></header>
+    <section class="card" aria-labelledby="preview-title">
+      <h2 class="card-title" id="preview-title">Prévisualisation</h2>
+      <div class="catalog-grid">
+        <div class="field"><label for="theme">Thème</label><select id="theme"><option value="light">Clair</option><option value="dark">Sombre</option></select></div>
+        <div class="field"><label for="palette">Palette</label><select id="palette"><option value="vivid">Vive</option><option value="classic">Classique</option></select></div>
+        <div class="field"><label for="safe-area">Zones système simulées</label><select id="safe-area"><option value="none">Aucune</option><option value="portrait">Encoche et 3 boutons</option><option value="landscape">Paysage avec encoche</option></select></div>
+        <div class="field"><label for="text-scale">Taille du texte</label><select id="text-scale"><option value="100">100 %</option><option value="125">125 %</option><option value="150">150 %</option><option value="200">200 %</option></select></div>
+      </div>
+      <p class="tiny">Interface interne. Aucun profil, aucune sauvegarde. Les insets simulés ne remplacent pas un test Android.</p>
+      <p class="tiny" id="metrics"></p>
+    </section>
+    <section class="card" aria-labelledby="tokens-title">
+      <h2 class="card-title" id="tokens-title">Tokens et couleurs</h2>
+      <div class="catalog-swatches" id="swatches"></div>
+      <div class="astra-palette-options" id="palette-options"></div>
+      <p class="tiny">Les couleurs et les rapports sont lus depuis les variables réellement compilées.</p>
+    </section>
+    <section class="card" aria-labelledby="buttons-title">
+      <h2 class="card-title" id="buttons-title">Boutons et navigation</h2>
+      <div class="catalog-actions">
+        <button type="button" class="primary" data-demo-action="Action principale">Action principale</button>
+        <button type="button" class="ghost" data-demo-action="Action secondaire">Secondaire</button>
+        <button type="button" class="primary" disabled>Désactivé</button>
+        <button type="button" class="arrow" aria-label="Précédent" data-demo-action="Précédent">‹</button>
+        <button type="button" class="arrow" aria-label="Suivant" data-demo-action="Suivant">›</button>
+      </div>
+      <div class="switch" role="group" aria-label="Mode astrologique">
+        <button type="button" class="on" aria-pressed="true" data-demo-mode="tropical">Tropical</button>
+        <button type="button" aria-pressed="false" data-demo-mode="sidereal">Sidéral</button>
+      </div>
+    </section>
+    <section class="card astra-reading-card" aria-labelledby="disclosure-title">
+      <h2 class="card-title" id="disclosure-title">Cartes et accordéons</h2>
+      <div class="catalog-stack">
+        <details class="astra-disclosure"><summary>Aspects en cours</summary><div class="astra-disclosure-body"><p>Contenu repliable utilisant le composant commun.</p></div></details>
+        <details class="astra-disclosure astra-disclosure--surface" open><summary>Comprendre le calendrier</summary><div class="astra-disclosure-body"><p>Le contenu ouvert conserve les mêmes gouttières.</p></div></details>
+        <details class="astra-disclosure"><summary>Un intitulé particulièrement long pour vérifier le retour à la ligne et la position du chevron</summary><div class="astra-disclosure-body"><p>Texte de contrôle.</p></div></details>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="fields-title">
+      <h2 class="card-title" id="fields-title">Champs et validation</h2>
+      <div class="catalog-grid">
+        <div class="field"><label for="date">Date</label><input type="date" id="date" value="2026-11-23"></div>
+        <div class="field"><label for="time">Heure</label><input type="time" id="time" value="12:00"></div>
+        <div class="field"><label for="city">Ville (exemple valide)</label><input id="city" value="Paris"></div>
+        <div class="field"><label for="invalid-city">Ville (exemple invalide)</label><input id="invalid-city" value="?" aria-invalid="true" aria-describedby="city-error"><p class="form-field-error" id="city-error">Choisissez une ville dans la liste.</p></div>
+        <div class="field"><label for="disabled-field">Champ désactivé</label><input id="disabled-field" value="Non disponible" disabled></div>
+        <div class="field"><label for="note">Note</label><textarea id="note" rows="2" placeholder="Exemple de saisie"></textarea></div>
+      </div>
+      <label><input type="checkbox" id="degrees">Afficher les degrés</label>
+    </section>
+    <section class="card" aria-labelledby="dialog-title">
+      <h2 class="card-title" id="dialog-title">Fenêtre et états</h2>
+      <div class="catalog-actions"><button class="ghost" type="button" id="open-dialog">Ouvrir la fenêtre</button><button class="ghost" type="button" id="show-status">Tester le retour d’action</button></div>
+      <div class="astra-event-feed"><p class="astra-empty">Aucun événement disponible.</p></div>
+      <p id="demo-status" role="status" class="tiny"></p>
+    </section>
+    <section class="card" aria-labelledby="calendar-title">
+      <h2 class="card-title" id="calendar-title">Calendrier</h2>
+      <div class="calendar astra-calendar-board">
+        <select class="astra-calendar-date-picker" id="catalog-date-picker" aria-label="Date du calendrier"></select>
+        <div class="cal-grid" id="calendar-grid"></div>
+      </div>
+      <p class="tiny">Jeu de données fictif : ruban continu, ingressions, jour courant, sélection et alternative tactile compacte.</p>
+    </section>
+  </main>
+  <div id="nav-slot"></div>
+</div>
+<dialog class="astra-settings-dialog" id="catalog-dialog" aria-labelledby="modal-title">
+  <div class="astra-settings-body">
+    <h2 id="modal-title" class="card-title">Exemple de fenêtre</h2>
+    <p>La fermeture restaure le focus sur le déclencheur.</p>
+    <button type="button" class="ghost" id="close-dialog" autofocus>Fermer</button>
+  </div>
+</dialog>
+</body>
+</html>

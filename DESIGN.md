@@ -19,7 +19,7 @@ Do not reproduce Flo's visual branding. The reusable information architecture is
 
 Calendar rule: each day can show one moon-phase indicator at local noon. Keep New Moon and Full Moon visually distinct, with a textual legend and an accessible day label. The **solar sign** uses a continuous multi-day background across adjacent day cells, like the visual continuity of a Google Calendar all-day event but without an extra row. Color encodes its classical element (Fire, Earth, Air, Water), while the sign name and symbol remain explicit. An ingress date is split 50/50 visually, not as an exact duration claim. Personal multi-day events use separate lanes. The removed “Aspect solaire exact” marker must not be reintroduced.
 
-Use exactly four bottom tabs in this order: **Ce jour / Ce mois / Calendrier / Mon ciel**. Ce jour and Ce mois are anchored to the current date and month upon entering their tabs; Calendar remains the historical/future browser. Filters chosen in Calendar must not affect daily/monthly summaries. The journal is a secondary route accessible from day and month widgets and without a natal profile. Keep the **bottom navigation persistent** while the viewport is not occupied by the keyboard. Use text labels, not just planet symbols. At 320 CSS pixels, only the secondary widget rail scrolls horizontally; the page must never scroll sideways.
+Use exactly four bottom navigation buttons in this order: **Ce jour / Calendrier / Mon ciel / Paramètres**. Ce jour is anchored to the current date on entry; Calendar is the historical/future browser and includes the monthly summary below its grid. Paramètres opens a modal. Filters chosen in Calendar must not affect daily/monthly summaries. The journal is a secondary route accessible from day and month widgets and without a natal profile. Keep the **bottom navigation persistent** while the viewport is not occupied by the keyboard. Use text labels, not just planet symbols. At 320 CSS pixels, only the secondary widget rail scrolls horizontally; the page must never scroll sideways.
 
 This document complements `README.md` and protects P0–P2 usability improvements. The approved P0 Retro Pop Celestial palette is implemented through semantic tokens; astronomical calculations, personal data storage, navigation and technologies remain unchanged.
 
@@ -146,7 +146,7 @@ Last updated: 2026-11-20.
 ### P1 — Application aux quatre écrans
 
 - **Ce jour** : date/semainier, Lune à midi et parcours de signe dans une carte unique, encart de phase exacte dans cette même carte, journal, événements calculés, aspects en cours repliés.
-- **Ce mois** : navigation, résumé, phases majeures avant métriques secondaires, premiers événements, lien calendrier.
+- **Calendrier** : grille et navigation mensuelles, synthèse intégrée, phases majeures avec signe et heure locale, événements groupés par jour.
 - **Calendrier** : grille lisible, ruban solaire **en fond continu hebdomadaire** (jamais une carte par jour), éléments zodiacaux, partage visuel 50/50, arrondis aux changements de signe, événements personnels multi-jours au-dessus.
 - **Mon ciel** : résumé Soleil/Lune/Ascendant, une action principale d’exploration, onglets d’analyse et roue accessible, outils avancés secondaires.
 

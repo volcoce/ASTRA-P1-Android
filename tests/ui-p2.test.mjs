@@ -30,7 +30,7 @@ test('P2: saved light/dark/system themes apply before the main stylesheet',()=>{
   assert.equal(initialTheme('system',true).root.dataset.astraTheme,'dark');
   assert.equal(initialTheme('system',false).root.dataset.astraTheme,'light');
   assert.equal(initialTheme('invalid',false).root.dataset.astraTheme,'light');
-  assert.equal(initialTheme('dark',false).meta.color,'#101d2a');
+  assert.equal(initialTheme('dark',false).meta.color,'#101F2A');
 });
 
 test('P2: theme preference is validated, saved and re-applied after import',()=>{
@@ -109,7 +109,7 @@ test('P2: user-facing theme controls and diagnostic results are keyboard-accessi
 
 test('P2: natal chart calculation is memoized without changing its inputs',()=>{
   const from=app.indexOf('    let chart=null;\n    const natalStart=');
-  const to=app.indexOf('    const suggestions=',from);
+  const to=app.indexOf('    const foldPicker=',from);
   assert.ok(from>0&&to>from,'profile natal calculation section');
   const section=app.slice(from,to);
   const compute=new Function('state','E','natalCache','diagnosticsEnabled','perfClock','recordPerformance',

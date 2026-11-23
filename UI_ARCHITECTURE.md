@@ -18,11 +18,10 @@
 | Écran | Question utilisateur | Visible d'emblée (P0) | Secondaire (P1) | À la demande (P2) |
 | --- | --- | --- | --- | --- |
 | **Ce jour** | Où se trouve la Lune à midi et quand change-t-elle de signe ? | Sélection de semaine, **Lune en [signe] à midi** dans le fuseau du profil, changement de signe en titre si présent, phase majeure exacte en encart dans la même carte | Cartes Soleil / Journal / Mon ciel, trois premiers événements | Autres événements, aspects en cours, calcul détaillé |
-| **Ce mois** | Que se passe-t-il pendant le mois affiché ? | Mois, nombre d'événements calculés, Nouvelles Lunes et Pleines Lunes | Premiers événements du mois et jours consignés | Dates détaillées, accès au journal |
 | **Calendrier** | À quelle date est cet événement ? | Grille mensuelle, phases lunaires à midi, **fond solaire continu sur plusieurs jours**, coloré selon l'élément (Feu, Terre, Air, Eau), avec jour de transition partagé 50/50, événements personnels multi-jours | Nouvelle Lune violette, Pleine Lune dorée, événements du jour et prochaines phases | Filtres contextuels, autres détails ; zodiaque dans Paramètres |
 | **Mon ciel** | Quel est mon thème et comment le comprendre ? | Soleil/Lune/Ascendant en clair, « Comprendre mon thème », carte de naissance | « Comparer deux dates », lecture d'une planète | Matrice d’aspects et mesures précises dans les fiches ; maisons dans Paramètres |
 
-**Journal secondaire :** le Journal n'est plus un onglet principal, mais reste accessible depuis Ce jour, Ce mois et les fiches d'événements, y compris sans thème natal. Ses données locales et ses fonctions de saisie/recherche/sauvegarde ne changent pas.
+**Journal secondaire :** le Journal n'est plus un onglet principal, mais reste accessible depuis Ce jour, Calendrier et les fiches d'événements, y compris sans thème natal. Ses données locales et ses fonctions de saisie/recherche/sauvegarde ne changent pas.
 
 **Nouveau profil :** une seule carte de démarrage avec un appel à l'action « Créer ma carte de naissance », les champs de naissance et l'explication des données locales. Ne pas saturer chaque page de messages techniques.
 
@@ -57,7 +56,7 @@
 │ └──────────────────────────────┘ │
 │ Aspects en cours              ▾  │  disclosure
 ├──────────────────────────────────┤
-│ Ce jour Ce mois Calendr. Mon ciel │  navigation fixe
+│ Ce jour Calendr. Mon ciel Param.  │  navigation fixe
 └──────────────────────────────────┘
 ```
 
@@ -67,32 +66,31 @@ Le *résumé* ne doit pas être une métrique spectaculaire mais vide de sens : 
 
 ### Navigation principale (fixe sur mobile)
 
-Quatre destinations persistantes, dans cet ordre :
+Trois destinations et un bouton de paramètres persistants, dans cet ordre :
 
 1. **Ce jour** (icône soleil) — journée sélectionnée, résumé et semaine.
-2. **Ce mois** (icône vue mensuelle) — synthèse du mois et phases majeures de ce mois.
-3. **Calendrier** (icône calendrier) — grille complète, sélection et événements détaillés.
-4. **Mon ciel** (icône étoile) — thème natal, compréhension et comparaison.
+2. **Calendrier** (icône calendrier) — grille, synthèse mensuelle, phases majeures avec signe et heure locale, événements détaillés.
+3. **Mon ciel** (icône étoile) — thème natal, compréhension et comparaison.
+4. **Paramètres** — fenêtre modale.
 
 La navigation doit toujours afficher **icône + texte**. L'état actif se distingue par fond et typographie, pas seulement la couleur. La barre demeure accessible sauf quand le clavier virtuel couvre la zone utile ou qu’une fenêtre de paramètres est affichée au premier plan.
 
 ### Navigation secondaire
 
 - **Ce jour** — à chaque ouverture de l’onglet, revenir à la date actuelle ; le sélecteur de semaine peut temporairement afficher une autre journée. La phase illustrée et la référence horaire correspondent à midi ; lorsqu'un changement de signe a lieu, son parcours devient le titre (Taureau → Gémeaux) et l'heure est affichée sous le titre. Les phases exactes du jour ont leur encart dans la même carte, avec heure et signe calculé à cet instant. Ne pas répéter ces informations dans une deuxième carte. Ne pas afficher de chronologie lunaire future ni de bouton de progression conversationnelle.
-- **Ce mois** — à chaque ouverture de l’onglet, revenir au mois actuel ; les flèches permettent d'explorer d’autres mois temporairement. Nombre réel d'événements, phases majeures du mois, cinq premiers événements et accès au calendrier. Les filtres du calendrier n'y changent rien.
-- **Calendrier** — mois précédent/suivant, jour sélectionné, Nouvelle Lune et Pleine Lune colorées, quatre prochaines phases lunaires interactives ; filtres dans « Options d'affichage ».
+- **Calendrier** — mois précédent/suivant, jour sélectionné, Nouvelle Lune et Pleine Lune colorées, synthèse du mois et événements groupés par jour sous la grille ; filtres dans « Options d'affichage ».
 - **Journal (secondaire)** — accès depuis une carte ou une fiche, retour à Ce jour, jour précédent/suivant, sauvegarde et historique sous la saisie.
 - **Mon ciel** — trois vues de la même carte : « Roue / Planètes / Aspects ». Deux parcours à intitulés compréhensibles restent disponibles : « Comprendre mon thème » et « Comparer deux dates ». Le glossaire est contextuel ; les progressions et la carte composite sont repliées dans les outils avancés. Les progressions secondaires et la carte composite ne font plus partie de l’interface.
-- **Paramètres généraux** — un cinquième bouton « Paramètres » dans la barre de navigation, immédiatement à droite de « Mon ciel », visible depuis tous les écrans. Fenêtre modale native à quatre rubriques : **Astrologie** (zodiaques prévisionnel et natal, maisons, raccourci vers la naissance), **Apparence** (thème et palettes), **Données** (confidentialité, import/export, effacement), **Avancé** (diagnostics et limites). Fermeture explicite, touche Échap, bouton Retour Android, focus restauré.
+- **Paramètres généraux** — un quatrième bouton « Paramètres » dans la barre de navigation, immédiatement à droite de « Mon ciel », visible depuis tous les écrans. Fenêtre modale native à cinq rubriques : **Astrologie** (zodiaques prévisionnel et natal, maisons, raccourci vers la naissance), **Apparence** (thème et palettes), **Données** (confidentialité, import/export, effacement), **Avancé** (diagnostics et limites), **Aide** (glossaire et calendrier). Fermeture explicite, touche Échap, bouton Retour Android, focus restauré.
 - **Paramètres → Astrologie → Personnaliser mon thème** — accès unique à l’éditeur de naissance et aux commandes de personnalisation de la roue (niveau de détail, disposition natale/double, date de comparaison et zoom). Les vues de « Mon ciel » n’affichent plus d’action « Personnaliser » en doublon.
 
 ### Contrat de la fenêtre de paramètres
 
 1. Les préférences globales ont **un seul emplacement de modification** ; elles sont sauvegardées et immédiatement appliquées aux écrans concernés. L’éditeur du thème est accessible depuis la rubrique Astrologie, y compris pour modifier les données de naissance.
 2. La fenêtre se superpose à l'écran courant, sans changer de date ou d'onglet. Sur mobile, elle devient une feuille adaptée à l'écran, sans doublonner la barre de navigation.
-3. Les sections ne sont pas simultanément ouvertes ; les quatre onglets ont un état sélectionné visible et se pilotent au clavier (flèches, Début, Fin).
+3. Les sections ne sont pas simultanément ouvertes ; les cinq onglets ont un état sélectionné visible et se pilotent au clavier (flèches, Début, Fin).
 4. Après l'enregistrement d'un réglage, le focus revient au contrôle modifié. Fermer la fenêtre rend le focus au bouton Paramètres de la barre inférieure. Accéder au formulaire de naissance conserve le focus du nouveau parcours.
-5. Le style, le responsive, la palette sombre/claire et les marges de cette fenêtre appartiennent **exclusivement** à `astra-components.css`. Aucune règle spécifique à Ce jour, Ce mois, Calendrier ou Mon ciel.
+5. Le style, le responsive, la palette sombre/claire et les marges de cette fenêtre appartiennent **exclusivement** à `astra-components.css`. Aucune règle spécifique à Ce jour, Calendrier ou Mon ciel.
 6. La sauvegarde et l'effacement restent dans Données, jamais dans le formulaire de naissance ou les commandes de roue.
 
 **Retour Android :** fermer la fenêtre de paramètres ou un panneau contextuel, puis revenir de la sous-page à Mon ciel, puis à Ce jour. Ne jamais quitter l'app sur un simple retour depuis un détail.

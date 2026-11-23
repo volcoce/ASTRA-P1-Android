@@ -57,6 +57,7 @@
   /* Fixed astronomical plate; unchanged by the interface dark theme. */
   --astra-plate-cream:#FFF9EA;
   --astra-calendar-ink:#102A34;
+  --astra-calendar-label-bg:var(--astra-plate-cream);
   --astra-calendar-focus:#17465D;
   /* Android-oriented interactive target and separation, shared on every screen. */
   --astra-control-min:48px;
@@ -69,6 +70,7 @@
   --astra-phase-halo:#FFF9EA88;
   /* One semantic palette for the hero and phase panels on Ce jour / Ce mois. */
   --astra-day-hero-bg:var(--color-cornflower);
+  --astra-day-hero-ink:#102936;
   --astra-day-hero-rule:#1E404F55;
   --astra-month-hero-bg:var(--color-dandelion);
   --astra-lunar-full-bg:#FFF4D7;
@@ -129,6 +131,8 @@
   --astra-space-8:32px;
   --astra-shadow-pop:3px 3px 0 #1E404F;
   --astra-shadow-soft:0 5px 18px #1E404F18;
+  --astra-shadow-switch:0 1px 3px #00000016;
+  --astra-nav-selected-shadow:inset 0 0 0 1px #1E404F24;
   --astra-motion:150ms cubic-bezier(.2,.75,.35,1);
 
   /* Palette 1 uses approximate solid fills sampled from the first image.
@@ -199,6 +203,7 @@
   --astra-event-label-exact-aspect:#B7DFFC;
   --astra-event-label-active:#CADAE7;
   --astra-day-hero-bg:#31566D;
+  --astra-day-hero-ink:var(--color-cream);
   --astra-day-hero-rule:#FFFFFF55;
   --astra-month-hero-bg:#75452E;
   --astra-lunar-full-bg:#5A442F;

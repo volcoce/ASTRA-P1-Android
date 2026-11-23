@@ -2,6 +2,8 @@ name: ASTRA · Android Preview CI
 on:
   push:
     branches: [main, public-runtime]
+  pull_request:
+    branches: [main, public-runtime]
   workflow_dispatch:
 permissions:
   contents: read
@@ -10,6 +12,9 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
@@ -29,14 +34,23 @@ jobs:
         with:
           gradle-version: '9.3.1'
       - name: Installer le moteur astronomique et construire le bundle hors ligne
+        id: bundle
         run: |
-          npm install --no-audit --no-fund
+          if [ -f package-lock.json ]; then
+            npm ci --no-audit --no-fund
+          else
+            echo '::warning::No tracked package-lock.json; dependency resolution is not fully reproducible.'
+            npm install --no-audit --no-fund
+          fi
           npm run bundle
           test -s app/src/main/assets/runtime.bundle.js
           test -s app/src/main/assets/astra.bundle.css
+      - name: Lint CSS et contrôle des propriétaires
+        if: ${{ !cancelled() && steps.bundle.outcome == 'success' }}
+        run: npm run lint:css
       - name: Tester le calcul dynamique (profil non préchargé)
+        if: ${{ !cancelled() && steps.bundle.outcome == 'success' }}
         run: |
-          npm run lint:css
           npm test
           node --check app/src/main/assets/app.js
           if grep -R -E 'ASTRA_FORECASTS|p1-data.js|data.js.gz|PRESET=' app/src/main/assets astro; then
@@ -44,17 +58,46 @@ jobs:
             exit 1
           fi
       - uses: actions/setup-python@v6
+        id: python
+        if: ${{ !cancelled() && steps.bundle.outcome == 'success' }}
         with:
           python-version: '3.12'
       - name: Préparer les tests navigateur avec Chrome du runner
+        id: browser
+        if: ${{ !cancelled() && steps.python.outcome == 'success' }}
         run: |
           python -m pip install playwright==1.56.0 Pillow==11.3.0
           command -v google-chrome || command -v chromium
       - name: Tester Mon ciel, les modes et le journal dans Chromium
+        id: smoke
+        if: ${{ !cancelled() && steps.browser.outcome == 'success' }}
         env:
           ASTRA_SCREENSHOT_DIR: tests/artifacts/screenshots
         run: python tests/ui-smoke.py
+      - name: Audit P1 de la géométrie et de l’accessibilité
+        if: ${{ !cancelled() && steps.browser.outcome == 'success' }}
+        run: python tests/ui-referential.py
+      - name: Tester le catalogue des composants P2
+        if: ${{ !cancelled() && steps.browser.outcome == 'success' }}
+        run: python tests/ui-catalog.py
+      - name: Publier le catalogue P2
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ASTRA-P2-component-catalog
+          path: tests/artifacts/ui-catalog/
+          if-no-files-found: warn
+      - name: Publier le rapport P1
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ASTRA-P1-UI-audit
+          path: |
+            tests/artifacts/ui-referential.json
+            tests/artifacts/p1-screenshots/*.png
+          if-no-files-found: warn
       - name: Vérifier les captures visuelles et la palette par pixels
+        if: ${{ !cancelled() && steps.smoke.outcome == 'success' }}
         run: python tests/visual-regression.py
       - name: Publier le rapport des tests visuels
         if: always()
@@ -71,13 +114,18 @@ jobs:
           path: tests/artifacts/screenshots/*.png
           if-no-files-found: warn
       - name: Préparer la signature de test ASTRA Preview
+        id: signing
+        if: ${{ !cancelled() && steps.bundle.outcome == 'success' }}
         run: |
           base64 --decode ci/astra-preview-test-signing.p12.b64 > ci/astra-preview-test-signing.p12
           test -s ci/astra-preview-test-signing.p12
           keytool -list -storetype PKCS12 -keystore ci/astra-preview-test-signing.p12 -storepass 'astra-preview-TEST-only-2026' >/dev/null
       - name: Build Android 17 et lint
-        run: gradle --no-daemon :app:assembleDebug :app:lintDebug
-      - name: Publier APK expérimental
+        id: android
+        if: ${{ !cancelled() && steps.signing.outcome == 'success' }}
+        run: gradle --no-daemon :app:assembleDebug :app:lintDebug :app:testDebugUnitTest
+      - name: Publier APK expérimental (non validé si CI rouge)
+        if: ${{ !cancelled() && steps.android.outcome == 'success' }}
         uses: actions/upload-artifact@v4
         with:
           name: ASTRA-PREVIEW-debug-Android17-stable-signature

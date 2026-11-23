@@ -151,8 +151,9 @@ public final class MainActivity extends Activity {
         }
         if (Build.VERSION.SDK_INT >= 28) {
             WindowManager.LayoutParams params = getWindow().getAttributes();
-            params.layoutInDisplayCutoutMode =
-                    WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+            params.layoutInDisplayCutoutMode = Build.VERSION.SDK_INT >= 30
+                    ? WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
+                    : WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
             getWindow().setAttributes(params);
         }
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
@@ -191,7 +192,14 @@ public final class MainActivity extends Activity {
             insetLeft = insets.getSystemWindowInsetLeft();
             insetTop = insets.getSystemWindowInsetTop();
             insetRight = insets.getSystemWindowInsetRight();
-            insetBottom = insets.getSystemWindowInsetBottom();
+            insetBottom = insets.getStableInsetBottom();
+            if (Build.VERSION.SDK_INT >= 28 && insets.getDisplayCutout() != null) {
+                android.view.DisplayCutout cutout = insets.getDisplayCutout();
+                insetLeft = Math.max(insetLeft, cutout.getSafeInsetLeft());
+                insetTop = Math.max(insetTop, cutout.getSafeInsetTop());
+                insetRight = Math.max(insetRight, cutout.getSafeInsetRight());
+                insetBottom = Math.max(insetBottom, cutout.getSafeInsetBottom());
+            }
             publishSafeArea();
             // CSS owns the bar padding here too. Keep notification delivery
             // but clear duplicate insets before they reach older WebViews.

@@ -32,7 +32,7 @@ const context={
   solarCalendarExplanation:()=>'<details class="calendar-help"><summary>Comprendre le calendrier</summary></details>',
   solarVisiblePeriods:()=>({days:[]}),
   solarCalendarBackdropWeek:()=>'<div class="astra-solar-ribbon-backdrop"></div>',
-  personalCalendarWeek:()=>'',calendarDayInspector:()=>'',personalEventEditor:()=>'',
+  personalCalendarWeek:()=>'',monthOverview:()=>'<section id="monthSummary"></section>',calendarDayInspector:()=>'',personalEventEditor:()=>'',
   solarSignIndex:n=>Number.isFinite(n)?Math.floor(n/30):null,
   zodiacNames:['Bélier','Taureau','Gémeaux','Cancer','Lion','Vierge',
     'Balance','Scorpion','Sagittaire','Capricorne','Verseau','Poissons'],
@@ -119,4 +119,12 @@ test('Calendar: category styles, astronomical detail and responsive assets remai
   assert.ok(CSS_SOURCES.includes('personal-calendar.css'));
   assert.match(html,/href="astra\.bundle\.css"/);
   assert.ok(browser.includes("ROOT/'astra.bundle.css'"));
+});
+
+test('Calendar includes the monthly summary once and has one navigation destination',()=>{
+  const markup=calendar();
+  assert.equal(count(markup,/id="monthSummary"/g),1);
+  assert.ok(markup.indexOf('astra-calendar-board')<markup.indexOf('monthSummary'));
+  assert.doesNotMatch(html,/data-tab="month"/);
+  assert.match(app,/calendarSheet=true;personalEditor=null;selectDay\(a.monthOpenDay\)/);
 });

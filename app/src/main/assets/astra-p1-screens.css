@@ -18,6 +18,7 @@
 /* CE JOUR — selected date -> lunar snapshot -> chronological movements ->
    journal -> events -> advanced active aspects */
 .astra-week-strip{margin-bottom:15px}
+.astra-week-day:not(.is-selected){color:var(--astra-ink)}
 .astra-day-hero{
   margin:0 0 15px;padding:23px 24px 20px;
   min-height:unset;border:2px solid var(--color-deep-ocean);
@@ -26,7 +27,7 @@
   box-shadow:var(--astra-shadow-soft)
 }
 .astra-day-hero:before,.astra-day-hero:after{display:none}
-.astra-hero-kicker,.astra-moon-title,.astra-moon-phase,.astra-sky-reference{color:var(--color-deep-ocean)}
+.astra-day-hero :is(.astra-hero-kicker,.astra-moon-title,.astra-moon-phase,.astra-sky-reference){color:var(--astra-day-hero-ink);opacity:1}
 .astra-hero-kicker{font-weight:800;letter-spacing:.09em}
 .astra-moon-title{font-family:var(--astra-font-display);font-size:clamp(24px,5vw,34px);line-height:1.12}
 .astra-hero-moon{gap:16px}
@@ -35,7 +36,7 @@
   width:62px;height:62px;border-radius:50%
 }
 .astra-hero-moon-icon .astra-phase-graphic{width:43px;height:43px}
-.astra-sky-reference{margin-top:13px;font-weight:600;opacity:.85}
+.astra-sky-reference{margin-top:13px;font-weight:600;opacity:1}
 .astra-day-hero .astra-solar-daily-band{
   display:inline-flex;max-width:100%;background:var(--color-dandelion);
   border:1px solid var(--color-deep-ocean);color:var(--color-deep-ocean);

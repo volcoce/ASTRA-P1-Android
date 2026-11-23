@@ -43,7 +43,7 @@
   position:fixed;z-index:40;
   bottom:0;left:50%;right:auto;
   transform:translateX(-50%);
-  display:grid;grid-template-columns:repeat(5,minmax(0,1fr));
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
   gap:var(--astra-touch-gap);width:100%;max-width:var(--astra-nav-width);
   margin:0;
   /* Surface extends under three-button navigation; buttons sit above it. */
@@ -73,7 +73,8 @@
 /* All routes share the same interactive geometry.
    Seven-day grids intentionally use their full tall cell as the hit area:
    seven 48px-wide buttons cannot fit a 320px viewport without hiding days.
-   They remain at least 48px tall and pass the WCAG spacing method. */
+   They remain at least 48px tall; a full-size alternative date selector
+   is available when the calendar grid width is under 336px. */
 button{min-height:var(--astra-control-min)}
 button:not(.day):not(.astra-week-day){min-width:var(--astra-control-min)}
 :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),select,textarea,summary){

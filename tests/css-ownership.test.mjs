@@ -7,8 +7,8 @@ import {CSS_SOURCES} from '../scripts/css-sources.mjs';
 const read=file=>readFileSync(new URL('../app/src/main/assets/'+file,import.meta.url),'utf8');
 const disclosureClasses=[
  'astra-event-disclosure','calendar-help','calendar-options','natal-glossary',
- 'natal-extras','natal-more-options','calculation-details','natal-preview-disclosure',
- 'natal-matrix-disclosure','natal-explore-wheel','city-technical','astra-active-panel'
+ 'natal-more-options','calculation-details','natal-preview-disclosure',
+ 'natal-matrix-disclosure','city-technical','astra-active-panel'
 ];
 const gutterProperties=new Set(['padding','padding-left','padding-right',
  'padding-inline','padding-inline-start','padding-inline-end','padding-top',
@@ -59,7 +59,7 @@ test('Every interactive disclosure is assembled with shared component classes',(
   assert.ok(app.includes(type+' astra-disclosure'),type+' is not componentized');
  }
  assert.equal((app.match(/astra-event-disclosure-body astra-disclosure-body/g)||[]).length,2);
- assert.match(app,/astra-disclosure-body astra-disclosure-actions/);
+ assert.match(app,/natal-reading-more[\s\S]*?astra-disclosure-body/);
  assert.match(app,/calendar-help-body astra-disclosure-body/);
  const tokens=read('astra-tokens.css'),components=read(owner);
  for(const role of ['--astra-component-inset','--astra-disclosure-block-inset',
@@ -254,7 +254,7 @@ test('Global settings have one responsive dialog and single owners for shared pr
   if(rule.selector==='.bottom-nav #settingsButton[aria-expanded="true"]')triggerRule++;
  });
  assert.equal(dialogRule,2,'One base dialog rule and one responsive adjustment');
- assert.match(read('astra-layout.css'),/grid-template-columns:repeat\(5,minmax\(0,1fr\)\)/);
+ assert.match(read('astra-layout.css'),/grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
  assert.equal((app.match(/data-profile-screen="settings">Personnaliser/g)||[]).length,0,
    'The contextual Mon ciel personalization buttons must be removed');
  assert.match(app,/state\.profile\?'Personnaliser mon thème'/);
@@ -319,7 +319,7 @@ test('App opens on a contextual page title without any permanent masthead',()=>{
  assert.doesNotMatch(html,/<header class="top"/);
  assert.doesNotMatch(html,/class="identity"|class="emblem"|class="brand"/);
  assert.match(html,/<main id="app" class="main"><\/main>/);
- assert.match(app,/const header = \(name,description\) => `<header class="screen-intro">/);
+ assert.match(app,/const header = name => `<header class="screen-intro">/);
  assert.doesNotMatch(app,/homeButton/);
  for(const filename of CSS_SOURCES){
   const parsed=postcss.parse(read(filename),{from:filename});

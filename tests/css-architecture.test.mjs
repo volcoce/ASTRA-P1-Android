@@ -18,12 +18,13 @@ test('Navigation is owned by the global layout, not natal routes',()=>{
 });
 test('Birth and settings cards share the global reading-column gutters',()=>{
  const app=read('app.js'),layout=read('astra-layout.css'),navigation=read('astra-p2-navigation.css');
- for(const component of ['astra-birth-settings','astra-privacy-settings']){
+ for(const component of ['astra-birth-settings']){
    assert.ok(app.includes('class="card astra-reading-card '+component+'"'),component);
  }
  for(const component of ['astra-preferences','astra-performance']){
    assert.ok(app.includes('class="astra-settings-group '+component+' astra-settings-section"'),component);
  }
+ assert.match(app,/function settingsDataPanel\(\)[\s\S]*?class="astra-settings-group"/);
  assert.match(layout,/\.main\s*\{[^}]*max-width:\s*calc\(var\(--astra-reading-width\)\s*\+\s*var\(--astra-card-gutter\)\s*\+\s*var\(--astra-card-gutter\)\)/s);
  assert.doesNotMatch(layout,/\.card\.astra-reading-card\s*\{[^}]*max-width:/s);
  assert.doesNotMatch(navigation,/\.astra-settings-section,.astra-birth-settings,.astra-privacy-settings\s*\{[^}]*\b(?:max-width|margin)\s*:/s);
@@ -33,7 +34,7 @@ test('Reading surfaces and disclosures reuse global component classes',()=>{
  assert.match(app,/astra-reading-card natal-home/);
  assert.match(app,/astra-reading-card natal-explore/);
  assert.match(app,/calendar-options astra-disclosure/);
- assert.match(app,/calendarOptionsOpen\?' open':'/);
+ assert.match(app,/function appearancePanel\(\)[\s\S]*?calendar-options astra-disclosure/);
  assert.match(read('astra-components.css'),/\.astra-disclosure\{/);
 });
 
@@ -82,7 +83,7 @@ test('Calendar disclosures reuse global title and body padding',()=>{
  const components=read('astra-components.css');
  assert.match(components,/\.astra-disclosure>summary\s*\{[^}]*padding:var\(--astra-disclosure-block-inset\) var\(--astra-component-inset\)/s);
  assert.match(app,/class="calendar-help-body astra-disclosure-body"/);
- assert.match(app,/class="astra-disclosure-body">'\+switcher\(\)\+filters\(\)/);
+ assert.match(app,/calendar-options astra-disclosure[\s\S]*?class="astra-disclosure-body">'\+filters\(\)/);
  assert.doesNotMatch(css,/\.calendar-options\s*\{[^}]*padding:/s);
  assert.doesNotMatch(css,/\.calendar\.astra-calendar-board \.calendar-help>summary\s*\{[^}]*padding:/s);
  assert.doesNotMatch(css,/\.calendar-options\s*\{[^}]*max-width:/s);
@@ -126,7 +127,7 @@ test('Four-element palette has one source and no duplicates in feature CSS',()=>
  assert.match(tokens,/--solar-water-muted:#A4D6F5/);
  assert.match(tokens,/--solar-earth-muted:#B9E5AF/);
  assert.match(wheel,/zodiac-element-water\{fill:var\(--astra-zodiac-water\)\}/);
- assert.match(read('app.js'),/zodiacFill\('water'\)/);
+ assert.match(read('app.js'),/zodiac-element-.*\['fire','earth','air','water'\]/);
  assert.doesNotMatch(read('solar-ribbon.css'),/:root\s*\{[^}]*--solar-water-bg/s);
 });
 
@@ -200,7 +201,7 @@ test('Calendar phase fills, category inks and focus colours come from semantic t
 
 test('Daily and monthly lunar colors are semantic roles, not view-level literals',()=>{
  const tokens=read('astra-tokens.css'),screens=read('astra-p1-screens.css');
- for(const role of ['--astra-day-hero-bg','--astra-day-hero-rule',
+ for(const role of ['--astra-day-hero-bg','--astra-day-hero-ink',
    '--astra-lunar-full-bg','--astra-lunar-full-border',
    '--astra-lunar-new-bg','--astra-lunar-new-border',
    '--astra-lunar-quarter-bg','--astra-lunar-quarter-border',
