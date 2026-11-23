@@ -127,8 +127,12 @@ if __name__ == '__main__':
             def capture_element(name,selector):
                 if shots:
                     page.evaluate("document.getElementById('toast').hidden=true")
-                    page.locator(selector).first.screenshot(path=str(shots / (name+'.png')),
-                                                             animations='disabled')
+                    # The bottom navigation belongs to the app, but it can
+                    # float over a focused element snapshot. Hide only in this
+                    # test capture; never alter the shipped UI.
+                    page.locator(selector).first.screenshot(
+                        path=str(shots / (name+'.png')),animations='disabled',
+                        style='.bottom-nav{visibility:hidden!important}')
             def audit_disclosures(route):
                 """Check every disclosure on this rendered route, open or closed."""
                 items=page.evaluate("""() => [...document.querySelectorAll('details.astra-disclosure')].map(el=>{
