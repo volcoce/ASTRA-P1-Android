@@ -21,7 +21,7 @@ window.ASTRA_ENGINE = {
  sunSignIngress(day,zone,mode){return null},
  moonSignChanges(day,zone,mode){return window.__moonScenario&&day.endsWith('-20')?
   [{at:day+'T13:09:00Z',fromSign:'Taureau',toSign:'Gémeaux',fromIndex:1,toIndex:2,mode}]:[]},
- formatSignExact(){return '07°00′00″ Bélier'},formatOrbExact(orb){return orb.toFixed(2)+'°'},
+ formatSignExact(lon){const total=((Math.round(lon*3600)%1296000)+1296000)%1296000;const n=total%108000,pad=n=>String(n).padStart(2,'0');return pad(Math.floor(n/3600))+'°'+pad(Math.floor(n%3600/60))+'′'+pad(n%60)+'″ '+['Bélier','Taureau','Gémeaux','Cancer','Lion','Vierge','Balance','Scorpion','Sagittaire','Capricorne','Verseau','Poissons'][Math.floor(total/108000)]},formatOrbExact(orb){return orb.toFixed(2)+'°'},
  filterNatalAspects(list,filter){return filter==='all'?[...list]:list.filter(a=>a.aspect===filter)},
  describeNatalPillar(body,lng){return {title:body==='Moon'?'Lune en Bélier':body==='Ascendant'?'Ascendant en Vierge':'Soleil en Bélier',role:'Identité',keywords:['Initiative','Courage','Affirmation']}},
  describeNatalPlanet(body,lng,house,approx){return {title:body==='Moon'?'Lune':'Soleil',astronomy:approx?'Position indicative à midi local':'Longitude calculée',convention:'Lecture astrologique traditionnelle du signe et de la planète.',question:'Quel sens pour ce domaine ?',disclaimer:'Lecture symbolique non prédictive'}},
@@ -749,6 +749,12 @@ if __name__ == '__main__':
             assert page.locator('#natalChart .position-retrograde').count()==10
             page.locator('[data-explore-section="houses"]').click()
             assert page.locator('#natalChart .natal-house-chip').count()==12
+            assert page.locator('.natal-house-number').all_text_contents()==['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII']
+            first_house=page.locator('.natal-house-chip').first
+            assert first_house.locator('.natal-house-sign').inner_text()=='Vierge'
+            assert first_house.locator('.natal-house-angle').inner_text()=='01°30′00″'
+            assert first_house.evaluate("e=>getComputedStyle(e).textAlign")=='center'
+            assert page.locator('#app .natal-disclaimer, #app .astra-angle-note, #app .astra-event-data-note').count()==0
             assert page.locator('#natalChart .natal-position').count()==0
             page.locator('[data-explore-section="aspects"]').click()
             assert page.locator('#natalChart .natal-aspect').count()==1
