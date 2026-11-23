@@ -86,3 +86,32 @@ test('Shared AppShell, reading column, card surface and navigation have one owne
   assert.equal(found,1,selector+' has '+found+' owners');
  }
 });
+
+test('Only the global component paints shared cards and card modifiers',()=>{
+ const components=postcss.parse(read('astra-components.css'),{from:'astra-components.css'});
+ const layout=postcss.parse(read('astra-layout.css'),{from:'astra-layout.css'});
+ let ordinary=0,emphasis=0,reading=0;
+ components.walkRules(rule=>{
+  if(rule.selector==='.card')ordinary++;
+  if(rule.selector==='.card.astra-card--emphasis')emphasis++;
+ });
+ assert.equal(ordinary,1);assert.equal(emphasis,1);
+ layout.walkRules(rule=>{
+  if(rule.selector!=='.card.astra-reading-card')return;
+  reading++;
+  rule.walkDecls(d=>{
+   assert.ok(['width','min-width','box-sizing'].includes(d.prop),
+     'Layout must not paint cards: '+d.prop);
+  });
+ });
+ assert.equal(reading,1);
+ for(const file of CSS_SOURCES.filter(f=>!['astra-components.css','astra-layout.css'].includes(f))){
+  postcss.parse(read(file),{from:file}).walkRules(rule=>{
+   if(!rule.selector.includes('.card.astra-reading-card'))return;
+   rule.walkDecls(d=>{
+    assert.doesNotMatch(d.prop,/^(?:padding|background|border|box-shadow)/,
+     file+' paints shared card from '+rule.selector);
+   });
+  });
+ }
+});

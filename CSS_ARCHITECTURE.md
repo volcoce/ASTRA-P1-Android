@@ -56,6 +56,8 @@ ASTRA a **un seul CSS livré dans l’APK** : `astra.bundle.css`, compilé à pa
 - `astra-p1-screens.css`, `astra-p2-navigation.css`, `astra-p3-accessibility.css`, `astra-p4-wheel.css` : modules historiques / fonctionnels, sans nouvelle feuille `hotfix` ou `override`.
 - `style.css`, `atlas-ui.css`, `theme.css`, `wheel-ui.css`, `solar-ribbon.css`, `calendar-p0.css`, `personal-calendar.css` : anciens styles encore nécessaires au fonctionnement des contrôles existants. Les nouvelles règles ne doivent pas y introduire de divergences de layout.
 
+Les cartes réutilisent uniquement `.card` pour les fonds, bordures et paddings. La classe `.astra-reading-card` ne définit que leur largeur dans la colonne. La variante `.astra-card--emphasis` (bordure accentuée, Journal) est globale dans `astra-components.css` ; aucune feuille métier ne redéfinit la décoration des cartes.
+
 ## Règles de contribution
 
 1. Ne pas ajouter de sélecteur de type `body:has(.natal-home) .bottom-nav` ni de correctif visuel ciblant une route.

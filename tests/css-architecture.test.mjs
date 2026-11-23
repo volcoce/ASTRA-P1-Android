@@ -152,7 +152,8 @@ test('Feature styles do not repaint generic Journal and detail card surfaces',()
  const css=read('astra-p2-navigation.css'),components=read('astra-components.css');
  assert.doesNotMatch(css,/\.astra-journal-editor,\.astra-journal-summary,\.astra-journal-history\s*\{/);
  assert.doesNotMatch(css,/\.astra-event-detail--compact\s*\{/);
- assert.match(css,/\.card\.astra-reading-card\.astra-journal-editor\{/);
+ assert.match(components,/\.card\.astra-card--emphasis\{border-width:2px\}/);
+ assert.doesNotMatch(css,/\.card\.astra-reading-card\.astra-journal-editor\{/);
  assert.match(components,/\.card\s*\{[^}]*background:var\(--astra-surface\)/s);
 });
 
