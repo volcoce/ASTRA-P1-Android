@@ -132,6 +132,35 @@ if __name__ == '__main__':
             page.add_style_tag(content=(ROOT/'astra-p4-wheel.css').read_text(encoding='utf-8'))
             page.add_style_tag(content=(ROOT/'astra-natal.css').read_text(encoding='utf-8'))
             page.add_style_tag(content=(ROOT/'astra-layout.css').read_text(encoding='utf-8'))
+            # Verify the browser interprets the real CSS layers and the same
+            # semantic colours in both themes before JavaScript renders routes.
+            cascade=page.evaluate("""() => {
+              const root=document.documentElement;
+              const layers=[...document.styleSheets].flatMap(s=>[...s.cssRules])
+                .map(rule=>/^@layer\\s+([\\w-]+)\\s*\\{/.exec(rule.cssText)?.[1])
+                .filter(Boolean);
+              const initial=root.getAttribute('data-astra-theme');
+              const snapshot=mode=>{
+                root.setAttribute('data-astra-theme',mode);
+                const css=getComputedStyle(root);
+                return {
+                  calendarInk:css.getPropertyValue('--astra-calendar-ink').trim(),
+                  phaseFull:css.getPropertyValue('--astra-phase-full-bg').trim(),
+                  phaseNew:css.getPropertyValue('--astra-phase-new-bg').trim()
+                };
+              };
+              const light=snapshot('light'),dark=snapshot('dark');
+              if(initial===null)root.removeAttribute('data-astra-theme');
+              else root.setAttribute('data-astra-theme',initial);
+              return {layers,light,dark};
+            }""")
+            assert set(cascade['layers']) >= {'legacy','tokens','components','features','layout'},cascade
+            assert cascade['light']['calendarInk']=='#102A34',cascade
+            assert cascade['dark']['calendarInk']=='#F8EFD5',cascade
+            assert cascade['light']['phaseFull']=='#F5DBA2',cascade
+            assert cascade['dark']['phaseFull']=='#EEC983',cascade
+            assert cascade['light']['phaseNew']=='#DDD6F4',cascade
+            assert cascade['dark']['phaseNew']=='#C7B9E5',cascade
             page.add_script_tag(content=(ROOT/'app.js').read_text(encoding='utf-8'))
             # P0 design regression: verify computed font sizes and flat surfaces.
             px=lambda selector: page.locator(selector).first.evaluate(
