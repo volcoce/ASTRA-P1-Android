@@ -9,7 +9,7 @@ artifacts for review alongside the machine-readable report.
 import json
 import os
 from pathlib import Path
-from PIL import Image
+from PIL import Image, ImageChops, ImageDraw, ImageFont
 
 SCREENSHOTS=Path(os.environ.get('ASTRA_SCREENSHOT_DIR','tests/artifacts/screenshots'))
 REPORT=Path('tests/artifacts/visual-report.json')
@@ -40,6 +40,50 @@ def sample_image(file):
         pixels=list(small.getdata())
     return width,height,pixels
 
+def create_palette_comparisons():
+    # Both palettes are captured from the same Chromium fixture and geometry.
+    # Export real screenshots, not reconstructed marketing mock-ups.
+    outcomes={}
+    issues=[]
+    for view in ('wheel','calendar'):
+        for theme in ('light','dark'):
+            a=SCREENSHOTS/f'palette-classic-{view}-{theme}-393.png'
+            b=SCREENSHOTS/f'palette-vivid-{view}-{theme}-393.png'
+            if not (a.is_file() and b.is_file()):
+                issues.append(f'Palette comparison missing: {a.name if not a.is_file() else b.name}')
+                continue
+            with Image.open(a) as src:
+                classic=src.convert('RGB')
+            with Image.open(b) as src:
+                vivid=src.convert('RGB')
+            if classic.size!=vivid.size:
+                issues.append(f'{view} {theme}: palette screenshots differ in geometry: {classic.size} != {vivid.size}')
+                continue
+            changed=sum(any(value!=0 for value in pixel)
+                       for pixel in ImageChops.difference(classic,vivid).getdata())
+            fraction=changed/(classic.width*classic.height)
+            if fraction<.015:
+                issues.append(f'{view} {theme}: only {fraction:.2%} pixels differ, palette may not be applied')
+            pad,heading=20,50
+            w,h=classic.size
+            bg=(248,239,213) if theme=='light' else (16,31,42)
+            ink=(30,64,79) if theme=='light' else (248,239,213)
+            image=Image.new('RGB',(w*2+pad*3,h+heading+pad*2),bg)
+            image.paste(classic,(pad,heading+pad))
+            image.paste(vivid,(w+pad*2,heading+pad))
+            draw=ImageDraw.Draw(image)
+            try:
+                font=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',16)
+            except OSError:
+                font=ImageFont.load_default()
+            draw.text((pad,15),'Palette 1 - Classique',fill=ink,font=font)
+            draw.text((w+pad*2,15),'Palette 2 - Vive',fill=ink,font=font)
+            output=SCREENSHOTS/f'comparaison-palettes-{view}-{theme}.png'
+            image.save(output,optimize=True)
+            outcomes[output.name]={'width':image.width,'height':image.height,
+                                   'changed_fraction':round(fraction,4)}
+    return outcomes,issues
+
 def check():
     failures=[]
     report={}
@@ -66,10 +110,13 @@ def check():
                 failures.append(f'{filename}: {role} {value} has {hits} pixels, needs {minimum}')
     if ('calendar-dark-393.png' in report and 'calendar-320.png' in report):
         pass  # Both light/dark checked independently by their theme swatches.
+    comparisons,issues=create_palette_comparisons()
+    failures.extend(issues)
     REPORT.parent.mkdir(parents=True,exist_ok=True)
-    REPORT.write_text(json.dumps({'cases':report,'failures':failures},
+    REPORT.write_text(json.dumps({'cases':report,'comparisons':comparisons,'failures':failures},
                      ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     print(f'Visual regression: {len(report)}/{len(CASES)} captures validated')
+    print(f'Palette side-by-side comparisons: {len(comparisons)}/4')
     for filename,entry in report.items():
         print(f"  {filename} ({entry['width']}×{entry['height']}) "
               +', '.join(f"{k}={v['pixels']}" for k,v in entry['anchors'].items()))
