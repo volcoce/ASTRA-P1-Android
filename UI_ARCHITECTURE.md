@@ -240,3 +240,13 @@ Les répartitions Éléments et Modalités se succèdent verticalement sur tous 
 ### Paramètres — géométrie et gestes
 
 Les cinq rubriques partagent une seule gouttière horizontale (en-tête, navigation, contenu), compatible avec les insets Android. Les panneaux sont des groupes de contenu et non des cartes imbriquées ; espacement vertical commun de 16 px. L’en-tête et les onglets restent ensemble pendant le défilement. Un balayage horizontal intentionnel dans le contenu ouvre la rubrique précédente ou suivante, sans boucle aux extrémités. Les gestes verticaux, multitouch, champs de saisie et tableaux défilants restent natifs. Les tests Chromium mesurent les limites du dialogue, les gouttières et la séparation entre palettes et options de 320 à 1280 px, et exercent les gestes tactiles.
+
+
+### P3 — Contrat tactile commun
+
+- Le balayage horizontal du semainier et de la carte lunaire de Ce jour change la date d’un seul jour civil, y compris aux changements de semaine ou de mois. Les flèches du semainier conservent leur pas de sept jours. Les balayages du calendrier, du titre de la journée du journal et du corps des paramètres utilisent les actions de navigation existantes, sans nouvelle route.
+- Un seul doigt, verrouillage de l’axe après 12 px et déplacement final d’au moins 64 px. Les mouvements diagonaux, courts, annulés et multi-touch sont ignorés.
+- Sur mobile, un geste descendant depuis l’en-tête d’une fiche ou d’une modale ferme celle-ci par son bouton existant. Les champs de formulaire, le contenu défilant des fiches, les tableaux et la roue ne sont pas détournés.
+- Les boutons restent utilisables au clavier et à la souris. Le retour de focus d’un contact de transit cible le contact réellement sélectionné.
+
+- Le contenu des trois pages principales permet aussi de passer de Ce jour à Calendrier puis Mon ciel par balayage vers la gauche (et inversement vers la droite). La navigation suit l'ordre de la barre inférieure, sans boucle. Les zones de gestes locaux restent prioritaires. Journal et sous-pages de Mon ciel conservent leur retour dédié ; une fiche ouverte bloque le changement de page.

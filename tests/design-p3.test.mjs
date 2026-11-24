@@ -71,3 +71,95 @@ test('P3 does not replace solar ribbon with separately painted day cards',()=>{
   assert.match(read('astra-p4-wheel.css'),/zodiac-element-fire/);
   assert.match(read('astra-p4-wheel.css'),/zodiac-element-water/);
 });
+
+test('Shared touch direction and minimum displacement reject accidental gestures',()=>{
+ const source=app.slice(app.indexOf('  function swipeAxis('),app.indexOf('  function bindSwipe('));
+ const {axis,step}=new Function(source+'return {axis:swipeAxis,step:swipeStep};')();
+ for(const [dx,dy,expected,direction] of [
+  [5,5,null,0],[-25,0,'horizontal',0],[-110,5,'horizontal',1],
+  [110,5,'horizontal',-1],[80,80,'ambiguous',0],
+  [5,110,'vertical',1],[5,-110,'vertical',0],[63,0,'horizontal',0],
+ ]){assert.equal(axis(dx,dy),expected);assert.equal(step(expected,dx,dy),direction);}
+ assert.match(app,/bindSwipe\(globalSettingsDialog/);
+ assert.match(app,/bindSwipe\(\$\('app'\)/);
+ assert.match(app,/touchcancel/);
+ assert.match(app,/\.natal-wheel-viewport/);
+ assert.match(app,/previous\.kind==='contact'\?'data-transit-contact'/);
+});
+
+test('Shared touch handler cancels interrupted, diagonal and protected interactions',()=>{
+ const source=app.slice(app.indexOf('  function swipeAxis('),app.indexOf('  function dismissSwipe('));
+ const bind=new Function(source+'return bindSwipe;')();
+ const handlers={},calls=[];
+ let valid=true,protectedTarget=false,expected='horizontal',prevented=0;
+ const root={addEventListener:(name,handler)=>{handlers[name]=handler;}};
+ bind(root,()=>({expected,valid:()=>valid,run:step=>calls.push(step)}));
+ const target={closest:()=>protectedTarget?{}:null};
+ const point=(x,y,identifier=7)=>({clientX:x,clientY:y,identifier});
+ function fire(name,touches,changedTouches=touches){
+   handlers[name]({target,touches,changedTouches,cancelable:true,preventDefault(){prevented++;}});
+ }
+ const start=()=>fire('touchstart',[point(0,0)]);
+ const move=(x,y)=>fire('touchmove',[point(x,y)]);
+ const end=(x,y)=>fire('touchend',[],[point(x,y)]);
+ start();move(-100,0);end(-100,0);
+ assert.deepEqual(calls,[1]);assert.equal(prevented,2);
+ start();move(0,100);end(-120,0);assert.deepEqual(calls,[1]);
+ start();move(80,80);end(-100,0);assert.deepEqual(calls,[1]);
+ start();move(-100,0);fire('touchcancel',[]);end(-100,0);assert.deepEqual(calls,[1]);
+ start();fire('touchmove',[point(-100,0),point(0,50,8)]);end(-100,0);assert.deepEqual(calls,[1]);
+ start();valid=false;end(-100,0);valid=true;assert.deepEqual(calls,[1]);
+ protectedTarget=true;start();move(-100,0);end(-100,0);protectedTarget=false;assert.deepEqual(calls,[1]);
+ expected='vertical';start();move(0,-100);end(0,-100);assert.deepEqual(calls,[1]);
+ start();move(0,100);end(0,100);assert.deepEqual(calls,[1,1]);
+});
+
+test('Main page swipe follows bottom navigation order and preserves secondary routes',()=>{
+ const source=app.slice(app.indexOf('  function adjacentPage('),app.indexOf("  bindSwipe($('app')"));
+ const pages=['today','calendar','profile'];
+ let activeTab='today',profileScreen='overview',globalSettingsDialog={open:false},
+     calendarSheet=false,personalEditor=null,natalSelection=null,openDetail=null;
+ const calls=[];
+ const document={querySelectorAll:()=>pages.map(tab=>({dataset:{tab}}))};
+ const go=tab=>{calls.push(tab);activeTab=tab;};
+ const get=new Function('ctx','with(ctx){'+source+'return {adjacentPage,mainPageSwipe};}');
+ const context=()=>({pages,activeTab,profileScreen,globalSettingsDialog,calendarSheet,personalEditor,natalSelection,openDetail,document,go});
+ const adjacent=get(context()).adjacentPage;
+ assert.equal(adjacent(pages,'today',-1),null);
+ assert.equal(adjacent(pages,'today',1),'calendar');
+ assert.equal(adjacent(pages,'calendar',1),'profile');
+ assert.equal(adjacent(pages,'profile',1),null);
+ assert.equal(adjacent(pages,'profile',-1),'calendar');
+ assert.equal(adjacent(pages,'calendar',-1),'today');
+ assert.equal(adjacent(pages,'journal',1),null);
+ get(context()).mainPageSwipe('today').run(1);
+ assert.deepEqual(calls,['calendar']);
+ get(context()).mainPageSwipe('calendar').run(1);
+ assert.deepEqual(calls,['calendar','profile']);
+ get(context()).mainPageSwipe('profile').run(1);
+ assert.deepEqual(calls,['calendar','profile']);
+ assert.equal(get(context()).mainPageSwipe('journal'),null);
+ profileScreen='compare';
+ assert.equal(get(context()).mainPageSwipe('profile'),null);
+ profileScreen='overview';natalSelection={kind:'planet',id:'Sun'};
+ assert.equal(get(context()).mainPageSwipe('profile').valid(),false);
+ const local=app.slice(app.indexOf("  bindSwipe($('app')"),app.indexOf("  document.querySelectorAll('[data-tab]')",app.indexOf("  bindSwipe($('app')")));
+ for(const selector of ['.astra-calendar-board','.astra-week','#journalEditorTitle']){
+   assert.ok(local.indexOf(selector)>=0&&local.indexOf(selector)<local.indexOf('return mainPageSwipe(tab)'));
+ }
+});
+
+test('Daily swipes navigate one civil day, including week and month boundaries',()=>{
+ const source=app.slice(app.indexOf('  const shiftDay='),app.indexOf('  function weekStrip()'));
+ const shift=new Function(source+'return shiftDay;')();
+ for(const [day,step,expected] of [
+  ['2026-11-22',1,'2026-11-23'],['2026-11-23',-1,'2026-11-22'],
+  ['2026-11-30',1,'2026-12-01'],['2026-12-01',-1,'2026-11-30'],
+  ['2026-12-31',1,'2027-01-01'],['2028-02-28',1,'2028-02-29']
+ ])assert.equal(shift(day,step),expected);
+ const local=app.slice(app.indexOf("    if(tab==='today'&&target.closest('.astra-week,.astra-day-hero'))"),app.indexOf("    if(tab==='journal'&&target.closest('#journalEditorTitle'))"));
+ assert.match(local,/run:step=>selectDay\(shiftDay\(day,step\)\)/);
+ assert.doesNotMatch(local,/step\*7|data-week-shift/);
+ assert.match(app,/data-week-shift="-7"/);
+ assert.match(app,/data-week-shift="7"/);
+});
