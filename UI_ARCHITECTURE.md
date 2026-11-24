@@ -250,3 +250,11 @@ Les cinq rubriques partagent une seule gouttière horizontale (en-tête, navigat
 - Les boutons restent utilisables au clavier et à la souris. Le retour de focus d’un contact de transit cible le contact réellement sélectionné.
 
 - Le contenu des trois pages principales permet aussi de passer de Ce jour à Calendrier puis Mon ciel par balayage vers la gauche (et inversement vers la droite). La navigation suit l'ordre de la barre inférieure, sans boucle. Les zones de gestes locaux restent prioritaires. Journal et sous-pages de Mon ciel conservent leur retour dédié ; une fiche ouverte bloque le changement de page.
+
+
+### P4 — Validation finale et critères de livraison
+
+- Matrice automatisée de 110 configurations : cinq dimensions (320×730, 360×780, 393×844, 768×1024, 1280×800), deux thèmes et onze états (Ce jour, Calendrier, journée du calendrier, éditeur d’événement, Journal, Mon ciel, exploration, comparaison, naissance, paramètres, fiche natale).
+- Chaque entrée enregistre les limites du document, la position de la navigation, les gouttières, les fenêtres ouvertes, les cibles principales, les erreurs JavaScript, les résultats axe (dont les contrôles incomplets), une capture Chromium et un temps d’entrée dans la vue. Le temps est indicatif, sans seuil arbitraire de performance.
+- Une configuration absente, une erreur géométrique, une violation axe grave/critique ou une erreur JavaScript rend l’audit rouge. Les résultats intermédiaires restent disponibles dans l’artefact ASTRA-P4-final-validation même en cas d’échec.
+- Les tests P1/P2, la couverture des gestes et des brouillons, le contrôle des palettes, le moteur réel et le build/lint Android restent obligatoires. L’audit Chromium n’est pas une certification WCAG ni une mesure de performance sur téléphone. Un essai manuel sur Galaxy A15 (gestes physiques, clavier, système de retour, insets, taille de texte) reste nécessaire avant clôture définitive.
