@@ -1515,6 +1515,26 @@ if __name__ == '__main__':
             assert page.locator('.astra-week-day.is-selected').get_attribute('data-day')!=week_before
             swipe_surface('.astra-week',110,5)
             assert page.locator('.astra-week-day.is-selected').get_attribute('data-day')==week_before
+            # Main pages follow the bottom navigation order, without wrapping.
+            def assert_main_tab(tab):
+                assert page.locator('[data-tab="'+tab+'"]').get_attribute('aria-current')=='page'
+            swipe_surface('h1.page-title',110,5)
+            assert_main_tab('today')
+            swipe_surface('h1.page-title',-110,5)
+            assert_main_tab('calendar')
+            swipe_surface('h1.page-title',-110,5)
+            assert_main_tab('profile')
+            swipe_surface('h1.page-title',-110,5)
+            assert_main_tab('profile')
+            # The wheel retains its own touch interaction.
+            swipe_surface('.natal-wheel-viewport',110,5)
+            assert_main_tab('profile')
+            swipe_surface('h1.page-title',5,120)
+            assert_main_tab('profile')
+            swipe_surface('h1.page-title',110,5)
+            assert_main_tab('calendar')
+            swipe_surface('h1.page-title',110,5)
+            assert_main_tab('today')
             page.locator('[data-tab="calendar"]').click()
             page.locator('.astra-month-phase.new').wait_for()
             month_group_days=page.locator('.astra-event-day-row').evaluate_all("(els)=>els.map(e=>e.dataset.monthOpenDay)")

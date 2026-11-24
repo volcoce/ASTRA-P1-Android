@@ -113,3 +113,38 @@ test('Shared touch handler cancels interrupted, diagonal and protected interacti
  expected='vertical';start();move(0,-100);end(0,-100);assert.deepEqual(calls,[1]);
  start();move(0,100);end(0,100);assert.deepEqual(calls,[1,1]);
 });
+
+test('Main page swipe follows bottom navigation order and preserves secondary routes',()=>{
+ const source=app.slice(app.indexOf('  function adjacentPage('),app.indexOf("  bindSwipe($('app')"));
+ const pages=['today','calendar','profile'];
+ let activeTab='today',profileScreen='overview',globalSettingsDialog={open:false},
+     calendarSheet=false,personalEditor=null,natalSelection=null,openDetail=null;
+ const calls=[];
+ const document={querySelectorAll:()=>pages.map(tab=>({dataset:{tab}}))};
+ const go=tab=>{calls.push(tab);activeTab=tab;};
+ const get=new Function('ctx','with(ctx){'+source+'return {adjacentPage,mainPageSwipe};}');
+ const context=()=>({pages,activeTab,profileScreen,globalSettingsDialog,calendarSheet,personalEditor,natalSelection,openDetail,document,go});
+ const adjacent=get(context()).adjacentPage;
+ assert.equal(adjacent(pages,'today',-1),null);
+ assert.equal(adjacent(pages,'today',1),'calendar');
+ assert.equal(adjacent(pages,'calendar',1),'profile');
+ assert.equal(adjacent(pages,'profile',1),null);
+ assert.equal(adjacent(pages,'profile',-1),'calendar');
+ assert.equal(adjacent(pages,'calendar',-1),'today');
+ assert.equal(adjacent(pages,'journal',1),null);
+ get(context()).mainPageSwipe('today').run(1);
+ assert.deepEqual(calls,['calendar']);
+ get(context()).mainPageSwipe('calendar').run(1);
+ assert.deepEqual(calls,['calendar','profile']);
+ get(context()).mainPageSwipe('profile').run(1);
+ assert.deepEqual(calls,['calendar','profile']);
+ assert.equal(get(context()).mainPageSwipe('journal'),null);
+ profileScreen='compare';
+ assert.equal(get(context()).mainPageSwipe('profile'),null);
+ profileScreen='overview';natalSelection={kind:'planet',id:'Sun'};
+ assert.equal(get(context()).mainPageSwipe('profile').valid(),false);
+ const local=app.slice(app.indexOf("  bindSwipe($('app')"),app.indexOf("  document.querySelectorAll('[data-tab]')",app.indexOf("  bindSwipe($('app')")));
+ for(const selector of ['.astra-calendar-board','.astra-week','#journalEditorTitle']){
+   assert.ok(local.indexOf(selector)>=0&&local.indexOf(selector)<local.indexOf('return mainPageSwipe(tab)'));
+ }
+});

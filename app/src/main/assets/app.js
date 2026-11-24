@@ -2161,6 +2161,26 @@
       updateGlobalSettings('[data-settings-section="'+globalSettingsSection+'"]');
     }};
   });
+  // Main pages follow the order of the visible bottom navigation.
+  // Secondary routes (journal, explorer, comparison and birth settings)
+  // retain their dedicated back action instead of jumping to another tab.
+  function adjacentPage(pages,tab,step){
+    const index=pages.indexOf(tab);
+    if(index<0||![-1,1].includes(step))return null;
+    return pages[index+step]||null;
+  }
+  function mainPageSwipe(tab){
+    if(tab==='profile'&&profileScreen!=='overview')return null;
+    const pages=Array.from(document.querySelectorAll('.bottom-nav [data-tab]'),b=>b.dataset.tab);
+    if(!pages.includes(tab))return null;
+    return {expected:'horizontal',valid:()=>activeTab===tab&&
+      (tab!=='profile'||profileScreen==='overview')&&!globalSettingsDialog.open&&
+      !calendarSheet&&personalEditor===null&&!natalSelection&&!openDetail,
+      run:step=>{
+        const next=adjacentPage(pages,tab,step);
+        if(next)go(next);
+      }};
+  }
   bindSwipe($('app'),target=>{
     const dismiss=dismissSwipe(target);if(dismiss)return dismiss;
     if(globalSettingsDialog.open||calendarSheet||personalEditor!==null||natalSelection||openDetail)return null;
@@ -2177,7 +2197,8 @@
       return {expected:'horizontal',valid:()=>activeTab===tab&&selected===day,
         run:step=>$('app').querySelector('[data-offset="'+step+'"]')?.click()};
     }
-    return null;
+    // Local gestures have priority. Elsewhere, swipe between main tabs.
+    return mainPageSwipe(tab);
   });
   document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.tab)));
   // Samples user interactions from click dispatch to the next animation frame.

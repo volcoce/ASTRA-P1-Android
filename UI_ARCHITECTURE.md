@@ -248,3 +248,5 @@ Les cinq rubriques partagent une seule gouttière horizontale (en-tête, navigat
 - Un seul doigt, verrouillage de l’axe après 12 px et déplacement final d’au moins 64 px. Les mouvements diagonaux, courts, annulés et multi-touch sont ignorés.
 - Sur mobile, un geste descendant depuis l’en-tête d’une fiche ou d’une modale ferme celle-ci par son bouton existant. Les champs de formulaire, le contenu défilant des fiches, les tableaux et la roue ne sont pas détournés.
 - Les boutons restent utilisables au clavier et à la souris. Le retour de focus d’un contact de transit cible le contact réellement sélectionné.
+
+- Le contenu des trois pages principales permet aussi de passer de Ce jour à Calendrier puis Mon ciel par balayage vers la gauche (et inversement vers la droite). La navigation suit l'ordre de la barre inférieure, sans boucle. Les zones de gestes locaux restent prioritaires. Journal et sous-pages de Mon ciel conservent leur retour dédié ; une fiche ouverte bloque le changement de page.
