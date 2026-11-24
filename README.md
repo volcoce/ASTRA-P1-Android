@@ -1,28 +1,35 @@
 # ASTRA
 
-**Atlas céleste personnel** — application d’astrologie pour navigateur et Android (WebView), avec calculs astronomiques locaux, thème natal, transits, calendrier et journal.
+**Ton atlas céleste personnel.** Application d’astrologie pour Android et navigateur, en français. Calculs astronomiques sur l’appareil, sans compte utilisateur.
 
-**État du projet :** `0.8.17-preview` · développement expérimental · interface en français · dépôt privé.
+[![CI Android](https://github.com/volcoce/ASTRA-P1-Android/actions/workflows/android.yml/badge.svg?branch=main)](https://github.com/volcoce/ASTRA-P1-Android/actions/workflows/android.yml?query=branch%3Amain)
 
-[![Android CI](https://github.com/volcoce/ASTRA-P1-Android/actions/workflows/android.yml/badge.svg)](https://github.com/volcoce/ASTRA-P1-Android/actions/workflows/android.yml)
-
-> La lecture astrologique est symbolique et ne constitue pas une méthode scientifiquement démontrée de prédiction d'événements ou d'humeurs.
+[**Télécharger l’APK Preview**](#android) · [Lancer sur ordinateur](#développement) · [Historique des versions](CHANGELOG.md)
 
 ## Fonctionnalités
 
-| Espace | Utilisation |
+| Espace | Fonction |
 | --- | --- |
-| **Ce jour** | Ciel à la date sélectionnée, Lune et phase à midi local, changements lunaires horodatés, événements et accès au journal. |
-| **Calendrier** | Grille et synthèse mensuelles, phases majeures avec signe et heure locale, événements du mois, nouvelles et pleines lunes, fond continu des cases sur plusieurs jours, coloré selon l'élément (Feu, Terre, Air, Eau), partagé 50/50 aux dates de transition, événements personnels sur plusieurs jours et consultation d'une date. |
-| **Mon ciel** | Thème natal, roue interactive, positions et aspects, exploration, transits en double roue, systèmes de maisons et zoom intégré. |
+| Ce jour | Ciel quotidien, phases et changements de signe de la Lune, événements. |
+| Calendrier | Vue mensuelle, phases lunaires, signes solaires et événements personnels. |
+| Mon ciel | Thème natal, roue interactive, planètes, maisons, aspects et comparaison de dates. |
+| Paramètres | Profil de naissance, préférences, système zodiacal et apparence. |
 
-En complément : modes **tropical** et **sidéral** (Lahiri approximatif), fiches pédagogiques, journal local, import/export JSON, thèmes visuels et adaptation aux petits écrans.
+Le journal personnel est accessible depuis les écrans concernés. ASTRA prend en charge les zodiaques tropical et sidéral (Lahiri approximatif), ainsi que la sauvegarde JSON des données locales.
 
-**À noter :** le jour d'un changement de signe solaire, le calendrier partage la bande en deux moitiés pour la lisibilité ; cela ne signifie pas que le Soleil a passé douze heures dans chaque signe. La fonction distincte « Aspect solaire exact » a été retirée ; les autres événements astronomiques et les aspects disponibles restent accessibles.
+## Android
 
-## Essayer sur ordinateur
+Version de développement : **0.8.17 Preview**.
 
-**Prérequis :** Node.js 22+, npm et un navigateur moderne.
+1. Ouvrir [Android CI sur la branche main](https://github.com/volcoce/ASTRA-P1-Android/actions/workflows/android.yml?query=branch%3Amain).
+2. Sélectionner une exécution réussie.
+3. Télécharger l’artifact `ASTRA-PREVIEW-debug-Android17-stable-signature`, extraire le ZIP et installer l’APK.
+
+Le dépôt est privé. L’APK Preview (`org.astra.publicapp.preview`) utilise une signature de test et n’est pas destiné à une distribution publique. Sauvegarder ses données avant toute désinstallation.
+
+## Développement
+
+Prérequis : Node.js **24.15 ou supérieur dans la série 24**, npm et un navigateur moderne.
 
 ```bash
 git clone https://github.com/volcoce/ASTRA-P1-Android.git
@@ -31,103 +38,51 @@ npm install
 npm run dev
 ```
 
-Ouvrir **http://127.0.0.1:4173/**. Le serveur de développement reconstruit d'abord le moteur astronomique. Après modification de `astro/*.mjs`, le relancer pour générer un nouveau bundle.
+Ouvrir [http://127.0.0.1:4173/](http://127.0.0.1:4173/). Le serveur construit les bundles JavaScript et CSS au démarrage. Relancer après une modification des sources du moteur.
 
-Le dépôt est privé : le clonage nécessite d'y avoir accès. Les données locales du navigateur ne se synchronisent pas automatiquement avec celles de l'application Android.
+### Commandes
 
-## Tester le projet
+| Commande | Fonction |
+| --- | --- |
+| `npm run dev` | Prévisualiser l’application. |
+| `npm test` | Exécuter les tests Node.js. |
+| `npm run check:css` | Contrôler et compiler les styles. |
+| `npm run bundle` | Générer les bundles JavaScript et CSS. |
+| `npm run test:ui` | Tester les parcours et composants dans le navigateur (Python, Playwright et Chromium requis). |
 
-```bash
-npm test
-npm run test:desktop
-node --check app/src/main/assets/app.js
-npm run bundle
-```
-
-Les tests d'interface sous Chromium sont exécutés dans le pipeline CI avec `python tests/ui-smoke.py` et Playwright. Les tests automatisés ne remplacent pas la vérification de l'APK sur un appareil physique. Contrôler notamment le mode Edge-to-Edge sur Android (encoche, barre de statut, trois boutons ou navigation gestuelle, clavier Samsung One UI). Les fonds de l'application doivent couvrir toute la surface ; les textes et commandes restent dans la zone sûre.
-
-## APK Android Preview
-
-Dans l'onglet [Actions → Android CI](https://github.com/volcoce/ASTRA-P1-Android/actions/workflows/android.yml), ouvrir une exécution réussie et récupérer l'artifact **ASTRA-PREVIEW-debug-Android17-stable-signature**. Une connexion GitHub autorisée à consulter ce dépôt privé peut être nécessaire.
-
-Pour compiler localement, préparer **JDK 17**, **Gradle 9.3.1**, le SDK Android requis par `app/build.gradle.kts` (API 37 et build-tools 37.0.0), puis construire le bundle JavaScript avant Gradle :
+La CI exécute également les tests visuels et les contrôles Android. Pour compiler l’APK localement, utiliser JDK 17, Gradle 9.3.1 et le SDK Android 37 (build-tools 37.0.0), puis :
 
 ```bash
-npm install
 npm run bundle
-gradle --no-daemon :app:assembleDebug :app:lintDebug
+base64 -d < ci/astra-preview-test-signing.p12.b64 > ci/astra-preview-test-signing.p12
+gradle --no-daemon :app:assembleDebug :app:lintDebug :app:testDebugUnitTest
 ```
-
-La build de débogage utilise une **signature de test connue**, réservée à ASTRA Preview. Elle ne convient pas à une distribution publique. Le paquet Android Preview est `org.astra.publicapp.preview`, distinct de `org.astra.publicapp`. Sauvegarder puis contrôler l'import des données avant toute désinstallation d'une ancienne version.
-
-## Données et confidentialité
-
-- Profil, journal, événements personnels et préférences sont enregistrés **localement**, sous la clé `astra-public-v1`.
-- Les calculs du ciel et du thème s'effectuent sur l'appareil avec `astronomy-engine`.
-- La recherche volontaire d'une ville utilise **Open-Meteo Geocoding** et nécessite une connexion. La requête porte sur la ville, pas sur la date de naissance ou les notes du journal.
-- Aucune connexion à Google Agenda, aucun compte utilisateur et aucune synchronisation cloud des événements personnels ne sont actuellement implémentés.
-- Un export JSON peut contenir des informations personnelles : le conserver de manière sécurisée.
-- **Ne pas rendre ce dépôt public sans audit complet de son historique Git**, qui a pu contenir d'anciennes données personnelles. Une publication nécessiterait un historique nettoyé et une signature de production distincte.
 
 ## Architecture
 
 ```text
-astro/                     Moteur astronomique, natal, lieux et interprétations
-app/src/main/assets/       Interface HTML, CSS, JavaScript et bundle généré
-app/src/main/java/         Conteneur Android WebView
-tests/                     Tests de calcul, régression et interface
-scripts/dev-server.mjs     Prévisualisation locale
-.github/workflows/         Tests, compilation et artifact APK
+astro/                  Moteur astronomique et interprétations
+app/src/main/assets/    Interface web (HTML, CSS, JavaScript)
+app/src/main/java/      Conteneur Android WebView
+scripts/                Compilation et serveur local
+tests/                  Tests et contrôles de régression
+ci/                     Signature de test
+.github/workflows/      Intégration continue et APK
 ```
 
-Le moteur généré `runtime.bundle.js` est ignoré par Git et reconstruit avec `npm run bundle`. Le projet n'emploie pas de framework d'interface.
-
-## Limites connues
-
-- Le mode sidéral Lahiri est approximatif ; les conversions de fuseaux historiques et certains cas astronomiques nécessitent une validation supplémentaire.
-- En l'absence d'heure de naissance, l'Ascendant et les maisons ne sont pas inventés et certains contacts natals ne peuvent pas être datés précisément.
-- Les aspects actifs sont des instantanés et non des périodes d'orbe complètes ; l'échantillonnage peut manquer certains contacts.
-- Les performances et l'accessibilité Android doivent être contrôlées sur des appareils réels.
-- Les conditions d'utilisation d'Open-Meteo Geocoding sont à vérifier avant tout usage commercial.
+L’interface utilise JavaScript natif, sans framework. Les sources CSS sont ordonnées dans `scripts/css-sources.mjs` et compilées dans une seule feuille `astra.bundle.css`. Les bundles générés ne sont pas versionnés.
 
 ## Documentation
 
-- [Architecture de l'interface](UI_ARCHITECTURE.md) — écrans, navigation, composants et accessibilité.
-- [Direction artistique](DESIGN.md) — principes visuels et critères de qualité.
-- [Instructions de contribution au code](AGENTS.md) — règles techniques pour les assistants et contributeurs.
-- [Historique des versions](CHANGELOG.md) — évolution du projet, sans confondre anciens comportements et fonctions actuelles.
+- [Architecture UI](UI_ARCHITECTURE.md) — écrans, navigation et composants.
+- [Design](DESIGN.md) — principes graphiques et ergonomiques.
+- [Contribution](AGENTS.md) — règles techniques du projet.
+- [Changelog](CHANGELOG.md) — historique des évolutions.
 
-## Statut
+## Données et limites
 
-Projet expérimental, sans version Android de production annoncée. Les builds CI et les APK Preview servent au développement et aux essais. Aucune licence open source n'est déclarée dans ce dépôt.
+Les profils, préférences, événements et journaux sont stockés localement (`astra-public-v1`). La recherche de villes utilise Open-Meteo Geocoding ; aucune synchronisation cloud n’est implémentée. Les exports JSON peuvent contenir des données personnelles.
 
-## Design System — P0 Retro Pop Celestial
+Les calculs sidéraux et certains cas astronomiques ou de fuseaux historiques nécessitent encore une validation. Sans heure de naissance, les maisons et l’Ascendant ne sont pas calculés. Les interprétations astrologiques sont symboliques.
 
-Les fichiers `app/src/main/assets/astra-tokens.css` et `astra-components.css` définissent les couleurs sémantiques, typographies, espacements, rayons, états d'interaction et composants communs des thèmes clair et sombre. Ils sont chargés **après** les feuilles historiques afin de centraliser progressivement la présentation sans casser le moteur astronomique, la roue ni le ruban solaire. Le thème reste contrôlé par `data-astra-theme` sur `<html>`.
-
-Les fonds solaires du calendrier utilisent les quatre éléments astrologiques via `--solar-fire-bg`, `--solar-earth-bg`, `--solar-air-bg` et `--solar-water-bg`. Les segments demeurent continus et arrondis au passage des signes. Les nouveaux composants doivent utiliser les variables `--astra-*` plutôt que des couleurs littérales.
-
-## Interface P1 — quatre espaces principaux
-
-La hiérarchie visuelle de **Ce jour**, **Calendrier** et **Mon ciel** est définie dans `app/src/main/assets/astra-p1-screens.css`, chargé après les tokens et les composants P0. Ce jour distingue carte lunaire, chronologie, journal puis événements ; Calendrier intègre la synthèse mensuelle et garde **un ruban solaire de fond par semaine** avec extrémités arrondies aux changements de signe ; Mon ciel privilégie le triptyque natal et l’exploration progressive. Les calculs, filtres et données locales restent disponibles.
-
-## P2 — Navigation et sous-écrans
-
-Les styles secondaires sont regroupés dans `app/src/main/assets/astra-p2-navigation.css`, chargé après les écrans P1. Cette couche harmonise le **journal** (éditeur prioritaire, indicateurs et historique), les **fiches d'événements** intégrées à la page, les **réglages**, les **panneaux du thème** et les **modales natives** du calendrier personnel. Elle conserve les comportements existants : quatre onglets principaux, journal en route secondaire, dates inclusives et événements multi-jours, raccourcis clavier et fermeture native des dialogues, lecture hors connexion. Les transitions respectent `prefers-reduced-motion`.
-
-## P3 — Thèmes et accessibilité
-
-La couche `app/src/main/assets/astra-p3-accessibility.css` est chargée après les styles P0–P2. Elle renforce la lisibilité en thèmes clair et sombre, dont le contraste des chiffres sur les quatre rubans solaires, les contours de focus clavier, les cibles tactiles, les états de champs invalides, les formulaires des dialogues et le comportement 320/360/480 px et paysage. Le contraste accru (`prefers-contrast: more`) et la réduction des animations (`prefers-reduced-motion: reduce`) sont pris en charge. Les noms complets des jours de semaine et le groupe de contrôle de l'humeur sont exposés aux technologies d'assistance.
-
-Les tests automatisés de `tests/design-p3.test.mjs` vérifient les associations de couleurs, les libellés, les mécanismes d'accessibilité et l'ordre de chargement CSS. Ces tests ne remplacent pas un audit manuel TalkBack/VoiceOver ni la comparaison visuelle sur appareil.
-
-## P4 — Roue astrologique Retro Pop Celestial
-
-`astra-p4-wheel.css` est chargé après les autres styles. Les douze secteurs zodiacaux affichent les quatre couleurs élémentaires adoucies (Feu, Terre, Air, Eau), sans changer la géométrie ni les longitudes. Les maisons utilisent le crème et le beige ; les planètes Soleil et Lune ont des disques jaune et bleu ; en double roue, les planètes natales restent vert pétrole et les transits rouge rétro. La roue conserve son fond crème en thème sombre pour préserver les contrastes. Les exports SVG/PNG intègrent les couleurs de la nouvelle direction artistique.
-
-
-### Calendrier — continuité inter-mois
-
-Le ruban solaire couvre les **semaines visibles entières**, y compris les dates du mois précédent et suivant. Les jours adjacents conservent leur signe solaire et leur phase lunaire à midi local, obtenus par `dailySky` et `sunSignIngress` (cache léger), mais leurs couleurs sont atténuées avec `--solar-{fire,earth,air,water}-muted`. Le changement de saturation à la frontière d'un mois **ne crée jamais d'arrondi artificiel**. Les coins ne s'arrondissent que lors d'un véritable changement de signe; le partage 50/50 reste une convention visuelle de la journée de transit. Terre passe à un olive chaud (`#D9D6B8`), Eau à un bleu aquatique (`#BDD7E3`), également dans la roue zodiacale et les exports.
-
-Le bouton « + Événement » au-dessus de la grille a été supprimé : sélectionner une date ouvre sa fiche, qui conserve « Ajouter un événement ». Les données et sauvegardes personnelles ne changent pas.
+**Projet privé et expérimental**, sans licence open source déclarée. Avant toute publication, auditer l’historique Git, les conditions d’utilisation des services externes et la signature Android.
