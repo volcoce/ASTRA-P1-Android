@@ -148,3 +148,18 @@ test('Main page swipe follows bottom navigation order and preserves secondary ro
    assert.ok(local.indexOf(selector)>=0&&local.indexOf(selector)<local.indexOf('return mainPageSwipe(tab)'));
  }
 });
+
+test('Daily swipes navigate one civil day, including week and month boundaries',()=>{
+ const source=app.slice(app.indexOf('  const shiftDay='),app.indexOf('  function weekStrip()'));
+ const shift=new Function(source+'return shiftDay;')();
+ for(const [day,step,expected] of [
+  ['2026-11-22',1,'2026-11-23'],['2026-11-23',-1,'2026-11-22'],
+  ['2026-11-30',1,'2026-12-01'],['2026-12-01',-1,'2026-11-30'],
+  ['2026-12-31',1,'2027-01-01'],['2028-02-28',1,'2028-02-29']
+ ])assert.equal(shift(day,step),expected);
+ const local=app.slice(app.indexOf("    if(tab==='today'&&target.closest('.astra-week,.astra-day-hero'))"),app.indexOf("    if(tab==='journal'&&target.closest('#journalEditorTitle'))"));
+ assert.match(local,/run:step=>selectDay\(shiftDay\(day,step\)\)/);
+ assert.doesNotMatch(local,/step\*7|data-week-shift/);
+ assert.match(app,/data-week-shift="-7"/);
+ assert.match(app,/data-week-shift="7"/);
+});

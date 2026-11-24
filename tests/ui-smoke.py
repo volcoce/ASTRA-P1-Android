@@ -3,6 +3,7 @@
 Astronomical truth is tested by runtime.test.mjs in CI, not this mock.
 """
 import os
+from datetime import date, timedelta
 from pathlib import Path
 from contextlib import ExitStack, contextmanager
 from shutil import which
@@ -1501,7 +1502,7 @@ if __name__ == '__main__':
             page.wait_for_timeout(140)
             assert page.locator('.astra-calendar-month-head h2').inner_text()==initial_month
             assert page.locator('#monthEventsTitle').inner_text()=='Prochains jours avec événements'
-            # Month and week gestures reuse the visible navigation buttons.
+            # Month gestures navigate months; daily gestures navigate civil days.
             month_before=page.locator('.astra-calendar-month-head h2').inner_text()
             swipe_surface('.astra-calendar-board',-110,5)
             assert page.locator('.astra-calendar-month-head h2').inner_text()!=month_before
@@ -1510,11 +1511,18 @@ if __name__ == '__main__':
             swipe_surface('.astra-calendar-board',5,-120)
             assert page.locator('.astra-calendar-month-head h2').inner_text()==month_before
             page.locator('[data-tab="today"]').click()
-            week_before=page.locator('.astra-week-day.is-selected').get_attribute('data-day')
+            day_before=page.locator('.astra-week-day.is-selected').get_attribute('data-day')
+            next_day=(date.fromisoformat(day_before)+timedelta(days=1)).isoformat()
             swipe_surface('.astra-week',-110,5)
-            assert page.locator('.astra-week-day.is-selected').get_attribute('data-day')!=week_before
+            assert page.locator('.astra-week-day.is-selected').get_attribute('data-day')==next_day
             swipe_surface('.astra-week',110,5)
-            assert page.locator('.astra-week-day.is-selected').get_attribute('data-day')==week_before
+            assert page.locator('.astra-week-day.is-selected').get_attribute('data-day')==day_before
+            page.locator('.astra-day-hero').wait_for()
+            swipe_surface('.astra-day-hero',-110,5)
+            assert page.locator('.astra-week-day.is-selected').get_attribute('data-day')==next_day
+            page.locator('.astra-day-hero').wait_for()
+            swipe_surface('.astra-day-hero',110,5)
+            assert page.locator('.astra-week-day.is-selected').get_attribute('data-day')==day_before
             # Main pages follow the bottom navigation order, without wrapping.
             def assert_main_tab(tab):
                 assert page.locator('[data-tab="'+tab+'"]').get_attribute('aria-current')=='page'

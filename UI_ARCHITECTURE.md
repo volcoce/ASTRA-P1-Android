@@ -244,7 +244,7 @@ Les cinq rubriques partagent une seule gouttière horizontale (en-tête, navigat
 
 ### P3 — Contrat tactile commun
 
-- Le balayage horizontal du semainier, du calendrier, du titre de la journée du journal et du corps des paramètres utilise les actions de navigation existantes, sans nouvelle route.
+- Le balayage horizontal du semainier et de la carte lunaire de Ce jour change la date d’un seul jour civil, y compris aux changements de semaine ou de mois. Les flèches du semainier conservent leur pas de sept jours. Les balayages du calendrier, du titre de la journée du journal et du corps des paramètres utilisent les actions de navigation existantes, sans nouvelle route.
 - Un seul doigt, verrouillage de l’axe après 12 px et déplacement final d’au moins 64 px. Les mouvements diagonaux, courts, annulés et multi-touch sont ignorés.
 - Sur mobile, un geste descendant depuis l’en-tête d’une fiche ou d’une modale ferme celle-ci par son bouton existant. Les champs de formulaire, le contenu défilant des fiches, les tableaux et la roue ne sont pas détournés.
 - Les boutons restent utilisables au clavier et à la souris. Le retour de focus d’un contact de transit cible le contact réellement sélectionné.

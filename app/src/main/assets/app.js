@@ -2189,9 +2189,9 @@
       return {expected:'horizontal',valid:()=>activeTab===tab&&selected===day&&!calendarSheet&&!personalEditor,
         run:step=>$('app').querySelector('[data-month="'+step+'"]')?.click()};
     }
-    if(tab==='today'&&target.closest('.astra-week')){
+    if(tab==='today'&&target.closest('.astra-week,.astra-day-hero')){
       return {expected:'horizontal',valid:()=>activeTab===tab&&selected===day,
-        run:step=>$('app').querySelector('[data-week-shift="'+step*7+'"]')?.click()};
+        run:step=>selectDay(shiftDay(day,step))};
     }
     if(tab==='journal'&&target.closest('#journalEditorTitle')){
       return {expected:'horizontal',valid:()=>activeTab===tab&&selected===day,
