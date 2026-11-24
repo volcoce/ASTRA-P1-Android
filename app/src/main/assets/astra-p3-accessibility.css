@@ -31,17 +31,6 @@ html,body{min-width:0;max-width:100%}
 .astra-personal-field textarea)[aria-invalid="true"]{
   border-color:var(--astra-danger);
 }
-:root[data-astra-theme="dark"] .astra-personal-dialog,
-:root[data-astra-theme="dark"] .astra-calendar-day-dialog{
-  background:var(--astra-surface);color:var(--astra-ink);
-  border-color:var(--astra-border)
-}
-:root[data-astra-theme="dark"] .astra-personal-dialog :is(h2,label,small,p),
-:root[data-astra-theme="dark"] .astra-personal-field>span{color:var(--astra-ink)}
-:root[data-astra-theme="dark"] .astra-personal-dialog :is(input,select,textarea){
-  background:var(--astra-secondary-surface);color:var(--astra-ink);
-  border-color:var(--astra-border)
-}
 /* Every zodiac element background uses an ink colour with checked contrast.
    These overrides correct late P0/P1 declarations that painted light ink
    on pale calendar ribbons or dark ink on dark ribbons. */
@@ -103,7 +92,6 @@ html,body{min-width:0;max-width:100%}
 .screen-intro,.astra-section-head,.astra-month-headline,
 .astra-month-event,.astra-event-detail,.astra-personal-form{min-width:0}
 .astra-month-event-text,.event-body,.astra-month-phase-copy{overflow-wrap:anywhere}
-.astra-personal-dialog{max-width:100vw;overscroll-behavior:contain}
 @media(max-width:480px){
   .astra-month-headline{flex-wrap:wrap}
   .astra-month-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -112,12 +100,6 @@ html,body{min-width:0;max-width:100%}
 }
 @media(max-width:360px){
   .calendar.astra-calendar-board .weekday{font-size:12px}
-  .astra-personal-date-fields,.astra-personal-time-fields{
-    grid-template-columns:repeat(2,minmax(0,1fr))
-  }
-}
-@media(orientation:landscape) and (max-height:500px){
-  .astra-personal-dialog{max-height:95dvh}
 }
 @media(prefers-contrast:more){
   .calendar.astra-calendar-board .astra-calendar-date-week .day.selected{
@@ -129,8 +111,8 @@ html,body{min-width:0;max-width:100%}
 }
 @media(prefers-reduced-motion:reduce){
   html:focus-within{scroll-behavior:auto}
-  .astra-personal-dialog[open],.astra-event-detail{animation:none!important}
-  .astra-personal-dialog,.astra-journal-editor .mood,.astra-event-feed .event-button{
+  .astra-event-detail{animation:none!important}
+  .astra-journal-editor .mood,.astra-event-feed .event-button{
     transition:none!important;
   }
 }
@@ -165,23 +147,6 @@ html,body{min-width:0;max-width:100%}
 /* Natal reading sheet: contrast and nav clearance.
    The legacy light theme used white cards with dark ink; dark mode cannot
    merely recolor the text while keeping those white backgrounds. */
-:root[data-astra-theme="dark"] .natal-context-sheet{
-  background:var(--astra-surface);
-  border-color:var(--astra-border);
-  color:var(--astra-ink);
-}
-:root[data-astra-theme="dark"] .natal-context-sheet .natal-context-bar{
-  background:var(--astra-secondary-surface);
-  border-bottom:1px solid var(--astra-divider);
-}
-:root[data-astra-theme="dark"] .natal-context-sheet .natal-context-bar h2{
-  color:var(--astra-ink);
-}
-:root[data-astra-theme="dark"] .natal-context-sheet .natal-context-bar button{
-  background:var(--astra-surface);
-  border-color:var(--astra-border);
-  color:var(--astra-ink);
-}
 :root[data-astra-theme="dark"] .natal-context-sheet .natal-context-content :is(.natal-fact,.natal-symbolic,.natal-reflection){
   background:var(--astra-secondary-surface);
   color:var(--astra-ink);

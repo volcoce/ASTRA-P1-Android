@@ -317,17 +317,8 @@ html{background:radial-gradient(ellipse at 10% 12%,#f3e8ee 0%,transparent 56%),
   
   max-height:min(55dvh,550px);min-height:0;
   display:flex;flex-direction:column;overflow:hidden;
-  margin:0;padding:0;border:1px solid #cbbbd6;
-  border-radius:var(--astra-radius-lg);background:#fff;box-shadow:0 -8px 42px #2918373d;
+  margin:0;padding:0;
 }
-.natal-context-bar{display:flex;align-items:center;justify-content:space-between;
-  flex:none;gap:var(--astra-space-3);padding:11px 15px;border-bottom:1px solid #e8dfe9;background:#fbf8fd}
-.natal-context-bar h2{font-family:inherit;font-weight:700;font-size:15px;line-height:1.4;margin:0;color:#3e2b52}
-.natal-context-bar button{min-height:44px;min-width:77px;display:flex;align-items:center;justify-content:center;gap:9px;
-  padding:8px 12px;border:1px solid #bbabca;border-radius:var(--astra-radius-sm);background:white;color:#4b3760;
-  font:700 14px/1.3 Arial,sans-serif;cursor:pointer}
-.natal-context-bar button span{font-size:23px;line-height:1}
-.natal-context-content{min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:14px 16px 18px}
 .natal-context-content .natal-detail-body h3{font-size:21px}
 .natal-context-content .natal-detail-body p{font-size:14px;line-height:1.6}
 .natal-context-content .natal-related button{min-height:44px;font-size:13px}
@@ -376,7 +367,6 @@ html{background:radial-gradient(ellipse at 10% 12%,#f3e8ee 0%,transparent 56%),
   .natal-home .natal-summary-item{gap:3px;padding:7px 1px}
   .natal-glyph-separator{font-size:20px}
   .natal-context-sheet{left:8px;right:8px;max-height:52dvh}
-  .natal-context-content{padding:12px}
   .natal-contact-list button{flex-wrap:wrap}
 }
 @media(min-width:800px){
@@ -509,7 +499,6 @@ html,body{width:100%;min-width:0;max-width:100%}
   .natal-summary-sign{font-size:clamp(21px,6vw,28px)}
   .natal-glyph-separator{font-size:18px}
   .natal-context-sheet{left:8px;right:8px;max-height:min(55dvh,480px)}
-  .natal-context-content{padding:12px 13px 15px}
   .natal-home-header{flex-wrap:wrap}
   .natal-home-header>div{flex:1 1 130px}
   .natal-position{grid-template-columns:minmax(0,1fr) auto;row-gap:2px}

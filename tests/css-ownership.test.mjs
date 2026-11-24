@@ -480,3 +480,21 @@ test('Calendar help and display options live exclusively in global settings',()=
  assert.equal((app.match(/Options d’affichage/g)||[]).length,1);
  assert.match(app,/event\.target\.id==='eventFilter'\)\{state\.filter=event\.target\.value;persist\(\);openDetail=null;render\(\)/);
 });
+
+test('P1: dialog and personal form have a canonical shared owner',()=>{
+ const shared=read('astra-components.css');
+ const ast=postcss.parse(shared);
+ for(const selector of ['.astra-personal-dialog','.astra-personal-form','.astra-personal-field','.astra-personal-close','.astra-table-scroll','.natal-context-bar']){
+  let found=false;ast.walkRules(r=>{if(r.selector===selector)found=true;});
+  assert.ok(found,selector+' missing from shared components');
+ }
+ for(const file of ['personal-calendar.css','astra-p2-navigation.css','astra-p3-accessibility.css']){
+  const parsed=postcss.parse(read(file));
+  parsed.walkRules(r=>{
+   assert.notEqual(r.selector,'.astra-personal-dialog',file+' redeclares dialog shell');
+   assert.notEqual(r.selector,'.astra-personal-form',file+' redeclares form shell');
+  });
+ }
+ assert.match(read('app.js'),/class="natal-positions astra-table-scroll natal-position-table/);
+ assert.match(read('app.js'),/class="astra-performance-scroll astra-table-scroll"/);
+});

@@ -41,13 +41,13 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
   outline:3px solid var(--astra-focus);outline-offset:2px
 }
 :is(button,.nav,summary){-webkit-tap-highlight-color:transparent}
-:is(.primary,.natal-main-action,.astra-month-calendar-link,.astra-personal-save){
+:is(.primary,.natal-main-action,.astra-month-calendar-link,.astra-personal-save,.astra-calendar-inspector-sky){
   background:var(--astra-primary);color:var(--astra-primary-ink);
   border:2px solid var(--astra-primary-ink);border-radius:var(--astra-radius-md);
   box-shadow:none;font-weight:750;min-height:var(--astra-control-min);
   transition:transform var(--astra-motion),box-shadow var(--astra-motion)
 }
-:is(.primary,.natal-main-action,.astra-month-calendar-link,.astra-personal-save):hover:not(:disabled){
+:is(.primary,.natal-main-action,.astra-month-calendar-link,.astra-personal-save,.astra-calendar-inspector-sky):hover:not(:disabled){
   background:var(--astra-primary);color:var(--astra-primary-ink);
   box-shadow:var(--astra-shadow-pop);transform:translate(-1px,-1px)
 }
@@ -153,16 +153,17 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
 }
 
 /* Form inputs and state. Shared validation and form states. */
-:is(.field label,.filter-wrap label,.tags-field legend){color:var(--astra-ink);font-size:var(--astra-font-size-sm);font-weight:700}
+:is(.field label,.filter-wrap label,.tags-field legend,.astra-personal-field>span){color:var(--astra-ink);font-size:var(--astra-font-size-sm);font-weight:700}
 :is(.field input,.field select,.field textarea,.filter-wrap select,
 .city-search input,.natal-transit-time input,
-.natal-compare input){
-  min-height:44px;max-width:100%;border:1px solid var(--astra-border);
+.natal-compare input,.astra-personal-field :is(input,select,textarea)){
+  min-height:var(--astra-control-min);max-width:100%;border:1px solid var(--astra-border);
   background:var(--astra-surface);color:var(--astra-ink);
   border-radius:var(--astra-radius-md);font-family:var(--astra-font-body)
 }
 :is(.field input,.field select,.field textarea,.filter-wrap select,
-.city-search input,.natal-transit-time input):disabled{
+.city-search input,.natal-transit-time input,.natal-compare input,
+.astra-personal-field :is(input,select,textarea)):disabled{
   opacity:.6;cursor:not-allowed
 }
 :is(input,textarea)::placeholder{color:var(--astra-muted);opacity:1}
@@ -172,7 +173,7 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
 .field-help{font-size:.8125rem}
 :root[data-astra-theme="dark"] :is(.field input,.field select,.field textarea,
 .filter-wrap select,.city-search input,.natal-transit-time input,
-.natal-compare input){
+.natal-compare input,.astra-personal-field :is(input,select,textarea)){
   background:var(--astra-secondary-surface);color:var(--astra-ink);border-color:var(--astra-border)
 }
 :root[data-astra-theme="dark"] :is(input,textarea)::placeholder{color:var(--astra-muted)}
@@ -424,11 +425,13 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
   width:min(720px,calc(100dvw - 28px));max-width:100%;
   max-height:min(88dvh,900px);min-width:0;box-sizing:border-box;
   padding:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;
+}
+:is(.astra-settings-dialog,.astra-personal-dialog){
   border:1px solid var(--astra-border);border-radius:var(--astra-radius-xl);
   background:var(--astra-surface);color:var(--astra-ink);
   box-shadow:0 20px 60px #101F2A66;
 }
-.astra-settings-dialog::backdrop{background:#101F2ABA}
+.astra-settings-dialog::backdrop,.astra-personal-dialog::backdrop{background:#101F2ABA}
 .astra-settings-chrome{
   position:sticky;top:0;z-index:2;min-width:0;
   background:var(--astra-surface)
@@ -548,4 +551,108 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
   .astra-settings-dialog button{transition:none!important}
 }
 
+
+/* Shared Dialog / FormField / DataTable contracts. Calendar owns only its data
+   and layout of event lanes; birth and journal share the same input states. */
+.astra-personal-dialog{
+  position:fixed;inset:0;margin:auto;width:min(484px,calc(100dvw - 28px));
+  max-width:100%;max-height:min(90dvh,900px);min-width:0;box-sizing:border-box;
+  padding:var(--astra-component-inset);overflow-y:auto;overflow-x:hidden;
+  overscroll-behavior:contain;font:inherit
+}
+.astra-personal-dialog-head{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:var(--astra-space-3);margin-bottom:var(--astra-space-4);min-width:0
+}
+.astra-personal-dialog-head h2{
+  margin:0;font:700 1.4rem/1.25 var(--astra-font-display);color:var(--astra-ink);
+  overflow-wrap:anywhere;text-transform:capitalize
+}
+.astra-personal-form>.astra-personal-dialog-head{margin-bottom:0}
+.astra-personal-close{
+  display:grid;place-items:center;flex:none;
+  width:var(--astra-control-min);height:var(--astra-control-min);
+  padding:0;font-size:1.5rem;line-height:1
+}
+:is(.astra-personal-close,.astra-settings-close){
+  background:var(--astra-secondary-surface);color:var(--astra-ink);
+  border:1px solid var(--astra-border);border-radius:var(--astra-radius-md);
+  cursor:pointer
+}
+:is(.astra-personal-close,.astra-settings-close):hover{background:var(--astra-selected)}
+.astra-personal-form,.astra-personal-field{display:flex;flex-direction:column;min-width:0}
+.astra-personal-form{gap:var(--astra-space-4)}
+.astra-personal-field{gap:var(--astra-space-2)}
+.astra-personal-field :is(input,select,textarea){
+  box-sizing:border-box;width:100%;min-width:0;padding:10px 11px;
+  font-size:.9375rem;line-height:1.4
+}
+.astra-personal-field textarea{resize:vertical;min-height:80px}
+.astra-personal-date-fields,.astra-personal-time-fields{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--astra-touch-gap)
+}
+.astra-personal-time-fields[hidden],.astra-personal-error[hidden]{display:none}
+.astra-personal-all-day{
+  display:flex;align-items:center;gap:var(--astra-touch-gap);
+  min-height:var(--astra-control-min);font-size:.9375rem;color:var(--astra-ink)
+}
+.astra-personal-all-day input{width:19px;height:19px;accent-color:var(--astra-brand)}
+.astra-personal-error{
+  margin:0;color:var(--astra-danger);background:var(--astra-secondary-surface);
+  padding:var(--astra-space-3);border-radius:var(--astra-radius-md);font-size:.8125rem;line-height:1.5
+}
+.astra-personal-actions{display:flex;flex-wrap:wrap;gap:var(--astra-touch-gap);margin-top:var(--astra-space-2)}
+.astra-personal-save,.astra-calendar-inspector-sky{
+  flex:1;min-width:0;padding:11px 12px;font-size:.875rem;cursor:pointer
+}
+.astra-personal-delete{
+  min-height:var(--astra-control-min);padding:11px 14px;
+  border:1px solid var(--astra-danger);color:var(--astra-danger);
+  background:var(--astra-surface);border-radius:var(--astra-radius-md);
+  font-weight:750;cursor:pointer
+}
+.astra-personal-dialog .tiny{color:var(--astra-muted)}
+.astra-table-scroll{
+  width:100%;max-width:100%;min-width:0;overflow:auto;
+  box-sizing:border-box;overscroll-behavior-inline:contain;
+  font-variant-numeric:tabular-nums
+}
+.astra-table-scroll:focus-visible{outline:3px solid var(--astra-focus);outline-offset:-3px}
+@media(max-width:799px){
+  .astra-personal-dialog{
+    inset:auto 0 0;margin:0;width:100%;
+    max-height:min(94dvh,calc(100dvh - var(--astra-safe-top)));
+    padding-inline:max(var(--astra-component-inset),var(--astra-safe-left)) max(var(--astra-component-inset),var(--astra-safe-right));
+    padding-bottom:max(var(--astra-component-inset),var(--astra-safe-bottom));
+    border-radius:var(--astra-radius-xl) var(--astra-radius-xl) 0 0;border-bottom:0
+  }
+}
+@media(max-width:400px){
+  .astra-personal-date-fields,.astra-personal-time-fields{grid-template-columns:minmax(0,1fr)}
+}
+
+
+/* ContextSheet shares the dialog's semantic surface while retaining non-modal
+   chart interaction. Feature code supplies the reading content only. */
+.natal-context-sheet{
+  border:1px solid var(--astra-border);background:var(--astra-surface);
+  color:var(--astra-ink);border-radius:var(--astra-radius-lg);
+  box-shadow:var(--astra-p2-shadow)
+}
+.natal-context-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  flex:none;gap:var(--astra-space-3);padding:var(--astra-space-3) var(--astra-component-inset);
+  border-bottom:1px solid var(--astra-divider);background:var(--astra-secondary-surface)
+}
+.natal-context-bar h2{
+  font:700 .9375rem/1.4 var(--astra-font-body);margin:0;color:var(--astra-ink)
+}
+.natal-context-bar button{
+  min-height:var(--astra-control-min);display:flex;align-items:center;justify-content:center;
+  gap:var(--astra-touch-gap);padding:8px 12px;border:1px solid var(--astra-border);
+  border-radius:var(--astra-radius-md);background:var(--astra-surface);color:var(--astra-ink);
+  font:700 .875rem/1.3 var(--astra-font-body);cursor:pointer
+}
+.natal-context-bar button span{font-size:1.4rem;line-height:1}
+.natal-context-content{min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:var(--astra-component-inset)}
 }
