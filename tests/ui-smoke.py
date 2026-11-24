@@ -1135,8 +1135,8 @@ if __name__ == '__main__':
             page.set_viewport_size({'width':393,'height':844})
             page.locator('[data-settings-section="appearance"]').click()
             # Exercise the real registered touch handlers using browser TouchEvents.
-            def swipe_settings(dx,dy):
-                page.locator('#astraSettingsPanel').evaluate("""(target,delta)=>{
+            def swipe_surface(selector,dx,dy):
+                page.locator(selector).evaluate("""(target,delta)=>{
                   const start={x:190,y:250};
                   const touch=(x,y)=>new Touch({identifier:7,target,clientX:x,clientY:y});
                   const send=(name,touches,changedTouches)=>target.dispatchEvent(new TouchEvent(name,
@@ -1144,6 +1144,8 @@ if __name__ == '__main__':
                   const a=touch(start.x,start.y),b=touch(start.x+delta[0],start.y+delta[1]);
                   send('touchstart',[a],[a]);send('touchmove',[b],[b]);send('touchend',[],[b]);
                 }""",[dx,dy])
+            def swipe_settings(dx,dy):
+                swipe_surface('#astraSettingsPanel',dx,dy)
             swipe_settings(-110,5)
             assert page.locator('[data-settings-section="data"]').get_attribute('aria-selected')=='true'
             swipe_settings(110,5)
@@ -1152,6 +1154,12 @@ if __name__ == '__main__':
             assert page.locator('[data-settings-section="appearance"]').get_attribute('aria-selected')=='true'
             swipe_settings(-25,0)
             assert page.locator('[data-settings-section="appearance"]').get_attribute('aria-selected')=='true'
+            # A vertical gesture on the sheet header closes it; the same
+            # gesture inside the body above must never change settings tabs.
+            swipe_surface('.astra-settings-head',0,110)
+            assert not page.locator('#astraSettingsDialog').is_visible()
+            page.locator('#settingsButton').click()
+            page.locator('[data-settings-section="appearance"]').click()
             light_palettes={
                 'classic':{'fire':'#FAB617','air':'#E7F6FD','water':'#00ADEF','earth':'#896B49'},
                 'vivid':{'fire':'#FF3D14','air':'#F7FC35','water':'#159BF2','earth':'#46CD17'},
@@ -1493,6 +1501,22 @@ if __name__ == '__main__':
             page.wait_for_timeout(140)
             assert page.locator('.astra-calendar-month-head h2').inner_text()==initial_month
             assert page.locator('#monthEventsTitle').inner_text()=='Prochains jours avec événements'
+            # Month and week gestures reuse the visible navigation buttons.
+            month_before=page.locator('.astra-calendar-month-head h2').inner_text()
+            swipe_surface('.astra-calendar-board',-110,5)
+            assert page.locator('.astra-calendar-month-head h2').inner_text()!=month_before
+            swipe_surface('.astra-calendar-board',110,5)
+            assert page.locator('.astra-calendar-month-head h2').inner_text()==month_before
+            swipe_surface('.astra-calendar-board',5,-120)
+            assert page.locator('.astra-calendar-month-head h2').inner_text()==month_before
+            page.locator('[data-tab="today"]').click()
+            week_before=page.locator('.astra-week-day.is-selected').get_attribute('data-day')
+            swipe_surface('.astra-week',-110,5)
+            assert page.locator('.astra-week-day.is-selected').get_attribute('data-day')!=week_before
+            swipe_surface('.astra-week',110,5)
+            assert page.locator('.astra-week-day.is-selected').get_attribute('data-day')==week_before
+            page.locator('[data-tab="calendar"]').click()
+            page.locator('.astra-month-phase.new').wait_for()
             month_group_days=page.locator('.astra-event-day-row').evaluate_all("(els)=>els.map(e=>e.dataset.monthOpenDay)")
             assert month_group_days==sorted(set(month_group_days)) and len(month_group_days)<=5
             chosen=page.locator('.astra-month-phase.new').get_attribute('data-month-open-day')

@@ -1192,6 +1192,7 @@
   // The display mode changes presentation only; astronomical positions stay identical.
   // The natal zodiac is independent of the transit zodiac selection.
   let natalSelection=null;
+  let natalTriggerIndex=0;
   const natalDistributionOpen={elements:null,modalities:null};
   // Rebuilding the SVG must preserve where the reader was looking.
   function renderKeepingWheelPosition(){
@@ -1201,9 +1202,13 @@
     const after=$('natalChart')?.querySelector('.natal-wheel-viewport');
     if(after){after.scrollLeft=left;after.scrollTop=top;}
   }
-  function natalChoose(kind,id,restoreFocus=false){
+  function natalChoose(kind,id,restoreFocus=false,trigger=null){
     if(activeTab==='profile')captureBirthForm();
     const same=natalSelection?.kind===kind&&String(natalSelection.id)===String(id);
+    if(trigger&&!trigger.closest('.natal-context-sheet')){
+      const attr=kind==='planet'?'data-natal-body':kind==='house'?'data-natal-house':kind==='transit'?'data-transit-body':kind==='contact'?'data-transit-contact':'data-natal-aspect';
+      natalTriggerIndex=Math.max(0,Array.from($('natalChart')?.querySelectorAll('['+attr+'="'+id+'"]')||[]).filter(item=>!item.closest('.natal-context-sheet')).indexOf(trigger));
+    }
     natalSelection=same?null:{kind,id};
     renderKeepingWheelPosition();
     // A non-modal contextual sheet becomes the reading destination for keyboard users.
@@ -2091,42 +2096,89 @@
       sections[(ix+(e.key==='ArrowRight'?1:-1)+sections.length)%sections.length];
     updateGlobalSettings('[data-settings-section="'+globalSettingsSection+'"]');
   });
-  // Settings swipe: horizontal navigation only, never intercept vertical
-  // scrolling, multi-touch, form fields or the horizontally scrollable table.
-  let settingsSwipe=null;
-  globalSettingsDialog.addEventListener('touchstart',e=>{
-    settingsSwipe=null;
-    if(e.touches.length!==1||!e.target.closest('.astra-settings-body')||
-       e.target.closest('input,textarea,select,label,[contenteditable],.astra-performance-scroll'))return;
-    const t=e.touches[0];
-    settingsSwipe={id:t.identifier,x:t.clientX,y:t.clientY,section:globalSettingsSection,axis:null};
-  },{passive:true});
-  globalSettingsDialog.addEventListener('touchmove',e=>{
-    if(!settingsSwipe)return;
-    if(e.touches.length!==1){settingsSwipe=null;return;}
-    const t=e.touches[0];
-    if(t.identifier!==settingsSwipe.id){settingsSwipe=null;return;}
-    const dx=t.clientX-settingsSwipe.x,dy=t.clientY-settingsSwipe.y;
-    if(!settingsSwipe.axis&&Math.max(Math.abs(dx),Math.abs(dy))>=12){
-      settingsSwipe.axis=Math.abs(dx)>1.5*Math.abs(dy)?'horizontal':'vertical';
+  // Shared touch contract: one finger, locked axis, deliberate displacement.
+  // Scrolling and editable/zoomable regions retain their native behavior.
+  function swipeAxis(dx,dy){
+    if(Math.max(Math.abs(dx),Math.abs(dy))<12)return null;
+    if(Math.abs(dx)>1.5*Math.abs(dy))return 'horizontal';
+    if(Math.abs(dy)>1.5*Math.abs(dx))return 'vertical';
+    return 'ambiguous';
+  }
+  function swipeStep(axis,dx,dy){
+    if(axis==='horizontal'&&Math.abs(dx)>=64&&Math.abs(dx)>1.5*Math.abs(dy))return dx<0?1:-1;
+    if(axis==='vertical'&&dy>=64&&dy>1.5*Math.abs(dx))return 1;
+    return 0;
+  }
+  function bindSwipe(root,resolve){
+    let start=null;
+    root.addEventListener('touchstart',e=>{
+      start=null;
+      if(e.touches.length!==1||e.target.closest('input,textarea,select,label,[contenteditable],.astra-table-scroll,.astra-performance-scroll,.natal-wheel-viewport,.natal-matrix-scroll'))return;
+      const action=resolve(e.target);
+      if(!action)return;
+      const t=e.touches[0];
+      start={...action,id:t.identifier,x:t.clientX,y:t.clientY,axis:null};
+    },{passive:true});
+    root.addEventListener('touchmove',e=>{
+      if(!start)return;
+      if(e.touches.length!==1||e.touches[0].identifier!==start.id||!start.valid()){start=null;return;}
+      const t=e.touches[0],dx=t.clientX-start.x,dy=t.clientY-start.y;
+      start.axis=start.axis||swipeAxis(dx,dy);
+      if(start.axis&&start.axis!==start.expected){start=null;return;}
+      if(start.axis===start.expected&&(start.expected==='horizontal'||dy>0)&&e.cancelable)e.preventDefault();
+    },{passive:false});
+    root.addEventListener('touchcancel',()=>{start=null;},{passive:true});
+    root.addEventListener('touchend',e=>{
+      const gesture=start;start=null;
+      if(!gesture||e.touches.length||!gesture.valid())return;
+      const t=Array.from(e.changedTouches).find(t=>t.identifier===gesture.id);
+      if(!t)return;
+      const dx=t.clientX-gesture.x,dy=t.clientY-gesture.y;
+      const axis=gesture.axis||swipeAxis(dx,dy);
+      if(axis!==gesture.expected)return;
+      const step=swipeStep(axis,dx,dy);
+      if(!step)return;
+      if(e.cancelable)e.preventDefault();
+      gesture.run(step);
+    },{passive:false});
+  }
+  function dismissSwipe(target){
+    if(!window.matchMedia('(max-width:799px)').matches||target.closest('button,a,summary'))return null;
+    const head=target.closest('.astra-personal-dialog-head,.natal-context-bar,.astra-settings-head');
+    if(!head)return null;
+    const close=head.querySelector('[data-personal-close],[data-calendar-sheet-close],[data-close-natal-detail],[data-settings-close]');
+    if(!close)return null;
+    return {expected:'vertical',valid:()=>close.isConnected,run:()=>close.click()};
+  }
+  bindSwipe(globalSettingsDialog,target=>{
+    const dismiss=dismissSwipe(target);if(dismiss)return dismiss;
+    if(!target.closest('.astra-settings-body'))return null;
+    const section=globalSettingsSection;
+    return {expected:'horizontal',valid:()=>globalSettingsDialog.open&&section===globalSettingsSection,run:step=>{
+      const index=SETTINGS_TABS.findIndex(([id])=>id===section),next=SETTINGS_TABS[index+step];
+      if(!next)return;
+      globalSettingsSection=next[0];
+      updateGlobalSettings('[data-settings-section="'+globalSettingsSection+'"]');
+    }};
+  });
+  bindSwipe($('app'),target=>{
+    const dismiss=dismissSwipe(target);if(dismiss)return dismiss;
+    if(globalSettingsDialog.open||calendarSheet||personalEditor!==null||natalSelection||openDetail)return null;
+    const tab=activeTab,day=selected;
+    if(tab==='calendar'&&target.closest('.astra-calendar-board')){
+      return {expected:'horizontal',valid:()=>activeTab===tab&&selected===day&&!calendarSheet&&!personalEditor,
+        run:step=>$('app').querySelector('[data-month="'+step+'"]')?.click()};
     }
-    if(settingsSwipe.axis==='horizontal'&&e.cancelable)e.preventDefault();
-  },{passive:false});
-  globalSettingsDialog.addEventListener('touchcancel',()=>{settingsSwipe=null;},{passive:true});
-  globalSettingsDialog.addEventListener('touchend',e=>{
-    const start=settingsSwipe;settingsSwipe=null;
-    if(!start||start.axis==='vertical'||start.section!==globalSettingsSection||e.touches.length)return;
-    const t=Array.from(e.changedTouches).find(t=>t.identifier===start.id);
-    if(!t)return;
-    const dx=t.clientX-start.x,dy=t.clientY-start.y;
-    if(Math.abs(dx)<64||Math.abs(dx)<=1.5*Math.abs(dy))return;
-    if(e.cancelable)e.preventDefault();
-    const index=SETTINGS_TABS.findIndex(([id])=>id===start.section);
-    const next=SETTINGS_TABS[index+(dx<0?1:-1)];
-    if(!next)return;
-    globalSettingsSection=next[0];
-    updateGlobalSettings('[data-settings-section="'+globalSettingsSection+'"]');
-  },{passive:false});
+    if(tab==='today'&&target.closest('.astra-week')){
+      return {expected:'horizontal',valid:()=>activeTab===tab&&selected===day,
+        run:step=>$('app').querySelector('[data-week-shift="'+step*7+'"]')?.click()};
+    }
+    if(tab==='journal'&&target.closest('#journalEditorTitle')){
+      return {expected:'horizontal',valid:()=>activeTab===tab&&selected===day,
+        run:step=>$('app').querySelector('[data-offset="'+step+'"]')?.click()};
+    }
+    return null;
+  });
   document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.tab)));
   // Samples user interactions from click dispatch to the next animation frame.
   // The callback is before paint: this is a frame-delay proxy, not paint latency.
@@ -2227,9 +2279,11 @@
       natalSelection=null;renderKeepingWheelPosition();
       if(previous){
         const attr=previous.kind==='planet'?'data-natal-body':previous.kind==='house'?'data-natal-house':
-          previous.kind==='transit'?'data-transit-body':'data-natal-aspect';
-        const targets=$('natalChart')?.querySelectorAll('['+attr+'="'+previous.id+'"]')||[];
-        for(const item of targets){if(item.getClientRects().length){item.focus({preventScroll:true});break;}}
+          previous.kind==='transit'?'data-transit-body':previous.kind==='contact'?'data-transit-contact':'data-natal-aspect';
+        const targets=Array.from($('natalChart')?.querySelectorAll('['+attr+'="'+previous.id+'"]')||[]);
+        const target=targets[natalTriggerIndex];
+        if(target?.getClientRects().length)target.focus({preventScroll:true});
+        else for(const item of targets){if(item.getClientRects().length){item.focus({preventScroll:true});break;}}
       }
       return;
     }
@@ -2285,11 +2339,11 @@
       $('app').querySelector('[data-transit-range="'+a.transitRange+'"]')?.focus({preventScroll:true});
       return;
     }
-    if(a.transitContact){natalChoose('contact',a.transitContact,event.detail===0);return;}
-    if(a.transitBody){natalChoose('transit',a.transitBody,event.detail===0);return;}
-    if(a.natalAspect){natalChoose('aspect',a.natalAspect,event.detail===0);return;}
-    if(a.natalBody){natalChoose('planet',a.natalBody,event.detail===0);return;}
-    if(a.natalHouse){natalChoose('house',Number(a.natalHouse),event.detail===0);return;}
+    if(a.transitContact){natalChoose('contact',a.transitContact,event.detail===0,button);return;}
+    if(a.transitBody){natalChoose('transit',a.transitBody,event.detail===0,button);return;}
+    if(a.natalAspect){natalChoose('aspect',a.natalAspect,event.detail===0,button);return;}
+    if(a.natalBody){natalChoose('planet',a.natalBody,event.detail===0,button);return;}
+    if(a.natalHouse){natalChoose('house',Number(a.natalHouse),event.detail===0,button);return;}
     if(a.cityPreset!==undefined&&a.cityKind==='birth'){
       chooseCityPreset(a.cityKind,a.cityPreset);return;
     }
@@ -2406,9 +2460,9 @@
     const item=event.target.closest('[role="button"][data-natal-body], [role="button"][data-natal-house], [role="button"][data-transit-body]');
     if(!item)return;
     event.preventDefault();
-    if(item.dataset.transitBody)natalChoose('transit',item.dataset.transitBody,true);
-    else if(item.dataset.natalBody)natalChoose('planet',item.dataset.natalBody,true);
-    else natalChoose('house',Number(item.dataset.natalHouse),true);
+    if(item.dataset.transitBody)natalChoose('transit',item.dataset.transitBody,true,item);
+    else if(item.dataset.natalBody)natalChoose('planet',item.dataset.natalBody,true,item);
+    else natalChoose('house',Number(item.dataset.natalHouse),true,item);
   });
   $('app').addEventListener('input',event=>{
     if(event.target.closest('#personalEventForm'))capturePersonalDraft();

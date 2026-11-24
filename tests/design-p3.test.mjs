@@ -71,3 +71,18 @@ test('P3 does not replace solar ribbon with separately painted day cards',()=>{
   assert.match(read('astra-p4-wheel.css'),/zodiac-element-fire/);
   assert.match(read('astra-p4-wheel.css'),/zodiac-element-water/);
 });
+
+test('Shared touch direction and minimum displacement reject accidental gestures',()=>{
+ const source=app.slice(app.indexOf('  function swipeAxis('),app.indexOf('  function bindSwipe('));
+ const {axis,step}=new Function(source+'return {axis:swipeAxis,step:swipeStep};')();
+ for(const [dx,dy,expected,direction] of [
+  [5,5,null,0],[-25,0,'horizontal',0],[-110,5,'horizontal',1],
+  [110,5,'horizontal',-1],[80,80,'ambiguous',0],
+  [5,110,'vertical',1],[5,-110,'vertical',0],[63,0,'horizontal',0],
+ ]){assert.equal(axis(dx,dy),expected);assert.equal(step(expected,dx,dy),direction);}
+ assert.match(app,/bindSwipe\(globalSettingsDialog/);
+ assert.match(app,/bindSwipe\(\$\('app'\)/);
+ assert.match(app,/touchcancel/);
+ assert.match(app,/\.natal-wheel-viewport/);
+ assert.match(app,/previous\.kind==='contact'\?'data-transit-contact'/);
+});
