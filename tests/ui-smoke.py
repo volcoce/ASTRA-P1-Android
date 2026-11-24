@@ -1412,7 +1412,7 @@ if __name__ == '__main__':
             assert 180<=widths['width']<=widths['client']+2,widths
             assert page.evaluate("document.documentElement.scrollWidth")<=322
             assert page.locator('#birthForm').count()==0
-            # P0 visual guardrails at 320px across all four destinations.
+            # P0 visual guardrails at 320px across the three main destinations.
             for tab in ('today','calendar','profile'):
                 page.locator(f'[data-tab="{tab}"]').click()
                 assert page.evaluate("document.documentElement.scrollWidth") <= 322, tab
@@ -1769,6 +1769,10 @@ if __name__ == '__main__':
             page.locator('#calendarDayDialog [data-personal-new]').click()
             assert page.locator('#personalEventDialog[open]').count()==1
             page.locator('#personalTitle').fill('Séjour sur trois jours')
+            page.locator('[data-personal-close]').click()
+            page.locator('.calendar .day[data-day="2026-11-23"]').click()
+            page.locator('#calendarDayDialog [data-personal-new]').click()
+            assert page.locator('#personalTitle').input_value()=='Séjour sur trois jours'
             page.locator('#personalStart').fill('2026-11-23')
             page.locator('#personalEnd').fill('2026-11-25')
             assert page.locator('#personalAllDay').is_checked()
@@ -1912,6 +1916,20 @@ if __name__ == '__main__':
             assert 'Une belle journée de création.' in page.locator('.history-item').first.inner_text()
             assert page.locator('#journalNote').input_value()!='Une belle journée de création.'
             assert page.locator('#journalNote').is_visible()
+            # Unpublished notes survive both date changes and route changes.
+            journal_day=page.locator('#journalEditorTitle').inner_text()
+            page.locator('#journalNote').fill('Brouillon non publié')
+            page.locator('.astra-journal-editor [data-offset="-1"]').click()
+            assert page.locator('#journalEditorTitle').inner_text()!=journal_day
+            assert page.locator('#journalNote').input_value()!='Brouillon non publié'
+            page.locator('.astra-journal-editor [data-offset="1"]').click()
+            assert page.locator('#journalNote').input_value()=='Brouillon non publié'
+            page.locator('[data-tab="today"]').click()
+            page.locator('.astra-day-journal-link[data-goto="journal"]').click()
+            assert page.locator('#journalNote').input_value()=='Brouillon non publié'
+            assert page.evaluate("Object.values(JSON.parse(localStorage.getItem('astra-public-v1')).journalDrafts).some(d=>d.note==='Brouillon non publié')")
+            assert page.evaluate("Object.values(JSON.parse(localStorage.getItem('astra-public-v1')).journal).every(d=>d.note!=='Brouillon non publié')")
+            assert page.locator('.astra-section-stack[aria-label="Sections du journal"]').evaluate('e=>parseFloat(getComputedStyle(e).rowGap)')==16
             page.locator('#journalNote').focus()
             expect(page.locator('.bottom-nav')).to_have_css('visibility','visible')
             page.set_viewport_size({'width':320,'height':480})

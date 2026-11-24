@@ -11,7 +11,7 @@
   const pad = n => String(n).padStart(2, '0');
   const isoDay = date => `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
   const detectedZone = (() => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'; } catch { return 'UTC'; } })();
-  const defaultState = () => ({profile:null, mode:'tropical', natalView:'essential', showNatalDegrees:false, natalZodiac:'tropical', natalAspectFilter:'all', houseSystem:'placidus',wheelLayout:'natal',natalZoom:1,transitDay:isoDay(new Date()),transitTime:'12:00', orb:'auto', filter:'all', appearance:'system', elementPalette:'vivid', journal:{},calendarEvents:[]});
+  const defaultState = () => ({profile:null, mode:'tropical', natalView:'essential', showNatalDegrees:false, natalZodiac:'tropical', natalAspectFilter:'all', houseSystem:'placidus',wheelLayout:'natal',natalZoom:1,transitDay:isoDay(new Date()),transitTime:'12:00', orb:'auto', filter:'all', appearance:'system', elementPalette:'vivid', journal:{},journalDrafts:{},calendarEvents:[]});
   const moodSymbols = ['','☹','◔','◯','◕','☺'];
   const themes = {relations:'Relations',travail:'Travail',sante:'Bien-être',creation:'Créativité',repos:'Repos',autre:'Autre'};
   const planets = {Sun:'Soleil',Moon:'Lune',Mercury:'Mercure',Venus:'Vénus',Mars:'Mars',Jupiter:'Jupiter',Saturn:'Saturne',Uranus:'Uranus',Neptune:'Neptune',Pluto:'Pluton'};
@@ -99,7 +99,7 @@
       natalZoom:[1,1.25,1.5,1.75,2].includes(raw.natalZoom)?raw.natalZoom:1,
       transitDay:typeof raw.transitDay==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(raw.transitDay)?raw.transitDay:isoDay(new Date()),
       transitTime:typeof raw.transitTime==='string'&&/^([01]\d|2[0-3]):[0-5]\d$/.test(raw.transitTime)?raw.transitTime:'12:00',orb:'auto',
-      filter:Object.hasOwn(filtersMap,raw.filter)?raw.filter:'all',appearance:['system','light','dark'].includes(raw.appearance)?raw.appearance:'system',elementPalette:['classic','vivid'].includes(raw.elementPalette)?raw.elementPalette:'vivid',journal:sanitizeJournal(raw.journal),calendarEvents:sanitizeCalendarEvents(raw.calendarEvents)};
+      filter:Object.hasOwn(filtersMap,raw.filter)?raw.filter:'all',appearance:['system','light','dark'].includes(raw.appearance)?raw.appearance:'system',elementPalette:['classic','vivid'].includes(raw.elementPalette)?raw.elementPalette:'vivid',journal:sanitizeJournal(raw.journal),journalDrafts:sanitizeJournal(raw.journalDrafts),calendarEvents:sanitizeCalendarEvents(raw.calendarEvents)};
   }
   function loadState() { try { return cleanState(JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}')); } catch { return defaultState(); } }
   let state = loadState();
@@ -157,6 +157,15 @@
   let month = new Date(new Date().getFullYear(),new Date().getMonth(),1);
   let calendarSheet=false;
   let personalEditor=null; // 'new' or a saved event ID
+  const personalDrafts=new Map();
+  const personalDraftKey=()=>personalEditor===null?null:personalEditor==='new'?'new:'+selected:personalEditor;
+  function capturePersonalDraft(){
+    const key=personalDraftKey();
+    if(!key||!$('personalEventForm'))return;
+    personalDrafts.set(key,{title:$('personalTitle').value,start:$('personalStart').value,end:$('personalEnd').value,
+      allDay:$('personalAllDay').checked,startTime:$('personalStartTime').value,endTime:$('personalEndTime').value,
+      color:$('personalColor').value,note:$('personalNote').value});
+  }
 
   // Browser-only deep links. The Android shell keeps its native back handler.
   const webRouting = !window.ASTRA_NATIVE_UI &&
@@ -217,8 +226,8 @@
       profileScreen=state.profile?route.screen:'settings';
     }
     natalSelection=null;openDetail=null;pendingDayFocus=null;
-    calendarSheet=false;personalEditor=null;
-    pendingPageFocus=focus&&profileScreen!=='focus';
+    calendarSheet=false;personalEditor=null;calendarInterval=null;todayExpanded=false;
+    pendingPageFocus=focus;
     const afterMonth=month.getFullYear()+'-'+month.getMonth();
     if(!result||afterMonth!==beforeMonth)refresh();
     else render();
@@ -976,8 +985,8 @@
     const editing=personalEditor!=='new';
     const saved=editing?state.calendarEvents.find(e=>e.id===personalEditor):null;
     if(editing&&!saved)return '';
-    const e=saved||{title:'',start:selected,end:selected,allDay:true,
-      startTime:'09:00',endTime:'10:00',color:'blue',note:''};
+    const e={...(saved||{title:'',start:selected,end:selected,allDay:true,
+      startTime:'09:00',endTime:'10:00',color:'blue',note:''}),...personalDrafts.get(personalDraftKey())};
     const title=editing?'Modifier l’événement':'Nouvel événement';
     const field=(id,label,type,value,extra='')=>
       '<label class="astra-personal-field" for="'+id+'"><span>'+label+'</span>'+
@@ -1126,7 +1135,7 @@
   }
   function initDraft() {
     if(journalDraftDate!==selected||!journalDraft){
-      const existing=state.journal[selected]||{};
+      const existing=state.journalDrafts[selected]||state.journal[selected]||{};
       journalDraft={mood:existing.mood??3,energy:existing.energy??3,tags:[...(existing.tags||[])],note:existing.note||''};
       journalDraftDate=selected;
     }
@@ -1134,6 +1143,11 @@
   function captureDraft(){
     initDraft();
     const note=$('journalNote');if(note)journalDraft.note=note.value;
+  }
+  // Drafts are independent of published entries and keyed by civil date.
+  function persistJournalDraft(){
+    state.journalDrafts[selected]={...journalDraft,tags:[...journalDraft.tags]};
+    persist();
   }
   function summary() {
     const end=new Date(selected+'T12:00:00Z');end.setUTCDate(end.getUTCDate()-29);
@@ -1147,14 +1161,14 @@
     initDraft();
     const d=journalDraft;
     const history=Object.entries(state.journal).sort((a,b)=>b[0].localeCompare(a[0])).filter(([day,item])=>!searchTerm||`${day} ${item.note} ${(item.tags||[]).map(t=>themes[t]).join(' ')}`.toLocaleLowerCase('fr').includes(searchTerm.toLocaleLowerCase('fr'))).slice(0,30);
-    return '<button type="button" class="astra-journal-back" data-goto="today">← Retour à Ce jour</button>'+header('Mon journal')+
+    return '<button type="button" class="astra-journal-back" data-goto="today">← Retour à Ce jour</button>'+header('Mon journal')+'<div class="astra-section-stack" aria-label="Sections du journal">'+
       `<section class="card astra-reading-card astra-journal-editor astra-card--emphasis" aria-labelledby="journalEditorTitle"><h2 class="card-title" id="journalEditorTitle">${safe(displayDate(selected))}</h2><div class="actions"><button class="ghost" data-offset="-1">Jour précédent</button><button class="ghost" data-offset="1">Jour suivant</button></div>`+
       `<div class="field"><label>Comment tu te sens ?</label><div class="mood-row" role="group" aria-label="Évaluer son humeur sur cinq niveaux">${[1,2,3,4,5].map(n=>`<button type="button" data-mood="${n}" aria-pressed="${d.mood===n}" aria-label="Humeur ${n} sur 5" class="mood ${d.mood===n?'on':''}"><span class="mood-symbol" aria-hidden="true">${moodSymbols[n]}</span><span>${['','Très bas','Bas','Moyen','Bien','Très bien'][n]}</span></button>`).join('')}</div></div>`+
       `<div class="field"><label for="energyRange">Ton énergie · <output id="energyValue">${d.energy}/5</output></label><input id="energyRange" type="range" min="1" max="5" value="${d.energy}" step="1"></div>`+
       `<fieldset class="tags-field"><legend>Thèmes de la journée (facultatif)</legend><div class="tag-buttons">${Object.entries(themes).map(([code,label])=>`<button type="button" data-tag="${code}" aria-pressed="${d.tags.includes(code)}" class="tag-button ${d.tags.includes(code)?'on':''}">${label}</button>`).join('')}</div></fieldset>`+
       `<div class="field"><label for="journalNote">Quelques mots sur ta journée</label><textarea id="journalNote" maxlength="10000" spellcheck="true" placeholder="Qu’as-tu vécu ou ressenti aujourd’hui ?">${safe(d.note)}</textarea></div><button class="primary full" data-save="1">Enregistrer ma journée</button>${state.journal[selected]?'<button class="subnav danger" data-delete-note="1">Supprimer cette note</button>':''}</section>`+
       `<section class="card astra-reading-card astra-journal-summary" aria-labelledby="journalSummaryTitle"><h2 class="card-title" id="journalSummaryTitle">Ton mois en chiffres</h2>${summary()}</section>`+
-      `<section class="card astra-reading-card astra-journal-history" aria-labelledby="journalHistoryTitle"><h2 class="card-title" id="journalHistoryTitle">Historique</h2><div class="field"><label for="journalSearch">Rechercher dans mes notes</label><input id="journalSearch" type="search" value="${safe(searchTerm)}" placeholder="Mot-clé, date ou thème"></div>${history.map(([day,item])=>`<div class="history-item"><b>${safe(day)} · humeur ${item.mood}/5</b>${item.energy?` <small>· énergie ${item.energy}/5</small>`:''}<p>${safe(item.note)}</p>${(item.tags||[]).map(t=>`<span class="tag-outline small-tag">${safe(themes[t]||t)}</span>`).join('')}<button data-day="${day}">Consulter</button></div>`).join('')||'<p class="muted">Aucune note correspondante.</p>'}</section>`;
+      `<section class="card astra-reading-card astra-journal-history" aria-labelledby="journalHistoryTitle"><h2 class="card-title" id="journalHistoryTitle">Historique</h2><div class="field"><label for="journalSearch">Rechercher dans mes notes</label><input id="journalSearch" type="search" value="${safe(searchTerm)}" placeholder="Mot-clé, date ou thème"></div>${history.map(([day,item])=>`<div class="history-item"><b>${safe(day)} · humeur ${item.mood}/5</b>${item.energy?` <small>· énergie ${item.energy}/5</small>`:''}<p>${safe(item.note)}</p>${(item.tags||[]).map(t=>`<span class="tag-outline small-tag">${safe(themes[t]||t)}</span>`).join('')}<button data-day="${day}">Consulter</button></div>`).join('')||'<p class="muted">Aucune note correspondante.</p>'}</section></div>`;
   }
   const zodiacSymbols=['♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓'];
   const zodiacNames=['Bélier','Taureau','Gémeaux','Cancer','Lion','Vierge',
@@ -1947,6 +1961,7 @@
   function go(tab) {
     if(tab==='month')tab='calendar';
     if(!['today','calendar','journal','profile'].includes(tab))return;
+    if($('birthForm'))captureBirthForm();
     // Ce jour is anchored to the present. Calendar remains the date-browsing destination.
     let needsRefresh=false;
     if(tab==='today'){
@@ -1958,7 +1973,7 @@
       todayExpanded=false;
     }
     activeTab=tab;
-    calendarSheet=false;personalEditor=null;
+    natalSelection=null;calendarInterval=null;calendarSheet=false;personalEditor=null;
     pendingPageFocus=true;
     if(tab==='profile')profileScreen=state.profile?'overview':'settings';
     openDetail=null;
@@ -2007,7 +2022,7 @@
     if(openDetail){openDetail=null;render();return true;}
     if(activeTab==='profile'&&profileScreen!=='overview'&&state.profile){
       captureBirthForm();profileScreen='overview';natalSelection=null;
-      render();$('app').querySelector('h1.page-title')?.focus({preventScroll:true});
+      render();writeBrowserRoute('replace');$('app').querySelector('h1.page-title')?.focus({preventScroll:true});
       return true;
     }
     if(activeTab!=='today'){go('today');return true;}
@@ -2283,7 +2298,7 @@
       const item=state.calendarEvents.find(e=>e.id===a.personalDelete);
       if(!item||!confirm('Supprimer « '+item.title+' » ?'))return;
       state.calendarEvents=state.calendarEvents.filter(e=>e.id!==item.id);
-      persist();personalEditor=null;render();show('Événement supprimé');return;
+      personalDrafts.delete(personalDraftKey());persist();personalEditor=null;render();show('Événement supprimé');return;
     }
     if(a.calendarSheetClose){calendarSheet=false;calendarInterval=null;pendingDayFocus=selected;render();return;}
     if(a.goto){go(a.goto);return;}
@@ -2318,14 +2333,14 @@
       return;
     }
     if(a.close){const closing=openDetail;openDetail=null;render();const index=renderedEvents.indexOf(closing);if(index>=0)$('app').querySelector('[data-event="'+index+'"]')?.focus({preventScroll:true});return;}
-    if(a.prompt){journalDraft=null;initDraft();journalDraft.note=[journalDraft.note,a.prompt+'\n'].filter(Boolean).join('\n').trimStart();go('journal');return;}
-    if(a.mood){captureDraft();journalDraft.mood=Number(a.mood);render();return;}
-    if(a.tag){captureDraft();const index=journalDraft.tags.indexOf(a.tag);if(index<0)journalDraft.tags.push(a.tag);else journalDraft.tags.splice(index,1);render();return;}
-    if(a.save){captureDraft();state.journal[selected]={mood:journalDraft.mood,energy:journalDraft.energy,tags:[...journalDraft.tags],note:journalDraft.note.trim(),updatedAt:new Date().toISOString()};persist();show('Journal enregistré');render();return;}
-    if(a['deleteNote'] && confirm('Supprimer cette journée du journal ?')){delete state.journal[selected];persist();journalDraft=null;render();show('Note supprimée');return;}
+    if(a.prompt){initDraft();journalDraft.note=[journalDraft.note,a.prompt+'\n'].filter(Boolean).join('\n').trimStart().slice(0,10000);persistJournalDraft();go('journal');return;}
+    if(a.mood){captureDraft();journalDraft.mood=Number(a.mood);persistJournalDraft();render();return;}
+    if(a.tag){captureDraft();const index=journalDraft.tags.indexOf(a.tag);if(index<0)journalDraft.tags.push(a.tag);else journalDraft.tags.splice(index,1);persistJournalDraft();render();return;}
+    if(a.save){captureDraft();state.journal[selected]={mood:journalDraft.mood,energy:journalDraft.energy,tags:[...journalDraft.tags],note:journalDraft.note.trim(),updatedAt:new Date().toISOString()};delete state.journalDrafts[selected];journalDraft=null;persist();show('Journal enregistré');render();return;}
+    if(a['deleteNote'] && confirm('Supprimer cette journée du journal ?')){delete state.journal[selected];delete state.journalDrafts[selected];persist();journalDraft=null;render();show('Note supprimée');return;}
     if(a.export){const data={format:'astra-public-v1',exportedAt:new Date().toISOString(),...state};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='ASTRA-sauvegarde.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1500);return;}
     if(a.import){$('importFile')?.click();return;}
-    if(a.clear&&confirm('Effacer le thème natal et toutes les notes locales ?')){localStorage.removeItem(STORAGE_KEY);state=defaultState();applyAppearance();applyElementPalette();diagnosticsEnabled=false;performanceSamples.clear();cache.clear();natalCache.clear();journalDraft=null;birthDraft=null;placeSearch={options:[],selected:null,loading:false,error:'',needFold:false,requestId:placeSearch.requestId+1,open:false,active:-1};openDetail=null;refresh();updateGlobalSettings('[data-clear]');show('Données supprimées');}
+    if(a.clear&&confirm('Effacer le thème natal, les notes locales et les brouillons ?')){localStorage.removeItem(STORAGE_KEY);state=defaultState();applyAppearance();applyElementPalette();diagnosticsEnabled=false;performanceSamples.clear();cache.clear();natalCache.clear();journalDraft=null;personalDrafts.clear();birthDraft=null;placeSearch={options:[],selected:null,loading:false,error:'',needFold:false,requestId:placeSearch.requestId+1,open:false,active:-1};openDetail=null;refresh();updateGlobalSettings('[data-clear]');show('Données supprimées');}
   });
   $('app').addEventListener('cancel',event=>{
     if(event.target.id==='personalEventDialog'){
@@ -2381,12 +2396,14 @@
     else natalChoose('house',Number(item.dataset.natalHouse),true);
   });
   $('app').addEventListener('input',event=>{
+    if(event.target.closest('#personalEventForm'))capturePersonalDraft();
+    if(event.target.id==='journalNote'){captureDraft();persistJournalDraft();return;}
     if(event.target.id==='personalAllDay'){
       const fields=$('personalTimeFields');
       if(fields)fields.hidden=event.target.checked;
       return;
     }
-    if(event.target.id==='energyRange'){initDraft();journalDraft.energy=Number(event.target.value);$('energyValue').textContent=journalDraft.energy+'/5';}
+    if(event.target.id==='energyRange'){initDraft();journalDraft.energy=Number(event.target.value);persistJournalDraft();$('energyValue').textContent=journalDraft.energy+'/5';}
     if(event.target.id==='birthCity'){
       clearValidationError('birthCity');
       const d=draft();d.city=event.target.value;
@@ -2437,10 +2454,12 @@
     },120);
   });
   document.addEventListener('change',async event=>{
+    if(event.target.closest('#personalEventForm'))capturePersonalDraft();
     if(event.target.id==='astraCalendarDatePicker'){
       const day=event.target.value;
-      if(!/^\d{4}-\d{2}-\d{2}$/.test(day))return;
-      $('app').querySelector('[data-day="'+day+'"]')?.click();return;
+      if(!validRouteDay(day))return;
+      calendarInterval=null;calendarSheet=true;personalEditor=null;pendingDayFocus=null;
+      selectDay(day);return;
     }
     if(event.target.id==='transitDay'||event.target.id==='transitTime'){
       captureBirthForm();
@@ -2468,8 +2487,8 @@
         const file=event.target.files[0];if(file.size>2000000)throw Error('Sauvegarde trop volumineuse');
         const backup=JSON.parse(await file.text());if(backup.format!=='astra-public-v1')throw Error('Format non reconnu');
         if(backup.profile)E.validateProfile(backup.profile);
-        if(!confirm('Remplacer les données locales par la sauvegarde ?'))return;
-        state=cleanState(backup);applyAppearance();applyElementPalette();diagnosticsEnabled=false;performanceSamples.clear();journalDraft=null;birthDraft=null;placeSearch={options:[],selected:null,loading:false,error:'',needFold:false,requestId:placeSearch.requestId+1,open:false,active:-1};openDetail=null;cache.clear();natalCache.clear();persist();refresh();updateGlobalSettings('[data-import]');show('Sauvegarde importée');
+        if(!confirm('Remplacer les données locales et les brouillons par la sauvegarde ?'))return;
+        state=cleanState(backup);applyAppearance();applyElementPalette();diagnosticsEnabled=false;performanceSamples.clear();journalDraft=null;personalDrafts.clear();birthDraft=null;placeSearch={options:[],selected:null,loading:false,error:'',needFold:false,requestId:placeSearch.requestId+1,open:false,active:-1};openDetail=null;cache.clear();natalCache.clear();persist();refresh();updateGlobalSettings('[data-import]');show('Sauvegarde importée');
       } catch(err){show('Import impossible : '+(err?.message||'Erreur'));}
     }
   });
@@ -2504,7 +2523,7 @@
         endTime:allDay?'':endTime,color,note:note.slice(0,3000)};
       if(existing)state.calendarEvents=state.calendarEvents.map(item=>item.id===id?entry:item);
       else state.calendarEvents.push(entry);
-      persist();personalEditor=null;calendarSheet=false;
+      personalDrafts.delete(personalDraftKey());persist();personalEditor=null;calendarSheet=false;
       const [y,m]=start.split('-').map(Number);
       selected=start;
       if(month.getFullYear()!==y||month.getMonth()!==m-1){
