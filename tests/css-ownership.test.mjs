@@ -480,3 +480,43 @@ test('Calendar help and display options live exclusively in global settings',()=
  assert.equal((app.match(/Options d’affichage/g)||[]).length,1);
  assert.match(app,/event\.target\.id==='eventFilter'\)\{state\.filter=event\.target\.value;persist\(\);openDetail=null;render\(\)/);
 });
+
+test('P1: dialog and personal form have a canonical shared owner',()=>{
+ const shared=read('astra-components.css');
+ const ast=postcss.parse(shared);
+ for(const selector of ['.astra-personal-dialog','.astra-personal-form','.astra-personal-field','.astra-personal-close','.astra-table-scroll','.natal-context-bar']){
+  let found=false;ast.walkRules(r=>{if(r.selector===selector)found=true;});
+  assert.ok(found,selector+' missing from shared components');
+ }
+ for(const file of ['personal-calendar.css','astra-p2-navigation.css','astra-p3-accessibility.css']){
+  const parsed=postcss.parse(read(file));
+  parsed.walkRules(r=>{
+   assert.notEqual(r.selector,'.astra-personal-dialog',file+' redeclares dialog shell');
+   assert.notEqual(r.selector,'.astra-personal-form',file+' redeclares form shell');
+  });
+ }
+ assert.match(read('app.js'),/class="natal-positions astra-table-scroll natal-position-table/);
+ assert.match(read('app.js'),/class="astra-performance-scroll astra-table-scroll"/);
+});
+
+test('Shared native dialogs retain motion preference and landscape geometry',()=>{
+ const ast=postcss.parse(read('astra-components.css'));
+ const dialogs='.astra-personal-dialog[open],.astra-settings-dialog[open]';
+ function declaration(media,selector,property){
+  const values=[];
+  ast.walkAtRules('media',rule=>{
+   if(rule.params!==media)return;
+   rule.walkRules(selectorRule=>{
+    if(selectorRule.selector!==selector)return;
+    selectorRule.walkDecls(property,d=>values.push(d.value));
+   });
+  });
+  assert.equal(values.length,1,media+' '+selector+' '+property);
+  return values[0];
+ }
+ assert.match(declaration('(prefers-reduced-motion:no-preference)',dialogs,'animation'),/^astra-dialog-in /);
+ assert.equal(declaration('(prefers-reduced-motion:reduce)',dialogs,'animation'),'none');
+ assert.equal(declaration('(orientation:landscape) and (max-height:500px)',
+   '.astra-personal-dialog,.astra-settings-dialog','max-height'),
+   'min(95dvh,calc(100dvh - var(--astra-safe-top)))');
+});

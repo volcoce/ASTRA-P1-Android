@@ -1637,7 +1637,7 @@
         (showDegrees?'<span class="position-degree">'+(uncertain?'≈ ':'')+degree+'</span>':'')+
         (h?'<span class="position-house">'+(roman[houseNumber]||'—')+'</span>':'')+'</button>';
     }).join('');
-    const planetTable='<div class="natal-positions natal-position-table'+(showDegrees?' has-degrees':'')+(h?' has-houses':'')+'" role="region" aria-label="Positions planétaires" tabindex="0">'+
+    const planetTable='<div class="natal-positions astra-table-scroll natal-position-table'+(showDegrees?' has-degrees':'')+(h?' has-houses':'')+'" role="region" aria-label="Positions planétaires" tabindex="0">'+
       '<div class="natal-position-heading" aria-hidden="true"><span>Planète</span><span></span><span>Signe</span>'+
       (showDegrees?'<span>Degrés</span>':'')+(h?'<span>Maison</span>':'')+'</div>'+bodyButtons+'</div>'+
       '<p class="natal-position-legend"><span>R</span> — rétrograde'+(uncertain?' · Positions indicatives à midi.':'')+'</p>';
@@ -1810,7 +1810,7 @@
       (diagnosticsEnabled?'<button type="button" class="ghost" data-diagnostics-refresh="1">Actualiser</button>'+
         '<button type="button" class="ghost" data-diagnostics-reset="1">Réinitialiser</button>':'')+'</div>'+
       (diagnosticsEnabled?(rows.length?
-        '<div class="astra-performance-scroll" role="region" tabindex="0" aria-label="Mesures de performance">'+
+        '<div class="astra-performance-scroll astra-table-scroll" role="region" tabindex="0" aria-label="Mesures de performance">'+
         '<table><thead><tr><th scope="col">Opération</th><th scope="col">N</th>'+
         '<th scope="col">Moy.</th><th scope="col">P95</th><th scope="col">Max.</th></tr></thead><tbody>'+
         rows.map(row=>'<tr><th scope="row">'+safe(row.label)+'</th><td>'+row.count+
@@ -2017,8 +2017,8 @@
       $('app').querySelector('[data-close-natal-detail]')?.click();
       return true;
     }
-    if(personalEditor!==null){personalEditor=null;render();return true;}
-    if(calendarSheet){calendarSheet=false;calendarInterval=null;render();return true;}
+    if(personalEditor!==null){personalEditor=null;pendingDayFocus=selected;render();return true;}
+    if(calendarSheet){calendarSheet=false;calendarInterval=null;pendingDayFocus=selected;render();return true;}
     if(openDetail){openDetail=null;render();return true;}
     if(activeTab==='profile'&&profileScreen!=='overview'&&state.profile){
       captureBirthForm();profileScreen='overview';natalSelection=null;

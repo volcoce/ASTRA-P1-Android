@@ -175,7 +175,7 @@
   .period-detail,.natal-contact-section .natal-contact-list){
   background:var(--astra-secondary-surface);border-color:var(--astra-rule);color:var(--astra-ink)
 }
-:root[data-astra-theme="dark"] :is(.natal-focus,.natal-context-sheet){background:var(--astra-paper)}
+:root[data-astra-theme="dark"] .natal-focus{background:var(--astra-paper)}
 :root[data-astra-theme="dark"] :is(.natal-context-bar,.natal-focus-header,
   .natal-focus-footer){color:var(--astra-ink)}
 :root[data-astra-theme="dark"] :is(.natal-focus-header h2,
