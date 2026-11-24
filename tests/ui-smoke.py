@@ -1841,9 +1841,15 @@ if __name__ == '__main__':
             assert page.locator('.astra-day-hero').count()==1
             page.locator('[data-tab="calendar"]').click()
             page.locator('.calendar .day.moon-full').click()
-            page.locator('#calendarDayDialog [data-event]').first.click(timeout=2000)
-            assert page.locator('#detailPanel').count()==1
-            assert audit_disclosures('event-detail', '#detailPanel')>=2
+            # Full Moon has only the astronomical disclosure; an aspect can
+            # additionally have an interpretation disclosure. Select the phase
+            # explicitly, rather than relying on the order of the day's events.
+            page.locator('#calendarDayDialog [data-event].event-kind-moon-full').click()
+            detail=page.locator('#detailPanel.event-kind-moon-full')
+            expect(detail).to_be_visible()
+            expect(detail.locator('.astra-event-disclosure')).to_have_count(1)
+            expect(detail.locator('.astra-event-technical')).to_have_count(1)
+            assert audit_disclosures('event-detail', '#detailPanel')==1
             assert 'Lecture astrologique' in page.locator('#detailPanel').inner_text()
             assert page.locator('#detailPanel .astra-event-facts').count()==1
             assert page.locator('#detailPanel .astra-event-technical').count()==1
@@ -1867,7 +1873,7 @@ if __name__ == '__main__':
                 assert spacing['summary']['left']>=14,(width,spacing)
                 assert spacing['summary']['right']>=14,(width,spacing)
                 assert spacing['body']['left']>=14,(width,spacing)
-                assert audit_disclosures('detail-'+str(width), '#detailPanel')>=2
+                assert audit_disclosures('detail-'+str(width), '#detailPanel')==1
                 assert spacing['body']['right']>=14,(width,spacing)
                 assert spacing['factsOffset']>=14,(width,spacing)
                 assert page.evaluate('document.documentElement.scrollWidth')<=width+2,(width,spacing)
@@ -1877,7 +1883,7 @@ if __name__ == '__main__':
                     capture('event-disclosure-padded-desktop-1280')
             page.set_viewport_size({'width':320,'height':730})
             page.locator('#detailPanel .astra-event-technical > summary').click()
-            assert 'Référence horaire' in page.locator('#detailPanel').text_content()
+            assert 'Référence horaire' in page.locator('#detailPanel .astra-event-facts').text_content()
             assert page.locator('[data-detail-step]').count()==0
             page.get_by_role('button',name='Noter dans mon journal').click()
             assert page.locator('#journalNote').count()==1
