@@ -855,7 +855,7 @@ if __name__ == '__main__':
             assert page.locator('.natal-home').count()==1
             page.locator('[data-profile-screen="explore"]').click()
             assert page.locator('.natal-explore').count()==1
-            assert page.locator('h1.page-title').inner_text()=='Comprendre mon thème'
+            assert page.locator('h1.page-title').inner_text()=='Explorer les positions'
             assert page.locator('.natal-explore .card-title').filter(has_text='Explorer mon thème').count()==0
             capture('explore-393')
             assert page.locator('.natal-explore-toolbar .natal-back').count()==1
@@ -1504,10 +1504,8 @@ if __name__ == '__main__':
             page.locator('.astra-month-metrics button[data-goto="journal"]').click()
             assert page.locator('#journalNote').count()==1
             page.locator('.astra-journal-back').click()
-            assert page.locator('[data-tab="today"]').get_attribute('aria-current')=='page'
-            assert page.locator('.astra-week-day.is-selected').get_attribute('data-day')==page.evaluate(
-                "new Date().getFullYear()+'-'+String(new Date().getMonth()+1).padStart(2,'0')+'-'+String(new Date().getDate()).padStart(2,'0')"
-            )
+            assert page.locator('[data-tab="calendar"]').get_attribute('aria-current')=='page'
+            assert page.locator('.calendar .day.selected').get_attribute('data-day')==chosen
             # Reproduce the confusing case: Taurus at noon, ingress later,
             # and Full Moon in Gemini that evening. All are simultaneous truths
             # about different instants, never conflicting labels.

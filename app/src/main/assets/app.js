@@ -221,6 +221,7 @@
       const [y,m]=selected.split('-').map(Number);
       month=new Date(y,m-1,1);
     }
+    if(route.tab==='journal'&&activeTab!=='journal')journalOrigin={tab:activeTab==='calendar'?'calendar':'today',day:selected};
     activeTab=route.tab;
     if(activeTab==='profile'){
       profileScreen=state.profile?route.screen:'settings';
@@ -236,6 +237,7 @@
   }
   // The home feed is a glanceable overview, with detail revealed on request.
   let todayExpanded = false;
+  let journalOrigin=null;
   let calendarInterval = null; // Only shown when a multi-day event bar is selected.
   let transitRange='all';
   let result = null, error='', busy=false, calcToken=0, openDetail=null, journalDraft=null, journalDraftDate='', searchTerm='';
@@ -759,7 +761,7 @@
     }
     const raw=result.days?.[selected];
     const day=raw?{active:raw.active||[],exact:raw.exact||[],sky:raw.sky||[]}:classify(null);
-    const events=dayEvents(day),active=day.active.slice(0,8);
+    const events=dayEvents(day),active=day.active;
     // Daily sky is measured at local noon, independently of the natal place.
     // Never interpolate a lunar sign from the phase angle.
     // The monthly ephemerides use the birth-profile timezone for civil-day
@@ -822,9 +824,9 @@
     const initialLimit=3,remaining=events.length-initialLimit;
     const displayed=todayExpanded?events:events.slice(0,initialLimit);
     return header(isCurrent?'Ce jour':'Le ciel du '+new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'long',timeZone:'UTC'}).format(new Date(selected+'T12:00:00Z')))+
-      weekStrip()+birthTimeWarning()+
+      weekStrip()+(!isCurrent?'<button type="button" class="astra-back-today" data-reset-today="1">Revenir à aujourd’hui</button>':'')+birthTimeWarning()+
       '<section class="astra-day-hero" aria-label="Ciel lunaire de cette date">'+
-        '<div class="astra-day-hero-copy"><p class="astra-hero-kicker">LE CIEL DU '+safe(new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'long',timeZone:'UTC'}).format(new Date(selected+'T12:00:00Z')).toLocaleUpperCase('fr-FR'))+'</p>'+
+        '<div class="astra-day-hero-copy">'+(isCurrent?'<p class="astra-hero-kicker">'+safe(displayDate(selected))+'</p>':'')+
         '<div class="astra-hero-moon"><span class="astra-hero-moon-icon" aria-hidden="true">'+moonPhaseIcon(sky?.moonPhase,'hero')+'</span>'+
         '<div class="astra-hero-moon-copy"><h2 class="astra-moon-title" aria-label="'+safe(moonHeadingLabel)+'">'+moonHeading+'</h2>'+
         '<p class="astra-moon-phase">'+moonSubtitle+'</p></div></div>'+
@@ -832,13 +834,10 @@
         furtherIngresses+phaseHighlights+
         solarDayBand(sky?.sunLongitude)+'</div>'+
       '</section>'+status()+
-      '<button type="button" class="astra-day-journal-link" data-goto="journal">'+
-        '<span aria-hidden="true">✎</span> '+(entry?'Relire mes notes':'Noter cette journée')+
-        '<span aria-hidden="true">›</span></button>'+
       '<section class="astra-feed" id="todayEvents" aria-labelledby="todayEventsTitle">'+
         '<div class="astra-event-list-card">'+
           '<div class="astra-event-list-head"><h2 id="todayEventsTitle">Événements du jour</h2>'+
-          '<p>'+safe(displayDate(selected))+' · '+count+' '+(count===1?'événement':'événements')+'</p></div>'+
+          '<p>'+count+' '+(count===1?'événement':'événements')+'</p></div>'+
           '<div class="astra-event-feed astra-event-list-rows" id="todayEventsList">'+
             (displayed.map(e=>row(e,true)).join('')||'<p class="astra-empty">Aucun événement exact ce jour-là.</p>')+
           '</div>'+
@@ -851,9 +850,10 @@
         '<div class="astra-disclosure-body">'+
         '<p>Angles entre les planètes présents à midi, sans événement nécessairement exact.</p>'+
         '<div class="astra-event-feed">'+(active.map(e=>row({...e,type:'active'})).join('')||'<p class="astra-empty">Aucun aspect calculé à midi.</p>')+'</div>'+
-        (day.active.length>8?'<p class="tiny">Huit aspects affichés sur '+day.active.length+'. Consulte le calendrier pour les autres.</p>':'')+
         '</div></details>'+
-      (!isCurrent?'<button type="button" class="astra-back-today" data-reset-today="1">Revenir à aujourd’hui</button>':'')+
+      '<button type="button" class="astra-day-journal-link" data-goto="journal">'+
+        '<span aria-hidden="true">✎</span> '+(entry?'Relire mes notes':'Noter cette journée')+
+        '<span aria-hidden="true">›</span></button>'+
       detailView();
   }
   function monthOverview() {
@@ -900,11 +900,6 @@
       return titles.join(' · ')+(hidden?' · +'+hidden+' autre'+(hidden>1?'s':''):'');
     };
     return '<div class="astra-section-stack" aria-label="Synthèse mensuelle">'+
-      '<section class="astra-month-hero" aria-label="Résumé des événements du mois">'+
-        '<p class="astra-month-kicker">VUE D’ENSEMBLE</p>'+
-        '<div class="astra-month-headline"><strong>'+exactEvents.length+'</strong>'+
-        '<span>événement'+(exactEvents.length===1?'':'s')+' calculé'+(exactEvents.length===1?'':'s')+'</span></div>'+
-      '</section>'+
       '<section class="astra-month-section" aria-labelledby="monthMoonTitle">'+
         '<div class="astra-section-head"><h2 id="monthMoonTitle">Phases majeures</h2></div>'+
         '<div class="astra-month-phases">'+(lunar.map(({day,event})=>{
@@ -918,10 +913,6 @@
             '</small></span><span aria-hidden="true">›</span></button>';
         }).join('')||'<p class="astra-empty">Aucune Nouvelle ou Pleine Lune calculée pour ce mois.</p>')+'</div>'+
         '</section>'+
-      '<section class="astra-month-metrics" aria-label="Indicateurs mensuels">'+
-        '<div><strong>'+daysWithEvents+'</strong><span>jours avec événements</span></div>'+
-        '<button type="button" data-goto="journal"><strong>'+journalDays+'</strong><span>jour'+(journalDays===1?'':'s')+' noté'+(journalDays===1?'':'s')+' · ouvrir le journal</span></button>'+
-      '</section>'+
       '<section class="astra-month-section" aria-labelledby="monthEventsTitle">'+
         '<div class="astra-section-head"><h2 id="monthEventsTitle">'+
           (isCurrentMonth?'Prochains jours avec événements':'Journées du mois')+
@@ -940,7 +931,17 @@
         }).join('')||
           '<p class="astra-empty">'+(isCurrentMonth&&daysWithEvents?
             'Plus aucune journée avec événement à venir ce mois-ci. Les dates passées restent dans le calendrier.':
-            'Aucun événement exact calculé pour ce mois.')+'</p>')+'</div></section></div>';
+            'Aucun événement exact calculé pour ce mois.')+'</p>')+'</div></section>'+
+      '<section class="astra-month-hero" aria-label="Résumé des événements du mois">'+
+        
+        '<div class="astra-month-headline"><strong>'+exactEvents.length+'</strong>'+
+        '<span>événement'+(exactEvents.length===1?'':'s')+' calculé'+(exactEvents.length===1?'':'s')+'</span></div>'+
+      '</section>'+
+      '<section class="astra-month-metrics" aria-label="Indicateurs mensuels">'+
+        '<div><strong>'+daysWithEvents+'</strong><span>jours avec événements</span></div>'+
+        '<button type="button" data-goto="journal"><strong>'+journalDays+'</strong><span>jour'+(journalDays===1?'':'s')+' noté'+(journalDays===1?'':'s')+' · ouvrir le journal</span></button>'+
+      '</section>'+
+      '</div>';
   }
   // A personal event has inclusive civil start/end dates. Split visual bars at
   // week boundaries without splitting, duplicating or modifying the event.
@@ -1157,18 +1158,25 @@
     const average=k=>{const scores=items.map(v=>v[k]).filter(v=>Number.isInteger(v));return scores.length?(scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1):'–';};
     return `<div class="insights"><div><b>${items.length}</b><span>jours notés</span></div><div><b>${average('mood')}/5</b><span>humeur moyenne</span></div><div><b>${average('energy')}${average('energy')==='–'?'':'/5'}</b><span>énergie moyenne</span></div></div><p class="tiny">Statistiques descriptives des notes saisies, sans déduction causale à partir des transits.</p>`;
   }
+  function journalHistory(){
+    const history=Object.entries(state.journal).sort((a,b)=>b[0].localeCompare(a[0])).filter(([day,item])=>!searchTerm||`${day} ${item.note} ${(item.tags||[]).map(t=>themes[t]).join(' ')}`.toLocaleLowerCase('fr').includes(searchTerm.toLocaleLowerCase('fr'))).slice(0,30);
+    return history.map(([day,item])=>`<div class="history-item"><b>${safe(day)} · humeur ${item.mood}/5</b>${item.energy?` <small>· énergie ${item.energy}/5</small>`:''}<p>${safe(item.note)}</p>${(item.tags||[]).map(t=>`<span class="tag-outline small-tag">${safe(themes[t]||t)}</span>`).join('')}<button data-day="${day}">Consulter</button></div>`).join('')||'<p class="muted">Aucune note correspondante.</p>';
+  }
+  function updateJournalSearch(value){
+    searchTerm=value.trim().slice(0,100);
+    const results=$('journalHistoryResults');if(results)results.innerHTML=journalHistory();
+  }
   function journal() {
     initDraft();
     const d=journalDraft;
-    const history=Object.entries(state.journal).sort((a,b)=>b[0].localeCompare(a[0])).filter(([day,item])=>!searchTerm||`${day} ${item.note} ${(item.tags||[]).map(t=>themes[t]).join(' ')}`.toLocaleLowerCase('fr').includes(searchTerm.toLocaleLowerCase('fr'))).slice(0,30);
-    return '<button type="button" class="astra-journal-back" data-goto="today">← Retour à Ce jour</button>'+header('Mon journal')+'<div class="astra-section-stack" aria-label="Sections du journal">'+
+    return '<button type="button" class="astra-journal-back" data-journal-return="1">← Retour à '+(journalOrigin?.tab==='calendar'?'Calendrier':'Ce jour')+'</button>'+header('Mon journal')+'<div class="astra-section-stack" aria-label="Sections du journal">'+
       `<section class="card astra-reading-card astra-journal-editor astra-card--emphasis" aria-labelledby="journalEditorTitle"><h2 class="card-title" id="journalEditorTitle">${safe(displayDate(selected))}</h2><div class="actions"><button class="ghost" data-offset="-1">Jour précédent</button><button class="ghost" data-offset="1">Jour suivant</button></div>`+
       `<div class="field"><label>Comment tu te sens ?</label><div class="mood-row" role="group" aria-label="Évaluer son humeur sur cinq niveaux">${[1,2,3,4,5].map(n=>`<button type="button" data-mood="${n}" aria-pressed="${d.mood===n}" aria-label="Humeur ${n} sur 5" class="mood ${d.mood===n?'on':''}"><span class="mood-symbol" aria-hidden="true">${moodSymbols[n]}</span><span>${['','Très bas','Bas','Moyen','Bien','Très bien'][n]}</span></button>`).join('')}</div></div>`+
       `<div class="field"><label for="energyRange">Ton énergie · <output id="energyValue">${d.energy}/5</output></label><input id="energyRange" type="range" min="1" max="5" value="${d.energy}" step="1"></div>`+
       `<fieldset class="tags-field"><legend>Thèmes de la journée (facultatif)</legend><div class="tag-buttons">${Object.entries(themes).map(([code,label])=>`<button type="button" data-tag="${code}" aria-pressed="${d.tags.includes(code)}" class="tag-button ${d.tags.includes(code)?'on':''}">${label}</button>`).join('')}</div></fieldset>`+
       `<div class="field"><label for="journalNote">Quelques mots sur ta journée</label><textarea id="journalNote" maxlength="10000" spellcheck="true" placeholder="Qu’as-tu vécu ou ressenti aujourd’hui ?">${safe(d.note)}</textarea></div><button class="primary full" data-save="1">Enregistrer ma journée</button>${state.journal[selected]?'<button class="subnav danger" data-delete-note="1">Supprimer cette note</button>':''}</section>`+
       `<section class="card astra-reading-card astra-journal-summary" aria-labelledby="journalSummaryTitle"><h2 class="card-title" id="journalSummaryTitle">Ton mois en chiffres</h2>${summary()}</section>`+
-      `<section class="card astra-reading-card astra-journal-history" aria-labelledby="journalHistoryTitle"><h2 class="card-title" id="journalHistoryTitle">Historique</h2><div class="field"><label for="journalSearch">Rechercher dans mes notes</label><input id="journalSearch" type="search" value="${safe(searchTerm)}" placeholder="Mot-clé, date ou thème"></div>${history.map(([day,item])=>`<div class="history-item"><b>${safe(day)} · humeur ${item.mood}/5</b>${item.energy?` <small>· énergie ${item.energy}/5</small>`:''}<p>${safe(item.note)}</p>${(item.tags||[]).map(t=>`<span class="tag-outline small-tag">${safe(themes[t]||t)}</span>`).join('')}<button data-day="${day}">Consulter</button></div>`).join('')||'<p class="muted">Aucune note correspondante.</p>'}</section></div>`;
+      `<section class="card astra-reading-card astra-journal-history" aria-labelledby="journalHistoryTitle"><h2 class="card-title" id="journalHistoryTitle">Historique</h2><div class="field"><label for="journalSearch">Rechercher dans mes notes</label><input id="journalSearch" type="search" value="${safe(searchTerm)}" placeholder="Mot-clé, date ou thème"></div><div id="journalHistoryResults">${journalHistory()}</div></section></div>`;
   }
   const zodiacSymbols=['♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓'];
   const zodiacNames=['Bélier','Taureau','Gémeaux','Cancer','Lion','Vierge',
@@ -1719,8 +1727,9 @@
     }
     if(isCompare){
       const contacts=transitSnapshot?.contacts||[];
-      const comparing='<div class="natal-transit-time">'+
-        '<label for="transitDay">Date à comparer<input id="transitDay" type="date" min="1900-01-01" max="2100-12-31" value="'+safe(state.transitDay)+'"></label>'+
+      const natalDate=displayDate(state.profile.date)+(state.profile.timeKnown!==false&&state.profile.time?' · '+state.profile.time:' · heure inconnue');
+      const comparing='<p class="natal-compare-zone"><strong>Naissance</strong> · '+safe(natalDate)+' · '+safe(state.profile.timezone||'')+'</p><div class="natal-transit-time">'+
+        '<label for="transitDay">Date du transit<input id="transitDay" type="date" min="1900-01-01" max="2100-12-31" value="'+safe(state.transitDay)+'"></label>'+
         '<label for="transitTime">Heure<input id="transitTime" type="time" value="'+safe(state.transitTime)+'"></label>'+
         '</div><p class="natal-compare-zone">Fuseau utilisé : '+safe(detectedZone)+'</p>';
       const shownContacts=contacts.filter(c=>transitRange==='all'||(
@@ -1731,7 +1740,7 @@
         [['all','Tous'],['fast','Rapides'],['slow','Lents']].map(([k,label])=>
           '<button type="button" data-transit-range="'+k+'" aria-pressed="'+(transitRange===k)+'" class="'+(transitRange===k?'selected':'')+'">'+label+'</button>').join('')+
         '</div>'+
-        (shownContacts.length?'<div class="natal-contact-list">'+shownContacts.slice(0,16).map(c=>{
+        (shownContacts.length?'<div class="natal-contact-list">'+shownContacts.map(c=>{
           const key=[c.body,c.natal,c.angle].join('-');
           const active=natalSelection?.kind==='contact'&&natalSelection.id===key;
           const trend={applying:'Appliquant',separating:'Séparant',exact:'Exact',stable:'Sens indéterminé'};
@@ -1740,11 +1749,10 @@
             safe(planets[c.body])+' '+safe(c.glyph)+' '+safe(planets[c.natal])+'</span>'+
             '<small>Orbe '+safe(E.formatOrbExact(c.delta))+' · '+safe(trend[c.trend]||'')+'</small></button>';
         }).join('')+'</div>':'<p class="natal-contact-empty">Aucun contact dans cette catégorie à cet instant.</p>')+
-        (shownContacts.length>16?'<p class="tiny">16 contacts sur '+shownContacts.length+' affichés. Affine le filtre ou sélectionne une planète sur la roue.</p>':'')+
         '</section>':'';
       return '<section class="card natal-card astra-reading-card natal-compare" id="natalChart">'+
         '<div class="natal-subpage-heading">'+pageBack+
-        '<h2 class="card-title">Deux ciels, une seule carte</h2>'+
+        
         '</div>'+comparing+notice+(transitError?'<p class="notice" role="alert">'+safe(transitError)+'</p>':'')+
         '<div class="natal-wheel-viewport" role="region" tabindex="0" aria-label="Roue double, natal et transits">'+resized+'</div>'+
         '<div class="wheel-ring-legend"><span><i class="natal-swatch"></i>Planètes natales</span>'+
@@ -1916,19 +1924,19 @@
     const showSettings=!chart||profileScreen==='settings';
     return (showSettings
       ? header(chart?'Personnaliser mon thème':'Créer mon thème natal')
-      : header(profileScreen==='explore'?'Comprendre mon thème':
+      : header(profileScreen==='explore'?'Explorer les positions':
           profileScreen==='compare'?'Comparer deux dates':
           'Mon ciel'))+
-      (chart?renderNatalChart(chart):'')+
+      (!showSettings&&chart?renderNatalChart(chart):'')+
       (showSettings?
       `<section class="card astra-reading-card astra-birth-settings"><h2 class="card-title">Tes informations de naissance</h2><form id="birthForm" novalidate><div class="field-grid"><div class="field"><label for="birthDate">Date de naissance</label><input required type="date" id="birthDate" name="date" min="1900-01-01" max="2100-12-31" value="${safe(d.date)}"${validationAttrs('birthDate',birthValidation)}>${validationMessage('birthDate',birthValidation)}</div><div class="field"><label for="birthTime">Heure de naissance</label><input ${d.timeKnown?'required':''} type="time" id="birthTime" name="time" value="${safe(d.time)}" ${d.timeKnown?'':'disabled'}${validationAttrs('birthTime',birthValidation)}>${validationMessage('birthTime',birthValidation)}</div></div>`+
       `<label class="unknown-time-toggle" for="unknownBirthTime"><input type="checkbox" id="unknownBirthTime" name="unknownBirthTime" ${d.timeKnown?'':'checked'}> Je ne connais pas l’heure</label><p class="field-help">Sans heure, ASTRA ne calcule pas l’Ascendant ni les maisons. Tu peux continuer.</p>`+
-      `<div class="field"><label for="birthCity">Ville de naissance</label><div class="astra-city-picker" data-city-picker="birth"><div class="city-search"><input required type="search" autocomplete="off" id="birthCity" name="city" role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-expanded="false" aria-controls="birthCityOptions" aria-describedby="birthCityStatus${birthCityError?' birthCityError':''}" placeholder="Choisir ou rechercher une ville…" value="${safe(d.city)}"${validationAttrs('birthCity',birthCityError)}></div><div class="astra-city-menu" id="birthCityOptions" role="listbox" aria-label="Villes proposées" hidden></div><p class="astra-city-status" id="birthCityStatus" role="status" aria-live="polite"></p></div><p class="field-help">Choisis une ville dans le menu. Les coordonnées et le fuseau seront remplis automatiquement après sélection.</p></div>`+
+      `<div class="field"><label for="birthCity">Ville de naissance</label><div class="astra-city-picker" data-city-picker="birth"><div class="city-search"><input required type="search" autocomplete="off" id="birthCity" name="city" role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-expanded="false" aria-controls="birthCityOptions" aria-describedby="birthCityStatus${birthCityError?' birthCityError':''}" placeholder="Choisir ou rechercher une ville…" value="${safe(d.city)}"${validationAttrs('birthCity',birthCityError)}></div><div class="astra-city-menu" id="birthCityOptions" role="listbox" aria-label="Villes proposées" hidden></div><p class="astra-city-status" id="birthCityStatus" role="status" aria-live="polite"></p></div><p class="field-help">Sélectionne une ville dans les suggestions.</p></div>`+
       `${validationMessage('birthCity',birthCityError)}`+
       `${place?`<div class="city-confirmed" role="status"><b>Ville confirmée · ${safe(place.label)}</b><details class="city-technical astra-disclosure"><summary>Voir le fuseau et les coordonnées</summary><div class="astra-disclosure-body"><p>${safe(offsetDescription(d,place))}</p><small>Coordonnées calculées · ${place.latitude.toFixed(4)}°, ${place.longitude.toFixed(4)}°</small></div></details></div>`:'<p class="city-unselected">Sélectionne une ville pour continuer.</p>'}`+
       `${foldPicker}<details class="calculation-details astra-disclosure"><summary>Comment les calculs fonctionnent-ils ?</summary><div class="astra-disclosure-body"><p class="field-help"><strong>Orbes automatiques.</strong> ASTRA adapte la marge à la planète et à l’aspect. Les instants exacts sont calculés séparément dans le calendrier.</p></div></details><button class="primary full" type="submit">Calculer mon thème natal</button></form>`+
       `<p class="tiny">Recherche de villes fournie par <a href="https://open-meteo.com/" rel="noopener noreferrer">Open-Meteo / GeoNames</a>. Seul le nom de ville recherché est transmis. Ensuite, les calculs restent sur ton appareil, même hors connexion. Les règles historiques sont celles de la base de fuseaux disponible sur l’appareil.</p></section>`+
-      '':'');
+      (chart?renderNatalChart(chart):''):'');
   }
   function render() {
     const renderStart=diagnosticsEnabled?perfClock():0;
@@ -1960,6 +1968,7 @@
   }
   function go(tab) {
     if(tab==='month')tab='calendar';
+    if(tab==='journal'&&activeTab!=='journal')journalOrigin={tab:activeTab==='calendar'?'calendar':'today',day:selected};
     if(!['today','calendar','journal','profile'].includes(tab))return;
     if($('birthForm'))captureBirthForm();
     // Ce jour is anchored to the present. Calendar remains the date-browsing destination.
@@ -1981,6 +1990,10 @@
     writeBrowserRoute('push');
     window.scrollTo({top:0,behavior:'instant'});
     $('app').querySelector('h1.page-title')?.focus({preventScroll:true});
+  }
+  function returnFromJournal(){
+    const origin=journalOrigin||{tab:'today',day:isoDay(new Date())};
+    journalOrigin=null;applyBrowserRoute(origin);writeBrowserRoute('replace');
   }
   function refresh() {
     const token=++calcToken;
@@ -2025,6 +2038,7 @@
       render();writeBrowserRoute('replace');$('app').querySelector('h1.page-title')?.focus({preventScroll:true});
       return true;
     }
+    if(activeTab==='journal'){returnFromJournal();return true;}
     if(activeTab!=='today'){go('today');return true;}
     return false;
   };
@@ -2301,6 +2315,7 @@
       personalDrafts.delete(personalDraftKey());persist();personalEditor=null;render();show('Événement supprimé');return;
     }
     if(a.calendarSheetClose){calendarSheet=false;calendarInterval=null;pendingDayFocus=selected;render();return;}
+    if(a.journalReturn){returnFromJournal();return;}
     if(a.goto){go(a.goto);return;}
     if(a.calendarOpenDay){
       calendarSheet=false;personalEditor=null;
@@ -2397,6 +2412,7 @@
   });
   $('app').addEventListener('input',event=>{
     if(event.target.closest('#personalEventForm'))capturePersonalDraft();
+    if(event.target.id==='journalSearch'){updateJournalSearch(event.target.value);return;}
     if(event.target.id==='journalNote'){captureDraft();persistJournalDraft();return;}
     if(event.target.id==='personalAllDay'){
       const fields=$('personalTimeFields');
@@ -2473,15 +2489,7 @@
     if(event.target.id==='unknownBirthTime'){clearValidationError('birthTime');clearValidationError('fold');captureBirthForm();birthDraft.timeKnown=!event.target.checked;birthDraft.fold=null;placeSearch.needFold=false;render();return;}
     if(event.target.id==='fold'){clearValidationError('fold');captureBirthForm();return;}
     if(event.target.id==='eventFilter'){state.filter=event.target.value;persist();openDetail=null;render();return;}
-    if(event.target.id==='journalSearch'){
-      const wasFocused=document.activeElement===event.target,caret=event.target.selectionStart;
-      searchTerm=event.target.value.trim().slice(0,100);render();
-      if(wasFocused){
-        const next=$('journalSearch');next?.focus({preventScroll:true});
-        if(Number.isInteger(caret))next?.setSelectionRange(caret,caret);
-      }
-      return;
-    }
+    if(event.target.id==='journalSearch'){updateJournalSearch(event.target.value);return;}
     if(event.target.id==='importFile'&&event.target.files?.[0]){
       try {
         const file=event.target.files[0];if(file.size>2000000)throw Error('Sauvegarde trop volumineuse');
