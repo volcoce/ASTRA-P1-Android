@@ -138,19 +138,19 @@
 .astra-month-section{width:100%;min-width:0}
 .astra-month-navigation{margin-bottom:15px}
 .astra-month-hero{
-  background:var(--astra-month-hero-bg);color:var(--color-deep-ocean);
-  border:2px solid var(--color-deep-ocean);border-radius:var(--astra-radius-xl);
-  padding:19px 22px 20px;box-shadow:var(--astra-shadow-soft)
+  background:var(--astra-surface);color:var(--astra-ink);
+  border:1px solid var(--astra-divider);border-radius:var(--astra-radius-lg);
+  padding:var(--astra-space-3) var(--astra-component-inset);box-shadow:none
 }
 .astra-month-hero:after{display:none}
 .astra-month-kicker,.astra-month-headline strong,
-.astra-month-headline span,.astra-month-hero>p:last-child{color:var(--color-deep-ocean)}
-.astra-month-headline strong{font-family:var(--astra-font-display);font-size:clamp(45px,9vw,62px)}
-.astra-month-headline span{font-size:15px}
+.astra-month-headline span,.astra-month-hero>p:last-child{color:var(--astra-ink)}
+.astra-month-headline strong{font-family:var(--astra-font-display);font-size:1.25rem}
+.astra-month-headline span{font-size:.875rem;max-width:none}
 .astra-month-metrics>div,.astra-month-metrics>button{
   background:var(--astra-surface);border:1px solid var(--astra-divider);
   border-radius:var(--astra-radius-lg);color:var(--astra-ink);
-  min-height:87px;padding:14px 16px
+  min-height:var(--astra-control-min);padding:var(--astra-space-3) var(--astra-component-inset)
 }
 .astra-month-metrics>div:first-child{background:var(--astra-secondary-surface)}
 .astra-month-metrics strong,.astra-month-metrics span{color:var(--astra-ink)}
@@ -167,10 +167,10 @@
 .astra-month-phase .astra-month-phase-copy small,
 .astra-month-phase>span:last-child{color:var(--color-deep-ocean)}
 :root[data-astra-theme="dark"] .astra-month-hero{
-  background:var(--astra-month-hero-bg);border-color:var(--astra-border)
+  background:var(--astra-surface);border-color:var(--astra-divider)
 }
 :root[data-astra-theme="dark"] .astra-month-hero :is(.astra-month-kicker,
-  .astra-month-headline strong,.astra-month-headline span){color:var(--color-cream)}
+  .astra-month-headline strong,.astra-month-headline span){color:var(--astra-ink)}
 :root[data-astra-theme="dark"] .astra-month-hero>p:last-child{color:var(--color-cream)}
 :root[data-astra-theme="dark"] .astra-month-phase.new{background:var(--astra-month-new-bg);border-color:var(--astra-month-new-border)}
 :root[data-astra-theme="dark"] .astra-month-phase.full{background:var(--astra-month-full-bg);border-color:var(--color-dandelion)}

@@ -480,3 +480,19 @@ test('Calendar help and display options live exclusively in global settings',()=
  assert.equal((app.match(/Options d’affichage/g)||[]).length,1);
  assert.match(app,/event\.target\.id==='eventFilter'\)\{state\.filter=event\.target\.value;persist\(\);openDetail=null;render\(\)/);
 });
+
+test('P2: daily, calendar, comparison and journal keep the primary task first',()=>{
+ const app=read('app.js');
+ const today=app.slice(app.indexOf('function today()'),app.indexOf('function monthOverview()'));
+ assert.ok(today.indexOf('id="todayEvents"')<today.indexOf('class="astra-day-journal-link"'));
+ assert.doesNotMatch(today,/day\.active\.slice\(0,8\)/);
+ const month=app.slice(app.indexOf('function monthOverview()'),app.indexOf('function personalCalendarWeek('));
+ assert.ok(month.indexOf('id="monthMoonTitle"')<month.indexOf('id="monthEventsTitle"'));
+ assert.ok(month.indexOf('id="monthEventsTitle"')<month.indexOf('class="astra-month-hero"'));
+ assert.match(app,/shownContacts\.map\(/);
+ assert.match(app,/function returnFromJournal\(/);
+ assert.match(app,/results\.innerHTML=journalHistory\(\)/);
+ assert.match(app,/header\(profileScreen==='explore'\?'Explorer les positions'/);
+ const profile=app.slice(app.indexOf('function profile()'),app.indexOf('function render()'));
+ assert.ok(profile.indexOf('id="birthForm"')<profile.lastIndexOf('renderNatalChart(chart)'));
+});
