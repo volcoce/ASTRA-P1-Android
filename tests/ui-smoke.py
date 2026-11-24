@@ -149,6 +149,26 @@ if __name__ == '__main__':
                     page.locator(selector).first.screenshot(
                         path=str(shots / (name+'.png')),animations='disabled',
                         style='.bottom-nav{visibility:hidden!important}')
+            def open_birth_settings():
+                """Enter the birth editor regardless of the last settings tab."""
+                trigger=page.locator('#settingsButton')
+                dialog=page.locator('#astraSettingsDialog')
+                expect(dialog).not_to_be_visible()
+                expect(trigger).to_have_attribute('aria-expanded','false')
+                trigger.click()
+                expect(dialog).to_be_visible()
+                expect(trigger).to_have_attribute('aria-expanded','true')
+                astrology=dialog.locator('[data-settings-section="astrology"]')
+                astrology.click()
+                expect(astrology).to_have_attribute('aria-selected','true')
+                birth=dialog.locator('[data-settings-birth]')
+                expect(birth).to_be_visible()
+                birth.click()
+                expect(dialog).not_to_be_visible()
+                expect(trigger).to_have_attribute('aria-expanded','false')
+                expect(page.locator('#app .natal-settings')).to_be_visible()
+                expect(page.locator('#birthForm')).to_be_visible()
+
             def audit_disclosures(route):
                 """Check every disclosure on this rendered route, open or closed."""
                 items=page.evaluate("""() => [...document.querySelectorAll('details.astra-disclosure')].map(el=>{
@@ -872,8 +892,7 @@ if __name__ == '__main__':
             assert 'Aspect natal' in page.locator('#natalSelectionInfo').inner_text()
             assert page.locator('.natal-matrix button').first.get_attribute('aria-pressed')=='true'
             page.locator('[data-close-natal-detail]').click()
-            page.locator('#settingsButton').click()
-            page.locator('[data-settings-birth]').click()
+            open_birth_settings()
             assert page.locator('.natal-settings').count()==1
             assert page.locator('.natal-more-options').get_attribute('open') is None
             capture('settings-393')
@@ -957,8 +976,7 @@ if __name__ == '__main__':
             assert page.locator('.natal-home').count()==1
             assert page.locator('.natal-extras').count()==0
             assert page.locator('[data-profile-screen="progressions"], [data-profile-screen="composite"]').count()==0
-            page.locator('#settingsButton').click()
-            page.locator('[data-settings-birth]').click()
+            open_birth_settings()
             # The editor has one correctly sized return control and no
             # graphic export buttons, while keeping the preview interactive.
             back=page.locator('.natal-settings .natal-back')
@@ -1005,8 +1023,7 @@ if __name__ == '__main__':
             assert 'Maison 2' in page.locator('#natalSelectionInfo').inner_text()
             page.keyboard.press('Escape')
             assert page.locator('#natalSelectionInfo').count()==0
-            page.locator('#settingsButton').click()
-            page.locator('[data-settings-birth]').click()
+            open_birth_settings()
             page.locator('#settingsButton').click()
             page.locator('[data-settings-section="astrology"]').click()
             page.locator('[data-natal-zodiac="sidereal"]').click()
@@ -1014,8 +1031,7 @@ if __name__ == '__main__':
             page.locator('[data-settings-close]').click()
             page.locator('[data-profile-screen="overview"]').click()
             assert 'Sidéral' in page.locator('#natalChart').inner_text()
-            page.locator('#settingsButton').click()
-            page.locator('[data-settings-birth]').click()
+            open_birth_settings()
             page.locator('#settingsButton').click()
             page.locator('[data-settings-section="astrology"]').click()
             page.locator('[data-natal-zodiac="tropical"]').click()
@@ -1027,8 +1043,7 @@ if __name__ == '__main__':
             # Compare the two reference palettes on the SAME natal wheel and
             # calendar geometry. Persisted choices must affect live CSS & export.
             page.set_viewport_size({'width':393,'height':844})
-            page.locator('#settingsButton').click()
-            page.locator('[data-settings-birth]').click()
+            open_birth_settings()
             page.locator('#settingsButton').click()
             assert page.locator('#astraSettingsDialog[open]').count()==1
             assert page.locator('#astraSettingsDialog [role="tab"]').count()==5
@@ -1151,8 +1166,7 @@ if __name__ == '__main__':
                 page.locator('[data-tab="calendar"]').click()
                 capture_element('palette-'+palette+'-calendar-light-393','.astra-calendar-board')
                 page.locator('[data-tab="profile"]').click()
-                page.locator('#settingsButton').click()
-                page.locator('[data-settings-birth]').click()
+                open_birth_settings()
                 page.locator('#settingsButton').click()
                 page.locator('[data-settings-section="appearance"]').click()
             # P3: both appearance modes, readable ribbon ink and reduced motion.
@@ -1178,8 +1192,7 @@ if __name__ == '__main__':
             page.locator('[data-tab="calendar"]').click()
             capture_element('palette-classic-calendar-dark-393','.astra-calendar-board')
             page.locator('[data-tab="profile"]').click()
-            page.locator('#settingsButton').click()
-            page.locator('[data-settings-birth]').click()
+            open_birth_settings()
             page.locator('#settingsButton').click()
             page.locator('[data-settings-section="appearance"]').click()
             page.locator('[data-element-palette="vivid"]').click()
@@ -1190,8 +1203,7 @@ if __name__ == '__main__':
             page.locator('[data-tab="calendar"]').click()
             capture_element('palette-vivid-calendar-dark-393','.astra-calendar-board')
             page.locator('[data-tab="profile"]').click()
-            page.locator('#settingsButton').click()
-            page.locator('[data-settings-birth]').click()
+            open_birth_settings()
             page.locator('#settingsButton').click()
             page.locator('[data-settings-section="appearance"]').click()
             assert page.evaluate('document.documentElement.dataset.astraPalette')=='vivid'
@@ -1337,8 +1349,7 @@ if __name__ == '__main__':
                 assert contrast['moreWidth']<=390,contrast
             capture('today-dark-readable-events-393')
             page.locator('[data-tab="profile"]').click()
-            page.locator('#settingsButton').click()
-            page.locator('[data-settings-birth]').click()
+            open_birth_settings()
             page.locator('#settingsButton').click()
             page.locator('[data-settings-section="appearance"]').click()
             page.emulate_media(reduced_motion='reduce')
@@ -1532,8 +1543,7 @@ if __name__ == '__main__':
             page.set_viewport_size({'width':320,'height':730})
             # Return to Mon ciel after exercising the daily home widgets.
             page.locator('[data-tab="profile"]').click()
-            page.locator('#settingsButton').click()
-            page.locator('[data-settings-birth]').click()
+            open_birth_settings()
             assert page.locator('.calculation-details').first.get_attribute('open') is None
             page.locator('.calculation-details summary').first.click()
             assert 'Orbes automatiques' in page.locator('#birthForm').inner_text()
@@ -1880,8 +1890,7 @@ if __name__ == '__main__':
             # P1: unknown birth hour should not invent an Ascendant or houses.
             page.locator('[data-tab="profile"]').click()
             assert page.locator('#birthForm').count()==0
-            page.locator('#settingsButton').click()
-            page.locator('[data-settings-birth]').click()
+            open_birth_settings()
             page.locator('#unknownBirthTime').check()
             assert page.locator('#birthTime').is_disabled()
             page.get_by_role('button',name='Calculer mon thème natal').click()
