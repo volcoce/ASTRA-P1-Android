@@ -2109,37 +2109,88 @@
     if(axis==='vertical'&&dy>=64&&dy>1.5*Math.abs(dx))return 1;
     return 0;
   }
+  // A single compositor-driven motion contract for horizontal swipes.
+  // Navigation itself remains synchronous; no route changes depend on animation.
+  function swipeDisplacement(dx,limit,allowed=true){
+    const magnitude=Math.abs(dx);
+    return Math.sign(dx)*Math.min(limit,magnitude*(allowed?0.8:0.22));
+  }
+  function swipeMotion(root,action){
+    if(action.expected!=='horizontal')return null;
+    const surface=action.surface||(()=>root);
+    const reduced=()=>typeof window!=='undefined'&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const element=surface();
+    if(!element?.animate||reduced())return null;
+    const limit=Math.max(24,Math.min(120,element.clientWidth*0.30));
+    let dragAnimation=null,offset=0;
+    const frame=x=>({transform:'translate3d('+x+'px,0,0)'});
+    function reset(){dragAnimation?.cancel();dragAnimation=null;}
+    return {
+      drag(dx,allowed){
+        if(reduced()){reset();offset=0;return;}
+        offset=swipeDisplacement(dx,limit,allowed);
+        if(!dragAnimation){
+          dragAnimation=element.animate([frame(-limit),frame(limit)],{duration:1000,fill:'both'});
+          dragAnimation.pause();
+        }
+        dragAnimation.currentTime=(offset+limit)/(2*limit)*1000;
+      },
+      cancel(){reset();},
+      settle(step){
+        reset();
+        if(reduced())return null;
+        const next=surface();
+        if(!next?.animate||!next.isConnected)return null;
+        const from=step?step*Math.min(limit,72):offset;
+        if(!from)return null;
+        // A small overshoot gives a spring-like return without moving the navbar.
+        return next.animate([frame(from),{...frame(-from*0.045),offset:0.78},frame(0)],
+          {duration:step?240:200,easing:'cubic-bezier(0.22,0.75,0.25,1)'});
+      }
+    };
+  }
   function bindSwipe(root,resolve){
-    let start=null;
+    let start=null,settling=null;
+    function abandon(animate=false){
+      const gesture=start;start=null;
+      if(!gesture?.motion)return;
+      if(animate&&gesture.valid())settling=gesture.motion.settle(0);
+      else gesture.motion.cancel();
+    }
     root.addEventListener('touchstart',e=>{
-      start=null;
+      abandon();
+      settling?.cancel();settling=null;
       if(e.touches.length!==1||e.target.closest('input,textarea,select,label,[contenteditable],.astra-table-scroll,.astra-performance-scroll,.natal-wheel-viewport,.natal-matrix-scroll'))return;
       const action=resolve(e.target);
       if(!action)return;
       const t=e.touches[0];
-      start={...action,id:t.identifier,x:t.clientX,y:t.clientY,axis:null};
+      start={...action,id:t.identifier,x:t.clientX,y:t.clientY,axis:null,motion:swipeMotion(root,action)};
     },{passive:true});
     root.addEventListener('touchmove',e=>{
       if(!start)return;
-      if(e.touches.length!==1||e.touches[0].identifier!==start.id||!start.valid()){start=null;return;}
+      if(e.touches.length!==1||e.touches[0].identifier!==start.id||!start.valid()){abandon();return;}
       const t=e.touches[0],dx=t.clientX-start.x,dy=t.clientY-start.y;
       start.axis=start.axis||swipeAxis(dx,dy);
-      if(start.axis&&start.axis!==start.expected){start=null;return;}
+      if(start.axis&&start.axis!==start.expected){abandon();return;}
       if(start.axis===start.expected&&(start.expected==='horizontal'||dy>0)&&e.cancelable)e.preventDefault();
+      if(start.axis==='horizontal')start.motion?.drag(dx,start.canStep?.(dx<0?1:-1)!==false);
     },{passive:false});
-    root.addEventListener('touchcancel',()=>{start=null;},{passive:true});
+    root.addEventListener('touchcancel',()=>{abandon(true);},{passive:true});
     root.addEventListener('touchend',e=>{
-      const gesture=start;start=null;
-      if(!gesture||e.touches.length||!gesture.valid())return;
+      const gesture=start;
+      if(!gesture||e.touches.length||!gesture.valid()){abandon();return;}
       const t=Array.from(e.changedTouches).find(t=>t.identifier===gesture.id);
-      if(!t)return;
+      if(!t){abandon(true);return;}
       const dx=t.clientX-gesture.x,dy=t.clientY-gesture.y;
       const axis=gesture.axis||swipeAxis(dx,dy);
-      if(axis!==gesture.expected)return;
+      if(axis!==gesture.expected){abandon(true);return;}
       const step=swipeStep(axis,dx,dy);
-      if(!step)return;
+      if(!step||gesture.canStep?.(step)===false){abandon(true);return;}
       if(e.cancelable)e.preventDefault();
+      start=null;
+      gesture.motion?.cancel();
       gesture.run(step);
+      settling=gesture.motion?.settle(step)||null;
     },{passive:false});
   }
   function dismissSwipe(target){
@@ -2154,7 +2205,9 @@
     const dismiss=dismissSwipe(target);if(dismiss)return dismiss;
     if(!target.closest('.astra-settings-body'))return null;
     const section=globalSettingsSection;
-    return {expected:'horizontal',valid:()=>globalSettingsDialog.open&&section===globalSettingsSection,run:step=>{
+    return {expected:'horizontal',surface:()=>globalSettingsDialog.querySelector('.astra-settings-body'),
+      canStep:step=>Boolean(SETTINGS_TABS[SETTINGS_TABS.findIndex(([id])=>id===section)+step]),
+      valid:()=>globalSettingsDialog.open&&section===globalSettingsSection,run:step=>{
       const index=SETTINGS_TABS.findIndex(([id])=>id===section),next=SETTINGS_TABS[index+step];
       if(!next)return;
       globalSettingsSection=next[0];
@@ -2173,7 +2226,7 @@
     if(tab==='profile'&&profileScreen!=='overview')return null;
     const pages=Array.from(document.querySelectorAll('.bottom-nav [data-tab]'),b=>b.dataset.tab);
     if(!pages.includes(tab))return null;
-    return {expected:'horizontal',valid:()=>activeTab===tab&&
+    return {expected:'horizontal',canStep:step=>Boolean(adjacentPage(pages,tab,step)),valid:()=>activeTab===tab&&
       (tab!=='profile'||profileScreen==='overview')&&!globalSettingsDialog.open&&
       !calendarSheet&&personalEditor===null&&!natalSelection&&!openDetail,
       run:step=>{
