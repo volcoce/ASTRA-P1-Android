@@ -160,56 +160,8 @@ test('Daily swipes navigate one civil day, including week and month boundaries',
  const local=app.slice(app.indexOf("    if(tab==='today'&&target.closest('.astra-week,.astra-day-hero'))"),app.indexOf("    if(tab==='journal'&&target.closest('#journalEditorTitle'))"));
  assert.match(local,/run:step=>selectDay\(shiftDay\(day,step\)\)/);
  assert.match(local,/surface:\(\)=>\$\('app'\)\.querySelector\('\.astra-week-days'\)/);
- // The surface must be resolved again after selectDay renders the new menu.
- const block=local.trim();
- const resolve=new Function('tab','target','
- assert.doesNotMatch(local,/step\*7|data-week-shift/);
- assert.match(app,/data-week-shift="-7"/);
- assert.match(app,/data-week-shift="7"/);
-});
-
-test('Swipe motion follows the finger, resists boundaries and settles in the correct direction',()=>{
- const source=app.slice(app.indexOf('  function swipeAxis('),app.indexOf('  function dismissSwipe('));
- let reduced=false;
- const {bindSwipe,swipeDisplacement}=new Function('window',source+'return {bindSwipe,swipeDisplacement};')({matchMedia:()=>({matches:reduced})});
- const handlers={},animations=[],calls=[];
- let allowed=true;
- const root={clientWidth:400,isConnected:true,addEventListener:(name,handler)=>{handlers[name]=handler;},
-  animate(frames,options){const a={frames,options,pause(){this.paused=true;},cancel(){this.cancelled=true;}};animations.push(a);return a;}};
- bindSwipe(root,()=>({expected:'horizontal',valid:()=>true,canStep:()=>allowed,run:step=>calls.push(step)}));
- const target={closest:()=>null};
- const point=x=>({clientX:x,clientY:0,identifier:7});
- const fire=(name,x)=>handlers[name]({target,touches:name==='touchend'||name==='touchcancel'?[]:[point(x)],
-  changedTouches:[point(x)],cancelable:true,preventDefault(){}});
- const swipe=x=>{fire('touchstart',0);fire('touchmove',x);fire('touchend',x);};
- assert.equal(swipeDisplacement(-100,80),-80);
- assert.equal(swipeDisplacement(100,80,false),22);
- fire('touchstart',0);fire('touchmove',-100);
- assert.equal(animations[0].paused,true);
- assert.ok(Math.abs(animations[0].currentTime-166.6667)<0.01);
- fire('touchend',-100);
- assert.deepEqual(calls,[1]);
- assert.equal(animations[0].cancelled,true);
- assert.equal(animations.at(-1).frames[0].transform,'translate3d(72px,0,0)');
- swipe(110);
- assert.deepEqual(calls,[1,-1]);
- assert.equal(animations.at(-1).frames[0].transform,'translate3d(-72px,0,0)');
- swipe(-30);
- assert.deepEqual(calls,[1,-1]);
- assert.equal(animations.at(-1).frames[0].transform,'translate3d(-24px,0,0)');
- allowed=false;swipe(100);
- assert.deepEqual(calls,[1,-1]);
- assert.equal(animations.at(-1).frames[0].transform,'translate3d(22px,0,0)');
- allowed=true;fire('touchstart',0);fire('touchmove',-80);fire('touchcancel',-80);
- assert.deepEqual(calls,[1,-1]);
- assert.equal(animations.at(-1).frames[0].transform,'translate3d(-64px,0,0)');
- reduced=true;
- const count=animations.length;
- swipe(-100);
- assert.deepEqual(calls,[1,-1,1]);
- assert.equal(animations.length,count);
-});
-,'activeTab','selected','day','selectDay','shiftDay',block+'return null;');
+ // Resolve the surface again after selectDay renders the new menu.
+ const resolve=new Function('tab','target','$','activeTab','selected','day','selectDay','shiftDay',local.trim()+'return null;');
  let menu={id:'old-menu'},currentDay='2026-11-24';
  const root={querySelector:selector=>{assert.equal(selector,'.astra-week-days');return menu;}};
  const gesture=resolve('today',{closest:()=>true},()=>root,'today',currentDay,currentDay,day=>{currentDay=day;menu={id:'new-menu'};},shift);
