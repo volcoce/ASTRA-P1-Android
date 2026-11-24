@@ -2243,7 +2243,9 @@
         run:step=>$('app').querySelector('[data-month="'+step+'"]')?.click()};
     }
     if(tab==='today'&&target.closest('.astra-week,.astra-day-hero')){
-      return {expected:'horizontal',valid:()=>activeTab===tab&&selected===day,
+      // Only the date menu moves; the rest of the daily screen stays still.
+      return {expected:'horizontal',surface:()=>$('app').querySelector('.astra-week-days'),
+        valid:()=>activeTab===tab&&selected===day,
         run:step=>selectDay(shiftDay(day,step))};
     }
     if(tab==='journal'&&target.closest('#journalEditorTitle')){
