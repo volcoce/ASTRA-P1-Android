@@ -4,6 +4,7 @@ Astronomical truth is tested by runtime.test.mjs in CI, not this mock.
 """
 import os
 from pathlib import Path
+from contextlib import ExitStack, contextmanager
 from shutil import which
 from playwright.sync_api import sync_playwright, expect
 
@@ -120,16 +121,41 @@ CONTRAST_JS = r"""() => {
   });
 }"""
 
+@contextmanager
+def browser_diagnostics(context, page, output):
+    """Preserve the failing DOM, screenshot and Playwright trace before teardown."""
+    context.tracing.start(screenshots=True, snapshots=True, sources=True)
+    try:
+        yield
+    except Exception:
+        output.mkdir(parents=True, exist_ok=True)
+        # Diagnostic failures must never replace the original assertion.
+        for capture in (
+            lambda: page.screenshot(path=str(output/'failure.png'), full_page=True),
+            lambda: (output/'failure.html').write_text(page.content(), encoding='utf-8'),
+            lambda: context.tracing.stop(path=str(output/'trace.zip')),
+        ):
+            try:
+                capture()
+            except Exception as error:
+                print(f'Unable to capture diagnostic: {error}')
+        raise
+    else:
+        context.tracing.stop()
+
+
 if __name__ == '__main__':
     try:
-        with sync_playwright() as pw:
+        with sync_playwright() as pw, ExitStack() as diagnostics:
             chrome=which('chromium') or which('google-chrome') or which('google-chrome-stable')
             if not chrome:
                 raise RuntimeError('Chromium ou Google Chrome non trouvé sur ce PC/runner.')
             browser=pw.chromium.launch(headless=True,executable_path=chrome,args=['--no-sandbox'])
+            diagnostics.callback(browser.close)
             context=browser.new_context(viewport={'width':393,'height':844},accept_downloads=True)
             context.add_init_script(JS)
             page=context.new_page();errors=[]
+            diagnostics.enter_context(browser_diagnostics(context, page, Path('tests/artifacts/smoke-diagnostics')))
             # Stable civil dates for calendar fixtures, independent of CI run date.
             page.clock.set_fixed_time(__import__('datetime').datetime(2026,11,23,12,0,tzinfo=__import__('datetime').timezone.utc))
             shots=Path(os.environ['ASTRA_SCREENSHOT_DIR']) if os.environ.get('ASTRA_SCREENSHOT_DIR') else None
@@ -169,9 +195,17 @@ if __name__ == '__main__':
                 expect(page.locator('#app .natal-settings')).to_be_visible()
                 expect(page.locator('#birthForm')).to_be_visible()
 
-            def audit_disclosures(route):
-                """Check every disclosure on this rendered route, open or closed."""
-                items=page.evaluate("""() => [...document.querySelectorAll('details.astra-disclosure')].map(el=>{
+            def audit_disclosures(route, scope=None):
+                """Audit rendered summaries only, never descendants of a hidden dialog."""
+                if scope is None:
+                    scope='#astraSettingsDialog[open]' if route.startswith('settings-') else '#app'
+                items=page.evaluate("""scope => {
+                  const root=document.querySelector(scope);
+                  if(!root)throw Error('Disclosure audit scope missing: '+scope);
+                  return [...root.querySelectorAll('details.astra-disclosure')].filter(el=>{
+                    const summary=el.querySelector(':scope > summary');
+                    return (summary||el).getClientRects().length>0;
+                  }).map(el=>{
                   const summary=el.querySelector(':scope > summary');
                   const body=el.querySelector(':scope > .astra-disclosure-body');
                   if(!summary||!body)return {component:el.className,error:'missing summary/body'};
@@ -185,9 +219,9 @@ if __name__ == '__main__':
                     titleLeft:asFloat(top.paddingLeft),titleRight:asFloat(top.paddingRight),
                     bodyLeft:asFloat(inside.paddingLeft),bodyRight:asFloat(inside.paddingRight),
                     titleHeight:asFloat(top.minHeight),firstChildOffset:offset};
-                })""")
+                })}""",scope)
                 for item in items:
-                    assert not item.get('error'),(route,item)
+                    assert not item.get('error'),(route,scope,item)
                     for prop in ('titleLeft','titleRight','bodyLeft','bodyRight'):
                         assert item[prop]>=15,(route,item)
                     assert item['titleHeight']>=48,(route,item)
@@ -1809,7 +1843,7 @@ if __name__ == '__main__':
             page.locator('.calendar .day.moon-full').click()
             page.locator('#calendarDayDialog [data-event]').first.click(timeout=2000)
             assert page.locator('#detailPanel').count()==1
-            assert audit_disclosures('event-detail')>=2
+            assert audit_disclosures('event-detail', '#detailPanel')>=2
             assert 'Lecture astrologique' in page.locator('#detailPanel').inner_text()
             assert page.locator('#detailPanel .astra-event-facts').count()==1
             assert page.locator('#detailPanel .astra-event-technical').count()==1
@@ -1833,7 +1867,7 @@ if __name__ == '__main__':
                 assert spacing['summary']['left']>=14,(width,spacing)
                 assert spacing['summary']['right']>=14,(width,spacing)
                 assert spacing['body']['left']>=14,(width,spacing)
-                assert audit_disclosures('detail-'+str(width))>=2
+                assert audit_disclosures('detail-'+str(width), '#detailPanel')>=2
                 assert spacing['body']['right']>=14,(width,spacing)
                 assert spacing['factsOffset']>=14,(width,spacing)
                 assert page.evaluate('document.documentElement.scrollWidth')<=width+2,(width,spacing)
@@ -1873,19 +1907,11 @@ if __name__ == '__main__':
             assert page.locator('#journalNote').input_value()!='Une belle journée de création.'
             assert page.locator('#journalNote').is_visible()
             page.locator('#journalNote').focus()
-            assert page.locator('.bottom-nav').evaluate(
-                "e => getComputedStyle(e).visibility"
-            )=='visible'
+            expect(page.locator('.bottom-nav')).to_have_css('visibility','visible')
             page.set_viewport_size({'width':320,'height':480})
-            page.wait_for_timeout(75)
-            assert page.locator('.bottom-nav').evaluate(
-                "e => getComputedStyle(e).visibility"
-            )=='hidden'
+            expect(page.locator('.bottom-nav')).to_have_css('visibility','hidden')
             page.set_viewport_size({'width':320,'height':730})
-            page.wait_for_timeout(75)
-            assert page.locator('.bottom-nav').evaluate(
-                "e => getComputedStyle(e).visibility"
-            )=='visible'
+            expect(page.locator('.bottom-nav')).to_have_css('visibility','visible')
             page.locator('#journalNote').evaluate('e => e.blur()')
             # P1: unknown birth hour should not invent an Ascendant or houses.
             page.locator('[data-tab="profile"]').click()
@@ -1894,7 +1920,10 @@ if __name__ == '__main__':
             page.locator('#unknownBirthTime').check()
             assert page.locator('#birthTime').is_disabled()
             page.get_by_role('button',name='Calculer mon thème natal').click()
-            page.wait_for_timeout(250)
+            page.wait_for_function("""() => {
+              const p=JSON.parse(localStorage.getItem('astra-public-v1')||'{}').profile;
+              return p?.timeKnown===false && p.time===null;
+            }""")
             saved=page.evaluate("JSON.parse(localStorage.getItem('astra-public-v1'))")
             assert saved['profile']['timeKnown'] is False
             assert saved['profile']['time'] is None
@@ -1931,6 +1960,5 @@ if __name__ == '__main__':
             assert page.evaluate('window.ASTRA_HANDLE_BACK()') is False
             assert not errors, errors
             print('UI Android adaptive: 320–1280 px, Galaxy A15, IME, Android Back, natal and journal: OK')
-            browser.close()
     finally:
         pass

@@ -17,8 +17,8 @@ REPORT=Path('tests/artifacts/visual-report.json')
 # occupy a visible region, not just an anti-aliased border pixel.
 CASES={
     'today-flo-layout-320.png':(320,{'daily_moon_hero':'#82AAC7'}),
-    'month-320.png':(320,{'monthly_hero':'#F0BE57'}),
-    'calendar-320.png':(320,{'calendar_surface':'#FFF9EA'}),
+    # The month summary now lives below the calendar on the same screen.
+    'calendar-320.png':(320,{'calendar_surface':'#FFF9EA','monthly_hero':'#F0BE57'}),
     'journal-320.png':(320,{'journal_surface':'#FFF9EA'}),
     'natal-heading-aligned-desktop-1280.png':(1280,{'reading_surface':'#FFF9EA'}),
     'today-dark-readable-events-393.png':(393,{'daily_dark_hero':'#31566D'}),
