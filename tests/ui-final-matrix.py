@@ -56,6 +56,8 @@ GEOMETRY = """() => {
 def setup_page(browser,theme):
     context=browser.new_context(viewport={'width':393,'height':844},color_scheme=theme)
     page=context.new_page()
+    errors=[]
+    page.on('pageerror',lambda error:errors.append(str(error)))
     page.clock.set_fixed_time(__import__('datetime').datetime(2026,11,23,12,0,tzinfo=__import__('datetime').timezone.utc))
     page.goto('about:blank')
     page.add_script_tag(content=FIXTURE['JS'])
@@ -78,7 +80,7 @@ def setup_page(browser,theme):
     }))""",theme)
     page.add_script_tag(content=(ROOT/'app.js').read_text())
     page.add_script_tag(path=str(REPO/'node_modules/axe-core/axe.min.js'))
-    return context,page
+    return context,page,errors
 
 def tab(page,name):
     page.locator('[data-tab="'+name+'"]').click()
@@ -147,11 +149,11 @@ def run():
             browser=pw.chromium.launch(headless=True,executable_path=chrome,args=['--no-sandbox'])
             for theme in THEMES:
                 for width,height in WIDTHS:
-                    context,page=setup_page(browser,theme)
+                    context,page,errors=setup_page(browser,theme)
                     page.set_viewport_size({'width':width,'height':height})
                     page.set_default_timeout(5000)
-                    errors=[]
-                    page.on('pageerror',lambda error:errors.append(str(error)))
+                    if errors:
+                        report['failures'].extend(f'{theme}-{width} startup JavaScript: {error}' for error in errors)
                     reference=None
                     for screen,selector in SCREENS:
                         label=f'{theme}-{width}-{screen}'
@@ -216,10 +218,10 @@ def run():
             report['failures'].append('Incomplete or duplicate matrix: '+str(sorted(expected-set(actual))))
         report['executed']=len(actual)
         report['passed']=sum(entry.get('passed',False) for entry in report['cases'])
-        (ART/'report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\\n')
+        (ART/'report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
     print(f"P4: {report['passed']}/{EXPECTED} configurations passed")
     if report['failures']:
-        raise AssertionError('\\n'.join(report['failures']))
+        raise AssertionError('\n'.join(report['failures']))
 
 if __name__=='__main__':
     run()
