@@ -160,7 +160,7 @@ test('personal calendar: resources and interaction contracts are wired',()=>{
   assert.match(html,/href="astra\.bundle\.css"/);
   assert.match(css,/\.astra-personal-calendar-week/);
   assert.match(css,/\.astra-personal-calendar-event/);
-  assert.match(css,/\.astra-personal-dialog::backdrop/);
+  assert.match(readFileSync(new URL('../app/src/main/assets/astra-components.css',import.meta.url),'utf8'),/\.astra-personal-dialog::backdrop/);
   assert.match(app,/if\(event\.target\.id==='personalEventForm'\)/);
   assert.match(app,/if\(a\.personalDelete\)/);
   assert.match(app,/calendarEvents:sanitizeCalendarEvents\(raw\.calendarEvents\)/);

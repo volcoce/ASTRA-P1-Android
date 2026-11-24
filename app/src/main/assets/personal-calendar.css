@@ -47,76 +47,6 @@
 .event-color-orange{--personal-bg:#fae7cd;--personal-ink:#795023;--personal-border:#d8b384}
 .event-color-rose{--personal-bg:#f7e0e8;--personal-ink:#833d5c;--personal-border:#d8a4b8}
 .event-color-slate{--personal-bg:#e4ebee;--personal-ink:#405663;--personal-border:#a7b8c0}
-/* Native dialog is in the top layer, not a permanently visible event panel. */
-.astra-personal-dialog{
-  position:fixed;inset:auto 0 0;
-  width:min(484px,100vw);max-width:100%;max-height:min(90dvh,900px);
-  margin:0 auto;padding:20px 17px max(20px,var(--astra-safe-bottom,20px));
-  overflow-y:auto;box-sizing:border-box;
-  border:1px solid #cfdee7;border-bottom:0;
-  border-radius:22px 22px 0 0;
-  background:#fff;color:#243e52;
-  box-shadow:0 -10px 45px #122e4359;
-  font:inherit;
-}
-.astra-personal-dialog::backdrop{background:rgba(16,32,47,.58)}
-.astra-personal-dialog-head{
-  display:flex;align-items:flex-start;justify-content:space-between;
-  gap:12px;margin-bottom:17px;
-}
-.astra-personal-dialog-head h2{
-  font:750 21px/1.3 system-ui,sans-serif;color:#233f54;margin:0;
-  text-transform:capitalize;
-}
-.astra-personal-close{
-  flex:none;display:grid;place-items:center;
-  width:44px;height:44px;margin:-7px -7px 0 0;
-  border:0;border-radius:10px;background:#edf3f6;
-  color:#355b71;font-size:26px;line-height:1;cursor:pointer;
-}
-.astra-personal-form,.astra-personal-field{display:flex;flex-direction:column}
-.astra-personal-form{gap:13px}
-.astra-personal-field{gap:5px;min-width:0}
-.astra-personal-field>span{font:750 12px/1.4 system-ui,sans-serif;color:#375b70}
-.astra-personal-field input,.astra-personal-field select,
-.astra-personal-field textarea{
-  box-sizing:border-box;width:100%;min-width:0;
-  background:#fff;color:#233e53;border:1px solid #c6d7e0;
-  border-radius:10px;padding:10px 11px;
-  min-height:44px;font:500 14px/1.4 system-ui,sans-serif;
-}
-.astra-personal-field textarea{resize:vertical;min-height:80px}
-.astra-personal-date-fields,.astra-personal-time-fields{
-  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;
-}
-.astra-personal-time-fields[hidden]{display:none}
-.astra-personal-all-day{
-  display:flex;align-items:center;gap:9px;
-  min-height:44px;font:650 14px/1.4 system-ui,sans-serif;color:#315b74;
-}
-.astra-personal-all-day input{width:19px;height:19px;accent-color:#235b81}
-.astra-personal-error{
-  color:#913c40;background:#fff0ef;padding:10px;
-  border-radius:9px;font-size:12px;line-height:1.5;
-}
-.astra-personal-error[hidden]{display:none}
-.astra-personal-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:6px}
-.astra-personal-save,.astra-calendar-inspector-sky{
-  flex:1;min-height:46px;padding:11px 12px;
-  border:1px solid #275e7b;border-radius:10px;
-  background:#275b78;color:#fff;
-  font:750 13px/1.35 system-ui,sans-serif;
-  cursor:pointer;
-}
-.astra-personal-delete{
-  min-height:46px;padding:11px 14px;
-  border:1px solid #dda6a5;border-radius:10px;
-  background:#fff4f2;color:#8c3935;
-  font:750 13px/1.35 system-ui,sans-serif;cursor:pointer;
-}
-.astra-calendar-inspector-sky{
-  border-color:#bcd0de;background:#eef5f9;color:#285876;
-}
 .astra-calendar-inspector-list{
   max-height:55dvh;overflow-y:auto;
   margin-bottom:12px;border-top:1px solid #dfE8ed;
@@ -139,22 +69,6 @@
   margin:0 0 11px;padding:11px;border-radius:9px;
   background:#eff4f7;color:#2f576e;font:650 13px/1.45 system-ui,sans-serif;
 }
-:root[data-astra-theme="dark"] .astra-personal-dialog{
-  background:#1b3343;border-color:#52768b;color:#e2eef5;
-}
-:root[data-astra-theme="dark"] .astra-personal-dialog-head h2,
-:root[data-astra-theme="dark"] .astra-personal-field>span,
-:root[data-astra-theme="dark"] .astra-personal-all-day{color:#e2eef5}
-:root[data-astra-theme="dark"] .astra-personal-field input,
-:root[data-astra-theme="dark"] .astra-personal-field select,
-:root[data-astra-theme="dark"] .astra-personal-field textarea{
-  background:#233f50;border-color:#7091a4;color:#e2eef5;
-}
-:root[data-astra-theme="dark"] .astra-personal-create,
-:root[data-astra-theme="dark"] .astra-calendar-inspector-sky,
-:root[data-astra-theme="dark"] .astra-personal-close{
-  background:#2a4c62;border-color:#8da9b9;color:#e5f2f9;
-}
 :root[data-astra-theme="dark"] .astra-calendar-inspector-event{
   background:#203c4c;border-bottom-color:#597b8f;
 }
@@ -163,10 +77,8 @@
   background:#2a485a;color:#e2edf5;
 }
 @media(max-width:360px){
-  .astra-personal-dialog{padding:17px 13px max(18px,var(--astra-safe-bottom,18px))}
   .astra-personal-calendar-week{gap:2px 1px}
   .astra-personal-calendar-event{padding:3px;font-size:10px}
-  .astra-personal-date-fields,.astra-personal-time-fields{gap:7px}
 }
 
 }

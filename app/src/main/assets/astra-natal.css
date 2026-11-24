@@ -87,9 +87,6 @@
 .natal-related button{min-height:42px}
 .natal-detail-body h3{font:750 21px/1.2 system-ui,sans-serif;color:#1f3545}
 .natal-detail-body p{font-size:14px;line-height:1.55}
-.natal-context-sheet{border:1px solid #b6cbd5;background:#fff;box-shadow:0 12px 40px #162c4040;
-  border-radius:17px}
-.natal-context-bar{background:#f3f7f9;border-bottom:1px solid #dae4e9}
 .natal-matrix-disclosure,.natal-explore-wheel,.natal-preview-disclosure{background:#f7f9fa;
   border-color:var(--astra-rule)}
 .natal-matrix-disclosure>summary,.natal-explore-wheel>summary,
@@ -435,7 +432,7 @@
   --position-columns:minmax(0,1fr) 1em minmax(0,1fr);
   --position-row-pad:clamp(5px,1.5vw,14px);
   --position-gap:clamp(3px,1vw,10px);
-  width:100%;min-width:0;overflow:auto;padding:0;
+  padding:0;
   border:1px solid var(--astra-divider);border-radius:var(--astra-radius-lg);
   background:var(--astra-surface);container-type:inline-size;
 }

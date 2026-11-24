@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 const read=name=>readFileSync(new URL('../app/src/main/assets/'+name,import.meta.url),'utf8');
-const html=read('index.html'),app=read('app.js'),css=read('astra-p3-accessibility.css'),tokens=read('astra-tokens.css');
+const html=read('index.html'),app=read('app.js'),css=read('astra-p3-accessibility.css'),tokens=read('astra-tokens.css'),components=read('astra-components.css');
 function luminance(hex){
   const linear=hex.slice(1).match(/.{2}/g).map(n=>parseInt(n,16)/255).map(v=>
     v<=0.04045?v/12.92:Math.pow((v+0.055)/1.055,2.4));
@@ -58,7 +58,7 @@ test('P3 supports focus, reduced motion, high contrast and small layouts',()=>{
   assert.match(css,/prefers-contrast:more/);
   assert.match(css,/prefers-reduced-motion:reduce/);
   assert.match(css,/@media\(max-width:360px\)/);
-  assert.match(css,/@media\(orientation:landscape\)/);
+  assert.match(components,/@media\(orientation:landscape\) and \(max-height:500px\)\s*\{\s*\.astra-personal-dialog,\.astra-settings-dialog\s*\{[^}]*max-height:min\(95dvh,calc\(100dvh - var\(--astra-safe-top\)\)\)/);
   assert.match(css,/aria-invalid="true"/);
   assert.match(app,/addEventListener\('keydown'/);
   assert.match(app,/addEventListener\('cancel'/);

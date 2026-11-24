@@ -30,9 +30,9 @@ test('P1 daily Moon transition and exact phase share one hero',()=>{
   assert.match(p1,/\.astra-lunar-highlight\.is-full/);
   assert.match(p1,/\.astra-lunar-highlight\.is-new/);
 });
-test('P1 monthly phases lead before secondary metrics and events',()=>{
+test('Monthly phases and event days lead before secondary metrics',()=>{
   const month=slice('  function monthOverview() {','  function personalCalendarWeek(');
-  const order=['monthMoonTitle','astra-month-metrics','monthEventsTitle'].map(s=>month.indexOf(s));
+  const order=['monthMoonTitle','monthEventsTitle','astra-month-metrics'].map(s=>month.indexOf(s));
   assert.ok(order.every(n=>n>=0));
   assert.ok(order[0]<order[1]&&order[1]<order[2]);
   assert.match(p1,/\.astra-month-phases/);

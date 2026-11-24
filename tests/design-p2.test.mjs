@@ -43,7 +43,8 @@ test('Personal calendar dialogs remain accessible, closable and multi-day',()=>{
   assert.match(dialog,/data-personal-close=/);
   assert.match(app,/addEventListener\('cancel'/);
   assert.match(app,/event\.key==='Escape'/);
-  assert.match(p2,/\.astra-personal-dialog\[open\]/);
+  assert.match(components,/\.astra-personal-dialog\[open\]/);
+  assert.doesNotMatch(p2,/\.astra-personal-dialog\[open\]/);
 });
 test('P2 keeps 3 page tabs plus settings; journal is a secondary route',()=>{
   const tabs=(html.match(/data-tab="/g)||[]).length;
@@ -57,7 +58,9 @@ test('P2 includes dark, focus, invalid and reduced motion states',()=>{
   assert.match(p2,/data-astra-theme="dark"/);
   assert.match(p2,/:focus-visible/);
   assert.match(p2,/prefers-reduced-motion:reduce/);
-  assert.match(p2,/\.astra-personal-error/);
+  assert.match(components,/\.astra-personal-error\s*\{[^}]*color:var\(--astra-danger\)/);
+  assert.match(components,/\.astra-personal-error\[hidden\]\{display:none\}/);
+  assert.doesNotMatch(p2,/\.astra-personal-error/);
   assert.match(solar,/\.astra-solar-ribbon-backdrop/);
   assert.ok(!p2.includes('astro\/runtime'));
 });

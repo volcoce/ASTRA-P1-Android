@@ -1506,7 +1506,6 @@ if __name__ == '__main__':
             page.locator('.astra-journal-back').click()
             assert page.locator('[data-tab="calendar"]').get_attribute('aria-current')=='page'
             assert page.locator('.calendar .day.selected').get_attribute('data-day')==chosen
-            page.locator('[data-tab="today"]').click()
             # Reproduce the confusing case: Taurus at noon, ingress later,
             # and Full Moon in Gemini that evening. All are simultaneous truths
             # about different instants, never conflicting labels.
