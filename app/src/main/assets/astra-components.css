@@ -630,6 +630,24 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
 @media(max-width:400px){
   .astra-personal-date-fields,.astra-personal-time-fields{grid-template-columns:minmax(0,1fr)}
 }
+@media(orientation:landscape) and (max-height:500px){
+  .astra-personal-dialog,.astra-settings-dialog{
+    max-height:min(95dvh,calc(100dvh - var(--astra-safe-top)))
+  }
+}
+/* The shared dialog owns both opening motion and its reduced-motion state. */
+@keyframes astra-dialog-in{
+  from{opacity:.65;transform:translateY(12px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@media(prefers-reduced-motion:no-preference){
+  .astra-personal-dialog[open],.astra-settings-dialog[open]{
+    animation:astra-dialog-in var(--astra-motion) both
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .astra-personal-dialog[open],.astra-settings-dialog[open]{animation:none}
+}
 
 
 /* ContextSheet shares the dialog's semantic surface while retaining non-modal
