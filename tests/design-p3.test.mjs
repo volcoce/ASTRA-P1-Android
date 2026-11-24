@@ -86,3 +86,30 @@ test('Shared touch direction and minimum displacement reject accidental gestures
  assert.match(app,/\.natal-wheel-viewport/);
  assert.match(app,/previous\.kind==='contact'\?'data-transit-contact'/);
 });
+
+test('Shared touch handler cancels interrupted, diagonal and protected interactions',()=>{
+ const source=app.slice(app.indexOf('  function swipeAxis('),app.indexOf('  function dismissSwipe('));
+ const bind=new Function(source+'return bindSwipe;')();
+ const handlers={},calls=[];
+ let valid=true,protectedTarget=false,expected='horizontal',prevented=0;
+ const root={addEventListener:(name,handler)=>{handlers[name]=handler;}};
+ bind(root,()=>({expected,valid:()=>valid,run:step=>calls.push(step)}));
+ const target={closest:()=>protectedTarget?{}:null};
+ const point=(x,y,identifier=7)=>({clientX:x,clientY:y,identifier});
+ function fire(name,touches,changedTouches=touches){
+   handlers[name]({target,touches,changedTouches,cancelable:true,preventDefault(){prevented++;}});
+ }
+ const start=()=>fire('touchstart',[point(0,0)]);
+ const move=(x,y)=>fire('touchmove',[point(x,y)]);
+ const end=(x,y)=>fire('touchend',[],[point(x,y)]);
+ start();move(-100,0);end(-100,0);
+ assert.deepEqual(calls,[1]);assert.equal(prevented,2);
+ start();move(0,100);end(-120,0);assert.deepEqual(calls,[1]);
+ start();move(80,80);end(-100,0);assert.deepEqual(calls,[1]);
+ start();move(-100,0);fire('touchcancel',[]);end(-100,0);assert.deepEqual(calls,[1]);
+ start();fire('touchmove',[point(-100,0),point(0,50,8)]);end(-100,0);assert.deepEqual(calls,[1]);
+ start();valid=false;end(-100,0);valid=true;assert.deepEqual(calls,[1]);
+ protectedTarget=true;start();move(-100,0);end(-100,0);protectedTarget=false;assert.deepEqual(calls,[1]);
+ expected='vertical';start();move(0,-100);end(0,-100);assert.deepEqual(calls,[1]);
+ start();move(0,100);end(0,100);assert.deepEqual(calls,[1,1]);
+});

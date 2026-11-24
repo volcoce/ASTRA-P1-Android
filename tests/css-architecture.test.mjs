@@ -270,8 +270,11 @@ test('Settings use one shared inset, sticky chrome and vertical section gap',()=
  assert.match(css,/\.astra-settings-chrome\s*\{[^}]*position:sticky/);
  assert.match(css,/\.astra-settings-group\s*\{[^}]*gap:var\(--astra-space-4\)/);
  assert.doesNotMatch(app,/class="card astra-reading-card astra-(?:preferences|performance)/);
- assert.match(app,/globalSettingsDialog\.addEventListener\('touchend'/);
- assert.match(app,/globalSettingsDialog\.addEventListener\('touchcancel'/);
+ assert.match(app,/bindSwipe\(globalSettingsDialog,target=>/);
+ const gesture=app.slice(app.indexOf('  function bindSwipe('),app.indexOf('  function dismissSwipe('));
+ assert.match(gesture,/root\.addEventListener\('touchend'/);
+ assert.match(gesture,/root\.addEventListener\('touchcancel'/);
+ assert.doesNotMatch(app,/globalSettingsDialog\.addEventListener\('touch(?:start|move|end|cancel)'/);
 });
 
 test('Merged monthly summary uses shared vertical stack, not individual margins',()=>{
