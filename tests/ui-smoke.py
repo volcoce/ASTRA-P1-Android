@@ -4,8 +4,9 @@ Astronomical truth is tested by runtime.test.mjs in CI, not this mock.
 """
 import os
 from pathlib import Path
+from contextlib import ExitStack, contextmanager
 from shutil import which
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import sync_playwright, expect
 
 ROOT = Path(__file__).resolve().parents[1] / 'app/src/main/assets'
 
@@ -92,7 +93,7 @@ window.ASTRA_ENGINE = {
 
 # Contrast is measured on the actual computed foreground and opaque ancestor
 # background, not just on colour-token pairs in a source stylesheet.
-CONTRAST_JS = """() => {
+CONTRAST_JS = r"""() => {
   const rgb=value=>{
     const match=value.match(/^rgba?\(([^)]+)\)$/);
     if(!match)return null;
@@ -120,16 +121,41 @@ CONTRAST_JS = """() => {
   });
 }"""
 
+@contextmanager
+def browser_diagnostics(context, page, output):
+    """Preserve the failing DOM, screenshot and Playwright trace before teardown."""
+    context.tracing.start(screenshots=True, snapshots=True, sources=True)
+    try:
+        yield
+    except Exception:
+        output.mkdir(parents=True, exist_ok=True)
+        # Diagnostic failures must never replace the original assertion.
+        for capture in (
+            lambda: page.screenshot(path=str(output/'failure.png'), full_page=True),
+            lambda: (output/'failure.html').write_text(page.content(), encoding='utf-8'),
+            lambda: context.tracing.stop(path=str(output/'trace.zip')),
+        ):
+            try:
+                capture()
+            except Exception as error:
+                print(f'Unable to capture diagnostic: {error}')
+        raise
+    else:
+        context.tracing.stop()
+
+
 if __name__ == '__main__':
     try:
-        with sync_playwright() as pw:
+        with sync_playwright() as pw, ExitStack() as diagnostics:
             chrome=which('chromium') or which('google-chrome') or which('google-chrome-stable')
             if not chrome:
                 raise RuntimeError('Chromium ou Google Chrome non trouvé sur ce PC/runner.')
             browser=pw.chromium.launch(headless=True,executable_path=chrome,args=['--no-sandbox'])
+            diagnostics.callback(browser.close)
             context=browser.new_context(viewport={'width':393,'height':844},accept_downloads=True)
             context.add_init_script(JS)
             page=context.new_page();errors=[]
+            diagnostics.enter_context(browser_diagnostics(context, page, Path('tests/artifacts/smoke-diagnostics')))
             # Stable civil dates for calendar fixtures, independent of CI run date.
             page.clock.set_fixed_time(__import__('datetime').datetime(2026,11,23,12,0,tzinfo=__import__('datetime').timezone.utc))
             shots=Path(os.environ['ASTRA_SCREENSHOT_DIR']) if os.environ.get('ASTRA_SCREENSHOT_DIR') else None
@@ -149,9 +175,37 @@ if __name__ == '__main__':
                     page.locator(selector).first.screenshot(
                         path=str(shots / (name+'.png')),animations='disabled',
                         style='.bottom-nav{visibility:hidden!important}')
-            def audit_disclosures(route):
-                """Check every disclosure on this rendered route, open or closed."""
-                items=page.evaluate("""() => [...document.querySelectorAll('details.astra-disclosure')].map(el=>{
+            def open_birth_settings():
+                """Enter the birth editor regardless of the last settings tab."""
+                trigger=page.locator('#settingsButton')
+                dialog=page.locator('#astraSettingsDialog')
+                expect(dialog).not_to_be_visible()
+                expect(trigger).to_have_attribute('aria-expanded','false')
+                trigger.click()
+                expect(dialog).to_be_visible()
+                expect(trigger).to_have_attribute('aria-expanded','true')
+                astrology=dialog.locator('[data-settings-section="astrology"]')
+                astrology.click()
+                expect(astrology).to_have_attribute('aria-selected','true')
+                birth=dialog.locator('[data-settings-birth]')
+                expect(birth).to_be_visible()
+                birth.click()
+                expect(dialog).not_to_be_visible()
+                expect(trigger).to_have_attribute('aria-expanded','false')
+                expect(page.locator('#app .natal-settings')).to_be_visible()
+                expect(page.locator('#birthForm')).to_be_visible()
+
+            def audit_disclosures(route, scope=None):
+                """Audit rendered summaries only, never descendants of a hidden dialog."""
+                if scope is None:
+                    scope='#astraSettingsDialog[open]' if route.startswith('settings-') else '#app'
+                items=page.evaluate("""scope => {
+                  const root=document.querySelector(scope);
+                  if(!root)throw Error('Disclosure audit scope missing: '+scope);
+                  return [...root.querySelectorAll('details.astra-disclosure')].filter(el=>{
+                    const summary=el.querySelector(':scope > summary');
+                    return (summary||el).getClientRects().length>0;
+                  }).map(el=>{
                   const summary=el.querySelector(':scope > summary');
                   const body=el.querySelector(':scope > .astra-disclosure-body');
                   if(!summary||!body)return {component:el.className,error:'missing summary/body'};
@@ -165,9 +219,9 @@ if __name__ == '__main__':
                     titleLeft:asFloat(top.paddingLeft),titleRight:asFloat(top.paddingRight),
                     bodyLeft:asFloat(inside.paddingLeft),bodyRight:asFloat(inside.paddingRight),
                     titleHeight:asFloat(top.minHeight),firstChildOffset:offset};
-                })""")
+                })}""",scope)
                 for item in items:
-                    assert not item.get('error'),(route,item)
+                    assert not item.get('error'),(route,scope,item)
                     for prop in ('titleLeft','titleRight','bodyLeft','bodyRight'):
                         assert item[prop]>=15,(route,item)
                     assert item['titleHeight']>=48,(route,item)
@@ -469,8 +523,10 @@ if __name__ == '__main__':
             assert fire.get_attribute('aria-expanded')=='true'
             assert page.locator('#natal-distribution-elements').is_visible()
             assert page.locator('#natal-distribution-elements [data-natal-body="Sun"]').is_visible()
-            assert page.locator('.natal-distribution-total').text_content().strip()==fire.locator('strong').inner_text().strip()
-            assert page.locator('.natal-distribution-total').text_content().strip().endswith('%')
+            # SVG <text> is not an HTMLElement; text_content is the DOM API here.
+            total=page.locator('.natal-distribution-total')
+            assert total.is_visible()
+            assert total.text_content().strip()==fire.locator('strong').inner_text().strip()
             assert page.locator('.natal-distribution-segment.is-selected[data-element="fire"]').count()==1
             page.locator('#natal-distribution-elements [data-natal-body="Sun"]').click()
             assert page.locator('#natalSelectionInfo').is_visible()
@@ -781,13 +837,16 @@ if __name__ == '__main__':
             assert page.locator('[data-close-natal-detail]').count()==1
             assert page.evaluate("document.activeElement.hasAttribute('data-close-natal-detail')") is True
             assert 'Lune' in page.locator('#natalSelectionInfo').inner_text()
-            # Overview intentionally hides technical facts in a disclosure.
             reading=page.locator('#natalSelectionInfo .natal-reading-more')
             assert reading.count()==1
             assert reading.get_attribute('open') is None
+            fact=reading.locator('.natal-fact')
+            assert not fact.is_visible()
             reading.locator('summary').click()
-            assert reading.locator('.natal-fact').is_visible()
-            assert 'Donnée calculée' in reading.locator('.natal-fact').inner_text()
+            assert fact.is_visible()
+            assert 'Donnée calculée' in fact.inner_text()
+            assert 'Longitude calculée' in fact.inner_text()
+            assert reading.locator('.natal-value').is_visible()
             page.locator('[data-close-natal-detail]').click()
             assert page.locator('#natalSelectionInfo').count()==0
             page.locator('[data-profile-screen="explore"]').click()
@@ -801,7 +860,7 @@ if __name__ == '__main__':
             capture('explore-393')
             assert page.locator('.natal-explore-toolbar .natal-back').count()==1
             assert page.locator('.natal-explore-toolbar .natal-settings-link').count()==0
-            assert page.locator('.natal-explore-intro').count()==1
+            assert page.locator('.natal-explore-intro').count()==0  # redundant intro intentionally removed
             # Same centered content column at 320, 393, 768 and 1280 px.
             for width in (320,393,768,1280):
                 page.set_viewport_size({'width':width,'height':800})
@@ -867,8 +926,7 @@ if __name__ == '__main__':
             assert 'Aspect natal' in page.locator('#natalSelectionInfo').inner_text()
             assert page.locator('.natal-matrix button').first.get_attribute('aria-pressed')=='true'
             page.locator('[data-close-natal-detail]').click()
-            page.locator('#settingsButton').click()
-            page.locator('[data-settings-birth]').click()
+            open_birth_settings()
             assert page.locator('.natal-settings').count()==1
             assert page.locator('.natal-more-options').get_attribute('open') is None
             capture('settings-393')
@@ -952,8 +1010,7 @@ if __name__ == '__main__':
             assert page.locator('.natal-home').count()==1
             assert page.locator('.natal-extras').count()==0
             assert page.locator('[data-profile-screen="progressions"], [data-profile-screen="composite"]').count()==0
-            page.locator('#settingsButton').click()
-            page.locator('[data-settings-birth]').click()
+            open_birth_settings()
             # The editor has one correctly sized return control and no
             # graphic export buttons, while keeping the preview interactive.
             back=page.locator('.natal-settings .natal-back')
@@ -986,7 +1043,13 @@ if __name__ == '__main__':
             page.locator('.natal-explore .natal-back').click()
             assert page.locator('.natal-home .natal-wheel').count()==1
             page.locator('.natal-wheel [data-natal-house="1"]').click()
-            assert 'Maison 1' in page.locator('#natalSelectionInfo').inner_text()
+            # House I opens the Ascendant pillar; the house data is progressive.
+            reading=page.locator('#natalSelectionInfo .natal-reading-more')
+            assert reading.get_attribute('open') is None
+            assert 'Ascendant' in page.locator('#natalSelectionInfo h3').inner_text()
+            reading.locator('summary').click()
+            assert 'maison I' in reading.inner_text()
+            assert 'Cuspide' in reading.locator('.natal-value').inner_text()
             page.locator('[data-close-natal-detail]').click()
             page.locator('.natal-wheel [data-natal-house="2"]').focus()
             page.keyboard.press('Space')
@@ -994,8 +1057,7 @@ if __name__ == '__main__':
             assert 'Maison 2' in page.locator('#natalSelectionInfo').inner_text()
             page.keyboard.press('Escape')
             assert page.locator('#natalSelectionInfo').count()==0
-            page.locator('#settingsButton').click()
-            page.locator('[data-settings-birth]').click()
+            open_birth_settings()
             page.locator('#settingsButton').click()
             page.locator('[data-settings-section="astrology"]').click()
             page.locator('[data-natal-zodiac="sidereal"]').click()
@@ -1003,8 +1065,7 @@ if __name__ == '__main__':
             page.locator('[data-settings-close]').click()
             page.locator('[data-profile-screen="overview"]').click()
             assert 'Sidéral' in page.locator('#natalChart').inner_text()
-            page.locator('#settingsButton').click()
-            page.locator('[data-settings-birth]').click()
+            open_birth_settings()
             page.locator('#settingsButton').click()
             page.locator('[data-settings-section="astrology"]').click()
             page.locator('[data-natal-zodiac="tropical"]').click()
@@ -1016,8 +1077,7 @@ if __name__ == '__main__':
             # Compare the two reference palettes on the SAME natal wheel and
             # calendar geometry. Persisted choices must affect live CSS & export.
             page.set_viewport_size({'width':393,'height':844})
-            page.locator('#settingsButton').click()
-            page.locator('[data-settings-birth]').click()
+            open_birth_settings()
             page.locator('#settingsButton').click()
             assert page.locator('#astraSettingsDialog[open]').count()==1
             assert page.locator('#astraSettingsDialog [role="tab"]').count()==5
@@ -1110,8 +1170,25 @@ if __name__ == '__main__':
                 assert actual==hues,(palette,actual)
                 capture('palette-'+palette+'-settings-light-393')
                 page.locator('[data-settings-close]').click()
-                assert page.locator('#astraSettingsDialog[open]').count()==0
-                assert page.locator('#settingsButton').get_attribute('aria-expanded')=='false'
+                # Native dialog.close() removes [open] synchronously but queues
+                # the close event. Wait for the actual accessibility state and
+                # restored focus, not an arbitrary timeout.
+                expect(page.locator('#astraSettingsDialog')).not_to_be_visible()
+                expect(page.locator('#settingsButton')).to_have_attribute('aria-expanded','false')
+                expect(page.locator('#settingsButton')).to_be_focused()
+                if palette=='classic':
+                    # Escape and native Android Back share the same contract.
+                    for method in ('escape','android-back'):
+                        page.locator('#settingsButton').click()
+                        expect(page.locator('#astraSettingsDialog')).to_be_visible()
+                        expect(page.locator('#settingsButton')).to_have_attribute('aria-expanded','true')
+                        if method=='escape':
+                            page.keyboard.press('Escape')
+                        else:
+                            assert page.evaluate('window.ASTRA_HANDLE_BACK()') is True
+                        expect(page.locator('#astraSettingsDialog')).not_to_be_visible()
+                        expect(page.locator('#settingsButton')).to_have_attribute('aria-expanded','false')
+                        expect(page.locator('#settingsButton')).to_be_focused()
                 page.locator('[data-profile-screen="overview"]').click()
                 for element,colour in hues.items():
                     expected_fill='rgb('+', '.join(str(int(colour[i:i+2],16)) for i in (1,3,5))+')'
@@ -1123,8 +1200,7 @@ if __name__ == '__main__':
                 page.locator('[data-tab="calendar"]').click()
                 capture_element('palette-'+palette+'-calendar-light-393','.astra-calendar-board')
                 page.locator('[data-tab="profile"]').click()
-                page.locator('#settingsButton').click()
-                page.locator('[data-settings-birth]').click()
+                open_birth_settings()
                 page.locator('#settingsButton').click()
                 page.locator('[data-settings-section="appearance"]').click()
             # P3: both appearance modes, readable ribbon ink and reduced motion.
@@ -1150,8 +1226,7 @@ if __name__ == '__main__':
             page.locator('[data-tab="calendar"]').click()
             capture_element('palette-classic-calendar-dark-393','.astra-calendar-board')
             page.locator('[data-tab="profile"]').click()
-            page.locator('#settingsButton').click()
-            page.locator('[data-settings-birth]').click()
+            open_birth_settings()
             page.locator('#settingsButton').click()
             page.locator('[data-settings-section="appearance"]').click()
             page.locator('[data-element-palette="vivid"]').click()
@@ -1162,8 +1237,7 @@ if __name__ == '__main__':
             page.locator('[data-tab="calendar"]').click()
             capture_element('palette-vivid-calendar-dark-393','.astra-calendar-board')
             page.locator('[data-tab="profile"]').click()
-            page.locator('#settingsButton').click()
-            page.locator('[data-settings-birth]').click()
+            open_birth_settings()
             page.locator('#settingsButton').click()
             page.locator('[data-settings-section="appearance"]').click()
             assert page.evaluate('document.documentElement.dataset.astraPalette')=='vivid'
@@ -1309,8 +1383,7 @@ if __name__ == '__main__':
                 assert contrast['moreWidth']<=390,contrast
             capture('today-dark-readable-events-393')
             page.locator('[data-tab="profile"]').click()
-            page.locator('#settingsButton').click()
-            page.locator('[data-settings-birth]').click()
+            open_birth_settings()
             page.locator('#settingsButton').click()
             page.locator('[data-settings-section="appearance"]').click()
             page.emulate_media(reduced_motion='reduce')
@@ -1504,8 +1577,7 @@ if __name__ == '__main__':
             page.set_viewport_size({'width':320,'height':730})
             # Return to Mon ciel after exercising the daily home widgets.
             page.locator('[data-tab="profile"]').click()
-            page.locator('#settingsButton').click()
-            page.locator('[data-settings-birth]').click()
+            open_birth_settings()
             assert page.locator('.calculation-details').first.get_attribute('open') is None
             page.locator('.calculation-details summary').first.click()
             assert 'Orbes automatiques' in page.locator('#birthForm').inner_text()
@@ -1773,9 +1845,15 @@ if __name__ == '__main__':
             assert page.locator('.astra-day-hero').count()==1
             page.locator('[data-tab="calendar"]').click()
             page.locator('.calendar .day.moon-full').click()
-            page.locator('#calendarDayDialog [data-event]').first.click(timeout=2000)
-            assert page.locator('#detailPanel').count()==1
-            assert audit_disclosures('event-detail')>=2
+            # Full Moon has only the astronomical disclosure; an aspect can
+            # additionally have an interpretation disclosure. Select the phase
+            # explicitly, rather than relying on the order of the day's events.
+            page.locator('#calendarDayDialog [data-event].event-kind-moon-full').click()
+            detail=page.locator('#detailPanel.event-kind-moon-full')
+            expect(detail).to_be_visible()
+            expect(detail.locator('.astra-event-disclosure')).to_have_count(1)
+            expect(detail.locator('.astra-event-technical')).to_have_count(1)
+            assert audit_disclosures('event-detail', '#detailPanel')==1
             assert 'Lecture astrologique' in page.locator('#detailPanel').inner_text()
             assert page.locator('#detailPanel .astra-event-facts').count()==1
             assert page.locator('#detailPanel .astra-event-technical').count()==1
@@ -1799,7 +1877,7 @@ if __name__ == '__main__':
                 assert spacing['summary']['left']>=14,(width,spacing)
                 assert spacing['summary']['right']>=14,(width,spacing)
                 assert spacing['body']['left']>=14,(width,spacing)
-                assert audit_disclosures('detail-'+str(width))>=2
+                assert audit_disclosures('detail-'+str(width), '#detailPanel')==1
                 assert spacing['body']['right']>=14,(width,spacing)
                 assert spacing['factsOffset']>=14,(width,spacing)
                 assert page.evaluate('document.documentElement.scrollWidth')<=width+2,(width,spacing)
@@ -1809,7 +1887,7 @@ if __name__ == '__main__':
                     capture('event-disclosure-padded-desktop-1280')
             page.set_viewport_size({'width':320,'height':730})
             page.locator('#detailPanel .astra-event-technical > summary').click()
-            assert 'Référence horaire' in page.locator('#detailPanel').text_content()
+            assert 'Référence horaire' in page.locator('#detailPanel .astra-event-facts').text_content()
             assert page.locator('[data-detail-step]').count()==0
             page.get_by_role('button',name='Noter dans mon journal').click()
             assert page.locator('#journalNote').count()==1
@@ -1853,29 +1931,23 @@ if __name__ == '__main__':
             assert page.evaluate("Object.values(JSON.parse(localStorage.getItem('astra-public-v1')).journal).every(d=>d.note!=='Brouillon non publié')")
             assert page.locator('.astra-section-stack[aria-label="Sections du journal"]').evaluate('e=>parseFloat(getComputedStyle(e).rowGap)')==16
             page.locator('#journalNote').focus()
-            assert page.locator('.bottom-nav').evaluate(
-                "e => getComputedStyle(e).visibility"
-            )=='visible'
+            expect(page.locator('.bottom-nav')).to_have_css('visibility','visible')
             page.set_viewport_size({'width':320,'height':480})
-            page.wait_for_timeout(75)
-            assert page.locator('.bottom-nav').evaluate(
-                "e => getComputedStyle(e).visibility"
-            )=='hidden'
+            expect(page.locator('.bottom-nav')).to_have_css('visibility','hidden')
             page.set_viewport_size({'width':320,'height':730})
-            page.wait_for_timeout(75)
-            assert page.locator('.bottom-nav').evaluate(
-                "e => getComputedStyle(e).visibility"
-            )=='visible'
+            expect(page.locator('.bottom-nav')).to_have_css('visibility','visible')
             page.locator('#journalNote').evaluate('e => e.blur()')
             # P1: unknown birth hour should not invent an Ascendant or houses.
             page.locator('[data-tab="profile"]').click()
             assert page.locator('#birthForm').count()==0
-            page.locator('#settingsButton').click()
-            page.locator('[data-settings-birth]').click()
+            open_birth_settings()
             page.locator('#unknownBirthTime').check()
             assert page.locator('#birthTime').is_disabled()
             page.get_by_role('button',name='Calculer mon thème natal').click()
-            page.wait_for_timeout(250)
+            page.wait_for_function("""() => {
+              const p=JSON.parse(localStorage.getItem('astra-public-v1')||'{}').profile;
+              return p?.timeKnown===false && p.time===null;
+            }""")
             saved=page.evaluate("JSON.parse(localStorage.getItem('astra-public-v1'))")
             assert saved['profile']['timeKnown'] is False
             assert saved['profile']['time'] is None
@@ -1890,8 +1962,12 @@ if __name__ == '__main__':
             assert 'Ascendant' not in page.locator('.natal-primary-cards').inner_text()
             assert 'indicatives' in page.locator('.natal-distribution-caption').inner_text()
             page.locator('.natal-wheel [data-natal-body="Moon"]').click()
-            page.locator('#natalSelectionInfo .natal-reading-more > summary').click()
-            assert 'indicative' in page.locator('#natalSelectionInfo').inner_text()
+            reading=page.locator('#natalSelectionInfo .natal-reading-more')
+            assert reading.get_attribute('open') is None
+            reading.locator('summary').click()
+            assert reading.locator('.natal-warning').is_visible()
+            assert 'indicative' in reading.locator('.natal-warning').inner_text()
+            assert 'indicative' in reading.locator('.natal-fact').inner_text()
             page.locator('[data-close-natal-detail]').click()
             page.locator('[data-profile-screen="explore"]').click()
             assert page.locator('#natalChart .natal-position').count()==10
@@ -1908,6 +1984,5 @@ if __name__ == '__main__':
             assert page.evaluate('window.ASTRA_HANDLE_BACK()') is False
             assert not errors, errors
             print('UI Android adaptive: 320–1280 px, Galaxy A15, IME, Android Back, natal and journal: OK')
-            browser.close()
     finally:
         pass

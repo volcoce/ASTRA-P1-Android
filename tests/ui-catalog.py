@@ -7,7 +7,7 @@ import time
 from pathlib import Path
 from shutil import which
 from urllib.request import urlopen
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import sync_playwright, expect
 
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'tests/artifacts/ui-catalog'
@@ -51,7 +51,8 @@ def run():
             page.locator('#open-dialog').click()
             assert page.locator('#catalog-dialog').evaluate('e=>e.open')
             page.keyboard.press('Escape')
-            assert page.locator('#open-dialog').evaluate('e=>document.activeElement===e')
+            expect(page.locator('#catalog-dialog')).not_to_be_visible()
+            expect(page.locator('#open-dialog')).to_be_focused()
             for theme in ('light','dark'):
                 page.locator('#theme').select_option(theme)
                 for palette in ('classic','vivid'):

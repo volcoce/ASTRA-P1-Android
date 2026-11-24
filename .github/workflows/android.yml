@@ -97,8 +97,15 @@ jobs:
             tests/artifacts/p1-screenshots/*.png
           if-no-files-found: warn
       - name: Vérifier les captures visuelles et la palette par pixels
-        if: ${{ !cancelled() && steps.smoke.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.browser.outcome == 'success' }}
         run: python tests/visual-regression.py
+      - name: Publier les diagnostics du smoke test
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ASTRA-smoke-diagnostics
+          path: tests/artifacts/smoke-diagnostics/
+          if-no-files-found: ignore
       - name: Publier le rapport des tests visuels
         if: always()
         uses: actions/upload-artifact@v4
