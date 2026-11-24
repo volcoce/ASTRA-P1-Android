@@ -479,17 +479,18 @@
   flex:0 0 1.15em;text-align:center;font:600 1.4em/1 "Noto Sans Symbols 2","Segoe UI Symbol","DejaVu Sans",sans-serif;
   color:var(--astra-brand)
 }
+/* Glyph tints must remain readable on plain, striped and selected rows. */
 .natal-position-table .position-glyph{color:var(--astra-ink)}
-.natal-position-table [data-natal-body="Sun"] .position-glyph{color:color-mix(in srgb,var(--color-dandelion) 48%,var(--astra-ink))}
+.natal-position-table [data-natal-body="Sun"] .position-glyph{color:color-mix(in srgb,var(--color-dandelion) 18%,var(--astra-ink))}
 .natal-position-table [data-natal-body="Moon"] .position-glyph,
 .natal-position-table [data-natal-body="Jupiter"] .position-glyph,
-.natal-position-table [data-natal-body="Neptune"] .position-glyph{color:color-mix(in srgb,var(--color-cornflower) 48%,var(--astra-ink))}
-.natal-position-table :is([data-natal-body="Mars"],[data-natal-body="Venus"],[data-natal-body="Pluto"]) .position-glyph{color:var(--astra-danger)}
+.natal-position-table [data-natal-body="Neptune"] .position-glyph{color:color-mix(in srgb,var(--color-cornflower) 18%,var(--astra-ink))}
+.natal-position-table :is([data-natal-body="Mars"],[data-natal-body="Venus"],[data-natal-body="Pluto"]) .position-glyph{color:color-mix(in srgb,var(--astra-danger) 30%,var(--astra-ink))}
 .natal-position-table [data-element="fire"]{--sign-color:var(--astra-zodiac-fire)}
 .natal-position-table [data-element="earth"]{--sign-color:var(--astra-zodiac-earth)}
 .natal-position-table [data-element="air"]{--sign-color:var(--astra-zodiac-air)}
 .natal-position-table [data-element="water"]{--sign-color:var(--astra-zodiac-water)}
-.natal-position-table .position-sign-glyph{color:color-mix(in srgb,var(--sign-color) 36%,var(--astra-ink))}
+.natal-position-table .position-sign-glyph{color:color-mix(in srgb,var(--sign-color) 15%,var(--astra-ink))}
 .natal-position-table .position-retrograde,.natal-position-legend span{
   color:var(--astra-danger);font-weight:750;text-align:center
 }

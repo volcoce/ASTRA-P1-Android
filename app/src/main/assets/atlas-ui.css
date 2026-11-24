@@ -44,7 +44,7 @@ textarea:focus-visible,select:focus-visible{outline:3px solid #237b99;outline-of
 .natal-transit-time label{font:700 13px/1.4 system-ui,sans-serif;color:#3e5363}
 .natal-transit-time input{font:600 15px system-ui,sans-serif;color:#243c4f;
   border:1px solid #c7d7df;border-radius:11px;min-height:48px}
-.natal-compare-zone{color:#657987;font-size:12px}
+.natal-compare-zone{font-size:12px}
 .natal-contact-list{border-color:var(--astra-rule);border-radius:13px}
 .natal-contact-list button{font:650 14px/1.4 system-ui,sans-serif;color:#273c50}
 .natal-contact-list button small{font-size:12px;color:#617687}
@@ -66,7 +66,6 @@ textarea:focus-visible,select:focus-visible{outline:3px solid #237b99;outline-of
 .field textarea{min-height:122px;line-height:1.5}
 .field-help{font-size:13px;color:#5e7180}
 .city-confirmed{background:#eef4f5;border-color:#cddfe2;color:#29485a}
-.unknown-time-toggle{color:#344f60}
 .natal-disclaimer{color:#627581}
 
 /* Today and calendar: make meaningful content scannable. */
@@ -103,9 +102,8 @@ textarea:focus-visible,select:focus-visible{outline:3px solid #237b99;outline-of
   border-radius:11px;gap:6px;font-size:22px}
 .mood .mood-symbol{font-size:25px;line-height:1.15}
 .mood span:last-child{font-size:11px;font-weight:600;line-height:1.3;
-  color:#64788a;white-space:normal;overflow-wrap:anywhere}
+  color:inherit;white-space:normal;overflow-wrap:anywhere}
 .mood.on{background:#e7f1f4;border:2px solid #31637b;color:#21495f}
-.mood.on span:last-child{color:#1c4a61}
 .tag-button{background:#f7fafb;border-color:#d4e0e6;color:#435f70;font-size:12px}
 .tag-button.on{background:#e7f1f4;border-color:#477991;color:#17465a}
 .insights>div{background:#edf3f5;border-radius:12px}

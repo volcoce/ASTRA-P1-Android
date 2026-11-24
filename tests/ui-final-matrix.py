@@ -192,13 +192,17 @@ def run():
                             entry['screenshot']='screenshots/'+label+'.png'
                             result=page.evaluate("""async()=>await axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']}})""")
                             entry['axe']=[{'id':v['id'],'impact':v['impact'],
-                                           'nodes':[n['target'] for n in v['nodes']]}
+                                           'nodes':[n['target'] for n in v['nodes']],
+                                           'details':[{'target':n['target'],'html':n.get('html'),
+                                                       'summary':n.get('failureSummary'),
+                                                       'checks':[c.get('data') for c in n.get('any',[])]}
+                                                      for n in v['nodes']]}
                                           for v in result['violations']]
                             entry['axe_incomplete']=[{'id':v['id'],'nodes':[n['target'] for n in v['nodes']]}
                                                      for v in result['incomplete']]
                             for v in entry['axe']:
                                 check(entry,v['impact'] not in ('critical','serious'),
-                                      'axe '+v['id']+' '+str(v['nodes']))
+                                      'axe '+v['id']+' '+str(v['details']))
                         except Exception as exc:
                             entry['failures'].append(str(exc))
                         finally:
