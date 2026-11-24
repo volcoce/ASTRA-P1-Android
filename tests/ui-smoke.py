@@ -92,7 +92,7 @@ window.ASTRA_ENGINE = {
 
 # Contrast is measured on the actual computed foreground and opaque ancestor
 # background, not just on colour-token pairs in a source stylesheet.
-CONTRAST_JS = """() => {
+CONTRAST_JS = r"""() => {
   const rgb=value=>{
     const match=value.match(/^rgba?\(([^)]+)\)$/);
     if(!match)return null;
@@ -469,7 +469,10 @@ if __name__ == '__main__':
             assert fire.get_attribute('aria-expanded')=='true'
             assert page.locator('#natal-distribution-elements').is_visible()
             assert page.locator('#natal-distribution-elements [data-natal-body="Sun"]').is_visible()
-            assert page.locator('.natal-distribution-total').inner_text().endswith('%')
+            # SVG <text> is not an HTMLElement; text_content is the DOM API here.
+            total=page.locator('.natal-distribution-total')
+            assert total.is_visible()
+            assert total.text_content().strip()==fire.locator('strong').inner_text().strip()
             assert page.locator('.natal-distribution-segment.is-selected[data-element="fire"]').count()==1
             page.locator('#natal-distribution-elements [data-natal-body="Sun"]').click()
             assert page.locator('#natalSelectionInfo').is_visible()
@@ -780,7 +783,16 @@ if __name__ == '__main__':
             assert page.locator('[data-close-natal-detail]').count()==1
             assert page.evaluate("document.activeElement.hasAttribute('data-close-natal-detail')") is True
             assert 'Lune' in page.locator('#natalSelectionInfo').inner_text()
-            assert 'Donnée calculée' in page.locator('#natalSelectionInfo').inner_text()
+            reading=page.locator('#natalSelectionInfo .natal-reading-more')
+            assert reading.count()==1
+            assert reading.get_attribute('open') is None
+            fact=reading.locator('.natal-fact')
+            assert not fact.is_visible()
+            reading.locator('summary').click()
+            assert fact.is_visible()
+            assert 'Donnée calculée' in fact.inner_text()
+            assert 'Longitude calculée' in fact.inner_text()
+            assert reading.locator('.natal-value').is_visible()
             page.locator('[data-close-natal-detail]').click()
             assert page.locator('#natalSelectionInfo').count()==0
             page.locator('[data-profile-screen="explore"]').click()
@@ -794,7 +806,7 @@ if __name__ == '__main__':
             capture('explore-393')
             assert page.locator('.natal-explore-toolbar .natal-back').count()==1
             assert page.locator('.natal-explore-toolbar .natal-settings-link').count()==0
-            assert page.locator('.natal-explore-intro').count()==1
+            assert page.locator('.natal-explore-intro').count()==0  # redundant intro intentionally removed
             # Same centered content column at 320, 393, 768 and 1280 px.
             for width in (320,393,768,1280):
                 page.set_viewport_size({'width':width,'height':800})
@@ -979,7 +991,13 @@ if __name__ == '__main__':
             page.locator('.natal-explore .natal-back').click()
             assert page.locator('.natal-home .natal-wheel').count()==1
             page.locator('.natal-wheel [data-natal-house="1"]').click()
-            assert 'Maison 1' in page.locator('#natalSelectionInfo').inner_text()
+            # House I opens the Ascendant pillar; the house data is progressive.
+            reading=page.locator('#natalSelectionInfo .natal-reading-more')
+            assert reading.get_attribute('open') is None
+            assert 'Ascendant' in page.locator('#natalSelectionInfo h3').inner_text()
+            reading.locator('summary').click()
+            assert 'maison I' in reading.inner_text()
+            assert 'Cuspide' in reading.locator('.natal-value').inner_text()
             page.locator('[data-close-natal-detail]').click()
             page.locator('.natal-wheel [data-natal-house="2"]').focus()
             page.keyboard.press('Space')
@@ -1865,7 +1883,12 @@ if __name__ == '__main__':
             assert 'Ascendant' not in page.locator('.natal-primary-cards').inner_text()
             assert 'indicatives' in page.locator('.natal-distribution-caption').inner_text()
             page.locator('.natal-wheel [data-natal-body="Moon"]').click()
-            assert 'indicative' in page.locator('#natalSelectionInfo').inner_text()
+            reading=page.locator('#natalSelectionInfo .natal-reading-more')
+            assert reading.get_attribute('open') is None
+            reading.locator('summary').click()
+            assert reading.locator('.natal-warning').is_visible()
+            assert 'indicative' in reading.locator('.natal-warning').inner_text()
+            assert 'indicative' in reading.locator('.natal-fact').inner_text()
             page.locator('[data-close-natal-detail]').click()
             page.locator('[data-profile-screen="explore"]').click()
             assert page.locator('#natalChart .natal-position').count()==10
