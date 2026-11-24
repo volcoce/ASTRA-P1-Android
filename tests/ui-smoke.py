@@ -5,7 +5,7 @@ Astronomical truth is tested by runtime.test.mjs in CI, not this mock.
 import os
 from pathlib import Path
 from shutil import which
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import sync_playwright, expect
 
 ROOT = Path(__file__).resolve().parents[1] / 'app/src/main/assets'
 
@@ -1121,8 +1121,25 @@ if __name__ == '__main__':
                 assert actual==hues,(palette,actual)
                 capture('palette-'+palette+'-settings-light-393')
                 page.locator('[data-settings-close]').click()
-                assert page.locator('#astraSettingsDialog[open]').count()==0
-                assert page.locator('#settingsButton').get_attribute('aria-expanded')=='false'
+                # Native dialog.close() removes [open] synchronously but queues
+                # the close event. Wait for the actual accessibility state and
+                # restored focus, not an arbitrary timeout.
+                expect(page.locator('#astraSettingsDialog')).not_to_be_visible()
+                expect(page.locator('#settingsButton')).to_have_attribute('aria-expanded','false')
+                expect(page.locator('#settingsButton')).to_be_focused()
+                if palette=='classic':
+                    # Escape and native Android Back share the same contract.
+                    for method in ('escape','android-back'):
+                        page.locator('#settingsButton').click()
+                        expect(page.locator('#astraSettingsDialog')).to_be_visible()
+                        expect(page.locator('#settingsButton')).to_have_attribute('aria-expanded','true')
+                        if method=='escape':
+                            page.keyboard.press('Escape')
+                        else:
+                            assert page.evaluate('window.ASTRA_HANDLE_BACK()') is True
+                        expect(page.locator('#astraSettingsDialog')).not_to_be_visible()
+                        expect(page.locator('#settingsButton')).to_have_attribute('aria-expanded','false')
+                        expect(page.locator('#settingsButton')).to_be_focused()
                 page.locator('[data-profile-screen="overview"]').click()
                 for element,colour in hues.items():
                     expected_fill='rgb('+', '.join(str(int(colour[i:i+2],16)) for i in (1,3,5))+')'
