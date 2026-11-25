@@ -148,10 +148,23 @@ def main():
             by_end.setdefault(r['end'], []).append(r)
         r['suites'] = []
     unmatched = []
+    structural = []
+    technical_ranges = []
+    structures = inventory['structures']
     for (start, end), suites in sorted(all_rules.items()):
         candidates = [r for r in by_end.get(end, []) if r['start'] <= start < end]
         if len(candidates) != 1:
-            unmatched.append({'start': start, 'end': end, 'suites': sorted(suites)})
+            # Match only exact AST structure boundaries, never broad containment.
+            groups = [a for a in structures if
+                      (start == a['headerStart'] and end in (a['headerEnd'], a['end']))
+                      or (start == a['start'] and end in (a['headerEnd'], a['end']))]
+            record = {'start': start, 'end': end, 'suites': sorted(suites)}
+            if len(groups) == 1:
+                structural.append({**record, 'name': groups[0]['name'], 'params': groups[0]['params']})
+            elif any(r['technical'] and r['start'] <= start < end == r['end'] for r in rules):
+                technical_ranges.append(record)
+            else:
+                unmatched.append(record)
             continue
         r = candidates[0]
         r['suites'] = sorted(set(r['suites']) | suites)
@@ -175,7 +188,7 @@ def main():
         item = summary.setdefault(key, {'compiled_rules': 0, 'observed': 0, 'not_observed': 0})
         item['compiled_rules'] += 1
         item['observed' if r['used'] else 'not_observed'] += 1
-    report = {'version': 2, 'commit': subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
+    report = {'version': '2.1', 'commit': subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
               'bundle_sha256': hashlib.sha256(bundle.encode()).hexdigest(),
               'offset_unit': 'UTF-16 code units; end exclusive', 'pages': results,
               'rules_inventory': len(rules), 'rules_eligible': len(eligible),
@@ -183,6 +196,8 @@ def main():
               'rules_used': used, 'rules_not_observed': len(eligible)-used,
               'coverage_percent': round(100*used/len(eligible),2) if eligible else None,
               'source_inventory': inventory['sources'], 'by_source_candidate': summary,
+              'structural_cdp_count': len(structural), 'technical_cdp_count': len(technical_ranges),
+              'structural_cdp_ranges': structural, 'technical_cdp_ranges': technical_ranges,
               'unmatched_cdp_ranges': unmatched, 'errors': errors, 'rules': rules,
               'limitations': 'Rule matching, not declaration or selector-branch coverage. Source attribution is approximate selector matching, not a source map. Unobserved does not mean dead; technical keyframes excluded.'}
     (OUT/'css-coverage.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
