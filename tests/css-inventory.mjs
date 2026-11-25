@@ -33,4 +33,12 @@ for(const r of rules){
   r.source_candidates=index.get(key)||[];
   r.attribution=r.source_candidates.length===1?'unique-selector-candidate':r.source_candidates.length?'ambiguous-selector':'unmapped';
 }
-console.log(JSON.stringify({rules,sources:sources.map(s=>({file:s.file,source_rules:s.rules.length})),offset_unit:'UTF-16 code units; end exclusive'}));
+// CDP can report grouping rule headers or whole blocks, as well as style rules.
+const structures=[];
+postcss.parse(bundle,{from:'astra.bundle.css'}).walkAtRules(a=>{
+  const start=a.source.start.offset,end=a.source.end.offset;
+  const headerStart=start+1+a.name.length+(a.raws.afterName||'').length;
+  const headerEnd=headerStart+a.params.length+(a.raws.between||'').length+(a.nodes?1:0);
+  structures.push({name:a.name,params:a.params,start,end,headerStart,headerEnd});
+});
+console.log(JSON.stringify({rules,structures,sources:sources.map(s=>({file:s.file,source_rules:s.rules.length})),offset_unit:'UTF-16 code units; end exclusive'}));
