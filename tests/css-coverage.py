@@ -137,24 +137,58 @@ def main():
         for cls, name, old in reversed(originals):
             setattr(cls, name, old)
 
-    rules = []
-    for (start, end), used in sorted(all_rules.items()):
-        css = encoded[2*start:2*end].decode('utf-16-le')
-        rules.append({'start': start, 'end': end, 'used': bool(used),
-                      'suites': sorted(used), 'css': css})
-    used = sum(r['used'] for r in rules)
-    if not rules or not used or not all(any(p['suite']==s and p['matched_bundle'] for p in results) for s in SUITES):
+    inventory = json.loads(subprocess.check_output(
+        ['node', 'tests/css-inventory.mjs'], cwd=ROOT, text=True))
+    rules = inventory['rules']
+    # Match on exact rule end; CDP may start at the selector or its first token.
+    # Reject ambiguous/unmapped observations instead of silently inflating coverage.
+    by_end = {}
+    for r in rules:
+        if not r['technical']:
+            by_end.setdefault(r['end'], []).append(r)
+        r['suites'] = []
+    unmatched = []
+    for (start, end), suites in sorted(all_rules.items()):
+        candidates = [r for r in by_end.get(end, []) if r['start'] <= start < end]
+        if len(candidates) != 1:
+            unmatched.append({'start': start, 'end': end, 'suites': sorted(suites)})
+            continue
+        r = candidates[0]
+        r['suites'] = sorted(set(r['suites']) | suites)
+    for r in rules:
+        r['used'] = bool(r['suites'])
+        r['status'] = ('technical' if r['technical'] else 'observed' if r['used']
+                       else 'conditional-not-observed' if any(c.startswith(('@media ', '@supports ', '@container ')) for c in r['context'])
+                       else 'not-observed')
+        r['css'] = encoded[2*r['start']:2*r['end']].decode('utf-16-le')
+    eligible = [r for r in rules if not r['technical']]
+    used = sum(r['used'] for r in eligible)
+    if not eligible or not used or not all(any(p['suite']==s and p['matched_bundle'] for p in results) for s in SUITES):
         errors.append('Missing usable coverage from one or more suites')
-    report = {'commit': subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
+    if unmatched:
+        errors.append(f'{len(unmatched)} CDP ranges could not be reconciled with the independent inventory')
+    summary = {}
+    for r in eligible:
+        candidates = r['source_candidates']
+        files = {c['file'] for c in candidates}
+        key = next(iter(files)) if len(files)==1 else '(ambiguous)' if files else '(unmapped)'
+        item = summary.setdefault(key, {'compiled_rules': 0, 'observed': 0, 'not_observed': 0})
+        item['compiled_rules'] += 1
+        item['observed' if r['used'] else 'not_observed'] += 1
+    report = {'version': 2, 'commit': subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
               'bundle_sha256': hashlib.sha256(bundle.encode()).hexdigest(),
-              'offset_unit': 'UTF-16 code units', 'pages': results,
-              'rules_reported': len(rules), 'rules_used': used,
-              'rules_not_observed': len(rules)-used, 'errors': errors, 'rules': rules,
-              'limitations': 'Only CDP-reported rules in the exact compiled bundle; no original-source mapping; unobserved does not mean dead.'}
+              'offset_unit': 'UTF-16 code units; end exclusive', 'pages': results,
+              'rules_inventory': len(rules), 'rules_eligible': len(eligible),
+              'rules_technical': len(rules)-len(eligible), 'rules_reported': len(all_rules),
+              'rules_used': used, 'rules_not_observed': len(eligible)-used,
+              'coverage_percent': round(100*used/len(eligible),2) if eligible else None,
+              'source_inventory': inventory['sources'], 'by_source_candidate': summary,
+              'unmatched_cdp_ranges': unmatched, 'errors': errors, 'rules': rules,
+              'limitations': 'Rule matching, not declaration or selector-branch coverage. Source attribution is approximate selector matching, not a source map. Unobserved does not mean dead; technical keyframes excluded.'}
     (OUT/'css-coverage.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-    rows = ''.join('<tr><td>'+str(r['start'])+'</td><td>'+('used' if r['used'] else 'not observed')+'</td><td><code>'+html.escape(r['css'])+'</code></td></tr>' for r in rules)
-    (OUT/'css-coverage.html').write_text('<!doctype html><meta charset="utf-8"><title>ASTRA CSS coverage</title><style>body{font:16px system-ui;margin:2rem}td{vertical-align:top;padding:.4rem;border-bottom:1px solid #ddd}code{overflow-wrap:anywhere}table{width:100%;table-layout:fixed}td:first-child{width:5rem}td:nth-child(2){width:9rem}</style><h1>ASTRA CSS coverage</h1><p>'+str(used)+' / '+str(len(rules))+' CDP-reported rules matched</p><p>'+html.escape(report['limitations'])+'</p><pre>'+html.escape('\n'.join(errors))+'</pre><table>'+rows+'</table>',encoding='utf-8')
-    print(f'CSS coverage: {used}/{len(rules)} reported rules matched; {len(errors)} errors')
+    rows = ''.join('<tr><td>'+str(r['start'])+'</td><td>'+html.escape(r['status'])+'</td><td><code>'+html.escape(r['css'])+'</code></td></tr>' for r in rules)
+    (OUT/'css-coverage.html').write_text('<!doctype html><meta charset="utf-8"><title>ASTRA CSS coverage</title><style>body{font:16px system-ui;margin:2rem}td{vertical-align:top;padding:.4rem;border-bottom:1px solid #ddd}code{overflow-wrap:anywhere}table{width:100%;table-layout:fixed}td:first-child{width:5rem}td:nth-child(2){width:9rem}</style><h1>ASTRA CSS coverage</h1><p>'+str(used)+' / '+str(len(eligible))+' independently inventoried style rules matched</p><p>'+html.escape(report['limitations'])+'</p><pre>'+html.escape('\n'.join(errors))+'</pre><table>'+rows+'</table>',encoding='utf-8')
+    print(f'CSS coverage: {used}/{len(eligible)} inventoried style rules matched; {len(errors)} errors')
     if errors:
         raise SystemExit(1)
 
