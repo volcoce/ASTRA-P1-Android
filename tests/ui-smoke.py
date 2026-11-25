@@ -148,10 +148,7 @@ def browser_diagnostics(context, page, output):
 if __name__ == '__main__':
     try:
         with sync_playwright() as pw, ExitStack() as diagnostics:
-            chrome=which('chromium') or which('google-chrome') or which('google-chrome-stable')
-            if not chrome:
-                raise RuntimeError('Chromium ou Google Chrome non trouvé sur ce PC/runner.')
-            browser=pw.chromium.launch(headless=True,executable_path=chrome,args=['--no-sandbox'])
+            browser=pw.chromium.launch(headless=True,args=['--no-sandbox'])
             diagnostics.callback(browser.close)
             context=browser.new_context(viewport={'width':393,'height':844},accept_downloads=True)
             context.add_init_script(JS)
@@ -406,6 +403,9 @@ if __name__ == '__main__':
             page.get_by_text('Configurer mon thème natal').click()
             # A15 and compact screen: birth fields remain usable with keyboard.
             page.set_viewport_size({'width':360,'height':720})
+            page.evaluate("document.activeElement.blur()")
+            page.evaluate("window.dispatchEvent(new Event('resize'))")
+            page.wait_for_timeout(150)
             capture('galaxy-a15-form-360')
             assert page.evaluate("document.documentElement.scrollWidth")<=362
             page.locator('#birthCity').focus()

@@ -67,7 +67,7 @@ jobs:
         if: ${{ !cancelled() && steps.python.outcome == 'success' }}
         run: |
           python -m pip install playwright==1.56.0 Pillow==11.3.0
-          command -v google-chrome || command -v chromium
+          python -m playwright install --with-deps chromium
       - name: Tester Mon ciel, les modes et le journal dans Chromium
         id: smoke
         if: ${{ !cancelled() && steps.browser.outcome == 'success' }}

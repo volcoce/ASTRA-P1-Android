@@ -15,3 +15,7 @@ app/src/main/assets/astra.bundle.css
 
 # Uncompressed experimental signing file, restored in CI
 ci/*.p12
+
+.venv/
+
+tests/artifacts/

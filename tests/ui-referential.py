@@ -54,9 +54,7 @@ def run():
         if not ok: failures.append(message)
     try:
         with sync_playwright() as pw:
-            chrome=which('chromium') or which('google-chrome') or which('google-chrome-stable')
-            if not chrome: raise RuntimeError('Chromium absent')
-            browser=pw.chromium.launch(headless=True,executable_path=chrome,args=['--no-sandbox'])
+            browser=pw.chromium.launch(headless=True,args=['--no-sandbox'])
             for theme in ('light','dark'):
                 context=browser.new_context(viewport={'width':393,'height':844},color_scheme=theme)
                 page=context.new_page()
