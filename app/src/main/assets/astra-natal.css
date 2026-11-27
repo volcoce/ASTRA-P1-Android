@@ -7,7 +7,7 @@
 
 /* Home: one readable chart, three explicit signs, two clear paths. */
 .natal-home-header{align-items:center;gap:12px;margin:0 0 12px}
-.natal-home-header .card-title{font:750 18px/1.3 system-ui,sans-serif;
+.natal-home-header .card-title{font:750 18px/1.3 var(--astra-font-body);
   color:var(--ink);letter-spacing:-.02em}
 .natal-home-subtitle{font-size:14px;color:var(--secondary);line-height:1.5}
 
@@ -29,9 +29,9 @@
 .natal-home .natal-summary-icon{display:none}
 .natal-home .natal-summary-name{position:static!important;clip:auto!important;overflow:visible!important;
   width:auto;height:auto;margin:0;white-space:normal;
-  font:750 12px/1.3 system-ui,sans-serif;color:var(--astra-ink)}
-.natal-home .natal-summary-sign{font:500 29px/1.15 Georgia,serif;color:#295a72}
-.natal-home .natal-summary-value{font:750 13px/1.3 system-ui,sans-serif;color:var(--ink);
+  font:750 12px/1.3 var(--astra-font-body);color:var(--astra-ink)}
+.natal-home .natal-summary-sign{font:600 29px/1.15 var(--astra-font-glyph);color:#295a72}
+.natal-home .natal-summary-value{font:750 13px/1.3 var(--astra-font-body);color:var(--ink);
   overflow-wrap:anywhere;text-align:center}
 
 
@@ -444,20 +444,20 @@
   font:inherit;color:var(--astra-ink);text-align:left;overflow-wrap:normal
 }
 .natal-position-table :is(.position-glyph,.position-sign-glyph){
-  flex:0 0 1.15em;text-align:center;font:600 1.4em/1 "Noto Sans Symbols 2","Segoe UI Symbol","DejaVu Sans",sans-serif;
+  flex:0 0 1.15em;text-align:center;font:600 1.4em/1 var(--astra-font-glyph);
   color:var(--astra-brand)
 }
 .natal-position-table .position-glyph{color:var(--astra-ink)}
-.natal-position-table [data-natal-body="Sun"] .position-glyph{color:color-mix(in srgb,var(--color-dandelion) 48%,var(--astra-ink))}
+.natal-position-table [data-natal-body="Sun"] .position-glyph{color:color-mix(in srgb,var(--color-dandelion) 18%,var(--astra-ink))}
 .natal-position-table [data-natal-body="Moon"] .position-glyph,
 .natal-position-table [data-natal-body="Jupiter"] .position-glyph,
-.natal-position-table [data-natal-body="Neptune"] .position-glyph{color:color-mix(in srgb,var(--color-cornflower) 48%,var(--astra-ink))}
-.natal-position-table :is([data-natal-body="Mars"],[data-natal-body="Venus"],[data-natal-body="Pluto"]) .position-glyph{color:var(--astra-danger)}
+.natal-position-table [data-natal-body="Neptune"] .position-glyph{color:color-mix(in srgb,var(--color-cornflower) 18%,var(--astra-ink))}
+.natal-position-table :is([data-natal-body="Mars"],[data-natal-body="Venus"],[data-natal-body="Pluto"]) .position-glyph{color:color-mix(in srgb,var(--astra-danger) 30%,var(--astra-ink))}
 .natal-position-table [data-element="fire"]{--sign-color:var(--astra-zodiac-fire)}
 .natal-position-table [data-element="earth"]{--sign-color:var(--astra-zodiac-earth)}
 .natal-position-table [data-element="air"]{--sign-color:var(--astra-zodiac-air)}
 .natal-position-table [data-element="water"]{--sign-color:var(--astra-zodiac-water)}
-.natal-position-table .position-sign-glyph{color:color-mix(in srgb,var(--sign-color) 36%,var(--astra-ink))}
+.natal-position-table .position-sign-glyph{color:color-mix(in srgb,var(--sign-color) 15%,var(--astra-ink))}
 .natal-position-table .position-retrograde,.natal-position-legend span{
   color:var(--astra-danger);font-weight:750;text-align:center
 }
@@ -545,7 +545,7 @@
   text-align:left;box-sizing:border-box;cursor:pointer
 }
 .natal-distribution-member>span:last-child{color:var(--astra-muted);font-weight:400}
-.natal-distribution-glyph{font-size:1.2em;text-align:center}
+.natal-distribution-glyph{font:600 1.2em/1 var(--astra-font-glyph);text-align:center}
 .natal-distribution-empty{font-size:.875rem;color:var(--astra-muted);margin:8px 0}
 @media(hover:hover){
   .natal-distribution-toggle:hover,.natal-distribution-member:hover{background:var(--astra-secondary-surface)}

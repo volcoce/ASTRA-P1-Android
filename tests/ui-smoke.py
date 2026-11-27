@@ -463,7 +463,7 @@ if __name__ == '__main__':
             ) >= 1
             assert page.locator('.natal-summary-item').count()==3
             assert [x.strip() for x in page.locator('.natal-summary-name').all_text_contents()]==['Soleil','Lune','Ascendant']
-            assert page.locator('.natal-summary-icon').all_text_contents()==['☼','☽','↑']
+            assert page.locator('.natal-summary-icon').all_text_contents()==['☉','☾','↑']
             # Real signs derive from the astronomical positions in the mocked
             # profile: Sun 7° Aries, Moon 23° Aries, Ascendant 1.5° Virgo.
             assert [x.replace('︎','').strip() for x in page.locator('.natal-summary-sign').all_text_contents()]==['♈','♈','♍']
@@ -1685,9 +1685,22 @@ if __name__ == '__main__':
             assert '72 %' not in page.locator('.astra-calendar-solar-note').inner_text()
             page.locator('#settingsButton').click()
             page.locator('[data-settings-section="help"]').click()
-            page.locator('.calendar-help > summary').click()
+            help_summary=page.locator('.calendar-help > summary')
+            assert page.locator('#astraSettingsPanel details').first.locator('summary').inner_text()=='Comprendre le calendrier'
+            help_summary.focus()
+            page.keyboard.press('Enter')
+            expect(page.locator('.calendar-help')).to_have_attribute('open','')
             assert 'signe dominant' in page.locator('.calendar-help-body').inner_text().lower()
             assert '50/50' in page.locator('.calendar-help-body').inner_text()
+            for width in (320,393,1920):
+                page.set_viewport_size({'width':width,'height':844})
+                assert help_summary.bounding_box()['height']>=48
+                assert page.evaluate('document.documentElement.scrollWidth===document.documentElement.clientWidth')
+                assert audit_disclosures('settings-help-'+str(width))>=1
+            page.set_viewport_size({'width':393,'height':844})
+            help_summary.focus()
+            page.keyboard.press('Space')
+            expect(page.locator('.calendar-help')).not_to_have_attribute('open','')
             assert audit_disclosures('settings-help')>=1
             page.locator('[data-settings-close]').click()
             page.locator('.calendar .day[data-day$="-19"]').click()

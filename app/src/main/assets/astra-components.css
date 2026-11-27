@@ -239,6 +239,10 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
   padding:var(--astra-disclosure-body-top) var(--astra-component-inset) var(--astra-disclosure-body-bottom);
 }
 .astra-disclosure>summary:focus-visible{outline:3px solid var(--astra-focus);outline-offset:-3px}
+/* Glyphs share one text font stack, distinct from prose and display headings. */
+:is(.event-glyph,.astra-solar-daily-glyph,.natal-summary-icon,.natal-summary-sign,.natal-matrix th,.natal-matrix [data-natal-aspect]){
+  font-family:var(--astra-font-glyph);font-variant-emoji:text
+}
 /* Global disclosure modifiers: surfaces, counts and embedded lists. */
 .astra-disclosure.astra-disclosure--surface{background:var(--astra-surface)}
 .astra-disclosure-count{margin-inline-start:auto;color:var(--astra-muted);font-size:var(--astra-font-size-sm)}

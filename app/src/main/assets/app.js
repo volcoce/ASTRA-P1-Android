@@ -623,10 +623,10 @@
     return '<p class="astra-calendar-solar-note">☉ <span>Soleil dominant</span> <strong>'+safe(names)+'</strong></p>';
   }
   function solarCalendarExplanation(){
-    return '<details class="calendar-help astra-disclosure"><summary>Comprendre le calendrier</summary>'+
+    return '<details class="calendar-help astra-disclosure"><summary><span>Comprendre le calendrier</span></summary>'+
       '<div class="calendar-help-body astra-disclosure-body"><p><strong>Couleurs solaires</strong> · Le ruban indique le signe du Soleil à midi. Le jour de son changement de signe est partagé visuellement en deux moitiés (50/50), quelle que soit l’heure réelle du passage. Le signe dominant est celui qui occupe la plus grande part du mois affiché.</p>'+
       '<p><strong>Icônes lunaires</strong> · Chaque disque représente la phase de la Lune à midi ; les Nouvelles Lunes et Pleines Lunes exactes sont mises en évidence.</p>'+
-      '<p><strong>Repères</strong> · ✦ aspect exact · ~ aspect en cours · point rose : note du journal.</p>'+
+      '<p><strong>Repères</strong> · ✦ événements de la journée · ~ aspects en cours en l’absence d’événements · point rose : note du journal.</p>'+
       '</div></details>';
   }
   function solarDayBand(longitude){
@@ -1676,13 +1676,13 @@
     // Prioritise understanding: three native anchors and the wheel, with no
     // advanced configuration above the fold. All complex tools remain available
     // on a separate, explicitly named screen.
-    // One compact, accessible line: ☼♌︎ | ☽♓︎ | ↑♋︎ (actual signs
+    // One compact, accessible line: ☉♌︎ | ☾♓︎ | ↑♋︎ (actual signs
     // always come from the astronomical natal chart, never hardcoded).
     const summaryItems=highlights.filter(([,,key])=>key!=='H10');
     const quickCards=summaryItems.map(([label,lng,key])=>{
       const isAngle=key==='H1';
       const signIndex=Math.floor(((lng%360)+360)%360/30);
-      const glyph=isAngle?'↑':key==='Sun'?'☼':'☽';
+      const glyph=isAngle?'↑':natalGlyphs[key];
       const sign=zodiacSymbols[signIndex]+'\uFE0E';
       const attr=isAngle?'data-natal-house="1"':'data-natal-body="'+key+'"';
       const chosen=natalSelection?.kind===(isAngle?'house':'planet')&&String(natalSelection.id)===(isAngle?'1':key);
@@ -1874,7 +1874,7 @@
       '<div class="astra-disclosure-body"><p>Vérifie les villes homonymes et les frontières historiques. Les fuseaux anciens dépendent des archives disponibles sur ton appareil. Lahiri sidéral est approximatif. Près des pôles, les maisons égales peuvent remplacer Placidus.</p></div></details>';
   }
   function settingsHelpPanel(){
-    return '<section class="astra-settings-group"><h3>Aide</h3>'+
+    return '<section class="astra-settings-group"><h3>Aide</h3>'+solarCalendarExplanation()+
       '<details class="natal-glossary astra-disclosure"><summary>Comprendre les mots astrologiques</summary>'+
         '<div class="astra-disclosure-body"><dl><dt>Planète</dt><dd>Corps céleste représenté à sa position dans le zodiaque.</dd>'+
         '<dt>Signe</dt><dd>L’un des douze secteurs de 30° du zodiaque utilisé.</dd>'+
@@ -1883,7 +1883,7 @@
         '<dt>Orbe</dt><dd>Écart entre un angle exact et l’angle mesuré.</dd>'+
         '<dt>Transit</dt><dd>Position planétaire à une autre date, comparée à ta naissance.</dd>'+
         '</dl><p class="tiny">Les interprétations astrologiques sont symboliques, non scientifiquement prédictives.</p></div></details>'+
-      solarCalendarExplanation()+'</section>';
+      '</section>';
   }
   function renderGlobalSettings(){
     const dlg=$('astraSettingsDialog');if(!dlg)return;
