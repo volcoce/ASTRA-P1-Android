@@ -9,8 +9,7 @@ body{overscroll-behavior-x:none}
 
 .page-title{font:750 clamp(27px,6vw,35px)/1.16 system-ui,sans-serif;
   letter-spacing:-.035em;color:var(--ink);margin:0 0 7px}
-.lead{color:var(--secondary);font:400 15px/1.5 system-ui,sans-serif;
-  margin:0;max-width:45ch}
+
 
 .card-title{color:var(--ink);font:700 19px/1.3 system-ui,sans-serif;letter-spacing:-.015em}
 .card .card-title{margin-top:0}
@@ -70,11 +69,9 @@ textarea:focus-visible,select:focus-visible{outline:3px solid #237b99;outline-of
 
 
 /* Today and calendar: make meaningful content scannable. */
-.metric{display:flex;flex-direction:column;align-items:flex-start;
-  background:var(--atlas-night);color:#fff;border:0;border-radius:18px;
-  padding:20px 22px;text-align:left;margin:8px 0 16px}
-.metric h2{font:730 22px/1.25 system-ui,sans-serif;color:#fff;margin:7px 0 6px}
-.metric p{color:#bdccd7;font-size:13px;line-height:1.5;margin:0}
+
+
+
 
 .event-button{border-top:1px solid #e4e9ed;padding:12px 0;min-height:68px}
 .event-body b{font:700 14px/1.3 system-ui,sans-serif;color:#243b4d}
@@ -374,16 +371,15 @@ textarea:focus-visible,select:focus-visible{outline:3px solid #237b99;outline-of
 .astra-journal-back{display:inline-flex;align-items:center;min-height:44px;
   padding:8px 6px;margin:14px 0 -12px;border:0;background:transparent;
   color:#2a566d;font-size:14px;font-weight:700;cursor:pointer}
-.astra-month-navigation{margin:0 0 18px}
-.astra-month-navigation h2{text-transform:capitalize}
+
+
 .astra-month-hero{overflow:hidden;position:relative;
   padding:23px 22px;border-radius:21px;background:#172b3e;color:#fff}
 .astra-month-hero:after{position:absolute;content:'';width:165px;height:165px;
   right:-54px;top:-59px;border:1px solid #7c9caf;border-radius:50%;
   box-shadow:0 0 0 22px #213d54,0 0 0 23px #54778c;opacity:.32;
   pointer-events:none}
-.astra-month-kicker{font-size:11px;font-weight:750;letter-spacing:.11em;color:#b8cddb;
-  margin:0 0 9px}
+
 .astra-month-headline{display:flex;align-items:center;gap:15px;position:relative;z-index:1}
 .astra-month-headline strong{font-size:clamp(53px,12vw,72px);line-height:1;
   font-weight:760;letter-spacing:-.07em;font-variant-numeric:tabular-nums}
@@ -416,11 +412,8 @@ textarea:focus-visible,select:focus-visible{outline:3px solid #237b99;outline-of
 .astra-month-phase-copy strong{font-size:15px;font-weight:750;line-height:1.25}
 .astra-month-phase-copy small{color:#5e7280;font-size:12px;line-height:1.4}
 .astra-month-phase>span:last-child{font-size:24px;color:#53697a}
-.astra-month-calendar-link{display:flex;align-items:center;justify-content:space-between;
-  width:100%;min-height:51px;padding:13px 16px;margin:14px 0 0;
-  color:#fff;background:#1e435a;border:1px solid #1e435a;border-radius:13px;
-  text-align:left;font-weight:740;font-size:14px;cursor:pointer}
-.astra-month-calendar-link span{font-size:19px}
+
+
 @media(max-width:400px){
   
   
@@ -459,7 +452,7 @@ textarea:focus-visible,select:focus-visible{outline:3px solid #237b99;outline-of
 /* 1rem responds to the user's configured text size; overflow stays local. */
 html,body{font-size:100%;min-width:0}
 
-.screen-intro .lead,.natal-home-subtitle,.natal-glossary dd,
+.natal-home-subtitle,.natal-glossary dd,
 .field-help,.tiny,.natal-card .tiny,.event-sub,
 .astra-empty{font-size:.875rem;line-height:1.55}
 .field label,.filter-wrap label,.natal-settings .natal-control>span,

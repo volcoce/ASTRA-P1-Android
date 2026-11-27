@@ -89,9 +89,8 @@ html,body{min-width:0;max-width:100%}
   clip-path:inset(50%)!important
 }
 /* Screen-reader labels remain DOM text, not injected with ::before. */
-.screen-intro,.astra-section-head,.astra-month-headline,
-.astra-month-event,.astra-event-detail,.astra-personal-form{min-width:0}
-.astra-month-event-text,.event-body,.astra-month-phase-copy{overflow-wrap:anywhere}
+.screen-intro,.astra-section-head,.astra-month-headline,.astra-event-detail,.astra-personal-form{min-width:0}
+.event-body,.astra-month-phase-copy{overflow-wrap:anywhere}
 @media(max-width:480px){
   .astra-month-headline{flex-wrap:wrap}
   .astra-month-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}

@@ -4,7 +4,7 @@
 html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--astra-font-body);line-height:var(--astra-line-height)}
 .page-title{font-family:var(--astra-font-display);font-size:var(--astra-font-size-title);font-weight:700;letter-spacing:-.025em;color:var(--astra-ink)}
 .card-title,.month-head h2{font-family:var(--astra-font-display);color:var(--astra-ink);font-weight:700}
-.lead,.muted,.tiny,.field-help{color:var(--astra-muted)}
+.muted,.tiny,.field-help{color:var(--astra-muted)}
 
 
 /* Shared card contract. Outer geometry belongs to astra-layout.css. */
@@ -41,17 +41,17 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
   outline:3px solid var(--astra-focus);outline-offset:2px
 }
 :is(button,.nav,summary){-webkit-tap-highlight-color:transparent}
-:is(.primary,.natal-main-action,.astra-month-calendar-link,.astra-personal-save,.astra-calendar-inspector-sky){
+:is(.primary,.natal-main-action,.astra-personal-save,.astra-calendar-inspector-sky){
   background:var(--astra-primary);color:var(--astra-primary-ink);
   border:2px solid var(--astra-primary-ink);border-radius:var(--astra-radius-md);
   box-shadow:none;font-weight:750;min-height:var(--astra-control-min);
   transition:transform var(--astra-motion),box-shadow var(--astra-motion)
 }
-:is(.primary,.natal-main-action,.astra-month-calendar-link,.astra-personal-save,.astra-calendar-inspector-sky):hover:not(:disabled){
+:is(.primary,.natal-main-action,.astra-personal-save,.astra-calendar-inspector-sky):hover:not(:disabled){
   background:var(--astra-primary);color:var(--astra-primary-ink);
   box-shadow:var(--astra-shadow-pop);transform:translate(-1px,-1px)
 }
-:is(.ghost,.arrow,.astra-personal-create,.natal-secondary-action){
+:is(.ghost,.arrow,.natal-secondary-action){
   background:var(--astra-surface);color:var(--astra-ink);border:1px solid var(--astra-border);
   border-radius:var(--astra-radius-md);box-shadow:none
 }
@@ -64,7 +64,7 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
   font-weight:700;line-height:1;text-align:center;
   transition:background-color var(--astra-motion),border-color var(--astra-motion)
 }
-:is(.ghost,.arrow,.astra-personal-create,.natal-secondary-action):hover:not(:disabled){
+:is(.ghost,.arrow,.natal-secondary-action):hover:not(:disabled){
   background:var(--astra-secondary-surface)
 }
 :is(.tag,.tag-outline,.small-tag){border-radius:var(--astra-radius-pill)}
@@ -101,10 +101,10 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
 }
 :root[data-astra-theme="dark"] .bottom-nav .nav{color:var(--color-cream)}
 :root[data-astra-theme="dark"] .bottom-nav .nav.active{background:var(--astra-primary);color:var(--astra-primary-ink)}
-:root[data-astra-theme="dark"] :is(.primary,.natal-main-action,.astra-month-calendar-link){
+:root[data-astra-theme="dark"] :is(.primary,.natal-main-action){
   background:var(--astra-primary);color:var(--astra-primary-ink);border-color:var(--astra-primary-ink)
 }
-:root[data-astra-theme="dark"] :is(.ghost,.arrow,.astra-personal-create,.natal-secondary-action){
+:root[data-astra-theme="dark"] :is(.ghost,.arrow,.natal-secondary-action){
   background:var(--astra-secondary-surface);border-color:var(--astra-border);color:var(--astra-ink)
 }
 
@@ -207,8 +207,8 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
 }
 @media(prefers-reduced-motion:reduce){
   .bottom-nav .nav{transition:none!important}
-  :is(.primary,.natal-main-action,.astra-month-calendar-link,.astra-personal-save){transition:none!important}
-  :is(.primary,.natal-main-action,.astra-month-calendar-link,.astra-personal-save):hover{transform:none}
+  :is(.primary,.natal-main-action,.astra-personal-save){transition:none!important}
+  :is(.primary,.natal-main-action,.astra-personal-save):hover{transform:none}
 }
 
 /* Canonical Disclosure, used by calendar, natal, event details and settings.

@@ -8,7 +8,7 @@
   margin:4px 0 6px;font-family:var(--astra-font-display);
   font-size:clamp(28px,5vw,38px);line-height:1.14;letter-spacing:-.025em
 }
-.screen-intro .lead{max-width:60ch;margin:0 0 16px;font-size:14px;line-height:1.55}
+
 .astra-section-head h2,.natal-home-header .card-title{
   color:var(--astra-ink);font-family:var(--astra-font-display);
   font-size:clamp(19px,3vw,24px);font-weight:700;letter-spacing:-.01em
@@ -134,16 +134,16 @@
 /* CE MOIS — month navigation, summary, major phases, supporting metrics,
    then first chronological events and calendar entry */
 /* Month sections stretch to the shared page content width. */
-.astra-month-navigation,.astra-month-hero,.astra-month-metrics,
+.astra-month-hero,.astra-month-metrics,
 .astra-month-section{width:100%;min-width:0}
-.astra-month-navigation{margin-bottom:15px}
+
 .astra-month-hero{
   background:var(--astra-surface);color:var(--astra-ink);
   border:1px solid var(--astra-divider);border-radius:var(--astra-radius-lg);
   padding:var(--astra-space-3) var(--astra-component-inset);box-shadow:none
 }
 .astra-month-hero:after{display:none}
-.astra-month-kicker,.astra-month-headline strong,
+.astra-month-headline strong,
 .astra-month-headline span,.astra-month-hero>p:last-child{color:var(--astra-ink)}
 .astra-month-headline strong{font-family:var(--astra-font-display);font-size:1.25rem}
 .astra-month-headline span{font-size:.875rem;max-width:none}
@@ -169,8 +169,7 @@
 :root[data-astra-theme="dark"] .astra-month-hero{
   background:var(--astra-surface);border-color:var(--astra-divider)
 }
-:root[data-astra-theme="dark"] .astra-month-hero :is(.astra-month-kicker,
-  .astra-month-headline strong,.astra-month-headline span){color:var(--astra-ink)}
+:root[data-astra-theme="dark"] .astra-month-hero :is(.astra-month-headline strong,.astra-month-headline span){color:var(--astra-ink)}
 :root[data-astra-theme="dark"] .astra-month-hero>p:last-child{color:var(--color-cream)}
 :root[data-astra-theme="dark"] .astra-month-phase.new{background:var(--astra-month-new-bg);border-color:var(--astra-month-new-border)}
 :root[data-astra-theme="dark"] .astra-month-phase.full{background:var(--astra-month-full-bg);border-color:var(--color-dandelion)}

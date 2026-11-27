@@ -29,25 +29,24 @@
   .natal-compare,.natal-settings,.natal-preview-disclosure,.natal-selection,
   .natal-context-sheet,.natal-advanced,.natal-matrix-scroll,
   .natal-positions,.natal-aspects,.astra-active-panel,.astra-event-feed,
-  .astra-month-metrics>div,.astra-month-metrics>button,.astra-month-events,
-  .astra-month-phase,.astra-month-event,.natal-glossary,.city-results,.city-confirmed,
+  .astra-month-metrics>div,.astra-month-metrics>button,
+  .astra-month-phase,.natal-glossary,.city-confirmed,
   .natal-transit-time,.natal-explore-list,.natal-contact-section){
   background:var(--astra-surface);border-color:var(--astra-rule);color:var(--astra-ink)
 }
 :root[data-astra-theme="dark"] :is(.page-title,.card-title,
   .natal-subtitle,.natal-home-header .card-title,.astra-section-head h2,
   .natal-explore-list h3,.natal-contact-section h3,
-  .natal-context-bar h2,.natal-detail-body h3,.astra-moon-phase,.astra-month-event-text,.planet b,
+  .natal-context-bar h2,.natal-detail-body h3,.astra-moon-phase,.planet b,
   .natal-position .position-planet,.astra-performance th){
   color:var(--astra-ink)
 }
-:root[data-astra-theme="dark"] :is(.lead,.tiny,.field-help,.muted,.natal-home-subtitle,
+:root[data-astra-theme="dark"] :is(.tiny,.field-help,.muted,.natal-home-subtitle,
   .natal-glossary dd,.natal-selected-empty,.astra-empty,.astra-section-head>span,
   .event-sub,.event-body p,.event-body small,
   .natal-compare-zone,.natal-contact-list button small,
   .natal-position .position-value,.natal-position .position-house,
-  .natal-aspect span,
-  .astra-month-event-day,.astra-month-metrics span,.month-head h2){
+  .natal-aspect span,.astra-month-metrics span,.month-head h2){
   color:var(--astra-muted)
 }
 :root[data-astra-theme="dark"] :is(.field label,.tags-field legend,
@@ -68,8 +67,7 @@
   color:var(--astra-ink);background:var(--astra-secondary-surface);
   border-color:#567086
 }
-:root[data-astra-theme="dark"] :is(.primary,.natal-main-action,
-  .astra-month-calendar-link){color:#fff;background:#215573;border-color:#619abb}
+:root[data-astra-theme="dark"] :is(.primary,.natal-main-action){color:#fff;background:#215573;border-color:#619abb}
 :root[data-astra-theme="dark"] :is(.primary,.natal-main-action):hover{
   background:#2b6788
 }
@@ -94,8 +92,7 @@
 :root[data-astra-theme="dark"] :is(.tag,.tag-outline,.small-tag,
   .natal-highlight,.natal-house-chip,.natal-position[aria-pressed="true"],
   .natal-house-chip[aria-pressed="true"],.natal-contact-list button,
-  .natal-related button,.natal-summary-item,.natal-primary-cards button,
-  .city-choice,.tag-button,.mood,.planet,.history-item){
+  .natal-related button,.natal-summary-item,.natal-primary-cards button,.tag-button,.mood,.planet,.history-item){
   color:var(--astra-ink);background:var(--astra-secondary-surface);
   border-color:var(--astra-rule)
 }
@@ -117,7 +114,7 @@
   color:#c1d1dc
 }
 :root[data-astra-theme="dark"] :is(.calendar .day,.calendar .weekday,
-  .calendar .day .count,.calendar .cal-legend,.calendar-phase-legend,
+  .calendar .day .count,.calendar-phase-legend,
   .calendar-phase-legend .cal-legend-item,.month-head h2){
   color:var(--astra-ink)
 }
