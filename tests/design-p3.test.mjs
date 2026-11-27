@@ -216,3 +216,22 @@ test('Swipe motion follows the finger, resists boundaries and settles in the cor
  assert.deepEqual(calls,[1,-1,1]);
  assert.equal(animations.length,count);
 });
+
+
+test('Temporal swipes animate only their own local surfaces',()=>{
+ const source=app.slice(app.indexOf("  bindSwipe($('app'),target=>{"),app.indexOf("  document.querySelectorAll('[data-tab]')",app.indexOf("  bindSwipe($('app'),target=>{")));
+ for(const [tab,trigger,selector] of [
+  ['calendar','.astra-calendar-board','.astra-calendar-board'],
+  ['today','.astra-week','.astra-week-days'],
+  ['journal','#journalEditorTitle','#journalEditorTitle']
+ ]){
+  let resolve;
+  const root={querySelector:s=>({selector:s})};
+  new Function('bindSwipe','$','dismissSwipe','globalSettingsDialog','calendarSheet','personalEditor','natalSelection','openDetail','activeTab','selected','mainPageSwipe',source)(
+   (_,callback)=>{resolve=callback;},()=>root,()=>null,{open:false},false,null,null,null,tab,'2026-11-24',()=>null);
+  const gesture=resolve({closest:s=>s.includes(trigger)?{}:null});
+  assert.equal(gesture.expected,'horizontal');
+  assert.equal(gesture.surface().selector,selector);
+  assert.notEqual(gesture.surface(),root);
+ }
+});

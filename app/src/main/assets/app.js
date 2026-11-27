@@ -2239,7 +2239,8 @@
     if(globalSettingsDialog.open||calendarSheet||personalEditor!==null||natalSelection||openDetail)return null;
     const tab=activeTab,day=selected;
     if(tab==='calendar'&&target.closest('.astra-calendar-board')){
-      return {expected:'horizontal',valid:()=>activeTab===tab&&selected===day&&!calendarSheet&&!personalEditor,
+      return {expected:'horizontal',surface:()=>$('app').querySelector('.astra-calendar-board'),
+        valid:()=>activeTab===tab&&selected===day&&!calendarSheet&&!personalEditor,
         run:step=>$('app').querySelector('[data-month="'+step+'"]')?.click()};
     }
     if(tab==='today'&&target.closest('.astra-week,.astra-day-hero')){
@@ -2249,7 +2250,8 @@
         run:step=>selectDay(shiftDay(day,step))};
     }
     if(tab==='journal'&&target.closest('#journalEditorTitle')){
-      return {expected:'horizontal',valid:()=>activeTab===tab&&selected===day,
+      return {expected:'horizontal',surface:()=>$('app').querySelector('#journalEditorTitle'),
+        valid:()=>activeTab===tab&&selected===day,
         run:step=>$('app').querySelector('[data-offset="'+step+'"]')?.click()};
     }
     // Local gestures have priority. Elsewhere, swipe between main tabs.

@@ -1,0 +1,53 @@
+name: ASTRA · B6 strict visual repeatability
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'tests/css-b6.py'
+      - 'tests/css-b6-cascade.mjs'
+      - '.github/workflows/css-b6.yml'
+      - 'app/src/main/assets/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  b6:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      TZ: UTC
+      LANG: en_US.UTF-8
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: npm
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Install pinned browser and image comparison dependencies
+        run: |
+          python -m pip install playwright==1.56.0 Pillow==11.3.0
+          python -m playwright install --with-deps chromium
+      - name: Validate audit script and source cascade
+        run: |
+          python -m py_compile tests/css-b6.py
+          npm ci
+          node tests/css-b6-cascade.mjs
+      - name: Run strict B6 reference and candidate comparisons
+        run: python tests/css-b6.py
+      - name: Preserve B6 evidence even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ASTRA-B6-strict-evidence
+          path: |
+            tests/artifacts/b6/
+            !tests/artifacts/b6/**/checkout/**
+          if-no-files-found: warn

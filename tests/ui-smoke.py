@@ -148,10 +148,7 @@ def browser_diagnostics(context, page, output):
 if __name__ == '__main__':
     try:
         with sync_playwright() as pw, ExitStack() as diagnostics:
-            chrome=which('chromium') or which('google-chrome') or which('google-chrome-stable')
-            if not chrome:
-                raise RuntimeError('Chromium ou Google Chrome non trouvé sur ce PC/runner.')
-            browser=pw.chromium.launch(headless=True,executable_path=chrome,args=['--no-sandbox'])
+            browser=pw.chromium.launch(headless=True,args=['--no-sandbox'])
             diagnostics.callback(browser.close)
             context=browser.new_context(viewport={'width':393,'height':844},accept_downloads=True)
             context.add_init_script(JS)
@@ -406,6 +403,9 @@ if __name__ == '__main__':
             page.get_by_text('Configurer mon thème natal').click()
             # A15 and compact screen: birth fields remain usable with keyboard.
             page.set_viewport_size({'width':360,'height':720})
+            page.evaluate("document.activeElement.blur()")
+            page.evaluate("window.dispatchEvent(new Event('resize'))")
+            page.wait_for_timeout(150)
             capture('galaxy-a15-form-360')
             assert page.evaluate("document.documentElement.scrollWidth")<=362
             page.locator('#birthCity').focus()
@@ -1136,15 +1136,29 @@ if __name__ == '__main__':
             page.set_viewport_size({'width':393,'height':844})
             page.locator('[data-settings-section="appearance"]').click()
             # Exercise the real registered touch handlers using browser TouchEvents.
-            def swipe_surface(selector,dx,dy):
-                page.locator(selector).evaluate("""(target,delta)=>{
+            def swipe_surface(selector,dx,dy,motion=None):
+                page.locator(selector).evaluate("""async (target,delta)=>{
                   const start={x:190,y:250};
                   const touch=(x,y)=>new Touch({identifier:7,target,clientX:x,clientY:y});
                   const send=(name,touches,changedTouches)=>target.dispatchEvent(new TouchEvent(name,
                     {bubbles:true,cancelable:true,touches,changedTouches}));
                   const a=touch(start.x,start.y),b=touch(start.x+delta[0],start.y+delta[1]);
-                  send('touchstart',[a],[a]);send('touchmove',[b],[b]);send('touchend',[],[b]);
-                }""",[dx,dy])
+                  send('touchstart',[a],[a]);send('touchmove',[b],[b]);
+                  if(delta[2]){
+                    const surface=document.querySelector(delta[2]);
+                    if(!surface?.getAnimations().some(a=>a.effect?.target===surface&&a.playState==='paused'))
+                      throw Error('Missing local drag animation: '+delta[2]);
+                    if(document.querySelector('#app').getAnimations().length || document.querySelector('.bottom-nav').getAnimations().length)
+                      throw Error('Temporal swipe animated the page or navbar');
+                  }
+                  send('touchend',[],[b]);
+                  if(delta[2]){
+                    const next=document.querySelector(delta[2]);
+                    const animations=next?.getAnimations().filter(a=>a.effect?.target===next)||[];
+                    if(!animations.length)throw Error('Missing local settle animation: '+delta[2]);
+                    await Promise.all(animations.map(a=>a.finished.catch(()=>{})));
+                  }
+                }""",[dx,dy,motion])
             def swipe_settings(dx,dy):
                 swipe_surface('#astraSettingsPanel',dx,dy)
             swipe_settings(-110,5)
@@ -1504,7 +1518,7 @@ if __name__ == '__main__':
             assert page.locator('#monthEventsTitle').inner_text()=='Prochains jours avec événements'
             # Month gestures navigate months; daily gestures navigate civil days.
             month_before=page.locator('.astra-calendar-month-head h2').inner_text()
-            swipe_surface('.astra-calendar-board',-110,5)
+            swipe_surface('.astra-calendar-board',-110,5,'.astra-calendar-board')
             assert page.locator('.astra-calendar-month-head h2').inner_text()!=month_before
             swipe_surface('.astra-calendar-board',110,5)
             assert page.locator('.astra-calendar-month-head h2').inner_text()==month_before
@@ -1513,12 +1527,12 @@ if __name__ == '__main__':
             page.locator('[data-tab="today"]').click()
             day_before=page.locator('.astra-week-day.is-selected').get_attribute('data-day')
             next_day=(date.fromisoformat(day_before)+timedelta(days=1)).isoformat()
-            swipe_surface('.astra-week',-110,5)
+            swipe_surface('.astra-week',-110,5,'.astra-week-days')
             assert page.locator('.astra-week-day.is-selected').get_attribute('data-day')==next_day
             swipe_surface('.astra-week',110,5)
             assert page.locator('.astra-week-day.is-selected').get_attribute('data-day')==day_before
             page.locator('.astra-day-hero').wait_for()
-            swipe_surface('.astra-day-hero',-110,5)
+            swipe_surface('.astra-day-hero',-110,5,'.astra-week-days')
             assert page.locator('.astra-week-day.is-selected').get_attribute('data-day')==next_day
             page.locator('.astra-day-hero').wait_for()
             swipe_surface('.astra-day-hero',110,5)

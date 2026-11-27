@@ -29,9 +29,7 @@ def run():
             except OSError: time.sleep(.1)
         else: raise RuntimeError('Preview server did not start')
         with sync_playwright() as pw:
-            chrome=which('chromium') or which('google-chrome') or which('google-chrome-stable')
-            if not chrome: raise RuntimeError('Chromium absent')
-            browser=pw.chromium.launch(headless=True,executable_path=chrome,args=['--no-sandbox'])
+            browser=pw.chromium.launch(headless=True,args=['--no-sandbox'])
             page=browser.new_page(viewport={'width':393,'height':844})
             errors=[]
             page.on('pageerror',lambda error: errors.append(str(error)))
