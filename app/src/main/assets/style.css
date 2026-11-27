@@ -65,7 +65,7 @@ button[data-goto="profile"]{margin-top:16px}.field input[type="date"],.field inp
 .natal-wheel-viewport{max-width:100%;overflow-x:auto;overflow-y:hidden;overscroll-behavior-inline:contain;scrollbar-width:thin;scrollbar-color:#b5a1cd #f4effb}
 .natal-wheel-viewport:focus-visible{outline:3px solid var(--astra-focus-ring);outline-offset:1px;border-radius:var(--astra-radius-sm)}
 .natal-wheel-viewport .natal-wheel{margin:8px auto;width:100%;max-width:430px;height:auto}
-.wheel-ring-legend{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:7px 13px;margin:0 0 7px;font-size:11.5px;font-weight:700;color:#554569}
+.wheel-ring-legend{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:7px 13px;margin:0 0 7px;font-size:11.5px;font-weight:700;color:var(--astra-muted)}
 .wheel-ring-legend>span{display:inline-flex;align-items:center;gap:6px}
 .wheel-ring-legend i{display:inline-block;width:15px;height:15px;border-radius:5px;border:1.5px solid #796095}
 
@@ -122,7 +122,7 @@ button[data-goto="profile"]{margin-top:16px}.field input[type="date"],.field inp
 .natal-aspects .natal-aspect[aria-pressed=true]{background:#eee5f7}
 .natal-aspects .natal-aspect>span:last-child{color:#55436b;white-space:normal}
 .unknown-time-toggle{display:flex;align-items:center;gap:10px;padding:11px 0;font-size:12px;
-  color:#3d2d4f;font-weight:750;cursor:pointer}
+  color:var(--astra-ink);font-weight:750;cursor:pointer}
 .unknown-time-toggle input{width:21px;height:21px;flex:none;accent-color:#604476}
 .unknown-time-toggle input:focus-visible{outline:3px solid var(--astra-focus-ring);outline-offset:3px}
 @media(max-width:400px){
@@ -345,7 +345,7 @@ html{background:radial-gradient(ellipse at 10% 12%,#f3e8ee 0%,transparent 56%),
 .natal-matrix-disclosure .natal-matrix-section{margin:0;border:0}
 
 .natal-contact-section{margin-top:22px}
-.natal-contact-section h3 span{font:700 13px/1 Arial,sans-serif;background:#efe9f5;padding:6px 8px;border-radius:9px}
+.natal-contact-section h3 span{font:700 13px/1 var(--astra-font-body);background:var(--astra-secondary-surface);color:var(--astra-ink);padding:6px 8px;border-radius:9px}
 .natal-contact-list{display:flex;flex-direction:column;border:1px solid #e7dfea;border-radius:var(--astra-radius-md);overflow:hidden}
 .natal-contact-list button{display:flex;align-items:center;justify-content:space-between;gap:var(--astra-space-3);text-align:left;
   background:#fff;border:0;border-bottom:1px solid #eee8ef;padding:13px;min-height:54px;cursor:pointer;color:#3d2d4f;
@@ -353,7 +353,7 @@ html{background:radial-gradient(ellipse at 10% 12%,#f3e8ee 0%,transparent 56%),
 .natal-contact-list button:last-child{border-bottom:0}
 .natal-contact-list button small{color:#685773;font-size:12px;white-space:nowrap}
 .natal-contact-empty{padding:14px;font-size:14px;color:#695c74}
-.natal-compare-zone{color:#665670;font-size:13px;line-height:1.45}
+.natal-compare-zone{color:var(--astra-muted);font-size:13px;line-height:1.45}
 .natal-compare .natal-wheel-viewport{margin-top:18px}
 .natal-compare .natal-transit-time{margin:18px 0 3px}
 .natal-compare .natal-transit-time label{font-size:14px}

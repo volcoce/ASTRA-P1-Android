@@ -113,6 +113,7 @@
 
   --astra-font-body:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
   --astra-font-display:Georgia,"Times New Roman",serif;
+  --astra-font-glyph:"Noto Sans Symbols 2","Segoe UI Symbol","DejaVu Sans",sans-serif;
   --astra-font-size-sm:.8125rem;
   --astra-font-size-body:.9375rem;
   --astra-font-size-title:clamp(1.75rem,4.8vw,2.25rem);

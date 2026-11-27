@@ -18,7 +18,7 @@
 .natal-wheel.wheel-modern .wheel-zodiac-sector.zodiac-element-water{fill:var(--astra-zodiac-water)}
 .natal-wheel.wheel-modern .zodiac-symbol{
   fill:var(--color-deep-ocean);stroke:var(--astra-plate-cream);stroke-width:.5;
-  font-family:Georgia,"Times New Roman",serif;font-weight:800;
+  font-family:var(--astra-font-glyph);font-weight:800;
 }
 .natal-wheel.wheel-modern .wheel-zodiac-inner{
   fill:var(--astra-plate-cream);stroke:var(--color-deep-ocean);stroke-width:1.35
@@ -77,7 +77,7 @@
    Emoji-suppressed zodiac glyphs remain typography, not purple icon badges.
    Touch targets retain their SVG hit areas. No position is changed. */
 .natal-wheel.wheel-modern .zodiac-symbol{
-  font-family:"Noto Sans Symbols 2","Segoe UI Symbol","DejaVu Sans",sans-serif;
+  font-family:var(--astra-font-glyph);
   font-size:21px;font-weight:600;letter-spacing:0;
   stroke:var(--astra-plate-cream);stroke-width:.35;
   paint-order:stroke
@@ -86,7 +86,7 @@
   fill:transparent;stroke:transparent;stroke-width:1.25
 }
 .natal-wheel.wheel-modern .natal-planet-hit .natal-planet{
-  font-family:"Noto Sans Symbols 2","DejaVu Sans","Segoe UI Symbol",serif;
+  font-family:var(--astra-font-glyph);
   font-size:21px;font-weight:600
 }
 .natal-wheel.wheel-modern .natal-planet-hit.is-sun .wheel-planet-disc{
