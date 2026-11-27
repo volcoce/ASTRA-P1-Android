@@ -158,9 +158,7 @@ html,body{min-width:0;max-width:100%}
 :root[data-astra-theme="dark"] .natal-context-sheet :is(.natal-detail-body p,.natal-detail-body li,.natal-detail-body .natal-value){
   color:var(--astra-ink);
 }
-:root[data-astra-theme="dark"] .natal-context-sheet .natal-detail-body .natal-disclaimer{
-  color:var(--astra-muted);
-}
+
 :root[data-astra-theme="dark"] .natal-context-sheet .natal-related button{
   background:var(--astra-surface);
   color:var(--astra-ink);

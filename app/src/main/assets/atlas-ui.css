@@ -14,14 +14,14 @@ body{overscroll-behavior-x:none}
 
 .card-title{color:var(--ink);font:700 19px/1.3 system-ui,sans-serif;letter-spacing:-.015em}
 .card .card-title{margin-top:0}
-.tiny,.field-help,.natal-disclaimer{color:var(--secondary);font-size:13px;line-height:1.5}
+.tiny,.field-help{color:var(--secondary);font-size:13px;line-height:1.5}
 .notice,.natal-warning{border-radius:13px}
 a,.subnav,.history-item button{color:var(--atlas-sea)}
 button{font-family:inherit}
 .primary,.natal-main-action{background:var(--atlas-night);color:#fff;border:1px solid var(--atlas-night);
   border-radius:13px;font-weight:750;box-shadow:none}
 .primary:active,.natal-main-action:active{transform:translateY(1px)}
-.ghost,.natal-secondary-action,.natal-settings-link{border:1px solid #c8d5dc;background:#fff;
+.ghost,.natal-secondary-action{border:1px solid #c8d5dc;background:#fff;
   color:var(--atlas-night);border-radius:12px;font-weight:700}
 button:focus-visible,[role="button"]:focus-visible,summary:focus-visible,input:focus-visible,
 textarea:focus-visible,select:focus-visible{outline:3px solid #237b99;outline-offset:3px}
@@ -67,7 +67,7 @@ textarea:focus-visible,select:focus-visible{outline:3px solid #237b99;outline-of
 .field-help{font-size:13px;color:#5e7180}
 .city-confirmed{background:#eef4f5;border-color:#cddfe2;color:#29485a}
 .unknown-time-toggle{color:#344f60}
-.natal-disclaimer{color:#627581}
+
 
 /* Today and calendar: make meaningful content scannable. */
 .metric{display:flex;flex-direction:column;align-items:flex-start;
@@ -178,10 +178,7 @@ textarea:focus-visible,select:focus-visible{outline:3px solid #237b99;outline-of
 .city-technical{margin-top:8px}
 .city-technical>summary{font-size:12px;font-weight:700;cursor:pointer}
 .city-technical>p,.city-technical small{font-size:12px;color:#526879}
-.natal-explore .natal-settings-link,.natal-compare .natal-settings-link{
-  border:0;box-shadow:none;background:transparent;text-decoration:underline;
-  text-underline-offset:3px;padding:7px 0;min-height:36px
-}
+
 .event-sub{font-size:13px;line-height:1.5}
 .event-more{font-size:13px}
 /* Short visual tab labels preserve meaning and remain legible at 200% font size. */
@@ -373,25 +370,21 @@ button.astra-insight-tile:hover{border-color:#7597aa}
   overflow-wrap:anywhere;min-height:27px}
 .astra-lunar-milestone small{color:#627687;font-size:11px}
 .astra-lunar-timeline .astra-section-help{margin:9px 0 0;font-size:12px}
-.natal-overview-tabs,.natal-transit-filters{
+.natal-transit-filters{
   display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;
   border-radius:14px;background:#e9f0f4;padding:5px;margin:12px 0 14px
 }
-.natal-overview-tabs button,.natal-transit-filters button{
+.natal-transit-filters button{
   min-width:0;min-height:45px;border:0;background:transparent;color:#4d6878;
   border-radius:10px;font:750 13px/1.25 system-ui,sans-serif;cursor:pointer
 }
-.natal-overview-tabs button.selected,.natal-transit-filters button.selected{
+.natal-transit-filters button.selected{
   background:#1e435a;color:#fff
 }
-.natal-overview-panel{min-width:0;background:#fff;border:1px solid #dae5e9;
-  border-radius:16px;padding:13px 12px 8px;margin:0 0 15px}
-.natal-overview-panel .natal-positions,.natal-overview-panel .natal-aspects{
-  border:0;border-radius:0
-}
-.natal-panel-lead{font-size:13px;line-height:1.5;color:#5c7080;margin:2px 0 11px}
-.natal-more-link{background:transparent;border:0;color:#285770;font-weight:750;
-  font-size:13px;min-height:44px;width:100%;text-align:left}
+
+
+
+
 .natal-glossary{margin:13px 0}
 .natal-glossary dl{margin:0;display:grid;gap:4px}
 .natal-glossary dt{font:750 14px/1.4 system-ui,sans-serif;color:#223a4e;margin-top:8px}
@@ -504,8 +497,7 @@ button.astra-insight-tile:hover{border-color:#7597aa}
 /* 1rem responds to the user's configured text size; overflow stays local. */
 html,body{font-size:100%;min-width:0}
 
-.screen-intro .lead,.astra-section-help,.natal-panel-lead,
-.natal-home-hint,.natal-home-subtitle,.natal-disclaimer,.natal-glossary dd,
+.screen-intro .lead,.astra-section-help,.natal-home-subtitle,.natal-glossary dd,
 .field-help,.tiny,.natal-card .tiny,.event-sub,.event-more,
 .astra-empty{font-size:.875rem;line-height:1.55}
 .field label,.filter-wrap label,.natal-settings .natal-control>span,
@@ -530,7 +522,7 @@ html,body{font-size:100%;min-width:0}
 .astra-lunar-track{grid-template-columns:repeat(2,minmax(0,1fr))}
 .astra-week-days{grid-template-columns:repeat(7,minmax(0,1fr))}
 .natal-matrix-scroll,.natal-wheel-viewport,.astra-insight-track{max-width:100%;scrollbar-gutter:stable}
-.natal-overview-panel,.natal-home,.natal-explore,.natal-compare{min-width:0}
+.natal-home,.natal-explore,.natal-compare{min-width:0}
 
 @media(min-width:800px){
   

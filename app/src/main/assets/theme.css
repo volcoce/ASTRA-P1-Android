@@ -25,32 +25,29 @@
 
 :root[data-astra-theme="dark"],
 :root[data-astra-theme="dark"] body{background:var(--astra-paper);color:var(--astra-ink)}
-:root[data-astra-theme="dark"] :is(.card,.calendar,.natal-overview-panel,.natal-explore,
+:root[data-astra-theme="dark"] :is(.card,.calendar,.natal-explore,
   .natal-compare,.natal-settings,.natal-preview-disclosure,.natal-selection,
   .natal-context-sheet,.natal-advanced,.natal-matrix-scroll,
   .natal-positions,.natal-aspects,.astra-active-panel,.astra-event-feed,
   .astra-month-metrics>div,.astra-month-metrics>button,.astra-month-events,
-  .astra-month-phase,.astra-month-event,.natal-glossary,
-  .natal-focus,.city-results,.city-confirmed,
+  .astra-month-phase,.astra-month-event,.natal-glossary,.city-results,.city-confirmed,
   .natal-transit-time,.natal-explore-list,.natal-contact-section){
   background:var(--astra-surface);border-color:var(--astra-rule);color:var(--astra-ink)
 }
 :root[data-astra-theme="dark"] :is(.page-title,.card-title,.section-title,
   .natal-subtitle,.natal-home-header .card-title,.astra-section-head h2,
   .natal-explore-list h3,.natal-contact-section h3,
-  .natal-context-bar h2,.natal-detail-body h3,.astra-moon-phase,
-  .natal-panel-lead strong,.astra-month-event-text,.planet b,
+  .natal-context-bar h2,.natal-detail-body h3,.astra-moon-phase,.astra-month-event-text,.planet b,
   .natal-position .position-planet,.astra-performance th){
   color:var(--astra-ink)
 }
-:root[data-astra-theme="dark"] :is(.lead,.tiny,.field-help,.muted,
-  .natal-home-hint,.natal-home-subtitle,.natal-section-lead,.natal-panel-lead,
-  .natal-glossary dd,.natal-disclaimer,.natal-selected-empty,
+:root[data-astra-theme="dark"] :is(.lead,.tiny,.field-help,.muted,.natal-home-subtitle,
+  .natal-glossary dd,.natal-selected-empty,
   .astra-section-help,.astra-empty,.astra-section-head>span,
   .event-sub,.event-more,.event-body p,.event-body small,
   .natal-compare-zone,.natal-contact-list button small,
   .natal-position .position-value,.natal-position .position-house,
-  .natal-aspect span,.natal-focus-legend,.natal-focus-warning,
+  .natal-aspect span,
   .astra-month-event-day,.astra-month-metrics span,.month-head h2){
   color:var(--astra-muted)
 }
@@ -66,9 +63,8 @@
 }
 :root[data-astra-theme="dark"] input::placeholder,
 :root[data-astra-theme="dark"] textarea::placeholder{color:#a2b9c8;opacity:1}
-:root[data-astra-theme="dark"] :is(.ghost,.natal-settings-link,.natal-back,
-  .subnav,.arrow,.astra-back-today,.natal-more-link,
-  .natal-focus-launch button,.natal-focus-close,
+:root[data-astra-theme="dark"] :is(.ghost,.natal-back,
+  .subnav,.arrow,.astra-back-today,
   .natal-zoom button,.city-search .ghost){
   color:var(--astra-ink);background:var(--astra-secondary-surface);
   border-color:#567086
@@ -83,17 +79,15 @@
 
 
 
-:root[data-astra-theme="dark"] :is(.switch,.natal-segments,.natal-overview-tabs,
+:root[data-astra-theme="dark"] :is(.switch,.natal-segments,
   .natal-transit-filters,.natal-filter-items,.natal-advanced-buttons){
   background:var(--astra-secondary-surface);border-color:var(--astra-rule)
 }
-:root[data-astra-theme="dark"] :is(.switch button,.natal-segments button,
-  .natal-overview-tabs button,.natal-transit-filters button,
+:root[data-astra-theme="dark"] :is(.switch button,.natal-segments button,.natal-transit-filters button,
   .natal-filter-items button,.natal-advanced-buttons button){
   color:var(--astra-ink);background:transparent
 }
-:root[data-astra-theme="dark"] :is(.switch button.on,.natal-segments button.on,
-  .natal-overview-tabs button.selected,.natal-transit-filters button.selected,
+:root[data-astra-theme="dark"] :is(.switch button.on,.natal-segments button.on,.natal-transit-filters button.selected,
   .natal-filter-items button.selected,.natal-advanced-buttons button.selected,
   .natal-zoom button[aria-pressed="true"]){
   background:#315c75;color:#fff;border-color:#8ec5dc
@@ -102,7 +96,6 @@
   .natal-highlight,.natal-house-chip,.natal-position[aria-pressed="true"],
   .natal-house-chip[aria-pressed="true"],.natal-contact-list button,
   .natal-related button,.natal-summary-item,.natal-primary-cards button,
-  .natal-overview-panel .natal-position,.natal-overview-panel .natal-aspect,
   .city-choice,.tag-button,.mood,.planet,.history-item){
   color:var(--astra-ink);background:var(--astra-secondary-surface);
   border-color:var(--astra-rule)
@@ -113,8 +106,7 @@
 }
 :root[data-astra-theme="dark"] :is(.natal-home .natal-summary-name,
   .natal-home .natal-summary-value,.natal-home .natal-summary-sign,
-  .natal-highlight b,.natal-highlight span,.natal-house-chip small,
-  .natal-home .natal-home-hint,.natal-glossary dt){
+  .natal-highlight b,.natal-highlight span,.natal-house-chip small,.natal-glossary dt){
   color:var(--astra-ink)
 }
 :root[data-astra-theme="dark"] :is(.natal-summary-item[aria-pressed="true"],
@@ -122,8 +114,7 @@
   .natal-aspect[aria-pressed="true"],.natal-highlight[aria-pressed="true"]){
   color:#fff;background:#2d5067;border-color:#94c5d9
 }
-:root[data-astra-theme="dark"] :is(.mood span:last-child,
-  .natal-home .natal-summary-approx,.tag-button,.natal-aspect>span:last-child){
+:root[data-astra-theme="dark"] :is(.mood span:last-child,.tag-button,.natal-aspect>span:last-child){
   color:#c1d1dc
 }
 :root[data-astra-theme="dark"] :is(.calendar .day,.calendar .weekday,
@@ -175,11 +166,9 @@
   .period-detail,.natal-contact-section .natal-contact-list){
   background:var(--astra-secondary-surface);border-color:var(--astra-rule);color:var(--astra-ink)
 }
-:root[data-astra-theme="dark"] .natal-focus{background:var(--astra-paper)}
-:root[data-astra-theme="dark"] :is(.natal-context-bar,.natal-focus-header,
-  .natal-focus-footer){color:var(--astra-ink)}
-:root[data-astra-theme="dark"] :is(.natal-focus-header h2,
-  .natal-focus-kicker,.natal-focus-moment,.natal-context-content p){
+
+:root[data-astra-theme="dark"] :is(.natal-context-bar){color:var(--astra-ink)}
+:root[data-astra-theme="dark"] :is(.natal-context-content p){
   color:var(--astra-ink)
 }
 :root[data-astra-theme="dark"] .form-field-error{color:#ffc3c6}
@@ -192,8 +181,7 @@
 /* The chart deliberately remains a light paper surface to preserve SVG
    labels, thin orbit geometry, and export legibility. */
 :root[data-astra-theme="dark"] .natal-wheel-viewport,
-:root[data-astra-theme="dark"] .natal-home .natal-wheel-viewport,
-:root[data-astra-theme="dark"] .natal-focus .natal-wheel-viewport{
+:root[data-astra-theme="dark"] .natal-home .natal-wheel-viewport{
   background:#f7f9fb;border-color:#8aa7b8;color:#1a3042
 }
 :root[data-astra-theme="dark"] .natal-wheel-viewport .natal-wheel{

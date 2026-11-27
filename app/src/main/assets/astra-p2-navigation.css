@@ -22,7 +22,7 @@
 .natal-back:hover{background:var(--astra-secondary-surface)}
 .natal-subpage-heading{gap:10px;margin-bottom:18px}
 .natal-subpage-heading .card-title{font-family:var(--astra-font-display);color:var(--astra-ink)}
-.natal-section-lead{color:var(--astra-muted);line-height:1.5}
+
 
 /* Journal: the editor uses the global .astra-card--emphasis variant. */
 
@@ -102,7 +102,7 @@
   border:2px solid var(--astra-primary-ink)
 }
 .natal-more-options,.natal-glossary,.calculation-details,
-.natal-preview-disclosure,.natal-focus-legend{
+.natal-preview-disclosure{
   border-color:var(--astra-divider);color:var(--astra-ink)
 }
 :is(.natal-more-options,.natal-glossary,.calculation-details,
@@ -111,7 +111,7 @@
 }
 :is(.natal-more-options,.natal-glossary,.calculation-details,
 .natal-preview-disclosure)[open]>summary{color:var(--astra-brand-strong)}
-.natal-focus-close,.natal-focus-launch button{min-height:44px}
+
 .astra-performance-scroll{border-color:var(--astra-divider)}
 .astra-performance thead th{background:var(--astra-secondary-surface)}
 
