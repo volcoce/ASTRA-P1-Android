@@ -272,10 +272,6 @@ textarea:focus-visible,select:focus-visible{outline:3px solid #237b99;outline-of
 .astra-back-today{width:100%;min-height:47px;background:transparent;
   border:1px solid #c9d7de;color:#2a5871;font-weight:750;
   border-radius:12px;margin:0 0 18px;cursor:pointer}
-@media(min-width:800px){
-  
-  
-}
 @media(max-width:360px){
   .astra-week-days{gap:2px}
   .astra-week-day{min-height:61px;border-radius:12px}
@@ -369,15 +365,6 @@ textarea:focus-visible,select:focus-visible{outline:3px solid #237b99;outline-of
 .natal-transit-filters{margin:13px 0}
 .natal-contact-list button[aria-pressed="true"]{background:#e6f1f5}
 .natal-contact-list button small{font-size:12px;line-height:1.4;white-space:normal}
-@media(max-width:360px){
-  
-  
-  
-  
-}
-@media(prefers-reduced-motion:reduce){
-  
-}
 
 
 /* Four-level navigation: Ce jour / Ce mois / Calendrier / Mon ciel.
@@ -494,10 +481,6 @@ html,body{font-size:100%;min-width:0}
 .natal-matrix-scroll,.natal-wheel-viewport{max-width:100%;scrollbar-gutter:stable}
 .natal-home,.natal-explore,.natal-compare{min-width:0}
 
-@media(min-width:800px){
-  
-  
-}
 @media(min-width:1100px){
   
   .astra-day-hero-copy{max-width:65ch}
