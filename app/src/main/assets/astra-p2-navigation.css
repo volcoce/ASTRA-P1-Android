@@ -80,7 +80,7 @@
 .astra-event-detail{scroll-margin-top:24px}
 .astra-event-detail .detail-head{gap:10px;flex-wrap:wrap}
 .astra-event-detail .card-title{font-family:var(--astra-font-display);color:var(--astra-ink)}
-.astra-event-detail .detail-tone{color:var(--astra-ink);font-size:15px}
+
 .astra-event-detail .detail-group{border-color:var(--astra-divider)}
 .astra-event-detail .detail-group h3{font-size:14px;color:var(--astra-ink)}
 .astra-event-detail .detail-group p{color:var(--astra-muted);font-size:13px;line-height:1.65}

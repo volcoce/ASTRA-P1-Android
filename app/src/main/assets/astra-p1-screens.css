@@ -13,11 +13,11 @@
   color:var(--astra-ink);font-family:var(--astra-font-display);
   font-size:clamp(19px,3vw,24px);font-weight:700;letter-spacing:-.01em
 }
-.astra-section-help{color:var(--astra-muted);max-width:65ch}
+
 
 /* CE JOUR — selected date -> lunar snapshot -> chronological movements ->
    journal -> events -> advanced active aspects */
-.astra-week-strip{margin-bottom:15px}
+
 .astra-week-day:not(.is-selected){color:var(--astra-ink)}
 .astra-day-hero{
   margin:0 0 15px;padding:23px 24px 20px;

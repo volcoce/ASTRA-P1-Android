@@ -34,7 +34,7 @@
   .natal-transit-time,.natal-explore-list,.natal-contact-section){
   background:var(--astra-surface);border-color:var(--astra-rule);color:var(--astra-ink)
 }
-:root[data-astra-theme="dark"] :is(.page-title,.card-title,.section-title,
+:root[data-astra-theme="dark"] :is(.page-title,.card-title,
   .natal-subtitle,.natal-home-header .card-title,.astra-section-head h2,
   .natal-explore-list h3,.natal-contact-section h3,
   .natal-context-bar h2,.natal-detail-body h3,.astra-moon-phase,.astra-month-event-text,.planet b,
@@ -42,9 +42,8 @@
   color:var(--astra-ink)
 }
 :root[data-astra-theme="dark"] :is(.lead,.tiny,.field-help,.muted,.natal-home-subtitle,
-  .natal-glossary dd,.natal-selected-empty,
-  .astra-section-help,.astra-empty,.astra-section-head>span,
-  .event-sub,.event-more,.event-body p,.event-body small,
+  .natal-glossary dd,.natal-selected-empty,.astra-empty,.astra-section-head>span,
+  .event-sub,.event-body p,.event-body small,
   .natal-compare-zone,.natal-contact-list button small,
   .natal-position .position-value,.natal-position .position-house,
   .natal-aspect span,
@@ -126,16 +125,13 @@
 :root[data-astra-theme="dark"] .calendar .day.selected{color:#fff;background:#245773}
 :root[data-astra-theme="dark"] .calendar .day .count{background:#9bc6dc}
 :root[data-astra-theme="dark"] .calendar .day.selected .count{background:#fff}
-:root[data-astra-theme="dark"] :is(.astra-week-day,.astra-week-caption,.astra-week-controls){
+:root[data-astra-theme="dark"] :is(.astra-week-day,.astra-week-controls){
   color:var(--astra-muted)
 }
 :root[data-astra-theme="dark"] .astra-week-day b{color:var(--astra-ink)}
 :root[data-astra-theme="dark"] .astra-week-day.is-selected{background:#245773;border-color:#6da9c5;color:#fff}
 :root[data-astra-theme="dark"] .astra-week-day.is-selected b{color:#fff}
-:root[data-astra-theme="dark"] .astra-more-events>summary{
-  color:var(--astra-ink);background:var(--astra-secondary-surface);
-  border-color:var(--astra-rule)
-}
+
 :root[data-astra-theme="dark"] .astra-day-hero,
 :root[data-astra-theme="dark"] .astra-month-hero{background:#172f42;color:#fff}
 :root[data-astra-theme="dark"] :is(.astra-day-hero .astra-moon-title,
@@ -143,27 +139,18 @@
   .astra-day-hero .astra-hero-kicker){
   color:#e1edf4
 }
-:root[data-astra-theme="dark"] :is(.astra-insight-tile,
-  .astra-insight-tile.as-sun,.astra-insight-tile.as-journal,
-  .astra-insight-tile.as-chart,.astra-lunar-milestone,
-  .astra-lunar-milestone.phase-0,.astra-lunar-milestone.phase-2,
-  .astra-month-phase.new,.astra-month-phase.full){
+:root[data-astra-theme="dark"] :is(.astra-month-phase.new,.astra-month-phase.full){
   background:var(--astra-secondary-surface);color:var(--astra-ink);border-color:var(--astra-rule)
 }
-:root[data-astra-theme="dark"] :is(.astra-insight-tile strong,
-  .astra-insight-tile small,.astra-insight-tile .astra-tile-kicker,
-  .astra-insight-tile.as-sun .astra-tile-kicker,
-  .astra-insight-tile.as-journal .astra-tile-kicker,
-  .astra-insight-tile.as-chart .astra-tile-kicker,
-  .astra-lunar-milestone strong,.astra-lunar-milestone small,
-  .astra-month-phase-copy strong,.astra-month-phase-copy small,
-  .astra-month-phase-icon,.astra-month-phase>span:last-child){
+/* Preserve historical :is() specificity (0,3,0); :not(*) never matches. */
+:root[data-astra-theme="dark"] :is(.astra-month-phase-copy strong,.astra-month-phase-copy small,
+  .astra-month-phase-icon,.astra-month-phase>span:last-child,
+  :not(*).astra-specificity-anchor[data-astra-specificity-a][data-astra-specificity-b]){
   color:var(--astra-ink)
 }
-:root[data-astra-theme="dark"] :is(.event-button,.period-trigger,.natal-matrix td button,
+:root[data-astra-theme="dark"] :is(.event-button,.natal-matrix td button,
   .natal-position,.natal-aspect){color:var(--astra-ink);border-color:var(--astra-rule)}
-:root[data-astra-theme="dark"] :is(.event-glyph,.moon-phase-badge,
-  .period-detail,.natal-contact-section .natal-contact-list){
+:root[data-astra-theme="dark"] :is(.event-glyph,.moon-phase-badge,.natal-contact-section .natal-contact-list){
   background:var(--astra-secondary-surface);border-color:var(--astra-rule);color:var(--astra-ink)
 }
 

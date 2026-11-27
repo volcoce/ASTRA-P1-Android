@@ -3,9 +3,9 @@
    Avoid altering astronomical SVG geometry or functional calendar ribbons. */
 html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--astra-font-body);line-height:var(--astra-line-height)}
 .page-title{font-family:var(--astra-font-display);font-size:var(--astra-font-size-title);font-weight:700;letter-spacing:-.025em;color:var(--astra-ink)}
-.card-title,.section-title,.month-head h2{font-family:var(--astra-font-display);color:var(--astra-ink);font-weight:700}
+.card-title,.month-head h2{font-family:var(--astra-font-display);color:var(--astra-ink);font-weight:700}
 .lead,.muted,.tiny,.field-help{color:var(--astra-muted)}
-.eyebrow,.mini-cap{color:var(--astra-brand);font-family:var(--astra-font-body)}
+
 
 /* Shared card contract. Outer geometry belongs to astra-layout.css. */
 .card{
@@ -252,15 +252,9 @@ html,body{background:var(--astra-bg);color:var(--astra-ink);font-family:var(--as
 /* Shared content utilities: no page-specific geometry. */
 .astra-disclosure-body> :first-child{margin-top:0}
 .astra-disclosure-body> :last-child{margin-bottom:0}
-.astra-disclosure-actions{display:grid;gap:8px}
-.astra-disclosure-actions>button{
-  display:flex;align-items:center;min-height:var(--astra-control-min);
-  width:100%;padding:10px 12px;text-align:left;
-  border:1px solid var(--astra-divider);border-radius:var(--astra-radius-md);
-  background:var(--astra-surface);color:var(--astra-ink);
-  font:650 14px/1.4 var(--astra-font-body)
-}
-.astra-disclosure-actions>button:hover{background:var(--astra-secondary-surface)}
+
+
+
 
 
 /* EventList: one card, a single chronological EventRow collection and
