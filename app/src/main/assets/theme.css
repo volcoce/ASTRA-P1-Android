@@ -110,7 +110,7 @@
   .natal-aspect[aria-pressed="true"],.natal-highlight[aria-pressed="true"]){
   color:#fff;background:#2d5067;border-color:#94c5d9
 }
-:root[data-astra-theme="dark"] :is(.mood span:last-child,.tag-button,.natal-aspect>span:last-child){
+:root[data-astra-theme="dark"] :is(.tag-button,.natal-aspect>span:last-child){
   color:#c1d1dc
 }
 :root[data-astra-theme="dark"] :is(.calendar .day,.calendar .weekday,

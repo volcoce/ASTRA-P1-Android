@@ -23,7 +23,7 @@
 .natal-wheel.wheel-modern .wheel-zodiac-sector.is-odd{fill:#e8f1f6}
 .natal-wheel.wheel-modern .zodiac-symbol{
   fill:#28516a;
-  font-family:Georgia,"Times New Roman",serif;
+  font-family:var(--astra-font-glyph);
   font-weight:700;
   font-size:18px;
   paint-order:stroke;
@@ -106,7 +106,7 @@
 }
 .natal-wheel.wheel-modern .natal-planet-hit .natal-planet{
   fill:#23455e;
-  font-family:Georgia,"Times New Roman",serif;
+  font-family:var(--astra-font-glyph);
   font-weight:700;
   font-size:20px;
 }
