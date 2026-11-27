@@ -85,22 +85,20 @@
 .natal-wheel.wheel-modern .wheel-aspect-line.is-emphasized{
   stroke-width:2.35;
 }
-.natal-wheel.wheel-modern .wheel-planet-leader,
-.natal-wheel.wheel-modern .natal-leader line{
+.natal-wheel.wheel-modern .wheel-planet-leader{
   stroke:#819bad;
   stroke-width:1.15;
   stroke-linecap:round;
   pointer-events:none;
 }
-.natal-wheel.wheel-modern .wheel-true-anchor,
-.natal-wheel.wheel-modern .natal-leader circle{
+.natal-wheel.wheel-modern .wheel-true-anchor{
   fill:#446a83;
   stroke:#fff;
   stroke-width:.75;
   pointer-events:none;
 }
-.natal-wheel.wheel-modern .natal-leader.is-active line{stroke:#245d7d;stroke-width:1.75}
-.natal-wheel.wheel-modern .natal-leader.is-active circle{fill:#174e71}
+
+
 .natal-wheel.wheel-modern .natal-planet-hit .wheel-planet-disc{
   fill:#fff;
   stroke:#a7bfcd;

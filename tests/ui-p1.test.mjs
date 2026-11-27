@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
+import postcss from 'postcss';
 
 const app = readFileSync(new URL('../app/src/main/assets/app.js', import.meta.url), 'utf8');
 const css = readFileSync(new URL('../app/src/main/assets/atlas-ui.css', import.meta.url), 'utf8');
@@ -86,7 +87,15 @@ test('P1: dynamic titles, deferred heading focus and reduced motion are implemen
 
 test('P1: responsive CSS includes compact, tablet and desktop breakpoints', () => {
   assert.match(css,/@media\(max-width:400px\)/);
-  assert.match(css,/@media\(min-width:800px\)/);
+  // Tablet geometry belongs to the shared layout, not the legacy Atlas layer.
+  const layout = postcss.parse(readFileSync(new URL('../app/src/main/assets/astra-layout.css', import.meta.url), 'utf8'));
+  let tablet = false;
+  layout.walkAtRules('media', rule => {
+    if (rule.params.replace(/\s+/g, '') === '(min-width:800px)') {
+      rule.walkDecls(() => { tablet = true; });
+    }
+  });
+  assert.ok(tablet, 'Shared layout must contain active tablet declarations at 800px');
   assert.match(css,/@media\(min-width:1100px\)/);
   assert.match(css,/font-size:\.875rem/);
   assert.match(components,/\.bottom-nav \.nav-label\{/);

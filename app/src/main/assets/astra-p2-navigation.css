@@ -22,7 +22,7 @@
 .natal-back:hover{background:var(--astra-secondary-surface)}
 .natal-subpage-heading{gap:10px;margin-bottom:18px}
 .natal-subpage-heading .card-title{font-family:var(--astra-font-display);color:var(--astra-ink)}
-.natal-section-lead{color:var(--astra-muted);line-height:1.5}
+
 
 /* Journal: the editor uses the global .astra-card--emphasis variant. */
 
@@ -69,18 +69,17 @@
 }
 
 /* Event rows and interpretation sheets. Preserve inline detail focus behavior. */
-.astra-event-feed .event-button,.astra-month-event,.astra-calendar-inspector-event{
+.astra-event-feed .event-button,.astra-calendar-inspector-event{
   transition:background-color var(--astra-p2-duration) var(--astra-p2-ease)
 }
-.astra-event-feed .event-button:hover,
-.astra-month-event:hover,.astra-calendar-inspector-event:hover{
+.astra-event-feed .event-button:hover,.astra-calendar-inspector-event:hover{
   background:var(--astra-secondary-surface)
 }
 .astra-event-feed .event-button:focus-visible{outline-offset:-1px}
 .astra-event-detail{scroll-margin-top:24px}
 .astra-event-detail .detail-head{gap:10px;flex-wrap:wrap}
 .astra-event-detail .card-title{font-family:var(--astra-font-display);color:var(--astra-ink)}
-.astra-event-detail .detail-tone{color:var(--astra-ink);font-size:15px}
+
 .astra-event-detail .detail-group{border-color:var(--astra-divider)}
 .astra-event-detail .detail-group h3{font-size:14px;color:var(--astra-ink)}
 .astra-event-detail .detail-group p{color:var(--astra-muted);font-size:13px;line-height:1.65}
@@ -90,8 +89,7 @@
 
 /* Secondary screens: settings, natal exploration and diagnostic panels. */
 /* Settings cards use the shared .astra-reading-card geometry from astra-layout.css. */
-.astra-settings-section .card-title,.astra-birth-settings .card-title,
-.astra-privacy-settings .card-title{font-family:var(--astra-font-display)}
+.astra-settings-section .card-title,.astra-birth-settings .card-title{font-family:var(--astra-font-display)}
 .astra-appearance-options{gap:8px}
 .astra-appearance-options button{
   background:var(--astra-secondary-surface);border:1px solid var(--astra-divider);
@@ -102,7 +100,7 @@
   border:2px solid var(--astra-primary-ink)
 }
 .natal-more-options,.natal-glossary,.calculation-details,
-.natal-preview-disclosure,.natal-focus-legend{
+.natal-preview-disclosure{
   border-color:var(--astra-divider);color:var(--astra-ink)
 }
 :is(.natal-more-options,.natal-glossary,.calculation-details,
@@ -111,7 +109,7 @@
 }
 :is(.natal-more-options,.natal-glossary,.calculation-details,
 .natal-preview-disclosure)[open]>summary{color:var(--astra-brand-strong)}
-.natal-focus-close,.natal-focus-launch button{min-height:44px}
+
 .astra-performance-scroll{border-color:var(--astra-divider)}
 .astra-performance thead th{background:var(--astra-secondary-surface)}
 
@@ -135,7 +133,7 @@
   *,*::before,*::after{scroll-behavior:auto!important}
   .astra-event-detail{animation:none!important}
   .astra-journal-editor .mood,
-  .astra-event-feed .event-button,.astra-month-event{transition:none!important}
+  .astra-event-feed .event-button{transition:none!important}
 }
 @media(max-width:400px){
   .astra-journal-editor .mood-row{gap:3px}
@@ -144,16 +142,9 @@
 }
 
 /* Reading an aspect: meaning first, planet roles second, measurement last. */
-.astra-angle-help{
-  margin-top:14px;border-top:1px solid var(--astra-divider);padding-top:6px;
-}
-.astra-angle-help>summary{
-  cursor:pointer;min-height:44px;padding:10px 0;
-  font-size:15px;font-weight:750;color:var(--astra-brand-strong);
-}
-.astra-angle-help>summary:focus-visible{
-  outline:3px solid var(--astra-focus);outline-offset:2px;border-radius:var(--astra-radius-sm);
-}
+
+
+
 .astra-angle-reading{
   display:grid;gap:12px;margin-top:12px;min-width:0;
   color:var(--astra-ink);font-size:15px;line-height:1.5;
@@ -174,9 +165,7 @@
   padding-top:10px;border-top:1px solid var(--astra-divider);
   font-variant-numeric:tabular-nums;
 }
-.astra-angle-reading .astra-angle-note{
-  color:var(--astra-muted);font-size:13px;
-}
+
 @media(max-width:400px){
   .astra-angle-roles{grid-template-columns:1fr}
 }
@@ -270,9 +259,7 @@
   margin:4px 0 10px;box-shadow:none;border-radius:var(--astra-radius-md);
   background:var(--astra-secondary-surface);
 }
-.astra-event-detail--compact .astra-event-data-note{
-  font-size:12px;color:var(--astra-muted);
-}
+
 .astra-angle-reading .astra-angle-roles{
   display:block;margin:4px 0;border-top:1px solid var(--astra-divider);
 }
