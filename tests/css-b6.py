@@ -53,6 +53,10 @@ def capture_worker(report_path):
       const snapshot = () => ({
         viewport: [innerWidth, innerHeight, devicePixelRatio],
         document: [document.documentElement.scrollWidth, document.documentElement.scrollHeight],
+        scroll: [scrollX, scrollY],
+        nav: (() => { const e=document.querySelector('.bottom-nav'); if(!e)return null;
+          const r=e.getBoundingClientRect(); return {position:getComputedStyle(e).position,
+            rect:[r.x,r.y,r.width,r.height]}; })(),
         fonts: [...document.fonts].map(f => [f.family, f.style, f.weight, f.status]),
         svgText: [...document.querySelectorAll('svg text')].filter(e => e.getClientRects().length).map(e => {
           const b = e.getBBox(), m = e.getScreenCTM(), r = e.getBoundingClientRect(), s = getComputedStyle(e);
@@ -75,16 +79,47 @@ def capture_worker(report_path):
     def screenshot(page, *args, **kwargs):
         path = kwargs.get('path')
         name = Path(path).name if path else ''
-        if not name.startswith('overview-'):
+        disclosure = name in ('event-disclosure-padded-mobile-320.png',
+                              'event-disclosure-padded-desktop-1280.png')
+        if not (name.startswith('overview-') or disclosure):
             return original(page, *args, **kwargs)
-        before = page.evaluate(settle)
-        result = original(page, *args, **kwargs)
-        after = page.evaluate(settle)
-        report.append({'case': name, 'browser': page.context.browser.version,
-                       'before': before, 'after': after})
-        if before != after:
-            raise RuntimeError(f'{name}: SVG/font geometry changed across capture')
-        return result
+        raw = page.evaluate(settle)
+        entry = {'case': name, 'browser': page.context.browser.version, 'raw': raw}
+        report.append(entry)
+        try:
+            if disclosure:
+                # Full-page Chromium screenshots paint fixed elements at the current
+                # scroll offset. The historical fixture resizes after a focus/click
+                # without setting that offset. Capture the expanded panel at the
+                # same semantic position (end of document) in every worktree.
+                if not kwargs.get('full_page'):
+                    raise RuntimeError(f'{name}: expected full-page screenshot')
+                if not raw['nav'] or raw['nav']['position'] != 'fixed':
+                    raise RuntimeError(f'{name}: navbar is not fixed')
+                page.evaluate("""() => window.scrollTo({left:0,
+                  top:document.scrollingElement.scrollHeight,behavior:'instant'})""")
+            before = page.evaluate(settle)
+            entry['before'] = before
+            if disclosure:
+                at_bottom = page.evaluate("""() => scrollX === 0 &&
+                  Math.abs(scrollY-(document.scrollingElement.scrollHeight-
+                    document.scrollingElement.clientHeight)) <= 1""")
+                if not at_bottom or before['nav'] != raw['nav']:
+                    raise RuntimeError(f'{name}: canonical scroll or fixed navbar geometry invalid')
+            result = original(page, *args, **kwargs)
+            after = page.evaluate(settle)
+            entry['after'] = after
+            if before != after:
+                raise RuntimeError(f'{name}: geometry changed across capture')
+            return result
+        finally:
+            if disclosure:
+                page.evaluate("""p => window.scrollTo({left:p[0],top:p[1],behavior:'instant'})""",
+                              raw['scroll'])
+                restored = page.evaluate(settle)
+                entry['restored'] = restored
+                if restored['scroll'] != raw['scroll']:
+                    raise RuntimeError(f'{name}: failed to restore original scroll position')
     Page.screenshot = screenshot
     try:
         tests = Path.cwd() / 'tests'
@@ -93,8 +128,12 @@ def capture_worker(report_path):
     finally:
         Page.screenshot = original
         write(report_path, report)
-    if len(report) != 7 or len({row['case'] for row in report}) != 7:
-        raise RuntimeError('B6 capture: missing overview diagnostics')
+    cases = [row['case'] for row in report]
+    if (len(cases) != 9 or len(set(cases)) != 9 or
+        sum(name.startswith('overview-') for name in cases) != 7 or
+        not {'event-disclosure-padded-mobile-320.png',
+             'event-disclosure-padded-desktop-1280.png'} <= set(cases)):
+        raise RuntimeError('B6 capture: missing overview or disclosure diagnostics')
 
 
 def capture(label, ref, dest, repeat=False):
@@ -242,6 +281,9 @@ def main():
            ('baseline-repeat','b5-repeat')]
     comparisons={a+'--'+b:compare_images(OUT/a,OUT/b,OUT/'diffs'/(a+'--'+b)) for a,b in pairs}
     write(OUT/'visual.json',comparisons)
+    for pair, comparison in comparisons.items():
+        for diff in comparison['differences']:
+            print('B6 visual difference:', pair, json.dumps(diff), flush=True)
     write(OUT/'b2-observed-delta.json',observed_delta(OUT/'b1',OUT/'b2'))
     write(OUT/'final-observed-delta.json',observed_delta(OUT/'baseline',OUT/'b5'))
     rows=residual(OUT/'b5')
